@@ -1,0 +1,168 @@
+#!/bin/sh
+######################################################################################################
+# Description: This script will install the lighttpd webserver
+# Author: Peter Winter
+# Date: 17/01/2017
+#######################################################################################################
+# License Agreement:
+# This file is part of The Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+#######################################################################################################
+#######################################################################################################
+set -x
+
+if ( [ "${1}" != "" ] )
+then
+	buildos="${1}"
+fi
+
+if ( [ "${buildos}" = "" ] )
+then
+	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+else 
+	BUILDOS="${buildos}"
+fi
+
+apt=""
+if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
+then
+	apt="/usr/bin/apt"
+elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
+then
+	apt="/usr/bin/apt-get"
+fi
+
+export DEBIAN_FRONTEND=noninteractive
+update_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y update " 
+install_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y install " 
+
+${HOME}/installation/PurgeApache.sh
+
+count="0"
+while ( [ ! -f /usr/sbin/lighttpd ] && [ "${count}" -lt "5" ] )
+do
+	if ( [ "${apt}" != "" ] )
+	then
+		if ( [ "${BUILDOS}" = "ubuntu" ] )
+		then
+			if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+			then
+				eval ${install_command} apache2-utils
+			fi
+			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
+			then
+				if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:source'`" = "1" ] )
+				then
+					if ( [ ! -f /etc/lighttpd/BUILT_FROM_SOURCE ] )
+					then
+						eval ${update_command} 
+						software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:software-packages" "stripped"`"
+						if ( [ "${software_package_list}" != "" ] )
+						then
+							 ${software_package_list}
+						fi
+						${HOME}/installation/lighttpd/BuildLighttpdFromSource.sh 		
+					fi
+				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
+				then
+					eval ${install_command} lighttpd
+					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+					then
+						modules_list="mod_fastcgi"
+					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
+					then
+						modules_list="mod_openssl mod_accesslog mod_deflate mod_setenv mod_access mod_expire mod_compress mod_redirect mod_rewrite mod_proxy mod_auth mod_authn_file"
+					elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
+					then
+						modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:modules-list" "stripped"`"
+					fi
+					if ( [ "${modules_list}" != "" ] )
+					then
+						/bin/echo "server.modules = (" > /etc/lighttpd/modules.conf
+						for module in ${modules_list}
+						do
+							/bin/echo '"'${module}'",' >> /etc/lighttpd/modules.conf
+						done
+						/usr/bin/truncate -s -2 /etc/lighttpd/modules.conf
+						/bin/echo "" >> /etc/lighttpd/modules.conf
+						/bin/echo ")" >> /etc/lighttpd/modules.conf
+					else
+						/bin/echo "" > /etc/lighttpd/modules.conf
+					fi
+					/bin/touch /etc/lighttpd/BUILT_FROM_REPO
+				fi
+			fi
+		fi
+
+		if ( [ "${BUILDOS}" = "debian" ] )
+		then
+			if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+			then
+				eval ${install_command} apache2-utils
+			fi
+			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
+			then
+				if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:source'`" = "1" ] )
+				then
+					if ( [ ! -f /etc/lighttpd/BUILT_FROM_SOURCE ] )
+					then
+						eval ${update_command} 
+						software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:software-packages" "stripped"`"
+						if ( [ "${software_package_list}" != "" ] )
+						then
+							eval ${install_command} ${software_package_list}
+						fi			
+						${HOME}/installation/lighttpd/BuildLighttpdFromSource.sh 		
+					fi
+				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
+				then
+					eval ${install_command} lighttpd
+					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+					then
+						modules_list="mod_fastcgi"
+					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
+					then
+						modules_list="mod_openssl mod_accesslog mod_deflate mod_setenv mod_access mod_expire mod_compress mod_redirect mod_rewrite mod_proxy mod_auth mod_authn_file"
+					elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
+					then
+						modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:modules-list" "stripped"`"
+					fi
+					
+					if ( [ "${modules_list}" != "" ] )
+					then
+						/bin/echo "server.modules = (" > /etc/lighttpd/modules.conf
+						for module in ${modules_list}
+						do
+							/bin/echo '"'${module}'",' >> /etc/lighttpd/modules.conf
+						done
+						/usr/bin/truncate -s -2 /etc/lighttpd/modules.conf
+						/bin/echo "" >> /etc/lighttpd/modules.conf
+						/bin/echo ")" >> /etc/lighttpd/modules.conf
+					else
+						/bin/echo "" > /etc/lighttpd/modules.conf
+					fi
+					
+					/bin/touch /etc/lighttpd/BUILT_FROM_REPO
+				fi
+			fi
+		fi
+	fi
+	count="`/usr/bin/expr ${count} + 1`"
+done
+
+if ( [ ! -f /usr/sbin/lighttpd ] && [ "${count}" = "5" ] )
+then
+	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR LIGHTTPD" "I believe that lighttpd hasn't installed correctly, please investigate" "ERROR"
+else
+	/bin/touch ${HOME}/runtime/installedsoftware/InstallLighttpd.sh					
+fi
+

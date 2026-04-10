@@ -1,0 +1,218 @@
+#!/bin/sh
+######################################################################################################
+# Description: This will install and compile apache from source code. This has the advantage that its
+# the latest version of apache will be used when sometimes repositories can use more dated versions.
+# You also have control over what features of apache are intalled by varying the options which are 
+# used during the compilation. You can configure custom options by modifying the file:
+#
+#  ${BUILD_HOME}/builddescriptors/buildstylesscp.dat
+#
+# on the your build machine. 
+# Author: Peter Winter
+# Date: 17/01/2017
+#######################################################################################################
+# License Agreement:
+# This file is part of The Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+#######################################################################################################
+#######################################################################################################
+#set -x
+
+export HOME=`/bin/cat /home/homedir.dat`
+
+BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+
+if ( [ ! -d /usr/local/apache2 ] )
+then
+        /bin/mkdir /usr/local/apache2
+fi
+
+if ( [ -d /etc/apache2 ] )
+then
+        /bin/mkdir /etc/apache2
+fi
+
+cwd="`/usr/bin/pwd`"
+
+cd /usr/local/src/
+
+
+apache_git_branch="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:git-branch" "stripped"`"
+apr_git_branch="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:apr:git-branch" "stripped"`"
+apr_util_git_branch="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:apr-util:git-branch" "stripped"`"
+
+apache_sourcecode_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:sourcecode_url" "stripped"`"
+apache_sha256_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:sha256_url" "stripped"`"
+apache_sha512_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:sha512_url" "stripped"`"
+
+apr_sourcecode_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:apr_sourcecode_url" "stripped"`"
+apr_sha256_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:apr_sha256_url" "stripped"`"
+
+apr_util_sourcecode_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:apr_util_sourcecode_url" "stripped"`"
+apr_util_sha256_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:apr_util_sha256_url" "stripped"`"
+
+
+if ( [ "${apache_git_branch}" != "" ] && [ "${apr_git_branch}" != "" ] && [ "${apr_util_git_branch}" != "" ] )
+then
+        /usr/bin/git config --global advice.detachedHead false
+        ${HOME}/services/git/GitClone.sh "github" "" "apache" "httpd" "" "${apache_git_branch}"
+        cd httpd
+        ${HOME}/services/git/GitClone.sh "github" "" "apache" "apr" "" "${apr_git_branch}" "srclib/apr"
+        ${HOME}/services/git/GitClone.sh "github" "" "apache" "apr-util" "" "${apr_util_git_branch}" "srclib/apr-util"
+        ./buildconf
+elif ( [ "${apache_sourcecode_url}" != "" ] && ( [ "${apache_sha256_url}" != "" ] || [ "${apache_sha512_url}" != "" ] ) )
+then
+        /usr/bin/wget ${apache_sourcecode_url}
+        /usr/bin/wget ${apache_sha256_url}
+        /usr/bin/wget ${apache_sha512_url}
+
+        apache_sourcecode_file="`/bin/echo ${apache_sourcecode_url} | /usr/bin/awk -F'/' '{print $NF}'`"
+        apache_sha256_file="`/bin/echo ${apache_sha256_url} | /usr/bin/awk -F'/' '{print $NF}'`"
+        apache_sha512_file="`/bin/echo ${apache_sha512_url} | /usr/bin/awk -F'/' '{print $NF}'`"
+        verified="no"
+        if ( [ "`/usr/bin/sha256sum --check /usr/local/src/${apache_sha256_file} | /bin/grep "OK"`" != "" ] )
+        then
+                verified="yes"
+        fi
+
+        if ( [ "`/usr/bin/sha512sum --check /usr/local/src/${apache_sha512_file} | /bin/grep "OK"`" != "" ] )
+        then
+                verified="yes"
+        fi
+
+        if ( [ "${verified}" = "no" ] )
+        then
+                exit
+        fi
+
+        /bin/tar -xvzf /usr/local/src/${apache_sourcecode_file} -C /usr/local/src
+        /bin/rm /usr/local/src/*tar*
+        /bin/mv  /usr/local/src/httpd-* /usr/local/src/httpd
+
+        cd /usr/local/src 
+
+        /usr/bin/wget ${apr_sourcecode_url}
+        /usr/bin/wget ${apr_sha256_url}
+
+        apr_sourcecode_file="`/bin/echo ${apr_sourcecode_url} | /usr/bin/awk -F'/' '{print $NF}'`"
+        apr_sha256_file="`/bin/echo ${apr_sha256_url} | /usr/bin/awk -F'/' '{print $NF}'`"
+
+        verified="no"
+        if ( [ "`/usr/bin/sha256sum --check /usr/local/src/${apr_sha256_file} | /bin/grep "OK"`" != "" ] )
+        then
+                verified="yes"
+        fi
+
+        if ( [ "${verified}" = "no" ] )
+        then
+                exit
+        fi
+
+        /bin/tar -xvzf /usr/local/src/${apr_sourcecode_file} -C /usr/local/src/httpd/srclib
+        /bin/rm /usr/local/src/*tar*
+
+        /bin/mv /usr/local/src/httpd/srclib/apr* /usr/local/src/httpd/srclib/apr
+
+        cd /usr/local/src
+
+        /usr/bin/wget ${apr_util_sourcecode_url}
+        /usr/bin/wget ${apr_util_sha256_url}
+
+        apr_util_sourcecode_file="`/bin/echo ${apr_util_sourcecode_url} | /usr/bin/awk -F'/' '{print $NF}'`"
+        apr_util_sha256_file="`/bin/echo ${apr_util_sha256_url} | /usr/bin/awk -F'/' '{print $NF}'`"
+
+        verified="no"
+        if ( [ "`/usr/bin/sha256sum --check /usr/local/src/${apr_util_sha256_file} | /bin/grep "OK"`" != "" ] )
+        then
+                verified="yes"
+        fi
+
+        if ( [ "${verified}" = "no" ] )
+        then
+                exit
+        fi
+
+        /bin/tar -xvzf /usr/local/src/${apr_util_sourcecode_file} -C /usr/local/src/httpd/srclib
+        /bin/rm /usr/local/src/*tar*
+
+        /bin/mv /usr/local/src/httpd/srclib/apr-util* /usr/local/src/httpd/srclib/apr-util
+fi
+
+cd /usr/local/src/httpd
+
+#Get the list of custom modules we are building, if any at all
+
+if ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
+then
+        apache_modules="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd log_config logio rewrite mime socache_shmcb dir authn_core auth_basic authn_file authz_user authz_core authz_host"
+else
+        apache_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:modules-list" "stripped" | /bin/sed 's/source//g'`" 
+fi
+
+apache_static_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:static-modules-list" "stripped" | /bin/sed 's/source//g'`"
+
+if ( [ "`/bin/echo ${apache_static_modules} | /bin/grep mpm_prefork`" ] )
+then
+        mpm_style="prefork"
+elif ( [ "`/bin/echo ${apache_static_modules} | /bin/grep mpm_worker`" ] )
+then
+        mpm_style="worker"
+elif ( [ "`/bin/echo ${apache_static_modules} | /bin/grep mpm_event`" ] )
+then
+        mpm_style="event"
+fi
+
+#If we are configured with a custom list of modules, build with the modules otherwise perform our default build
+if ( [ "${apache_modules}" != "" ] )
+then
+
+        options=' --enable-layout=Debian --with-program-name=apache2 --host=x86_64-pc-linux-gnu --target=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/ --sysconfdir=/etc/apache2 --enable-mods-shared="'${apache_modules}'"  --enable-nonportable-atomics=yes --with-mpm='${mpm_style}' --with-nghttp2 --enable-ssl --enable-so --enable-http2  --enable-deflate --without-pdo-sqlite --without-sqlite3'
+else
+        options=" --enable-layout=Debian --with-program-name=apache2 --host=x86_64-pc-linux-gnu --target=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/ --sysconfdir=/etc/apache2 --enable-mods-shared=all --enable-nonportable-atomics=yes --with-mpm='${mpm_style}' --with-nghttp2 --enable-ssl --enable-so --enable-http2  --enable-deflate --without-pdo-sqlite --without-sqlite3"  
+fi
+
+if ( [ "${apache_static_modules}" != "" ] )
+then
+        options="${options}"' --enable-mods-static="'${apache_static_modules}'"'
+fi
+
+./configure ${options}
+
+/usr/bin/make
+/usr/bin/make install
+
+if ( [ ! -f /etc/apache2/modules.conf ] )
+then
+        /bin/touch /etc/apache2/modules.conf
+else
+        /bin/cp /dev/null /etc/apache2/modules.conf
+fi
+
+for apache_module in ${apache_modules}
+do
+        /bin/echo "LoadModule ${apache_module}_module /usr/lib/apache2/modules/mod_${apache_module}.so" >> /etc/apache2/modules.conf
+done
+
+#Make apache avaiable as a service and enable and start it
+if ( [ -f ${HOME}/installation/apache/apache.service ] )
+then 
+        /bin/cp ${HOME}/installation/apache/apache.service /lib/systemd/system/apache2.service
+        /bin/chmod 644 /lib/systemd/system/apache2.service
+fi
+
+${HOME}/utilities/processing/RunServiceCommand.sh apache2 enable
+${HOME}/utilities/processing/RunServiceCommand.sh apache2 start
+
+cd ${cwd}
+
+/bin/touch /etc/apache2/BUILT_FROM_SOURCE
+/bin/touch ${HOME}/runtime/installedsoftware/InstallApache.sh

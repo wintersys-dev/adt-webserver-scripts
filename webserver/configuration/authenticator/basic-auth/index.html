@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Auth Password Initialisation</title>
+</head>
+
+    <body>
+        <div class="main">
+                <h2>Please provide your email address which must be for a: @XXXXUSEREMAILDOMAINXXXX domain as well as your previous basic auth passsword.</h2>
+                <h2>If you don't know your previous password, please contact an administrator who will set a new one for you</h2> 
+                <h2>Or you have never set a password here before leave 'previous password' set to 'none' and I will sort it for you</h2>
+                <h2>You will receive your new password at the email address you enter which you can then use to authenticate at the popup you will see at the main site</h2>
+            <form action="submit.php" method="post">
+                <input type="email" name="email" placeholder="Email Address:" pattern=".*@XXXXUSEREMAILDOMAINXXXX" required autocomplete="off" onkeydown="return (event.keyCode!=13);" >
+                <br></br>
+                <input type="text" name="previous_password" placeholder="Previous Password:" value="none" onkeydown="return (event.keyCode!=13);" > 
+                <br></br> 
+                <input title="" type="submit" name="submit" value="Submit">
+            </form>
+        </div>
+    </body>
+</html>

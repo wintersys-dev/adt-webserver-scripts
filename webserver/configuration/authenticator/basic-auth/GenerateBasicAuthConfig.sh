@@ -1,0 +1,60 @@
+#!/bin/sh
+
+#set -x
+
+WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+USER_EMAIL_DOMAIN="`${HOME}/utilities/config/ExtractConfigValue.sh 'USEREMAILDOMAIN'`"
+machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
+
+if ( [ ! -d ${HOME}/runtime/authenticator ] )
+then
+        /bin/mkdir -p ${HOME}/runtime/authenticator 
+fi
+
+basic_auth_file="${HOME}/runtime/authenticator/basic-auth.dat"
+basic_auth_previous_credentials="${HOME}/runtime/authenticator/previous-basic-auth-credentials.dat"
+
+/bin/touch ${basic_auth_previous_credentials}
+
+if ( [ -f /tmp/basic-auth.dat ] )
+then
+        /bin/mv /tmp/basic-auth.dat ${basic_auth_file}.$$
+else
+        exit
+fi
+
+for data in `/bin/cat ${basic_auth_file}.$$`
+do
+        username="`/bin/echo ${data} | /usr/bin/awk -F':' '{print $1}'`"
+        previous_password="`/bin/echo ${data} | /usr/bin/awk -F':' '{print $2}'`"
+
+        if ( ( [ "${previous_password}" = "none" ] && [ "`/bin/grep "^${username}:" ${basic_auth_previous_credentials}`" = "" ] ) || ( [ "`/bin/grep "^${username}:${previous_password}$" ${basic_auth_previous_credentials}`" != "" ] ) )
+        then
+                if ( [ "`/bin/echo ${username} | /bin/grep "${USER_EMAIL_DOMAIN}$"`" != "" ] )
+                then
+                        password="p`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-z0-9' | /usr/bin/cut -b 1-8`p"
+
+                        if ( [ ! -f ${basic_auth_file} ] )
+                        then
+                                /usr/bin/htpasswd -b -c ${basic_auth_file} ${username} ${password}
+                        else
+                                /usr/bin/htpasswd -b ${basic_auth_file} ${username} ${password}
+                        fi
+
+                        message="<!DOCTYPE html> <html> <body> <h1>The basic auth password you requested for ${WEBSITE_URL} is: ${password} </body> </html>"
+                        ${HOME}/services/email/SendEmail.sh "Basic Auth password request" "${message}" MANDATORY ${username} "HTML" "AUTHENTICATION"
+                        /bin/sed -i "/${username}:${previous_password}/d" ${basic_auth_previous_credentials}
+                        /bin/echo "${username}:${password}" >> ${basic_auth_previous_credentials}
+
+                        if ( [ -f ${basic_auth_file} ] )
+                        then
+                                /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
+                                ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
+                                ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
+                               /bin/rm ${basic_auth_file}.${machine_ip}
+                        fi     
+                fi
+        fi      
+done
+
+

@@ -1,0 +1,12 @@
+[Unit]
+Description=The Apache HTTP Server
+After=network.target
+
+[Service]
+ExecStart=/etc/init.d/apache2 start 
+ExecReload=/etc/init.d/apache2 reload
+ExecStop=/etc/init.d/apache2 stop
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
