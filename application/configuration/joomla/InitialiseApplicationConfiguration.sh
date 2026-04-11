@@ -214,6 +214,11 @@ fi
 /bin/echo "JOOMLA" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
+if ( [ ! -f ${webroot_directory}/.htaccess ] && [ -f ${webroot_directory}/htaccess.default ] )
+then
+        /bin/cp ${webroot_directory}/htaccess.default ${webroot_directory}/.htaccess
+fi
+
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
 then
         if ( [ -f ${webroot_directory}/htaccess.txt ] )
@@ -224,6 +229,12 @@ then
                 fi
                 /bin/cp ${webroot_directory}/htaccess.default ${webroot_directory}/.htaccess
         fi
+fi
+
+if ( [ -f ${webroot_directory}/.htaccess ] )
+then
+        /bin/chown www-data:www-data ${webroot_directory}/.htaccess
+        /bin/chmod 440 ${webroot_directory}/.htaccess
 fi
 
 if ( [ -f ${webroot_directory}/configuration.php ] )
