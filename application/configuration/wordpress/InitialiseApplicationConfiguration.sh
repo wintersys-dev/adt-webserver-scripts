@@ -183,7 +183,7 @@ fi
 if ( [ -f ${webroot_directory}/.htaccess ] )
 then
         /bin/chown www-data:www-data ${webroot_directory}/.htaccess
-        /bin/chmod 440 ${webroot_directory}/.htaccess
+        /bin/chmod 400 ${webroot_directory}/.htaccess
         /bin/chmod www-data:www-data ${webroot_directory}/.htaccess      
 fi
 
