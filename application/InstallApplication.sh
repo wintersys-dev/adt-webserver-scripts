@@ -41,6 +41,10 @@ else
         /bin/mkdir -p /var/www/html
 fi
 
+#First make sure that the php modules required for the current application are installed to satisfy any checks that are issued during installation
+${HOME}/installation/InstallPHPApplication.sh ${BUILDOS}
+${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart 2>/dev/null
+
 cd /var/www/html
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "${BUILD_ARCHIVE_CHOICE}" = "virgin" ] && [ "${APPLICATION}" != "none" ] )
@@ -74,9 +78,6 @@ then
 else
         ${HOME}/services/email/SendEmail.sh "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "The application sourcecode from the datastore: ${BUILD_ARCHIVE_CHOICE} has been not been installed or is not online for some reason" "ERROR"
 fi
-
-${HOME}/installation/InstallPHPApplication.sh ${BUILDOS}
-${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart 2>/dev/null
 
 ${HOME}/utilities/security/EnforcePermissions.sh &
 /bin/rm -rf /var/www/html/.git
