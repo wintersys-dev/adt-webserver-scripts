@@ -19,6 +19,8 @@
 #######################################################################################################
 #######################################################################################################
 
+PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
+
 if ( [ "${1}" != "" ] )
 then
 	buildos="${1}"
@@ -54,7 +56,7 @@ do
 		then
 			${HOME}/utilities/processing/RunServiceCommand.sh cron stop				
 			eval ${update_command}			
-			eval ${install_command} php-cli unzip	
+			eval ${install_command} php${PHP_VERSION}-cli unzip	
 			cd ~												
 			/usr/bin/curl -sS https://getcomposer.org/installer -o /opt/composer-setup.php			
 			HASH=`/usr/bin/curl -sS https://composer.github.io/installer.sig`				
@@ -67,7 +69,7 @@ do
 		then
 			${HOME}/utilities/processing/RunServiceCommand.sh cron stop				
 			eval ${update_command}			
-			eval ${install_command} php-cli unzip
+			eval ${install_command} php${PHP_VERSION}-cli unzip
 			cd ~												
 			/usr/bin/curl -sS https://getcomposer.org/installer -o /opt/composer-setup.php			
 			HASH=`/usr/bin/curl -sS https://composer.github.io/installer.sig`				
