@@ -26,7 +26,7 @@ for applicationdir in `/bin/ls -d ${HOME}/application/configuration/*/ | /bin/se
 do
         if ( [ "${APPLICATION}" = "${applicationdir}" ] )
         then
-                ${HOME}/application/configuration/${APPLICATION}/InstallVirginDeployment.sh
+                ${HOME}/application/configuration/${APPLICATION}/InstallVirginApplication.sh
                 break
         fi
 done
