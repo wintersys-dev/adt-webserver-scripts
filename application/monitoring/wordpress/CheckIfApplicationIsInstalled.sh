@@ -36,7 +36,7 @@ then
 	directories="`/bin/grep "^APPLICATION_INTEGRITY_DIRECTORIES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
 	for directory in ${directories}
 	do
-		if ( [ ! -d /var/www/html/${directory} ] )
+		if ( [ ! -d ${webroot_directory}/${directory} ] )
 		then
 			installed="0"
 		fi
@@ -45,7 +45,7 @@ then
 	files="`/bin/grep "^APPLICATION_INTEGRITY_FILES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_FILES://g' | /bin/sed 's/:/ /g'`"
 	for file in ${files}
 	do
-		if ( [ ! -f /var/www/html/${file} ] )
+		if ( [ ! -f ${webroot_directory}/${file} ] )
 		then
 			installed="0"
 		fi
