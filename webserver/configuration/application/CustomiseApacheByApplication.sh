@@ -77,11 +77,17 @@ then
         then
                 webroot_directory="/var/www/html/moodle"
         fi
+
         if ( [ -f /etc/apache2/sites-available/${WEBSITE_NAME} ] )
         then
-                if ( [ "`/bin/grep "${webroot_directory}" /etc/apache2/sites-available/${WEBSITE_NAME}`" = "" ] )
+                if ( [ "`/bin/grep "DocumentRoot /var/www/html" /etc/apache2/sites-available/${WEBSITE_NAME}`" != "" ] )
                 then
-                        /bin/sed -i "s;/var/www/html;${webroot_directory}/public;" /etc/apache2/sites-available/${WEBSITE_NAME}
+                        /bin/sed -i "s;/var/www/html;DocumentRoot ${webroot_directory}/public;" /etc/apache2/sites-available/${WEBSITE_NAME}
+                fi
+                
+                if ( [ "`/bin/grep "Directory /var/www/html$" /etc/apache2/sites-available/${WEBSITE_NAME}`" != "" ] )
+                then
+                        /bin/sed -i "s;/var/www/html;Directory ${webroot_directory}/public;" /etc/apache2/sites-available/${WEBSITE_NAME}
                 fi
         fi
 fi
