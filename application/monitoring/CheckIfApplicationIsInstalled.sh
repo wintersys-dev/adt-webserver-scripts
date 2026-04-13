@@ -25,7 +25,7 @@ APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
 if ( [ "${APPLICATION}" != "none" ] )
 then
-	for applicationdir in `/bin/ls -d ${HOME}/application/configuration/*/`
+	for applicationdir in `/bin/ls -d ${HOME}/application/monitoring/*/`
 	do
 		applicationname="`/bin/echo ${applicationdir} | /bin/sed 's/\/$//' | /usr/bin/awk -F'/' '{print $NF}'`"
 		if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:${applicationname}`" = "1" ] )
