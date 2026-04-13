@@ -243,7 +243,12 @@ then
                         /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
                 fi
 
-                /bin/ln -s /var/www/html/images ${webroot_directory}/${asset_directory}
+                if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
+                then
+                        outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
+                fi
+
+                /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
                 /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
                 /bin/chmod 777 ${webroot_directory}/${asset_directory}
         fi
