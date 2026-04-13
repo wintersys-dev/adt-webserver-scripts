@@ -247,7 +247,7 @@ then
                 then
                         outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
                 else
-                        outside_asset_directory="{asset_directory}"
+                        outside_asset_directory="${asset_directory}"
                 fi
 
                 /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
