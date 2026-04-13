@@ -234,6 +234,7 @@ then
         /bin/chown www-data:www-data ${config_file}
         /bin/chown 740 ${config_file}
         /bin/sed -i '/.*require_once.*/d' ${config_file}
+        /bin/echo '$CFG->slasharguments = false;' >> ${config_file}
         /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
 fi
 
