@@ -19,7 +19,7 @@
 #######################################################################################################
 #######################################################################################################
 
- #set -x #do not set this during a live deployment the application will fail to install
+ #set -x 
  
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
