@@ -277,17 +277,27 @@ then
         fi
 fi
 
-#if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
-#then
-#        if ( [ ! -d /var/www/html/images ] )
-#        then
-#                /bin/mv ${webroot_directory}/images /var/www/html        
-#        fi
-#
-#        /bin/ln -s /var/www/html/images ${webroot_directory}/images
-#        /bin/chown www-data:www-data ${webroot_directory}/images
-#        /bin/chmod 777 ${webroot_directory}/images
-#fi
+if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
+then
+        for asset_directory in "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT_LIST:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_OUTSIDE_WEBROOT_LIST://g'`"
+        do
+                if ( [ ! -d /var/www/html/${asset_directory} ] )
+                then
+                        /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
+                fi
+
+                if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
+                then
+                        outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
+                else
+                        outside_asset_directory="{asset_directory}"
+                fi
+
+                /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
+                /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
+                /bin/chmod 777 ${webroot_directory}/${asset_directory}
+        fi
+fi
 
 /usr/bin/php -ln ${config_file}
 
