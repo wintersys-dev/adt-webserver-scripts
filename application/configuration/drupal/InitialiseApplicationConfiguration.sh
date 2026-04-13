@@ -235,6 +235,14 @@ then
         fi
 fi
 
+# Had this problem https://www.drupal.org/project/sitemap/issues/3145126 if anyone knows a cleaner way I would be greatful
+if ( [ -f ${HOME}/application/configuration/drupal/htaccess ] )
+then
+        /bin/sed -i "/RewriteEngine on/ {
+        r ${HOME}/application/configuration/drupal/htaccess
+        d }" /var/www/html/drupal/.htaccess
+fi
+
 if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
 then
         if ( [ ! -d /var/www/html/files ] )
