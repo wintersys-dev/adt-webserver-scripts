@@ -304,7 +304,7 @@ then
                 /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
                 /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
                 /bin/chmod 777 ${webroot_directory}/${asset_directory}
-        fi
+        done
 fi
 
 /usr/bin/php -ln ${config_file}
