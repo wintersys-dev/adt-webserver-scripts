@@ -35,6 +35,9 @@
 #${HOME}/installation/InstallPHPApplication.sh ${BUILDOS}
 #${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
 
+exec 1>>/tmp/init.out
+exec 2>>/tmp/init.err
+
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${webroot_directory}" = "" ] )
