@@ -1,0 +1,4 @@
+RewriteEngine On
+
+RewriteCond %{REQUEST_URI} ^/(index.php/)+(.*)
+RewriteRule ^.*$ /%2 [R=301,END];\n'
