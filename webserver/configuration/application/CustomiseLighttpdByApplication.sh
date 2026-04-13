@@ -18,7 +18,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################
 #################################################################################
-set -x
+#set -x
 
 WEBSITE_NAME="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEDISPLAYNAME'`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
@@ -31,12 +31,12 @@ then
         then
                 webroot_directory="/var/www/html/joomla"
         fi
-        
+
         if ( [ -f /etc/lighttpd/lighttpd.conf ] )
         then
-                if ( [ "`/bin/grep "${webroot_directory}" /etc/lighttpd/lighttpd.conf`" = "" ] )
+                if ( [ "`/bin/grep "server.document-root" /etc/lighttpd/lighttpd.conf | /bin/grep "/var/www/html"`" != "" ] )
                 then
-                        /bin/sed -i "s;/var/www/html;${webroot_directory};" /etc/lighttpd/lighttpd.conf
+                        /bin/sed -i 's;server.document-root.*/var/www/html.*;server.document-root = "'${webroot_directory}'";g' /etc/lighttpd/lighttpd.conf
                 fi
         fi
 fi
@@ -47,12 +47,12 @@ then
         then
                 webroot_directory="/var/www/html/wordpress"
         fi
-        
+
         if ( [ -f /etc/lighttpd/lighttpd.conf ] )
         then
-                if ( [ "`/bin/grep "${webroot_directory}" /etc/lighttpd/lighttpd.conf`" = "" ] )
+                if ( [ "`/bin/grep "server.document-root" /etc/lighttpd/lighttpd.conf | /bin/grep "/var/www/html"`" != "" ] )
                 then
-                        /bin/sed -i "s;/var/www/html;${webroot_directory};" /etc/lighttpd/lighttpd.conf
+                        /bin/sed -i 's;server.document-root.*/var/www/html.*;server.document-root = "'${webroot_directory}'";g' /etc/lighttpd/lighttpd.conf
                 fi
         fi
 fi
@@ -63,11 +63,13 @@ then
         then
                 webroot_directory="/var/www/html/drupal"
         fi
+
+
         if ( [ -f /etc/lighttpd/lighttpd.conf ] )
         then
-                if ( [ "`/bin/grep "${webroot_directory}" /etc/lighttpd/lighttpd.conf`" = "" ] )
+                if ( [ "`/bin/grep "server.document-root" /etc/lighttpd/lighttpd.conf | /bin/grep "/var/www/html"`" != "" ] )
                 then
-                        /bin/sed -i "s;/var/www/html;${webroot_directory};" /etc/lighttpd/lighttpd.conf
+                        /bin/sed -i 's;server.document-root.*/var/www/html.*;server.document-root = "'${webroot_directory}'";g' /etc/lighttpd/lighttpd.conf
                 fi
         fi
 fi
@@ -78,14 +80,14 @@ then
         then
                 webroot_directory="/var/www/html/moodle"
         fi
+
         if ( [ -f /etc/lighttpd/lighttpd.conf ] )
         then
-                if ( [ "`/bin/grep "${webroot_directory}" /etc/lighttpd/lighttpd.conf`" = "" ] )
+                if ( [ "`/bin/grep "server.document-root" /etc/lighttpd/lighttpd.conf | /bin/grep "/var/www/html"`" != "" ] )
                 then
-                        /bin/sed -i "s;/var/www/html;${webroot_directory}/public;" /etc/lighttpd/lighttpd.conf
+                        /bin/sed -i 's;server.document-root.*/var/www/html.*;server.document-root = "'${webroot_directory}/public'";g' /etc/lighttpd/lighttpd.conf
                 fi
         fi
 fi
-
 
 ${HOME}/webserver/RestartWebserver.sh
