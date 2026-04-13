@@ -234,16 +234,19 @@ do
         fi
 done
 
-if ( [ "`/bin/grep "^WP_CONTENT_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
+if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
 then
-        if ( [ ! -d /var/www/html/wp-content ] )
-        then
-                /bin/mv ${webroot_directory}/wp-content /var/www/html        
-        fi
+        for asset_directory in "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT_LIST:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_OUTSIDE_WEBROOT_LIST://g'`"
+        do
+                if ( [ ! -d /var/www/html/${asset_directory} ] )
+                then
+                        /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
+                fi
 
-        /bin/ln -s /var/www/html/wp-content ${webroot_directory}/wp-content
-        /bin/chown www-data:www-data ${webroot_directory}/wp-content
-        /bin/chmod 777 ${webroot_directory}/wp-content
+                /bin/ln -s /var/www/html/images ${webroot_directory}/${asset_directory}
+                /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
+                /bin/chmod 777 ${webroot_directory}/${asset_directory}
+        fi
 fi
 
 /usr/bin/php -ln ${config_file}
