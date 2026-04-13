@@ -28,26 +28,28 @@
 #######################################################################################################
 #set -x 
 
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
 installed="1"
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:joomla`" = "1" ] )
-then	
-	directories="`/bin/grep "^APPLICATION_INTEGRITY_DIRECTORIES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
-	for directory in ${directories}
-	do
-		if ( [ ! -d /var/www/html/${directory} ] )
-		then
-			installed="0"
-		fi
-	done
-	
-	files="`/bin/grep "^APPLICATION_INTEGRITY_FILES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_FILES://g' | /bin/sed 's/:/ /g'`"
-	for file in ${files}
-	do
-		if ( [ ! -f /var/www/html/${file} ] )
-		then
-			installed="0"
-		fi
-	done
+then
+        directories="`/bin/grep "^APPLICATION_INTEGRITY_DIRECTORIES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
+        for directory in ${directories}
+        do
+                if ( [ ! -d ${webroot_directory}/${directory} ] )
+                then
+                        installed="0"
+                fi
+        done
+
+        files="`/bin/grep "^APPLICATION_INTEGRITY_FILES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_FILES://g' | /bin/sed 's/:/ /g'`"
+        for file in ${files}
+        do
+                if ( [ ! -f ${webroot_directory}/${file} ] )
+                then
+                        installed="0"
+                fi
+        done
 fi
 /bin/echo "APPLICATION_INSTALLED:${installed}"
 
