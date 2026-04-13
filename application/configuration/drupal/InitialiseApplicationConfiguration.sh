@@ -236,10 +236,10 @@ then
 fi
 
 # Had this problem https://www.drupal.org/project/sitemap/issues/3145126 if anyone knows a cleaner way I would be greatful
-if ( [ -f ${HOME}/application/configuration/drupal/htaccess ] )
+if ( [ -f ${HOME}/application/configuration/drupal/htaccess.txt ] )
 then
         /bin/sed -i "/RewriteEngine on/ {
-        r ${HOME}/application/configuration/drupal/htaccess
+        r ${HOME}/application/configuration/drupal/htaccess.txt
         d }" /var/www/html/drupal/.htaccess
 fi
 
