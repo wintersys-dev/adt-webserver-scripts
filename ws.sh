@@ -165,6 +165,7 @@ fi
 
 if ( [ "${count}" -eq "5" ] )
 then
+	${HOME}/services/email/SendEmail.sh "I BELIEVE AN APPLICATION HAS COMPLETELY FAILED TO INSTALL" "The application you are installing has failed to install after exceeding the allowed 5 attempts at installation. I don't expect your website to come online." "ERROR"
 
 fi
 
