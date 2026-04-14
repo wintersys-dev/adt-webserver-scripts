@@ -23,21 +23,32 @@
 export HOME="`/bin/cat /home/homedir.dat`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
-if ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
-then
-	dir="cms"
-fi
-
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATIONLANGUAGE:HTML`" = "1" ] )
 then
-	echo "index.html"
-else
-	for applicationdir in `/bin/ls -d ${HOME}/application/configuration/${dir}/*/`	
-	do
-		applicationname="`/bin/echo ${applicationdir} | /bin/sed 's/\/$//' | /usr/bin/awk -F'/' '{print $NF}'`"
-		if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:${applicationname}`" = "1" ] )
-		then
-			. ${applicationdir}SelectHeadFile.sh
-		fi
-	done
+	/bin/echo "index.html"
+elif ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
+then
+        ${HOME}/application/installation/cms/${APPLICATION}/SelectHeadFile.sh
 fi
+
+#export HOME="`/bin/cat /home/homedir.dat`"
+#APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+
+#if ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
+#then#
+#	dir="cms"
+#fi
+
+#if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATIONLANGUAGE:HTML`" = "1" ] )
+#then#
+#	echo "index.html"
+#else#
+#	for applicationdir in `/bin/ls -d ${HOME}/application/configuration/${dir}/*/`	
+#	do
+#		applicationname="`/bin/echo ${applicationdir} | /bin/sed 's/\/$//' | /usr/bin/awk -F'/' '{print $NF}'`"
+#		if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:${applicationname}`" = "1" ] )
+#		then
+#			. ${applicationdir}SelectHeadFile.sh
+#		fi
+#	done
+#fi
