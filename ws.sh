@@ -166,8 +166,11 @@ fi
 if ( [ "${count}" -eq "5" ] )
 then
 	${HOME}/services/email/SendEmail.sh "I BELIEVE AN APPLICATION HAS COMPLETELY FAILED TO INSTALL" "The application you are installing has failed to install after exceeding the allowed 5 attempts at installation. I don't expect your website to come online." "ERROR"
+else
+	#this may well fail in some cases if the database is slow to come online on parallel builds are not being made but if we fail we will try again at a later stage of the build
+	/bin/echo "${0} Initialising the bespoke application"
+	${HOME}/application/configuration/InitialiseApplicationConfiguration.sh
 fi
-
 
 /bin/echo "${0} Storing database engine type"
 webroot_database_engine="`/bin/cat /var/www/html/dbe.dat`"
