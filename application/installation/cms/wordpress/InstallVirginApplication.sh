@@ -19,7 +19,15 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ######################################################################################
 ######################################################################################
-#set -x
+set -x
+
+if ( [ ! -d ${HOME}/logs/application_installation ] )
+then
+        /bin/mkdir -p ${HOME}/logs/application_installation
+fi
+
+exec 1>>${HOME}/logs/application_installation/wordpress_out.log
+exec 2>>${HOME}/logs/application_installation/wordpress_err.log
 
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 ${HOME}/installation/InstallWPCLI.sh ${BUILDOS}
