@@ -21,6 +21,7 @@
 ################################################################################
 #set -x
 
+export HOME="`/bin/cat /home/homedir.dat`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
 if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
