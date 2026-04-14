@@ -172,7 +172,9 @@ else
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
 
                 /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'', '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/sites/default/settings.php
-                /usr/sbin/drush site:install -y --account-name=${website_username} --account-pass=${website_password}
+                /usr/sbin/drush site:install -y 
+                /usr/sbin/drush user:create "${website_username}" --password="${website_password}"
+                /usr/sbin/drush user:role:add "administrator" "${website_username}"
                 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/sites/default/settings.php
                 /bin/chown www-data:www-data ${webroot_directory}/sites/default/files
         else
