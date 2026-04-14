@@ -31,9 +31,13 @@
 #######################################################################################################
 #set -x 
 
-#BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-#${HOME}/installation/InstallPHPApplication.sh ${BUILDOS}
-#${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
+if ( [ ! -d ${HOME}/logs/application_configuration ] )
+then
+        /bin/mkdir -p ${HOME}/logs/application_configuration
+fi
+
+exec 1>>${HOME}/logs/application_configuration/wordpress.log
+exec 2>>${HOME}/logs/application_configuration/wordpress.log
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
