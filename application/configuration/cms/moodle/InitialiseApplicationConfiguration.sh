@@ -31,13 +31,13 @@
 #######################################################################################################
 set -x 
 
-if ( [ ! -d ${HOME}/logs/application_installation ] )
+if ( [ ! -d ${HOME}/logs/application_configuration] )
 then
-        /bin/mkdir -p ${HOME}/logs/application_installation
+        /bin/mkdir -p ${HOME}/logs/application_configuration
 fi
 
-exec 1>>${HOME}/logs/application_installation/moodle_out.log
-exec 2>>${HOME}/logs/application_installation/moodle_err.log
+exec 1>>${HOME}/logs/application_configuration/moodle_out.log
+exec 2>>${HOME}/logs/application_configuration/moodle_err.log
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
