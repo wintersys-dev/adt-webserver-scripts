@@ -23,9 +23,9 @@
 export HOME="`/bin/cat /home/homedir.dat`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
-if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
+if ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
 then
-        ${HOME}/application/installation/cms/${APPLICATION}/InitialiseApplicationConfiguration.sh
+        ${HOME}/application/configuration/cms/${APPLICATION}/InitialiseApplicationConfiguration.sh
 fi
 
 #export HOME="`/bin/cat /home/homedir.dat`"
