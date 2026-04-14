@@ -156,7 +156,17 @@ ${HOME}/services/security/SetupFirewall.sh
 cd ${HOME}
 
 /bin/echo "${0} Installing the bespoke application"
-${HOME}/application/InstallApplication.sh
+count="0"
+while ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] && [ "${count}" -lt "5" ] )
+then
+	${HOME}/application/InstallApplication.sh
+	count="`/usr/bin/expr ${count} + 1`"
+fi
+
+if ( [ "${count}" -eq "5" ] )
+then
+
+fi
 
 
 #/bin/echo "${0} Setting up application assets datastore"
