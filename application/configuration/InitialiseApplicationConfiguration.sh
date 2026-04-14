@@ -23,17 +23,25 @@
 export HOME="`/bin/cat /home/homedir.dat`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
-if ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
+if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
 then
-	dir="cms"
+        ${HOME}/application/installation/cms/${APPLICATION}/InitialiseApplicationConfiguration.sh
 fi
 
-for applicationdir in `/bin/ls -d ${HOME}/application/configuration/${cms}/*/`
-do
-	applicationname="`/bin/echo ${applicationdir} | /bin/sed 's/\/$//' | /usr/bin/awk -F'/' '{print $NF}'`"
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:${applicationname}`" = "1" ] )
-	then
-		. ${applicationdir}InitialiseApplicationConfiguration.sh
-	fi
-done
+#export HOME="`/bin/cat /home/homedir.dat`"
+#APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+
+#if ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
+#then#
+#	dir="cms"
+#fi
+
+#for applicationdir in `/bin/ls -d ${HOME}/application/configuration/${cms}/*/`
+#do#
+#	applicationname="`/bin/echo ${applicationdir} | /bin/sed 's/\/$//' | /usr/bin/awk -F'/' '{print $NF}'`"#
+#	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:${applicationname}`" = "1" ] )
+#	then
+#		. ${applicationdir}InitialiseApplicationConfiguration.sh
+#	fi
+#done
 
