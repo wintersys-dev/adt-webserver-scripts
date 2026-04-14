@@ -241,6 +241,16 @@ then
                 d }" /var/www/html/drupal/.htaccess
 fi
 
+if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ] )
+then
+        /bin/cp ${HOME}/application/configuration/cms/drupal/htaccess-private.txt /var/www/html/private/.htaccess
+        /bin/chown www-data:www-data /var/www/html/private/.htaccess
+        /bin/chmow 400 /var/www/html/private/.htaccess
+fi
+
+
+
+
 if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
 then
         for asset_directory in "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT_LIST:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_OUTSIDE_WEBROOT_LIST://g'`"
