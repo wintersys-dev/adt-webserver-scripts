@@ -20,8 +20,13 @@
 ######################################################################################################
 set -x
 
-exec 1>>/tmp/init.out
-exec 2>>/tmp/init.err
+if ( [ ! -d ${HOME}/logs/application_installation ] )
+then
+        /bin/mkdir -p ${HOME}/logs/application_installation
+fi
+
+exec 1>>${HOME}/logs/application_installation/out.log
+exec 2>>${HOME}/logs/application_installation/err.log
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
