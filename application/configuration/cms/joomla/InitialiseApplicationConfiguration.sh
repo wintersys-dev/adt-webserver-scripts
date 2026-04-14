@@ -36,8 +36,8 @@ then
         /bin/mkdir -p ${HOME}/logs/application_installation
 fi
 
-exec 1>>${HOME}/logs/application_installation/out.log
-exec 2>>${HOME}/logs/application_installation/err.log
+exec 1>>${HOME}/logs/application_installation/joomla_out.log
+exec 2>>${HOME}/logs/application_installation/joomla_err.log
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
