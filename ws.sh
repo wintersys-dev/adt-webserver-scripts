@@ -158,10 +158,10 @@ cd ${HOME}
 /bin/echo "${0} Installing the bespoke application"
 count="0"
 while ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] && [ "${count}" -lt "5" ] )
-then
+do
 	${HOME}/application/InstallApplication.sh
 	count="`/usr/bin/expr ${count} + 1`"
-fi
+done
 
 if ( [ "${count}" -eq "5" ] )
 then
