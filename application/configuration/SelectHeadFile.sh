@@ -26,9 +26,9 @@ APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATIONLANGUAGE:HTML`" = "1" ] )
 then
 	/bin/echo "index.html"
-elif ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
+elif ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
 then
-        ${HOME}/application/installation/cms/${APPLICATION}/SelectHeadFile.sh
+        ${HOME}/application/configuration/cms/${APPLICATION}/SelectHeadFile.sh
 fi
 
 #export HOME="`/bin/cat /home/homedir.dat`"
