@@ -237,7 +237,10 @@ then
         /bin/chown www-data:www-data ${config_file}
         /bin/chown 740 ${config_file}
         /bin/sed -i '/.*require_once.*/d' ${config_file}
-       # /bin/echo '$CFG->slasharguments = false;' >> ${config_file}
+        #Ugly cludge for apache because I couldn't get it to display properly without switching off slash arguments
+        #if anyone knows how to sort this please let me know and I will make the change and remove this cludge
+
+        /bin/echo '$CFG->slasharguments = false;' >> ${config_file}
         /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
 fi
 
