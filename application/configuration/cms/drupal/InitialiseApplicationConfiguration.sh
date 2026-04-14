@@ -175,6 +175,7 @@ else
                 /usr/sbin/drush site:install -y 
                 /usr/sbin/drush user:create "${website_username}" --password="${website_password}"
                 /usr/sbin/drush user:role:add "administrator" "${website_username}"
+                /usr/sbin/drush cache
                 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/sites/default/settings.php
                 /bin/chown www-data:www-data ${webroot_directory}/sites/default/files
         else
