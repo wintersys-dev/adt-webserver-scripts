@@ -170,11 +170,11 @@ fi
 
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
 then
-        if ( [ -f ${HOME}/application/configuration/wordpress/htaccess.txt ] )
+        if ( [ -f ${HOME}/application/configuration/cms/wordpress/htaccess.txt ] )
         then
                 if ( [ ! -f ${webroot_directory}/htaccess.default ] )
                 then
-                        /bin/cp ${HOME}/application/configuration/wordpress/htaccess.txt ${webroot_directory}/htaccess.default
+                        /bin/cp ${HOME}/application/configuration/cms/wordpress/htaccess.txt ${webroot_directory}/htaccess.default
                 fi
                 /bin/cp ${webroot_directory}/htaccess.default ${webroot_directory}/.htaccess
         fi
