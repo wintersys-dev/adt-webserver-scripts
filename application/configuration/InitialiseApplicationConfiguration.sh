@@ -22,7 +22,12 @@
 
 export HOME="`/bin/cat /home/homedir.dat`"
 
-for applicationdir in `/bin/ls -d ${HOME}/application/configuration/*/`
+if ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
+then
+	dir="cms"
+fi
+
+for applicationdir in `/bin/ls -d ${HOME}/application/configuration/${cms}/*/`
 do
 	applicationname="`/bin/echo ${applicationdir} | /bin/sed 's/\/$//' | /usr/bin/awk -F'/' '{print $NF}'`"
 	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:${applicationname}`" = "1" ] )
