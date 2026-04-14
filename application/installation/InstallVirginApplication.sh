@@ -22,12 +22,18 @@
 #set -x
 
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
-for applicationdir in `/bin/ls -d ${HOME}/application/configuration/*/ | /bin/sed 's;/$;;g' | /usr/bin/awk -F'/' '{print $NF}'`
-do
-        if ( [ "${APPLICATION}" = "${applicationdir}" ] )
-        then
-                ${HOME}/application/installation/${APPLICATION}/InstallVirginApplication.sh
-                break
-        fi
-done
+
+if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
+then
+        ${HOME}/application/installation/cms/${APPLICATION}/InstallVirginApplication.sh
+fi
+
+#for applicationdir in `/bin/ls -d ${HOME}/application/configuration/*/ | /bin/sed 's;/$;;g' | /usr/bin/awk -F'/' '{print $NF}'`
+#do
+#        if ( [ "${APPLICATION}" = "${applicationdir}" ] )
+#        then
+#                ${HOME}/application/installation/${APPLICATION}/InstallVirginApplication.sh
+#                break
+#        fi
+#done
 
