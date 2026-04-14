@@ -25,9 +25,9 @@ APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
 if ( [ "${APPLICATION}" != "none" ] )
 then
-	if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
+	if ( [ -d ${HOME}/application/monitoring/cms/${APPLICATION} ] )
 	then
-        . ${HOME}/application/installation/cms/${APPLICATION}/CheckIfApplicationIsInstalled.sh
+        . ${HOME}/application/monitoring/cms/${APPLICATION}/CheckIfApplicationIsInstalled.sh
 	fi
 	/bin/echo "APPLICATION_INSTALLED:${installed}"
 else
