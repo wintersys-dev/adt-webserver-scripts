@@ -31,7 +31,7 @@
 #######################################################################################################
 set -x 
 
-if ( [ ! -d ${HOME}/logs/application_configuration] )
+if ( [ ! -d ${HOME}/logs/application_configuration ] )
 then
         /bin/mkdir -p ${HOME}/logs/application_configuration
 fi
