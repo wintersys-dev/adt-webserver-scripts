@@ -18,23 +18,37 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
+#set -x 
 
- #set -x 
- 
+export HOME="`/bin/cat /home/homedir.dat`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
 if ( [ "${APPLICATION}" != "none" ] )
 then
-	for applicationdir in `/bin/ls -d ${HOME}/application/monitoring/*/`
-	do
-		applicationname="`/bin/echo ${applicationdir} | /bin/sed 's/\/$//' | /usr/bin/awk -F'/' '{print $NF}'`"
-		if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:${applicationname}`" = "1" ] )
-		then
-			. ${applicationdir}CheckIfApplicationIsInstalled.sh
-		fi
-	done
-
+	if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
+	then
+        . ${HOME}/application/installation/cms/${APPLICATION}/CheckIfApplicationIsInstalled.sh
+	fi
 	/bin/echo "APPLICATION_INSTALLED:${installed}"
 else
 	/bin/echo "APPLICATION_INSTALLED:1"
 fi
+
+ 
+#APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+
+#if ( [ "${APPLICATION}" != "none" ] )
+#then
+#	for applicationdir in `/bin/ls -d ${HOME}/application/monitoring/*/`
+#	do
+#		applicationname="`/bin/echo ${applicationdir} | /bin/sed 's/\/$//' | /usr/bin/awk -F'/' '{print $NF}'`"
+#		if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:${applicationname}`" = "1" ] )
+#		then
+#			. ${applicationdir}CheckIfApplicationIsInstalled.sh
+#		fi
+#	done
+#
+#	/bin/echo "APPLICATION_INSTALLED:${installed}"
+#else
+#	/bin/echo "APPLICATION_INSTALLED:1"
+#fi
