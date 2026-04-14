@@ -18,7 +18,10 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 ######################################################################################################
-#set -x
+set -x
+
+exec 1>>/tmp/init.out
+exec 2>>/tmp/init.err
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
