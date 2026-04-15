@@ -53,10 +53,10 @@ then
 	/bin/chown www-data:www-data /var/cache/lighttpd/compress
 fi
 
-/bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf
-/bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf
-/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf
-/bin/sed -i "s,XXXXHOMEXXXX,${HOME},g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf
+/bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
+/bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
+/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
+/bin/sed -i "s,XXXXHOMEXXXX,${HOME},g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 
 if ( [ -f ${HOME}/webserver/configuration/application/lighttpd/mimetypes.conf ] )
 then
@@ -65,23 +65,14 @@ fi
 
 if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
 then
-	/bin/sed -i "s/#XXXXFASTCGIPORTXXXX//" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf
+	/bin/sed -i "s/#XXXXFASTCGIPORTXXXX//" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 else
-	/bin/sed -i "s/#XXXXFASTCGISOCKETXXXX//" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf
+	/bin/sed -i "s/#XXXXFASTCGISOCKETXXXX//" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 fi
 
-if ( [ "${APPLICATION}" = "moodle" ] )
-then
-        /bin/sed 's;DocumentRoot /var/www/html;DocumentRoot /var/www/html/public;' ${HOME}/webserver/configuration/application/apache/site-available.conf
-fi
-
-/bin/sed -i "s/#XXXX${APPLICATION}XXXX//g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf
-/bin/sed -i '/#XXXX.*/d' ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf
-/bin/cat -s ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf > /etc/lighttpd/lighttpd.conf
+/bin/cat -s ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION} > /etc/lighttpd/lighttpd.conf
 /bin/chown root:root /etc/lighttpd/lighttpd.conf
 /bin/chmod 600 /etc/lighttpd/lighttpd.conf
-#/bin/chown root:root /etc/lighttpd/modules.conf
-#/bin/chmod 600 /etc/lighttpd/modules.conf
 /bin/echo "/etc/lighttpd/lighttpd.conf" > ${HOME}/runtime/WEBSERVER_CONFIG_LOCATION.dat
 
 config_settings="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:settings" "stripped" | /bin/sed 's/|.*//g'`"
