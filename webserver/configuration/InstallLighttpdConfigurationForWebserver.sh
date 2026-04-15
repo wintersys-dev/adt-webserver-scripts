@@ -25,6 +25,8 @@ PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION' | /usr/bin/tr '[:lower:]' '[:upper:]'`"
 port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d'`"
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
 
 if ( [ -f /etc/php/${PHP_VERSION}/fpm/php.ini ] )
 then
