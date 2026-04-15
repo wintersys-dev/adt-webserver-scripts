@@ -29,7 +29,7 @@ APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION' | /us
 NO_REVERSE_PROXY="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
 MOD_SECURITY="`${HOME}/utilities/config/ExtractConfigValue.sh 'MODSECURITY'`"
 port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d'`"
-
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ -d /etc/apache2/sites-available ] && [ "`/usr/bin/find /etc/nginx/sites-available -prune -empty 2>/dev/null`" = "" ] )
 then
@@ -65,6 +65,8 @@ export HOME="`/bin/cat /home/homedir.dat`"
 /bin/sed -i "s/XXXXWEBSITE_URLXXXXX/${WEBSERVER_URL}/g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 /bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i "s/XXXXWEBROOT_DIRECTORYXXXX/${webroot_directory}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+
 
 if ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXY}" = "0" ] )
 then
