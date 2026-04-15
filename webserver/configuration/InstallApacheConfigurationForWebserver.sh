@@ -65,7 +65,7 @@ export HOME="`/bin/cat /home/homedir.dat`"
 /bin/sed -i "s/XXXXWEBSITE_URLXXXXX/${WEBSERVER_URL}/g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 /bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
-/bin/sed -i "s/XXXXWEBROOT_DIRECTORYXXXX/${webroot_directory}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i "s;XXXXWEBROOT_DIRECTORYXXXX;${webroot_directory};" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 
 
 if ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXY}" = "0" ] )
