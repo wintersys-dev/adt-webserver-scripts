@@ -12,7 +12,7 @@ ServerName XXXXWEBSITEURLXXXX
 
 <VirtualHost *:443>
  ServerAdmin webmaster@XXXXROOTDOMAINXXXX
- DocumentRoot /var/www/html
+ DocumentRoot XXXXWEBROOT_DIRECTORYXXXX
 
  SSLEngine on
 
@@ -59,7 +59,7 @@ ServerName XXXXWEBSITEURLXXXX
 
  DirectoryIndex index.php index.html
 
-  <Directory /var/www/html>
+  <Directory XXXXWEBROOT_DIRECTORYXXXX>
     Options +FollowSymlinks -Includes -ExecCGI -Indexes
     AllowOverride All
     Require all granted
