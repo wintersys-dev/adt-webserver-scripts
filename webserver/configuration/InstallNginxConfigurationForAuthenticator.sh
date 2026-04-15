@@ -54,6 +54,24 @@ fi
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
 
+if ( [ ! -d /var/lib/php/session ] )
+then
+	/bin/mkdir -p /var/lib/php/sessions
+	/bin/chown -R www-data:www-data /var/lib/php
+fi
+
+php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
+www_conf="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
+/bin/sed -i "s/^;env/env/g" ${www_conf}
+
+if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
+then
+	/bin/sed -i "s/^listen =.*/listen = 127.0.0.1:${port}/g" ${www_conf}
+	/bin/sed -i "s/^;listen.allowed_clients/listen.allowed_clients/" ${www_conf}
+else
+	/bin/sed -i "s,^listen =.*,listen = /var/run/php${PHP_VERSION}-fpm.sock,g" ${www_conf}
+	/bin/sed -i "s/^;listen.mode/listen.mode/" ${www_conf}
+fi
 
 if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
 then
