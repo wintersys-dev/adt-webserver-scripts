@@ -47,30 +47,27 @@ fi
 
 /usr/bin/openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
-/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-/bin/sed -i "s;XXXXHOMEXXXX;${HOME};g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-/bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-/bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-
-/bin/sed -i "s/#XXXX${APPLICATION}XXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
+/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
+/bin/sed -i "s;XXXXHOMEXXXX;${HOME};g" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
+/bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
+/bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
 
 if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
 then
-	/bin/sed -i "s/#XXXXPHPPORTXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
+	/bin/sed -i "s/#XXXXPHPPORTXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
 else
-	/bin/sed -i "s/#XXXXPHPSOCKETXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf	
+	/bin/sed -i "s/#XXXXPHPSOCKETXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:source'`" = "1" ] )
 then
 	if ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXY}" = "0" ] )
 	then
-		/bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
+		/bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
 	fi
 fi
 
-/bin/sed -i "/#XXXX/d" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-/bin/cat -s ${HOME}/webserver/configuration/application/nginx/site-available.conf > /etc/nginx/sites-available/${WEBSITE_NAME}
+/bin/cat -s ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION} > /etc/nginx/sites-available/${WEBSITE_NAME}
 
 if ( [ -f /etc/nginx/sites-available/${WEBSITE_NAME} ] )
 then
