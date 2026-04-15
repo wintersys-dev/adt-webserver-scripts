@@ -36,6 +36,10 @@ fi
 
 if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
+	PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
+	php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
+	www_conf="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
+	
 	pool_settings="`/bin/grep "^CONFIG_PHP_POOL:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_POOL://g' | /bin/sed 's/##/:/g'`"
 
 	if ( [ "${pool_settings}" != "" ] )
