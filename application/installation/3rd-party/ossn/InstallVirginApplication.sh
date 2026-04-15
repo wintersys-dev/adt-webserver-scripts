@@ -34,8 +34,8 @@ then
         /bin/mkdir -p ${HOME}/logs/application_installation
 fi
 
-exec 1>>${HOME}/logs/application_installation/ossn_out.log
-exec 2>>${HOME}/logs/application_installation/ossn_err.log
+#exec 1>>${HOME}/logs/application_installation/ossn_out.log
+#exec 2>>${HOME}/logs/application_installation/ossn_err.log
 
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
@@ -87,10 +87,10 @@ if ( [ "${verified_archive_type}" != "" ] )
 then
         if ( [ "${verified_archive_type}" = "zip" ] )
         then
-                /usr/bin/python3 -m zipfile -e ossn.${verified_archive_type} ${webroot_directory} 
+                /usr/bin/python3 -m zipfile -e ossn.${verified_archive_type} /var/www/html
         elif ( [ "${verified_archive_type}" = "tar.gz" ] )
         then
-                /bin/tar xvfz ossn.${verified_archive_type} -C ${webroot_directory} 
+                /bin/tar xvfz ossn.${verified_archive_type} -C /var/www/html
         fi
         /bin/rm ossn.${verified_archive_type}
         /bin/chown -R www-data:www-data ${webroot_directory}/*
