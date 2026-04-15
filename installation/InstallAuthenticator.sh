@@ -41,7 +41,7 @@ then
  		${HOME}/installation/InstallApache.sh ${BUILDOS}
 	#	if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:cloud-init'`" = "1" ] )
 	#	then
-			${HOME}/webserver/configuration/InstallApacheConfigurationForAuthenticator.sh		
+			${HOME}/webserver/configuration/ConfigureApacheForAuthenticator.sh		
 	#	elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:source'`" = "1" ] )
 	#	then
 	#		${HOME}/webserver/configuration/InstallApacheConfigurationForAuthenticatorFromSource.sh
@@ -52,7 +52,7 @@ then
  		${HOME}/installation/InstallNGINX.sh ${BUILDOS}
 	#	if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:cloud-init'`" = "1" ] )
 #		then
-			${HOME}/webserver/configuration/InstallNginxConfigurationForAuthenticator.sh		
+			${HOME}/webserver/configuration/ConfigureNginxForAuthenticator.sh			
 #		elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:source'`" = "1" ] )
 #		then
 #			${HOME}/webserver/configuration/InstallNginxConfigurationForAuthenticatorFromSource.sh
@@ -63,7 +63,7 @@ then
  		${HOME}/installation/InstallLighttpd.sh ${BUILDOS}
 	#	if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:cloud-init'`" = "1" ] )
 #		then
-			${HOME}/webserver/configuration/InstallLighttpdConfigurationForAuthenticator.sh		
+			${HOME}/webserver/configuration/ConfigureLighttpdForAuthenticator.sh		
 #		elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:source'`" = "1" ] )
 #		then
 #			${HOME}/webserver/configuration/InstallLighttpdConfigurationForAuthenticatorFromSource.sh
@@ -79,7 +79,7 @@ then
  		${HOME}/installation/InstallApache.sh ${BUILDOS}
 	#	if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:cloud-init'`" = "1" ] )
 	#	then
-			${HOME}/webserver/configuration/InstallApacheConfigurationForAuthenticator.sh		
+			${HOME}/webserver/configuration/ConfigureApacheForAuthenticator.sh			
 	#	elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:source'`" = "1" ] )
 	#	then
 	#		${HOME}/webserver/configuration/InstallApacheConfigurationForAuthenticatorFromSource.sh
@@ -90,7 +90,7 @@ then
 		${HOME}/installation/InstallNGINX.sh ${BUILDOS}
 	#	if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:cloud-init'`" = "1" ] )
 	#	then
-			${HOME}/webserver/configuration/InstallNginxConfigurationForAuthenticator.sh		
+			${HOME}/webserver/configuration/ConfigureNginxForAuthenticator.sh			
 	#	elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:source'`" = "1" ] )
 	#	then
 	#		${HOME}/webserver/configuration/InstallNginxConfigurationForAuthenticatorFromSource.sh
@@ -104,7 +104,7 @@ then
 #			${HOME}/webserver/configuration/InstallLighttpdConfigurationForAuthenticatorFromRepo.sh		
 #		elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:source'`" = "1" ] )
 #		then
-			${HOME}/webserver/configuration/InstallLighttpdConfigurationForAuthenticator.sh
+			${HOME}/webserver/configuration/ConfigureLighttpdForAuthenticator.sh	
 #		fi	
 	fi
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallAuthenticator.sh				
