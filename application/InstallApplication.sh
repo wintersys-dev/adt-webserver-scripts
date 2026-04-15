@@ -42,7 +42,7 @@ else
 fi
 
 #First make sure that the php modules required for the current application are installed to satisfy any checks that are issued during installation
-${HOME}/installation/InstallPHPApplication.sh ${BUILDOS}
+${HOME}/installation/InstallPHPLibraries.sh ${BUILDOS}
 ${HOME}/application/configuration/OverrideApplicationLanguageConfiguration.sh
 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart 2>/dev/null
 
