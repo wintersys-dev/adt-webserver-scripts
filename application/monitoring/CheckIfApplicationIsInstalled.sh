@@ -28,9 +28,9 @@ then
 	if ( [ -d ${HOME}/application/monitoring/cms/${APPLICATION} ] )
 	then
         . ${HOME}/application/monitoring/cms/${APPLICATION}/CheckIfApplicationIsInstalled.sh
-	elif ( [ -d ${HOME}/application/configuration/3rd-party/${APPLICATION} ] )
+	elif ( [ -d ${HOME}/application/monitoring/3rd-party/${APPLICATION} ] )
 	then
-        ${HOME}/application/configuration/3rd-party/${APPLICATION}/CheckIfApplicationIsInstalled.sh
+        ${HOME}/application/monitoring/3rd-party/${APPLICATION}/CheckIfApplicationIsInstalled.sh
 	fi
 	/bin/echo "APPLICATION_INSTALLED:${installed}"
 else
