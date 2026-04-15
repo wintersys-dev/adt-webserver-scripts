@@ -59,28 +59,28 @@ fi
 /usr/bin/openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 export HOME="`/bin/cat /home/homedir.dat`"
-/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/apache/site-available.conf
-/bin/sed -i "s,XXXXHOMEXXXX,${HOME},g" ${HOME}/webserver/configuration/application/apache/site-available.conf
-/bin/sed -i "s/XXXXROOTDOMAINXXXX/${ROOT_DOMAIN}/g" ${HOME}/webserver/configuration/application/apache/site-available.conf
-/bin/sed -i "s/XXXXWEBSITE_URLXXXXX/${WEBSERVER_URL}/g" ${HOME}/webserver/configuration/application/apache/site-available.conf
-/bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/apache/site-available.conf
-/bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/apache/site-available.conf
+/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i "s,XXXXHOMEXXXX,${HOME},g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i "s/XXXXROOTDOMAINXXXX/${ROOT_DOMAIN}/g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i "s/XXXXWEBSITE_URLXXXXX/${WEBSERVER_URL}/g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 
 if ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXY}" = "0" ] )
 then
-	/bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/application/apache/site-available.conf
+	/bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 fi
 
 if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
 then
-	/bin/sed -i "s/#XXXXFASTCGIPORTXXXX//g" ${HOME}/webserver/configuration/application/apache/site-available.conf
+	/bin/sed -i "s/#XXXXFASTCGIPORTXXXX//g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 else
-	/bin/sed -i "s/#XXXXFASTCGISOCKETXXXX//g" ${HOME}/webserver/configuration/application/apache/site-available.conf
+	/bin/sed -i "s/#XXXXFASTCGISOCKETXXXX//g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 fi
 
-/bin/sed -i "s/#XXXX${APPLICATION}XXXX//g" ${HOME}/webserver/configuration/application/apache/site-available.conf
-/bin/sed -i '/#XXXX.*/d' ${HOME}/webserver/configuration/application/apache/site-available.conf
-/bin/cat -s ${HOME}/webserver/configuration/application/apache/site-available.conf > /etc/apache2/sites-available/${WEBSITE_NAME}
+/bin/sed -i "s/#XXXX${APPLICATION}XXXX//g" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i '/#XXXX.*/d' ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/cat -s ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION} > /etc/apache2/sites-available/${WEBSITE_NAME}
 /bin/chmod 600 /etc/apache2/sites-available/${WEBSITE_NAME}
 /bin/chown root:root /etc/apache2/sites-available/${WEBSITE_NAME}
 /bin/ln -s /etc/apache2/sites-available/${WEBSITE_NAME} /etc/apache2/sites-enabled/${WEBSITE_NAME}
