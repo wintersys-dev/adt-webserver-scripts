@@ -77,6 +77,25 @@ then
 	/bin/cp ${HOME}/webserver/configuration/reverseproxy/lighttpd/mimetypes.conf /etc/lighttpd/mimetypes.conf
 fi
 
+if ( [ ! -d /var/lib/php/session ] )
+then
+	/bin/mkdir -p /var/lib/php/sessions
+	/bin/chown -R www-data:www-data /var/lib/php
+fi
+
+php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
+www_conf="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
+/bin/sed -i "s/^;env/env/g" ${www_conf}
+
+if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
+then
+	/bin/sed -i "s/^listen =.*/listen = 127.0.0.1:${port}/g" ${www_conf}
+	/bin/sed -i "s/^;listen.allowed_clients/listen.allowed_clients/" ${www_conf}
+else
+	/bin/sed -i "s,^listen =.*,listen = /var/run/php${PHP_VERSION}-fpm.sock,g" ${www_conf}
+	/bin/sed -i "s/^;listen.mode/listen.mode/" ${www_conf}
+fi
+
 if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
 then
 	/bin/sed -i "s/#XXXXFASTCGIPORTXXXX//" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
@@ -88,8 +107,6 @@ fi
 /bin/cat -s ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf > /etc/lighttpd/lighttpd.conf
 /bin/chown root:root /etc/lighttpd/lighttpd.conf
 /bin/chmod 600 /etc/lighttpd/lighttpd.conf
-#/bin/chown root:root /etc/lighttpd/modules.conf
-#/bin/chmod 600 /etc/lighttpd/modules.conf
 /bin/echo "/etc/lighttpd/lighttpd.conf" > ${HOME}/runtime/WEBSERVER_CONFIG_LOCATION.dat
 
 config_settings="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:settings" "stripped" | /bin/sed 's/|.*//g'`"
