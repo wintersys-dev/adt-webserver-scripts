@@ -5,7 +5,7 @@ server.port = 80
 server.bind = "0.0.0.0"
 server.tag ="lighttpd"
 
-server.document-root = "XXXXWEBROOT_DIRECTORYXXXX"
+server.document-root = "XXXXWEBROOT_DIRECTORYXXXX/public"
 index-file.names = ( "index.php", "index.html" )
 
 accesslog.filename = "/var/log/lighttpd/access.log"
