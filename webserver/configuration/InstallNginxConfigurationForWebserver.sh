@@ -89,6 +89,7 @@ then
 	fi
 fi
 
+/bin/sed -i '/#XXXX.*/d' ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
 /bin/cat -s ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION} > /etc/nginx/sites-available/${WEBSITE_NAME}
 
 if ( [ -f /etc/nginx/sites-available/${WEBSITE_NAME} ] )
