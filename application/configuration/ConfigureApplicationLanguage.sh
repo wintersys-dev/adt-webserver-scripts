@@ -36,7 +36,6 @@ fi
 
 if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
-	PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
     ini_settings="`/bin/grep "^CONFIGPHPINI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIGPHPINI://g'`"
 
 	if ( [ "${ini_settings}" != "" ] )
