@@ -1,6 +1,6 @@
 #!/bin/sh
 #####################################################################################
-# Description: This script will obtain and extract the sourcecode for joomla into 
+# Description: This script will obtain and extract the sourcecode for wordpress into 
 # the webroot directory
 # Author: Peter Winter
 # Date: 04/01/2017
