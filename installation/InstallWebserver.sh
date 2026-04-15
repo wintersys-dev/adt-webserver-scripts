@@ -45,7 +45,7 @@ then
 	${HOME}/installation/InstallNGINX.sh ${BUILDOS}
 	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
 	then
-		${HOME}/webserver/configuration/InstallNginxConfigurationForWebserver.sh
+		${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
 		#customise by application
 #		${HOME}/webserver/configuration/application/CustomiseNginxByApplication.sh
 	fi
@@ -58,7 +58,7 @@ then
 
 	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
 	then
-		${HOME}/webserver/configuration/InstallApacheConfigurationForWebserver.sh
+		${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
 		#customise by application
 	#	${HOME}/webserver/configuration/application/CustomiseApacheByApplication.sh
 	fi
@@ -71,7 +71,7 @@ then
 
 	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
 	then
-		${HOME}/webserver/configuration/InstallLighttpdConfigurationForWebserver.sh
+		${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
 		#customise by application
 	#	${HOME}/webserver/configuration/application/CustomiseLighttpdByApplication.sh
 	fi
