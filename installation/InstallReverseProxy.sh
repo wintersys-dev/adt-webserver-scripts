@@ -34,47 +34,22 @@ else
 	BUILDOS="${buildos}"
 fi
 
-if ( [ "${BUILDOS}" = "ubuntu" ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:APACHE`" = "1" ] )
 then
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:APACHE`" = "1" ] )
-	then
-		${HOME}/installation/InstallApache.sh ${BUILDOS}
-		${HOME}/webserver/configuration/ConfigureApacheForReverseProxy.sh	
-		/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh
-	fi
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:NGINX`" = "1" ] )
-	then
-		${HOME}/installation/InstallNGINX.sh ${BUILDOS}
-		${HOME}/webserver/configuration/ConfigureNginxForReverseProxy.sh		
-		/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh
-	fi
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:LIGHTTPD`" = "1" ] )
-	then
-		${HOME}/installation/InstallLighttpd.sh ${BUILDOS}
-		${HOME}/webserver/configuration/ConfigureLighttpdForReverseProxy.sh		
-		/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh
-	fi
+ 	${HOME}/installation/InstallApache.sh ${BUILDOS}
+	${HOME}/webserver/configuration/ConfigureApacheForReverseProxy.sh		
 fi
-
-if ( [ "${BUILDOS}" = "debian" ] )
+	
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:NGINX`" = "1" ] )
 then
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:APACHE`" = "1" ] )
-	then
-		${HOME}/installation/InstallApache.sh ${BUILDOS}
-		${HOME}/webserver/configuration/ConfigureApacheForReverseProxy.sh		
-		/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh
-	fi
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:NGINX`" = "1" ] )
-	then
-		${HOME}/installation/InstallNGINX.sh ${BUILDOS}
-		${HOME}/webserver/configuration/ConfigureNginxForReverseProxy.sh
-		/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh
-	fi
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:LIGHTTPD`" = "1" ] )
-	then
-		${HOME}/installation/InstallLighttpd.sh ${BUILDOS}
-	    ${HOME}/webserver/configuration/ConfigureLighttpdForReverseProxy.sh	
-		/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh
-	fi
+ 	${HOME}/installation/InstallNGINX.sh ${BUILDOS}
+	${HOME}/webserver/configuration/ConfigureNginxForReverseProxy.sh				
 fi
-
+	
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:LIGHTTPD`" = "1" ] )
+then
+ 	${HOME}/installation/InstallLighttpd.sh ${BUILDOS}
+	${HOME}/webserver/configuration/ConfigureLighttpdForReverseProxy.sh			
+fi
+	
+/bin/touch ${HOME}/runtime/installedsoftware/InstallReverseProxy.sh	
