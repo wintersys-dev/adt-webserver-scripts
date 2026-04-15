@@ -26,6 +26,9 @@ APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 if ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
 then
         ${HOME}/application/configuration/cms/${APPLICATION}/InitialiseApplicationConfiguration.sh
+elif ( [ -d ${HOME}/application/configuration/3rd-party/${APPLICATION} ] )
+then
+        ${HOME}/application/configuration/3rd-party/${APPLICATION}/InitialiseApplicationConfiguration.sh
 fi
 
 #export HOME="`/bin/cat /home/homedir.dat`"
