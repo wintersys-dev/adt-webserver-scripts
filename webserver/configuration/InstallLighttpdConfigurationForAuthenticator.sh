@@ -96,13 +96,10 @@ else
 	/bin/sed -i "s/#XXXXFASTCGISOCKETXXXX//" ${HOME}/webserver/configuration/authenticator/lighttpd/lighttpd.conf
 fi
 
-/bin/sed -i "s/#XXXX${APPLICATION}XXXX//g" ${HOME}/webserver/configuration/authenticator/lighttpd/lighttpd.conf
 /bin/sed -i '/#XXXX.*/d' ${HOME}/webserver/configuration/authenticator/lighttpd/lighttpd.conf
 /bin/cat -s ${HOME}/webserver/configuration/authenticator/lighttpd/lighttpd.conf > /etc/lighttpd/lighttpd.conf
 /bin/chown root:root /etc/lighttpd/lighttpd.conf
 /bin/chmod 600 /etc/lighttpd/lighttpd.conf
-#/bin/chown root:root /etc/lighttpd/modules.conf
-#/bin/chmod 600 /etc/lighttpd/modules.conf
 /bin/echo "/etc/lighttpd/lighttpd.conf" > ${HOME}/runtime/WEBSERVER_CONFIG_LOCATION.dat
 
 config_settings="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:settings" "stripped" | /bin/sed 's/|.*//g'`"
