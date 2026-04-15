@@ -46,8 +46,6 @@ then
 	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
 	then
 		${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
-		#customise by application
-#		${HOME}/webserver/configuration/application/CustomiseNginxByApplication.sh
 	fi
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
 fi
@@ -59,8 +57,6 @@ then
 	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
 	then
 		${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
-		#customise by application
-	#	${HOME}/webserver/configuration/application/CustomiseApacheByApplication.sh
 	fi
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
 fi
@@ -72,8 +68,6 @@ then
 	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
 	then
 		${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
-		#customise by application
-	#	${HOME}/webserver/configuration/application/CustomiseLighttpdByApplication.sh
 	fi
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
 fi
