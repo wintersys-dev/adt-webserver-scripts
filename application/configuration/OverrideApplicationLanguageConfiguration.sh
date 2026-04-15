@@ -1,6 +1,6 @@
 #!/bin/sh
 ###################################################################################
-# Description: This will install the selected application language
+# Description: This will adjust the configuration of the application language
 # Date: 18/11/2016
 # Author: Peter Winter
 ###################################################################################
@@ -36,6 +36,21 @@ fi
 
 if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
+	pool_settings="`/bin/grep "^CONFIG_PHP_POOL:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_POOL://g' | /bin/sed 's/##/:/g'`"
+
+	if ( [ "${pool_settings}" != "" ] )
+	then
+		setting=""
+		for setting in ${pool_settings}
+		do
+			name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
+			/bin/sed -i "s/^${name} =.*/${setting}/" ${www_conf}
+			/bin/sed -i "s/^${name}=.*/${setting}/" ${www_conf}
+			/bin/sed -i "s/^;${name}=.*/${setting}/" ${www_conf}
+			/bin/sed -i "s/^;${name} =.*/${setting}/" ${www_conf}
+		done
+	fi
+	
     ini_settings="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_INI://g' | /bin/sed 's/##/:/g'`"
 
 	if ( [ "${ini_settings}" != "" ] )
