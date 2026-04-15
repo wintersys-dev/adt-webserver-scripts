@@ -51,6 +51,4 @@ then
 			/bin/sed -i "s%^;${name} =.*%${setting}%" ${php_ini}
 		done
 	fi
-
-	${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
 fi
