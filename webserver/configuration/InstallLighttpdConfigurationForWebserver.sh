@@ -59,6 +59,8 @@ fi
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 /bin/sed -i "s,XXXXHOMEXXXX,${HOME},g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
+/bin/sed -i "s;XXXXWEBROOT_DIRECTORYXXXX;${webroot_directory};" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
+
 
 if ( [ -f ${HOME}/webserver/configuration/application/lighttpd/mimetypes.conf ] )
 then
