@@ -34,8 +34,8 @@ then
         /bin/mkdir -p ${HOME}/logs/application_installation
 fi
 
-exec 1>>${HOME}/logs/application_installation/joomla_out.log
-exec 2>>${HOME}/logs/application_installation/joomla_err.log
+exec 1>>${HOME}/logs/application_installation/ossn_out.log
+exec 2>>${HOME}/logs/application_installation/ossn_err.log
 
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
@@ -46,8 +46,7 @@ fi
 
 cd ${HOME}/runtime/downloads_work_area
 SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
-SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
-SOURCECODE_SHA1="`/bin/grep "^SOURCECODE_SHA1" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA1://g' | /bin/sed 's/:/ /g'`"
+SOURCECODE_SHA256="`/bin/grep "^SOURCECODE_SHA1" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA1://g' | /bin/sed 's/:/ /g'`"
 
 archive_type=""
 if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
@@ -58,14 +57,14 @@ then
         archive_type="tar.gz"
 fi
 
-/usr/bin/wget https://${SOURCECODE_URL} -O joomla.${archive_type}
-/bin/echo "${0} `/bin/date`: Downloaded joomla from ${SOURCECODE_URL}" 
+/usr/bin/wget https://${SOURCECODE_URL} -O ossn.${archive_type}
+/bin/echo "${0} `/bin/date`: Downloaded ossn from ${SOURCECODE_URL}" 
 
 verified_archive_type=""
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "`/usr/bin/md5sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) )
+if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && [ "`/usr/bin/sha256sum ossn.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] )
 then
         verified_archive_type="${archive_type}"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "`/usr/bin/md5sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) )
+elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && [ "`/usr/bin/sha256sum ossn.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] )
 then
         verified_archive_type="${archive_type}"
 fi
@@ -74,7 +73,7 @@ webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/joomla"
+        webroot_directory="/var/www/html/ossn"
 fi
 
 if ( [ ! -d ${webroot_directory} ] )
@@ -88,12 +87,12 @@ if ( [ "${verified_archive_type}" != "" ] )
 then
         if ( [ "${verified_archive_type}" = "zip" ] )
         then
-                /usr/bin/python3 -m zipfile -e joomla.${verified_archive_type} ${webroot_directory} 
+                /usr/bin/python3 -m zipfile -e ossn.${verified_archive_type} ${webroot_directory} 
         elif ( [ "${verified_archive_type}" = "tar.gz" ] )
         then
-                /bin/tar xvfz joomla.${verified_archive_type} -C ${webroot_directory} 
+                /bin/tar xvfz ossn.${verified_archive_type} -C ${webroot_directory} 
         fi
-        /bin/rm joomla.${verified_archive_type}
+        /bin/rm ossn.${verified_archive_type}
         /bin/chown -R www-data:www-data ${webroot_directory}/*
         cd ${HOME}
         /bin/echo "success"
