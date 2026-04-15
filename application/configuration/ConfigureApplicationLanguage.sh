@@ -36,54 +36,11 @@ fi
 
 if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
-	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 	PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
-
-	if ( [ ! -d /var/lib/php/session ] )
-	then
-		/bin/mkdir -p /var/lib/php/sessions
-		/bin/chown -R www-data:www-data /var/lib/php
-	fi
-
-	#while ( [ ! -f /etc/php/${PHP_VERSION}/fpm/php.ini ] || [ ! -f /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf ] )
-	#do
-#		/bin/sleep 1
- #   done
-
-	php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
-	www_conf="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
-	/bin/sed -i "s/^;env/env/g" ${www_conf}
-
-	port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d'`"	
-	
-	if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
-	then
-		/bin/sed -i "s/^listen =.*/listen = 127.0.0.1:${port}/g" ${www_conf}
-		/bin/sed -i "s/^;listen.allowed_clients/listen.allowed_clients/" ${www_conf}
-	else
-		/bin/sed -i "s,^listen =.*,listen = /var/run/php${PHP_VERSION}-fpm.sock,g" ${www_conf}
-		/bin/sed -i "s/^;listen.mode/listen.mode/" ${www_conf}
-	fi
-	pool_settings="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "CONFIGPHPPOOL" "stripped" | /bin/sed 's/##/:/g'`"
-
-	if ( [ "${pool_settings}" != "" ] )
-	then
-		setting=""
-		for setting in ${pool_settings}
-		do
-			name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
-			/bin/sed -i "s/^${name} =.*/${setting}/" ${www_conf}
-			/bin/sed -i "s/^${name}=.*/${setting}/" ${www_conf}
-			/bin/sed -i "s/^;${name}=.*/${setting}/" ${www_conf}
-			/bin/sed -i "s/^;${name} =.*/${setting}/" ${www_conf}
-		done
-	fi
-
-	ini_settings="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "CONFIGPHPINI" "stripped" | /bin/sed 's/##/:/g'`"
+    ini_settings="`/bin/grep "^CONFIGPHPINI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIGPHPINI://g'`"
 
 	if ( [ "${ini_settings}" != "" ] )
 	then
-		setting=""
 		for setting in ${ini_settings}
 		do
 			name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
@@ -96,14 +53,4 @@ then
 	fi
 
 	${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
-
-	/usr/bin/php -v
-
-	if ( [ "$?" != "0" ] )
-	then
-		/bin/echo "PHP hasn't started. Can't run without it, please investigate."
-		exit
-	else
-		/bin/touch ${HOME}/runtime/installedsoftware/InstallApplicationLanguage.sh				
-	fi
 fi
