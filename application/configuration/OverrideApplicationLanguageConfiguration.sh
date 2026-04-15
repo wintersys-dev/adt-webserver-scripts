@@ -36,7 +36,7 @@ fi
 
 if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
-    ini_settings="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIGPHPINI://g' | /bin/sed 's/##/:/g'`"
+    ini_settings="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_INI://g' | /bin/sed 's/##/:/g'`"
 
 	if ( [ "${ini_settings}" != "" ] )
 	then
