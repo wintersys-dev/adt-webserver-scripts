@@ -93,6 +93,7 @@ else
 	/bin/sed -i "s/#XXXXFASTCGISOCKETXXXX//" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 fi
 
+/bin/sed -i '/#XXXX.*/d' ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 /bin/cat -s ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION} > /etc/lighttpd/lighttpd.conf
 /bin/chown root:root /etc/lighttpd/lighttpd.conf
 /bin/chmod 600 /etc/lighttpd/lighttpd.conf
