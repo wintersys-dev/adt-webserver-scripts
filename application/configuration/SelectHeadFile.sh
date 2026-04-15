@@ -29,6 +29,9 @@ then
 elif ( [ -d ${HOME}/application/configuration/cms/${APPLICATION} ] )
 then
         ${HOME}/application/configuration/cms/${APPLICATION}/SelectHeadFile.sh
+elif ( [ -d ${HOME}/application/configuration/3rd-party/${APPLICATION} ] )
+then
+        ${HOME}/application/configuration/3rd-party/${APPLICATION}/SelectHeadFile.sh
 fi
 
 #export HOME="`/bin/cat /home/homedir.dat`"
