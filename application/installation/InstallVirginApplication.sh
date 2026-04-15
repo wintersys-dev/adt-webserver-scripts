@@ -27,6 +27,9 @@ APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
 then
         ${HOME}/application/installation/cms/${APPLICATION}/InstallVirginApplication.sh
+elif ( [ -d ${HOME}/application/configuration/3rd-party/${APPLICATION} ] )
+then
+        ${HOME}/application/configuration/3rd-party/${APPLICATION}/InstallVirginApplication.sh
 fi
 
 #for applicationdir in `/bin/ls -d ${HOME}/application/configuration/*/ | /bin/sed 's;/$;;g' | /usr/bin/awk -F'/' '{print $NF}'`
