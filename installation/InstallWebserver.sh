@@ -43,31 +43,20 @@ fi
 if ( [ "${WEBSERVER_TYPE}" = "NGINX" ] )
 then
 	${HOME}/installation/InstallNGINX.sh ${BUILDOS}
-	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
-	then
-		${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
-	fi
-	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
+	${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
 then
 	${HOME}/installation/InstallApache.sh ${BUILDOS}
-
-	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
-	then
-		${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
-	fi
-	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
+	${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "LIGHTTPD" ] )
 then
 	${HOME}/installation/InstallLighttpd.sh ${BUILDOS}	
-
-	if ( [ "`/usr/bin/hostname | /bin/grep '\-auth'`" = "" ] )
-	then
-		${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
-	fi
-	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
+	${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
 fi
+
+/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
+
