@@ -47,7 +47,7 @@ then
 	then
 		${HOME}/webserver/configuration/InstallNginxConfigurationForWebserver.sh
 		#customise by application
-		${HOME}/webserver/configuration/application/CustomiseNginxByApplication.sh
+#		${HOME}/webserver/configuration/application/CustomiseNginxByApplication.sh
 	fi
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
 fi
@@ -60,7 +60,7 @@ then
 	then
 		${HOME}/webserver/configuration/InstallApacheConfigurationForWebserver.sh
 		#customise by application
-		${HOME}/webserver/configuration/application/CustomiseApacheByApplication.sh
+	#	${HOME}/webserver/configuration/application/CustomiseApacheByApplication.sh
 	fi
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
 fi
@@ -73,7 +73,7 @@ then
 	then
 		${HOME}/webserver/configuration/InstallLighttpdConfigurationForWebserver.sh
 		#customise by application
-		${HOME}/webserver/configuration/application/CustomiseLighttpdByApplication.sh
+	#	${HOME}/webserver/configuration/application/CustomiseLighttpdByApplication.sh
 	fi
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
 fi
