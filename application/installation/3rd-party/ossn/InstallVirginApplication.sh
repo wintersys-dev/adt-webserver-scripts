@@ -45,6 +45,10 @@ fi
 /bin/rm -r ${HOME}/runtime/downloads_work_area/*
 
 cd ${HOME}/runtime/downloads_work_area
+
+SOUCECODE_URL:ossn:
+
+
 SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
 SOURCECODE_SHA256="`/bin/grep "^SOURCECODE_SHA256" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA256://g' | /bin/sed 's/:/ /g'`"
 
