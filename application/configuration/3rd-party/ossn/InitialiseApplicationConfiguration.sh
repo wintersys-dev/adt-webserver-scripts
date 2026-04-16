@@ -215,8 +215,8 @@ then
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configurations/ossn.config.db.php
-/bin/chown www-data:www-data ${webroot_directory}/ossn.config.db.php
-/bin/chmod 440 ${webroot_directory}/ossn.config.db.php
+/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
+/bin/chmod 440 ${webroot_directory}/configurations/ossn.config.db.php
 
 if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
 then
@@ -226,8 +226,8 @@ then
 fi
 
 /bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chown www-data:www-data ${webroot_directory}/ossn.config.site.php
-/bin/chmod 440 ${webroot_directory}/ossn.config.site.php
+/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
+/bin/chmod 440 ${webroot_directory}/configurations/ossn.config.site.php
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
