@@ -46,11 +46,16 @@ fi
 
 cd ${HOME}/runtime/downloads_work_area
 
-SOUCECODE_URL:ossn:
-
-
-SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
-SOURCECODE_SHA256="`/bin/grep "^SOURCECODE_SHA256" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA256://g' | /bin/sed 's/:/ /g'`"
+checksum="0"
+if ( [ "`/bin/grep "^SOURCECODE_URL:ossn" ${HOME}/runtime/application.dat`" != "" ] )
+then
+        SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+elif ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat`" != "" ] )
+then
+        checksum="1"
+        SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+        SOURCECODE_SHA256="`/bin/grep "^SOURCECODE_SHA256" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA256://g' | /bin/sed 's/:/ /g'`"
+fi
 
 archive_type=""
 if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
@@ -65,10 +70,10 @@ fi
 /bin/echo "${0} `/bin/date`: Downloaded ossn from ${SOURCECODE_URL}" 
 
 verified_archive_type=""
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && [ "`/usr/bin/sha256sum ossn.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] )
+if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum ossn.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
 then
         verified_archive_type="${archive_type}"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && [ "`/usr/bin/sha256sum ossn.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] )
+elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum ossn.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
 then
         verified_archive_type="${archive_type}"
 fi
