@@ -36,8 +36,8 @@ then
         /bin/mkdir -p ${HOME}/logs/application_configuration
 fi
 
-exec 1>>${HOME}/logs/application_configuration/ossn_out.log
-exec 2>>${HOME}/logs/application_configuration/ossn_err.log
+#exec 1>>${HOME}/logs/application_configuration/ossn_out.log
+#exec 2>>${HOME}/logs/application_configuration/ossn_err.log
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -48,7 +48,7 @@ fi
 
 if ( [ -f ${webroot_directory}/configurations/ossn.config.db.example.php ] )
 then
-        ${webroot_directory}/configurations/ossn.config.db.example.php /var/www/html/ossn.config.db.php.default
+        /bin/cp ${webroot_directory}/configurations/ossn.config.db.example.php /var/www/html/ossn.config.db.php.default
         /bin/chown www-data:www-data /var/www/html/ossn.config.db.php.default
 fi
 
@@ -64,12 +64,6 @@ then
         /bin/rm ${webroot_directory}/ossn.config.db.php
 fi
 
-if ( [ -f ${webroot_directory}/configurations/ossn.site.db.example.php ] )
-then
-        ${webroot_directory}/configurations/ossn.site.db.example.php /var/www/html/ossn.site.db.php.default
-        /bin/chown www-data:www-data /var/www/html/ossn.site.db.php.default
-fi
-
 config_file_site="`/bin/grep "^CONFIG_FILE_SITE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file_site}" = "" ] )
@@ -77,10 +71,17 @@ then
         config_file_site="/var/www/html/ossn.site.db.php"
 fi
 
-if ( [ -f ${webroot_directory}/ossn.site.db.php ] )
+if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
 then
-        /bin/rm ${webroot_directory}/ossn.site.db.php
+        /bin/rm ${webroot_directory}/ossn.config.site.php
 fi
+
+if ( [ -f ${webroot_directory}/configurations/ossn.config.site.example.php ] )
+then
+        /bin/cp ${webroot_directory}/configurations/ossn.config.site.example.php /var/www/html/ossn.config.site.php.default
+        /bin/chown www-data:www-data /var/www/html/ossn.config.site.php.default
+fi
+
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
@@ -145,6 +146,22 @@ else
                 done
         fi
 
+        if ( [ -f /var/www/html/ossn.config.db.php.default ] )
+        then
+                /bin/cp /var/www/html/ossn.config.db.php.default ${config_file}
+        else
+                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                exit
+        fi
+
+        if ( [ -f /var/www/html/ossn.config.site.php.default ] )
+        then
+                /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
+        else
+                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                exit
+        fi
+
         user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
         password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
         dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
@@ -159,7 +176,8 @@ else
                 type="mysqli"
         fi
 
-        /bin/sed -i "s%<<host>>%${HOST}:${DB_PORT}%" ${config_file}
+        /bin/sed -i "s%<<host>>%${HOST}%" ${config_file}
+        /bin/sed -i "s%<<port>>%${DB_PORT}%" ${config_file}
         /bin/sed -i "s%<<user>>%${user}%" ${config_file}
         /bin/sed -i "s%<<password>>%${password}%" ${config_file}
         /bin/sed -i "s%<<dbname>>%${dbname}%" ${config_file}
@@ -170,7 +188,7 @@ else
         /bin/sed -i "s%<<datadir>>%/var/www/html/ossn_data%" ${config_file_site}
 fi
 
-#This is how we tell ourselves this is a joomla application
+#This is how we tell ourselves this is a the Open Source Social Network  application
 /bin/echo "OSSN" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
@@ -185,16 +203,16 @@ fi
 /bin/chown www-data:www-data ${webroot_directory}/ossn.config.db.php
 /bin/chmod 440 ${webroot_directory}/ossn.config.db.php
 
-if ( [ -f ${webroot_directory}/ossn.site.db.php ] )
+if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
 then
-        /bin/mv ${webroot_directory}/ossn.site.db.php ${config_file}
+        /bin/mv ${webroot_directory}/ossn.config.site.php ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/chown 740 ${config_file}
 fi
 
-/bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/ossn.site.db.php
-/bin/chown www-data:www-data ${webroot_directory}/ossn.site.db.php
-/bin/chmod 440 ${webroot_directory}/ossn.site.db.php
+/bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/ossn.config.site.php
+/bin/chown www-data:www-data ${webroot_directory}/ossn.config.site.php
+/bin/chmod 440 ${webroot_directory}/ossn.config.site.php
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
