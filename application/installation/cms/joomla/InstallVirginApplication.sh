@@ -45,9 +45,17 @@ fi
 /bin/rm -r ${HOME}/runtime/downloads_work_area/*
 
 cd ${HOME}/runtime/downloads_work_area
-SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
-SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
-SOURCECODE_SHA1="`/bin/grep "^SOURCECODE_SHA1" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA1://g' | /bin/sed 's/:/ /g'`"
+
+checksum="0"
+if ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'github.com'`" != "" ] )
+then
+        SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+elif ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'joomla.org'`" != "" ] )
+then
+        checksum="1"
+        SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
+        SOURCECODE_SHA1="`/bin/grep "^SOURCECODE_SHA1" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA1://g' | /bin/sed 's/:/ /g'`"
+fi
 
 archive_type=""
 if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
@@ -62,10 +70,10 @@ fi
 /bin/echo "${0} `/bin/date`: Downloaded joomla from ${SOURCECODE_URL}" 
 
 verified_archive_type=""
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "`/usr/bin/md5sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) )
+if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
 then
         verified_archive_type="${archive_type}"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "`/usr/bin/md5sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) )
+elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
 then
         verified_archive_type="${archive_type}"
 fi
