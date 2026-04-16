@@ -157,7 +157,6 @@ fi
 . ${HOME}/application/branding/RemoveApplicationBranding.sh
 /bin/rm -r ./.git
 /usr/bin/find ${HOME}/backups/${baseline_name} -type d -name .git -exec /bin/rm -rf {} \;
-/bin/cp ${HOME}/backups/${baseline_name}/index.php.backup ${HOME}/backups/${baseline_name}/index.php
 /usr/bin/git init
 
 /usr/bin/git branch -M main
