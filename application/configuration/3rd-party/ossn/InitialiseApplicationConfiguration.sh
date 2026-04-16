@@ -199,6 +199,8 @@ fi
 
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
 then
+        /bin/sed -i 's/order allow,deny/Require all granted/g' ${webroot_directory}/installation/configs/htaccess.dist
+        /bin/sed -i 's/deny from all//g' ${webroot_directory}/installation/configs/htaccess.dist
         /bin/cp ${webroot_directory}/installation/configs/htaccess.dist ${webroot_directory}/.htaccess 
         /bin/chown www-data:www-data ${webroot_directory}/.htaccess 
         /bin/chmod 440 ${webroot_directory}/.htaccess
