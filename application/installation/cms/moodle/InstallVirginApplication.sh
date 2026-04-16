@@ -45,44 +45,46 @@ fi
 /bin/rm -r ${HOME}/runtime/downloads_work_area/*
 
 cd ${HOME}/runtime/downloads_work_area
-SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
-SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
-SOURCECODE_SHA256="`/bin/grep "^SOURCECODE_SHA256" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA256://g' | /bin/sed 's/:/ /g'`"
 
-/usr/bin/wget https://${SOURCECODE_URL}
-/bin/echo "${0} `/bin/date`: Downloaded moodle from ${SOURCECODE_URL}" 
-
-verified_archive_type=""
-short_archive_name="`/bin/echo ${SOURCECODE_URL} | /usr/bin/awk -F'/' '{print $NF}'`"
-
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "`/usr/bin/md5sum ${HOME}/runtime/downloads_work_area/${short_archive_name} | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha256sum ${HOME}/runtime/downloads_work_area/${short_archive_name} | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
+moodle_git_branch="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MOODLE:git-branch" "stripped"`"
+if ( [ "${moodle_git_branch}" != "" ] )
 then
-        verified_archive_type="zip"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tgz$'`" != "" ] && ( [ "`/usr/bin/md5sum ${HOME}/runtime/downloads_work_area/${short_archive_name} | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha256sum ${HOME}/runtime/downloads_work_area/${short_archive_name} | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
-then
-        verified_archive_type="tgz"
-fi
+        ${HOME}/services/git/GitClone.sh "github" "" "moodle" "moodle" "" "${moodle_git_branch}" "srclib/apr"
+else
+        SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+        SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
+        SOURCECODE_SHA256="`/bin/grep "^SOURCECODE_SHA256" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA256://g' | /bin/sed 's/:/ /g'`"
 
-if ( [ "${verified_archive_type}" != "" ] )
-then
-        if ( [ "${verified_archive_type}" = "zip" ] )
+        /usr/bin/wget https://${SOURCECODE_URL}
+        /bin/echo "${0} `/bin/date`: Downloaded moodle from ${SOURCECODE_URL}" 
+
+        verified_archive_type=""
+        short_archive_name="`/bin/echo ${SOURCECODE_URL} | /usr/bin/awk -F'/' '{print $NF}'`"
+
+        if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "`/usr/bin/md5sum ${HOME}/runtime/downloads_work_area/${short_archive_name} | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha256sum ${HOME}/runtime/downloads_work_area/${short_archive_name} | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
         then
-                /usr/bin/python3 -m zipfile -e moodle-*.${verified_archive_type} /var/www/html/ 
-        elif ( [ "${verified_archive_type}" = "tgz" ] )
+                verified_archive_type="zip"
+        elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tgz$'`" != "" ] && ( [ "`/usr/bin/md5sum ${HOME}/runtime/downloads_work_area/${short_archive_name} | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha256sum ${HOME}/runtime/downloads_work_area/${short_archive_name} | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
         then
-                /bin/tar xvfz moodle-*.${verified_archive_type} -C /var/www/html/
+                verified_archive_type="tgz"
         fi
-        /bin/rm moodle-*.${verified_archive_type}
-        /bin/chown -R www-data:www-data /var/www/html/*
-       # BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-       # ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-       # cd /var/www/html/moodle
-       # /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
-      #  /bin/mv /var/www/html/moodle/* /var/www/html
-      #  /bin/rm -r /var/www/html/moodle
-        cd ${HOME}
-        /bin/echo "success"
+
+        if ( [ "${verified_archive_type}" != "" ] )
+        then
+                if ( [ "${verified_archive_type}" = "zip" ] )
+                then
+                        /usr/bin/python3 -m zipfile -e moodle-*.${verified_archive_type} /var/www/html/ 
+                elif ( [ "${verified_archive_type}" = "tgz" ] )
+                then
+                        /bin/tar xvfz moodle-*.${verified_archive_type} -C /var/www/html/
+                fi
+                /bin/rm moodle-*.${verified_archive_type}
+                /bin/chown -R www-data:www-data /var/www/html/*
+        fi
 fi
+
+cd ${HOME}
+/bin/echo "success"
 
 
 
