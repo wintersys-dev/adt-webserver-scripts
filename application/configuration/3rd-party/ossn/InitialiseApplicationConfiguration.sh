@@ -215,3 +215,24 @@ then
                 /bin/chmod 600 /var/www/html/dbe.dat
         fi
 fi
+
+/usr/bin/php -ln ${config_file}
+
+if ( [ "$?" = "0" ] )
+then
+        /bin/chmod 600 ${config_file}
+        /bin/chown www-data:www-data ${config_file}
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+fi
+
+/usr/bin/php -ln ${config_file_site}
+
+if ( [ "$?" != "0" ] )
+then
+        /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET
+fi
+
+if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
+then
+        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
+fi
