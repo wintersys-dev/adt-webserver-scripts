@@ -186,6 +186,8 @@ else
 
         /bin/sed -i "s%<<siteurl>>%https://${WEBSITE_URL}%" ${config_file_site}
         /bin/sed -i "s%<<datadir>>%/var/www/html/ossn_data%" ${config_file_site}
+
+        ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
 fi
 
 #This is how we tell ourselves this is a the Open Source Social Network  application
