@@ -169,3 +169,49 @@ else
         /bin/sed -i "s%<<siteurl>>%https://${WEBSITE_URL}%" ${config_file_site}
         /bin/sed -i "s%<<datadir>>%/var/www/html/ossn_data%" ${config_file_site}
 fi
+
+#This is how we tell ourselves this is a joomla application
+/bin/echo "OSSN" > /var/www/html/dba.dat
+/bin/chown www-data:www-data /var/www/html/dba.dat
+
+if ( [ -f ${webroot_directory}/ossn.config.db.php ] )
+then
+        /bin/mv ${webroot_directory}/ossn.config.db.php ${config_file}
+        /bin/chown www-data:www-data ${config_file}
+        /bin/chown 740 ${config_file}
+fi
+
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/ossn.config.db.php
+/bin/chown www-data:www-data ${webroot_directory}/ossn.config.db.php
+/bin/chmod 440 ${webroot_directory}/ossn.config.db.php
+
+if ( [ -f ${webroot_directory}/ossn.site.db.php ] )
+then
+        /bin/mv ${webroot_directory}/ossn.site.db.php ${config_file}
+        /bin/chown www-data:www-data ${config_file}
+        /bin/chown 740 ${config_file}
+fi
+
+/bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/ossn.site.db.php
+/bin/chown www-data:www-data ${webroot_directory}/ossn.site.db.php
+/bin/chmod 440 ${webroot_directory}/ossn.site.db.php
+
+#For ease of use we tell ourselves what database engine this webroot is associated with
+if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
+then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires Maria DB as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ -f /var/www/html/dbe.dat ] )
+        then
+                /bin/chown www-data:www-data /var/www/html/dbe.dat
+                /bin/chmod 600 /var/www/html/dbe.dat
+        fi
+fi
