@@ -197,6 +197,13 @@ fi
 /bin/echo "OSSN" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
+if ( [ ! -f ${webroot_directory}/.htaccess ] )
+then
+        /bin/cp ${webroot_directory}/installation/configs/htaccess.dist ${webroot_directory}/.htaccess 
+        /bin/chown www-data:www-data ${webroot_directory}/.htaccess 
+        /bin/chmod 440 ${webroot_directory}/.htaccess
+fi
+
 if ( [ -f ${webroot_directory}/ossn.config.db.php ] )
 then
         /bin/mv ${webroot_directory}/ossn.config.db.php ${config_file}
