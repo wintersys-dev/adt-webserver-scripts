@@ -42,5 +42,5 @@ fi
 
 if ( [ -f ${HOME}/runtime/installedsoftware/InstallPHPBase.sh ] )
 then
-        /bin/touch ${HOME}/runtime/installedsoftware/ApplicationLanguage.sh
+        /bin/touch ${HOME}/runtime/installedsoftware/InstallApplicationLanguage.sh
 fi
