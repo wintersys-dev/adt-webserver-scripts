@@ -37,7 +37,7 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATIONLANGUAGE:PHP`" = "1" ] )
 then
-        ${HOME}/installation/InstallPHPBase.sh.sh ${BUILDOS}
+        ${HOME}/installation/InstallPHPBase.sh ${BUILDOS}
 fi
 
 if ( [ -f ${HOME}/runtime/installedsoftware/InstallPHPBase.sh ] )
