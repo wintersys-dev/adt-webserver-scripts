@@ -133,7 +133,7 @@ fi
 cd ${HOME}/backups/${baseline_name}
 
 /bin/cp -r /var/www/html/* .
-/bin/cp /var/www/html/.* .
+/bin/cp -r /var/www/html/.* .
 
 #${HOME}/application/customise/CustomiseBackupByApplication.sh ${baseline_name}
 
