@@ -40,7 +40,7 @@ then
 	php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
 	www_conf="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
 	
-	pool_settings="`/bin/grep "^CONFIG_PHP_POOL:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_POOL://g' | /bin/sed 's/##/:/g'`"
+	pool_settings="`/bin/grep "^CONFIG_PHP_POOL:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_POOL://g' | /bin/sed 's/:/ /g' | /bin/sed 's/##/:/g'`"
 
 	if ( [ "${pool_settings}" != "" ] )
 	then
@@ -55,7 +55,7 @@ then
 		done
 	fi
 	
-    ini_settings="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_INI://g' | /bin/sed 's/##/:/g'`"
+    ini_settings="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_INI://g' | /bin/sed 's/:/ /g' | /bin/sed 's/##/:/g'`"
 
 	if ( [ "${ini_settings}" != "" ] )
 	then
