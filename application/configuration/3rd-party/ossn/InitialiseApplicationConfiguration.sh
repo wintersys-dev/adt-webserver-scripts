@@ -95,8 +95,7 @@ then
                         /bin/sleep 1
                 done
         fi
-        #       /bin/echo "`/bin/grep "dbprefix" ${webroot_directory}/configuration.php | /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
-        #       /bin/chown www-data:www-data /var/www/html/dbp.dat
+
 else
         if ( [ -f ${config_file} ] )
         then
@@ -188,7 +187,10 @@ else
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
         /bin/sed -i "s%<<siteurl>>%https://${WEBSITE_URL}/%" ${config_file_site}
-        /bin/sed -i "s%<<datadir>>%/var/www/html/ossn_data%" ${config_file_site}
+
+        data_directory="`/bin/grep "^DATA_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+        /bin/sed -i "s%<<datadir>>%${data_directory}%" ${config_file_site}
 
         ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
         /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/ossn.install.php
