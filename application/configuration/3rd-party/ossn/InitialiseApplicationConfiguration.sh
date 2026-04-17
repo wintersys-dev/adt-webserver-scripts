@@ -196,6 +196,9 @@ else
         then
                 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
                 /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/ossn.install.php
+        else
+                /bin/touch ${webroot_directory}/installation/INSTALLED
+                /bin/chown www-data:www-data ${webroot_directory}/installation/INSTALLED
         fi
 fi
 
