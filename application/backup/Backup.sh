@@ -191,8 +191,7 @@ then
 fi
 
 #Verify that we are happy that the backup is present in the datastore
-${HOME}/application/backupscripts/VerifyBackupPresent.sh ${period}
-#${HOME}/application/customise/UnCustomiseBackupByApplication.sh
+${HOME}/application/backup/VerifyBackupPresent.sh ${period}
 
 cd ${HOME}
 
