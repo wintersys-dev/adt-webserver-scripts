@@ -190,7 +190,7 @@ else
 
         data_directory="`/bin/grep "^DATA_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
-        /bin/sed -i "s%<<datadir>>%${data_directory}%" ${config_file_site}
+        /bin/sed -i "s%<<datadir>>%${data_directory}/%" ${config_file_site}
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
