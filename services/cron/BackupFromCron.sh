@@ -46,7 +46,7 @@ else
 	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "BACKUP_RUNNING" "root" "no"
 fi
 
-${HOME}/application/backupscripts/Backup.sh "${periodicity}"
+${HOME}/application/backup/Backup.sh "${periodicity}"
 
 /bin/sleep 300
 
