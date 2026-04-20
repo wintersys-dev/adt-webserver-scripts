@@ -64,7 +64,7 @@ plugins_to_install="`/bin/grep "^PLUGINS_TO_INSTALL:" ${HOME}/runtime/applicatio
 
 for plugin in ${plugins_to_install}
 do
-        /usr/local/bin/wp plugin install ${plugin}
+        /usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin}
 done
 
 
