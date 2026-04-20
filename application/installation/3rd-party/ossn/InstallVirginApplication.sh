@@ -46,63 +46,73 @@ fi
 
 cd ${HOME}/runtime/downloads_work_area
 
-checksum="0"
-if ( [ "`/bin/grep "^SOURCECODE_URL:ossn" ${HOME}/runtime/application.dat | /bin/grep 'opensource-socialnetwork.org'`" != "" ] )
-then
-        SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
-elif ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'github.com'`" != "" ] )
-then
-        checksum="1"
-        SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
-        SOURCECODE_SHA256="`/bin/grep "^SOURCECODE_SHA256" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA256://g' | /bin/sed 's/:/ /g'`"
-fi
+ossn_git_branch="`/bin/grep "^OSSN:git-branch:" ${HOME}/runtime/application.dat | /bin/sed 's/OSSN:git-branch://g'`"
 
-archive_type=""
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
+if ( [ "${ossn_git_branch}" != "" ] )
 then
-        archive_type="zip"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] )
-then
-        archive_type="tar.gz"
-fi
-
-/usr/bin/wget https://${SOURCECODE_URL} -O ossn.${archive_type}
-/bin/echo "${0} `/bin/date`: Downloaded ossn from ${SOURCECODE_URL}" 
-
-verified_archive_type=""
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum ossn.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
-then
-        verified_archive_type="${archive_type}"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum ossn.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
-then
-        verified_archive_type="${archive_type}"
-fi
-
-webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-if ( [ "${webroot_directory}" = "" ] )
-then
-        webroot_directory="/var/www/html/ossn"
-fi
-
-if ( [ ! -d ${webroot_directory} ] )
-then
-        /bin/mkdir -p ${webroot_directory}
-        /bin/chown www-data:www-data ${webroot_directory}
-        /bin/chmod 755 ${webroot_directory}
-fi
-
-if ( [ "${verified_archive_type}" != "" ] )
-then
-        if ( [ "${verified_archive_type}" = "zip" ] )
+        ${HOME}/services/git/GitClone.sh "github" "" "opensource-socialnetwork" "opensource-socialnetwork" "" "${ossn_git_branch}" "/var/www/html/ossn"
+        /bin/chown -R www-data:www-data /var/www/html
+else
+        checksum="0"
+        if ( [ "`/bin/grep "^SOURCECODE_URL:ossn" ${HOME}/runtime/application.dat | /bin/grep 'opensource-socialnetwork.org'`" != "" ] )
         then
-                /usr/bin/python3 -m zipfile -e ossn.${verified_archive_type} /var/www/html
-        elif ( [ "${verified_archive_type}" = "tar.gz" ] )
+                SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+        elif ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'github.com'`" != "" ] )
         then
-                /bin/tar xvfz ossn.${verified_archive_type} -C /var/www/html
+                checksum="1"
+                SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+                SOURCECODE_SHA256="`/bin/grep "^SOURCECODE_SHA256" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA256://g' | /bin/sed 's/:/ /g'`"
         fi
-        /bin/rm ossn.${verified_archive_type}
-        /bin/chown -R www-data:www-data ${webroot_directory}/*
-        cd ${HOME}
-        /bin/echo "success"
+
+        archive_type=""
+        if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
+        then
+                archive_type="zip"
+        elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] )
+        then
+                archive_type="tar.gz"
+        fi
+
+        /usr/bin/wget https://${SOURCECODE_URL} -O ossn.${archive_type}
+        /bin/echo "${0} `/bin/date`: Downloaded ossn from ${SOURCECODE_URL}" 
+
+        verified_archive_type=""
+        if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum ossn.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
+        then
+                verified_archive_type="${archive_type}"
+        elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum ossn.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
+        then
+                verified_archive_type="${archive_type}"
+        fi
+
+        webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+        if ( [ "${webroot_directory}" = "" ] )
+        then
+                webroot_directory="/var/www/html/ossn"
+        fi
+
+        if ( [ ! -d ${webroot_directory} ] )
+        then
+                /bin/mkdir -p ${webroot_directory}
+                /bin/chown www-data:www-data ${webroot_directory}
+                /bin/chmod 755 ${webroot_directory}
+        fi
+
+        if ( [ "${verified_archive_type}" != "" ] )
+        then
+                if ( [ "${verified_archive_type}" = "zip" ] )
+                then
+                        /usr/bin/python3 -m zipfile -e ossn.${verified_archive_type} /var/www/html
+                elif ( [ "${verified_archive_type}" = "tar.gz" ] )
+                then
+                        /bin/tar xvfz ossn.${verified_archive_type} -C /var/www/html
+                fi
+                /bin/rm ossn.${verified_archive_type}
+                /bin/chown -R www-data:www-data ${webroot_directory}/*
+        fi
 fi
+
+cd ${HOME}
+/bin/echo "success"
+
