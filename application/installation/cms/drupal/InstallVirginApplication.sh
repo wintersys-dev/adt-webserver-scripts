@@ -47,10 +47,27 @@ then
     /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
     /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
     /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+	module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
-	DRUPAL_MODULES_TO_INSTALL:imce
-DRUPAL_THEMES_TO_INSTALL:bootstrap
+	if ( [ "${modules_list}" != "" ] )
+	then
+		for module in "${modules_list}"
+		do
+			/usr/local/bin/composer require drupal/${module}
+			/usr/sbin/drush en ${module} -y
+		done
+	fi
 
+	theme_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+
+	if ( [ "${theme_list}" != "" ] )
+	then
+		for theme in "${theme_list}"
+		do
+			/usr/local/bin/composer require drupal/${theme}
+			/usr/sbin/drush en ${theme} -y
+		done
+	fi
 
     cd ${HOME}
     /bin/echo "success"
@@ -70,6 +87,29 @@ then
     /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
     /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
     /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+
+	module_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+
+	if ( [ "${modules_list}" != "" ] )
+	then
+		for module in "${modules_list}"
+		do
+			/usr/local/bin/composer require drupal/${module}
+			/usr/sbin/drush en ${module} -y
+		done
+	fi
+
+	theme_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMSL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+
+	if ( [ "${theme_list}" != "" ] )
+	then
+		for theme in "${theme_list}"
+		do
+			/usr/local/bin/composer require drupal/${theme}
+			/usr/sbin/drush en ${theme} -y
+		done
+	fi
+	
     cd ${HOME}
     /bin/echo "success"
 fi
