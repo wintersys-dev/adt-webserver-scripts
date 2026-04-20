@@ -161,7 +161,7 @@ else
 
                 for plugin in ${plugins_to_install}
                 do
-                        /usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin}
+                        /usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
                 done
                 
                 /bin/mv ${webroot_directory}/wp-config.php ${config_file}
