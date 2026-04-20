@@ -34,8 +34,8 @@ then
         /bin/mkdir -p ${HOME}/logs/application_installation
 fi
 
-#exec 1>>${HOME}/logs/application_installation/ossn_out.log
-#exec 2>>${HOME}/logs/application_installation/ossn_err.log
+exec 1>>${HOME}/logs/application_installation/ossn_out.log
+exec 2>>${HOME}/logs/application_installation/ossn_err.log
 
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
