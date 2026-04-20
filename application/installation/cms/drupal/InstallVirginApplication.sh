@@ -19,7 +19,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################
 #################################################################################
-set -x
+#set -x
 
 if ( [ ! -d ${HOME}/logs/application_installation ] )
 then
@@ -33,83 +33,83 @@ HOME="`/bin/cat /home/homedir.dat`"
 
 if ( [ "`/bin/grep "^APPLICATION_TYPE:drupal" ${HOME}/runtime/application.dat`" != "" ] )
 then
-	cd ${HOME}
-	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-	${HOME}/installation/InstallComposer.sh ${BUILDOS}
-	/bin/rm -r /var/www/*
-	/bin/chown www-data:www-data /var/www
-	drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
-	/usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} /var/www/html --no-interaction --no-install
-	/bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
-	cd /var/www/html
-	/usr/bin/sudo -u www-data /usr/local/bin/composer install
-	/usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
-    /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
-    /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
-    /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
-	module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        cd ${HOME}
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        /bin/rm -r /var/www/*
+        /bin/chown www-data:www-data /var/www
+        drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
+        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} /var/www/html --no-interaction --no-install
+        /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
+        cd /var/www/html
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
+        /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+        module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
-	if ( [ "${modules_list}" != "" ] )
-	then
-		for module in "${modules_list}"
-		do
-			/usr/local/bin/composer require drupal/${module}
-			/usr/sbin/drush en ${module} -y
-		done
-	fi
+        if ( [ "${modules_list}" != "" ] )
+        then
+                for module in "${modules_list}"
+                do
+                        /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${module}
+                        /usr/sbin/drush en ${module} -y
+                done
+        fi
 
-	theme_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        theme_list="`/bin/grep "^DRUPAL_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_THEMES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
-	if ( [ "${theme_list}" != "" ] )
-	then
-		for theme in "${theme_list}"
-		do
-			/usr/local/bin/composer require drupal/${theme}
-			/usr/sbin/drush en ${theme} -y
-		done
-	fi
+        if ( [ "${theme_list}" != "" ] )
+        then
+                for theme in "${theme_list}"
+                do
+                        /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${theme}
+                        /usr/sbin/drush en ${theme} -y
+                done
+        fi
 
-    cd ${HOME}
-    /bin/echo "success"
+        cd ${HOME}
+        /bin/echo "success"
 elif ( [ "`/bin/grep "^APPLICATION_TYPE:cms" ${HOME}/runtime/application.dat`" != "" ] )
 then
-	cd ${HOME}
-	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-	${HOME}/installation/InstallComposer.sh ${BUILDOS}
-	/bin/rm -r /var/www/*
-	/bin/chown www-data:www-data /var/www
-	cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
-	/usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} /var/www/html --no-interaction --no-install
-	/bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
-	cd /var/www/html
-	/usr/bin/sudo -u www-data /usr/local/bin/composer install
-	/usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
-    /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
-    /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
-    /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+        cd ${HOME}
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        /bin/rm -r /var/www/*
+        /bin/chown www-data:www-data /var/www
+        cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
+        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} /var/www/html --no-interaction --no-install
+        /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
+        cd /var/www/html
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
+        /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
 
-	module_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        module_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
-	if ( [ "${modules_list}" != "" ] )
-	then
-		for module in "${modules_list}"
-		do
-			/usr/local/bin/composer require drupal/${module}
-			/usr/sbin/drush en ${module} -y
-		done
-	fi
+        if ( [ "${modules_list}" != "" ] )
+        then
+                for module in "${modules_list}"
+                do
+                        /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${module}
+                        /usr/sbin/drush en ${module} -y
+                done
+        fi
 
-	theme_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMSL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        theme_list="`/bin/grep "^CMS_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_THEMES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
-	if ( [ "${theme_list}" != "" ] )
-	then
-		for theme in "${theme_list}"
-		do
-			/usr/local/bin/composer require drupal/${theme}
-			/usr/sbin/drush en ${theme} -y
-		done
-	fi
-	
-    cd ${HOME}
-    /bin/echo "success"
+        if ( [ "${theme_list}" != "" ] )
+        then
+                for theme in "${theme_list}"
+                do
+                        /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${theme}
+                        /usr/sbin/drush en ${theme} -y
+                done
+        fi
+
+        cd ${HOME}
+        /bin/echo "success"
 fi
