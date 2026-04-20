@@ -47,6 +47,11 @@ then
     /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
     /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
     /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+
+	DRUPAL_MODULES_TO_INSTALL:imce
+DRUPAL_THEMES_TO_INSTALL:bootstrap
+
+
     cd ${HOME}
     /bin/echo "success"
 elif ( [ "`/bin/grep "^APPLICATION_TYPE:cms" ${HOME}/runtime/application.dat`" != "" ] )
