@@ -60,6 +60,14 @@ then
         wordpress_locale="en_GB" 
 fi
 
+plugins_to_install="`/bin/grep "^PLUGINS_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's;PLUGINS_TO_INSTALL//g' | /bin/sed 's/:/ /g'`"
+
+for plugin in ${plugins_to_install}
+do
+        /usr/local/bin/wp plugin install ${plugin}
+done
+
+
 /bin/chmod 777 /var/www
 /bin/chown -R www-data:www-data /var/www
 /usr/bin/sudo -u www-data /usr/local/bin/wp core download --version=${wordpress_version} --path=${webroot_directory} --locale=${wordpress_locale} --force
