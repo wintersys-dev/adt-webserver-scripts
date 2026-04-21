@@ -59,9 +59,13 @@ ServerName XXXXWEBSITEURLXXXX
  DirectoryIndex index.php index.html
 
   <Directory XXXXWEBROOT_DIRECTORYXXXX>
-    Options +FollowSymlinks -Includes -ExecCGI -Indexes
-    AllowOverride All
-    Require all granted
+	Require all granted
+	AllowOverride All
+	Options FollowSymLinks MultiViews
+
+	<IfModule mod_dav.c>
+		Dav off
+	</IfModule>
   </Directory>
 
  # Log
