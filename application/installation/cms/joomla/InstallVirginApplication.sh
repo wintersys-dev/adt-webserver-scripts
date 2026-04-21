@@ -51,6 +51,7 @@ joomla_git_branch="`/bin/grep "^JOOMLA:git-branch:" ${HOME}/runtime/application.
 if ( [ "${joomla_git_branch}" != "" ] )
 then
         ${HOME}/services/git/GitClone.sh "github" "" "joomla" "joomla-cms" "" "${joomla_git_branch}" "/var/www/html/joomla"
+        ${HOME}/installation/InstallNodeJS.sh
         /bin/chown -R www-data:www-data /var/www/html
 else
         checksum="0"
