@@ -163,7 +163,7 @@ else
 
         /bin/sed -i "s%{{dbhost}}%${HOST}%" ${config_file}
         /bin/sed -i "s%{{dbport}}%${DB_PORT}%" ${config_file}
-        /bin/sed -i "s%{{dbuser}}>%${user}%" ${config_file}
+        /bin/sed -i "s%{{dbuser}}%${user}%" ${config_file}
         /bin/sed -i "s%{{dbpassword}}%${password}%" ${config_file}
         /bin/sed -i "s%{{dbname}}%${dbname}%" ${config_file}
 
