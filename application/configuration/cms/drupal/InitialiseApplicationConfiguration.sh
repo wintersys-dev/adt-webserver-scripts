@@ -180,7 +180,7 @@ else
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
 
                 /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'', '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/sites/default/settings.php
-                template="recipies/`/bin/grep "^TEMPLATE_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/TEMPLATES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+                template="recipies/`/bin/grep "^TEMPLATE_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/TEMPLATE_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
  
                 /usr/sbin/drush site:install -y ${template}
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
