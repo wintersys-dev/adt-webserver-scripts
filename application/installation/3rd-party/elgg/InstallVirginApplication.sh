@@ -27,7 +27,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ######################################################################################
 ######################################################################################
-set -x
+#set -x
 
 if ( [ ! -d ${HOME}/logs/application_installation ] )
 then
@@ -47,10 +47,10 @@ fi
 cd ${HOME}/runtime/downloads_work_area
 
 checksum="0"
-if ( [ "`/bin/grep "^SOURCECODE_URL:ossn" ${HOME}/runtime/application.dat | /bin/grep 'opensource-socialnetwork.org'`" != "" ] )
+if ( [ "`/bin/grep "^SOUCECODE_URL:elgg.org" ${HOME}/runtime/application.dat | /bin/grep 'Elgg'`" != "" ] )
 then
-        SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
-elif ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'github.com'`" != "" ] )
+        SOURCECODE_URL="`/bin/grep "^SOUCECODE_URL:elgg.org" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+elif ( [ "`/bin/grep "^SOURCECODE_URL:github.com" ${HOME}/runtime/application.dat | /bin/grep 'Elgg'`" != "" ] )
 then
         checksum="1"
         SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
@@ -66,14 +66,14 @@ then
         archive_type="tar.gz"
 fi
 
-/usr/bin/wget https://${SOURCECODE_URL} -O ossn.${archive_type}
-/bin/echo "${0} `/bin/date`: Downloaded ossn from ${SOURCECODE_URL}" 
+/usr/bin/wget https://${SOURCECODE_URL} -O elgg.${archive_type}
+/bin/echo "${0} `/bin/date`: Downloaded elgg from ${SOURCECODE_URL}" 
 
 verified_archive_type=""
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum ossn.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
+if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum elgg.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
 then
         verified_archive_type="${archive_type}"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum ossn.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
+elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0"  ] || [ "`/usr/bin/sha256sum elgg.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA256}" ] ) )
 then
         verified_archive_type="${archive_type}"
 fi
@@ -82,7 +82,7 @@ webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/ossn"
+        webroot_directory="/var/www/html/elgg"
 fi
 
 if ( [ ! -d ${webroot_directory} ] )
@@ -96,12 +96,13 @@ if ( [ "${verified_archive_type}" != "" ] )
 then
         if ( [ "${verified_archive_type}" = "zip" ] )
         then
-                /usr/bin/python3 -m zipfile -e ossn.${verified_archive_type} /var/www/html
+                /usr/bin/python3 -m zipfile -e elgg.${verified_archive_type} /var/www/html
         elif ( [ "${verified_archive_type}" = "tar.gz" ] )
         then
-                /bin/tar xvfz ossn.${verified_archive_type} -C /var/www/html
+                /bin/tar xvfz elgg.${verified_archive_type} -C /var/www/html
         fi
-        /bin/rm ossn.${verified_archive_type}
+        /bin/rm elgg.${verified_archive_type}
+        /bin/mv /var/www/html/elgg* /var/www/html/elgg
         /bin/chown -R www-data:www-data ${webroot_directory}/*
 fi
 
