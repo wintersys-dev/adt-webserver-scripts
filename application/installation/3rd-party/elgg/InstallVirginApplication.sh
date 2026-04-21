@@ -1,6 +1,6 @@
 #!/bin/sh
 ###################################################################################
-# Description: This script will obtain and extract the sourcecode for drupal into 
+# Description: This script will obtain and extract the sourcecode for elgg into 
 # the webroot directory
 # Author: Peter Winter
 # Date: 04/01/2017
