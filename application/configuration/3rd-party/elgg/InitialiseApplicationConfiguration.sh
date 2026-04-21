@@ -162,7 +162,7 @@ else
         fi
 
         /bin/sed -i "s%{{dbhost}}%${HOST}%" ${config_file}
-        /bin/sed -i "s%<{{dbport}}%${DB_PORT}%" ${config_file}
+        /bin/sed -i "s%{{dbport}}%${DB_PORT}%" ${config_file}
         /bin/sed -i "s%{{dbuser}}>%${user}%" ${config_file}
         /bin/sed -i "s%{{dbpassword}}%${password}%" ${config_file}
         /bin/sed -i "s%{{dbname}}%${dbname}%" ${config_file}
@@ -180,7 +180,7 @@ else
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
-                
+                :
                # ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
                # /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/elgg.install.php
         else
