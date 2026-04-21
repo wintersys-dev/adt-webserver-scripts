@@ -26,22 +26,19 @@ then
         /bin/mkdir -p ${HOME}/logs/application_installation
 fi
 
-exec 1>>${HOME}/logs/application_installation/drupal_out.log
-exec 2>>${HOME}/logs/application_installation/drupal_err.log
+exec 1>>${HOME}/logs/application_installation/elgg_out.log
+exec 2>>${HOME}/logs/application_installation/elgg_err.log
 
 HOME="`/bin/cat /home/homedir.dat`"
 
-if ( [ "`/bin/grep "^APPLICATION_TYPE:elgg" ${HOME}/runtime/application.dat`" != "" ] )
-then
-        cd ${HOME}
-        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        /bin/rm -r /var/www/*
-        /bin/chown www-data:www-data /var/www
-        drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
-        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project elgg/starter-project /var/www/html --no-interaction --no-install
-        cd /var/www/html
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install
-        cd ${HOME}
-        /bin/echo "success"
-fi
+cd ${HOME}
+BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+${HOME}/installation/InstallComposer.sh ${BUILDOS}
+/bin/rm -r /var/www/*
+/bin/chown www-data:www-data /var/www
+/usr/bin/sudo -u www-data /usr/local/bin/composer create-project elgg/starter-project /var/www/html --no-interaction --no-install
+cd /var/www/html
+/usr/bin/sudo -u www-data /usr/local/bin/composer install
+cd ${HOME}
+/bin/echo "success"
+
