@@ -69,6 +69,12 @@ then
                 done
         fi
 
+        template="recipies/`/bin/grep "^TEMPLATE_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/TEMPLATE_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        if ( [ "${template}" != "" ] )
+        then
+                /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${template}
+        fi
+
         cd ${HOME}
         /bin/echo "success"
 elif ( [ "`/bin/grep "^APPLICATION_TYPE:cms" ${HOME}/runtime/application.dat`" != "" ] )
@@ -95,7 +101,6 @@ then
                 for module in "${modules_list}"
                 do
                         /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${module}
-                        /usr/sbin/drush en ${module} -y
                 done
         fi
 
@@ -106,10 +111,15 @@ then
                 for theme in "${theme_list}"
                 do
                         /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${theme}
-                        /usr/sbin/drush en ${theme} -y
                 done
         fi
 
+        template="recipies/`/bin/grep "^TEMPLATE_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/TEMPLATE_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        if ( [ "${template}" != "" ] )
+        then
+                /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${template}
+        fi
+        
         cd ${HOME}
         /bin/echo "success"
 fi
