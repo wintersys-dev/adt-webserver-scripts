@@ -46,74 +46,62 @@ fi
 
 cd ${HOME}/runtime/downloads_work_area
 
-joomla_git_branch="`/bin/grep "^JOOMLA:git-branch:" ${HOME}/runtime/application.dat | /bin/sed 's/JOOMLA:git-branch://g'`"
-
-if ( [ "${joomla_git_branch}" != "" ] )
+checksum="0"
+if ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'github.com'`" != "" ] )
 then
-        ${HOME}/services/git/GitClone.sh "github" "" "joomla" "joomla-cms" "" "${joomla_git_branch}" "/var/www/html/joomla"
-        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install
-        /bin/chown -R www-data:www-data /var/www/html
-else
-        checksum="0"
-        if ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'github.com'`" != "" ] )
+        SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+elif ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'joomla.org'`" != "" ] )
+then
+        checksum="1"
+        SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
+        SOURCECODE_SHA1="`/bin/grep "^SOURCECODE_SHA1" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA1://g' | /bin/sed 's/:/ /g'`"
+fi
+
+archive_type=""
+if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
+then
+        archive_type="zip"
+elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] )
+then
+        archive_type="tar.gz"
+fi
+
+/usr/bin/wget https://${SOURCECODE_URL} -O joomla.${archive_type}
+/bin/echo "${0} `/bin/date`: Downloaded joomla from ${SOURCECODE_URL}" 
+
+verified_archive_type=""
+if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
+then
+        verified_archive_type="${archive_type}"
+elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
+then
+        verified_archive_type="${archive_type}"
+fi
+
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+if ( [ "${webroot_directory}" = "" ] )
+then
+        webroot_directory="/var/www/html/joomla"
+fi
+
+if ( [ ! -d ${webroot_directory} ] )
+then
+        /bin/mkdir -p ${webroot_directory}
+        /bin/chown www-data:www-data ${webroot_directory}
+        /bin/chmod 755 ${webroot_directory}
+fi
+
+if ( [ "${verified_archive_type}" != "" ] )
+then
+        if ( [ "${verified_archive_type}" = "zip" ] )
         then
-                SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
-        elif ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'joomla.org'`" != "" ] )
+                /usr/bin/python3 -m zipfile -e joomla.${verified_archive_type} ${webroot_directory} 
+        elif ( [ "${verified_archive_type}" = "tar.gz" ] )
         then
-                checksum="1"
-                SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
-                SOURCECODE_SHA1="`/bin/grep "^SOURCECODE_SHA1" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA1://g' | /bin/sed 's/:/ /g'`"
+                /bin/tar xvfz joomla.${verified_archive_type} -C ${webroot_directory} 
         fi
-
-        archive_type=""
-        if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
-        then
-                archive_type="zip"
-        elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] )
-        then
-                archive_type="tar.gz"
-        fi
-
-        /usr/bin/wget https://${SOURCECODE_URL} -O joomla.${archive_type}
-        /bin/echo "${0} `/bin/date`: Downloaded joomla from ${SOURCECODE_URL}" 
-
-        verified_archive_type=""
-        if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
-        then
-                verified_archive_type="${archive_type}"
-        elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
-        then
-                verified_archive_type="${archive_type}"
-        fi
-
-        webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-        if ( [ "${webroot_directory}" = "" ] )
-        then
-                webroot_directory="/var/www/html/joomla"
-        fi
-
-        if ( [ ! -d ${webroot_directory} ] )
-        then
-                /bin/mkdir -p ${webroot_directory}
-                /bin/chown www-data:www-data ${webroot_directory}
-                /bin/chmod 755 ${webroot_directory}
-        fi
-
-        if ( [ "${verified_archive_type}" != "" ] )
-        then
-                if ( [ "${verified_archive_type}" = "zip" ] )
-                then
-                        /usr/bin/python3 -m zipfile -e joomla.${verified_archive_type} ${webroot_directory} 
-                elif ( [ "${verified_archive_type}" = "tar.gz" ] )
-                then
-                        /bin/tar xvfz joomla.${verified_archive_type} -C ${webroot_directory} 
-                fi
-                /bin/rm joomla.${verified_archive_type}
-                /bin/chown -R www-data:www-data ${webroot_directory}/*
-        fi
+        /bin/rm joomla.${verified_archive_type}
+        /bin/chown -R www-data:www-data ${webroot_directory}/*
 fi
         
 cd ${HOME}
