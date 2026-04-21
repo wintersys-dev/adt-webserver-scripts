@@ -46,40 +46,31 @@ then
         webroot_directory="/var/www/html/elgg"
 fi
 
-if ( [ -f ${webroot_directory}/configurations/elgg.config.db.example.php ] )
+${webroot_directory}/vendor/elgg/elgg/elgg-config/settings.example.php /var/www/html/elgg/elgg-config/settings.php
+
+if ( [ -f ${webroot_directory}/vendor/elgg/elgg/elgg-config/settings.example.php ] )
 then
-        /bin/cp ${webroot_directory}/configurations/elgg.config.db.example.php /var/www/html/elgg.config.db.php.default
-        /bin/chown www-data:www-data /var/www/html/elgg.config.db.php.default
+        /bin/cp ${webroot_directory}/vendor/elgg/elgg/elgg-config/settings.example.php /var/www/html/settings.php.default
+        /bin/chown www-data:www-data /var/www/html/settings.php.default
 fi
 
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file}" = "" ] )
 then
-        config_file="/var/www/html/elgg.config.db.php"
+        config_file="/var/www/html/settings.php"
 fi
 
-if ( [ -f ${webroot_directory}/elgg.config.db.php ] )
+if ( [ -f ${webroot_directory}/settings.php ] )
 then
-        /bin/rm ${webroot_directory}/elgg.config.db.php
+        /bin/rm ${webroot_directory}/settings.php
 fi
 
 config_file_site="`/bin/grep "^CONFIG_FILE_SITE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file_site}" = "" ] )
 then
-        config_file_site="/var/www/html/elgg.site.db.php"
-fi
-
-if ( [ -f ${webroot_directory}/elgg.config.site.php ] )
-then
-        /bin/rm ${webroot_directory}/elgg.config.site.php
-fi
-
-if ( [ -f ${webroot_directory}/configurations/elgg.config.site.example.php ] )
-then
-        /bin/cp ${webroot_directory}/configurations/elgg.config.site.example.php /var/www/html/elgg.config.site.php.default
-        /bin/chown www-data:www-data /var/www/html/elgg.config.site.php.default
+        config_file_site="/var/www/html/settings.php"
 fi
 
 dbprefix="elgg_"
@@ -88,9 +79,9 @@ dbprefix="elgg_"
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
-        if ( [ ! -f ${webroot_directory}/elgg.config.db.php ] || [ ! -f ${webroot_directory}/elgg.site.db.php ] )
+        if ( [ ! -f ${webroot_directory}/settings.php ] )
         then
-                while ( [ ! -f ${webroot_directory}/elgg.config.db.php ] || [ ! -f ${webroot_directory}/elgg.site.db.php ] )
+                while ( [ ! -f ${webroot_directory}/settings.php ] )
                 do
                         /bin/sleep 1
                 done
@@ -148,17 +139,9 @@ else
                 done
         fi
 
-        if ( [ -f /var/www/html/elgg.config.db.php.default ] )
+        if ( [ -f  /var/www/html/settings.php.default ] )
         then
-                /bin/cp /var/www/html/elgg.config.db.php.default ${config_file}
-        else
-                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
-                exit
-        fi
-
-        if ( [ -f /var/www/html/elgg.config.site.php.default ] )
-        then
-                /bin/cp /var/www/html/elgg.config.site.php.default ${config_file_site}
+                /bin/cp  /var/www/html/settings.php.default ${config_file}
         else
                 ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
                 exit
@@ -178,24 +161,28 @@ else
                 type="mysqli"
         fi
 
-        /bin/sed -i "s%<<host>>%${HOST}%" ${config_file}
-        /bin/sed -i "s%<<port>>%${DB_PORT}%" ${config_file}
-        /bin/sed -i "s%<<user>>%${user}%" ${config_file}
-        /bin/sed -i "s%<<password>>%${password}%" ${config_file}
-        /bin/sed -i "s%<<dbname>>%${dbname}%" ${config_file}
+        /bin/sed -i "s%{{dbhost}}%${HOST}%" ${config_file}
+        /bin/sed -i "s%<{{dbport}}%${DB_PORT}%" ${config_file}
+        /bin/sed -i "s%{{dbuser}}>%${user}%" ${config_file}
+        /bin/sed -i "s%{{dbpassword}}%${password}%" ${config_file}
+        /bin/sed -i "s%{{dbname}}%${dbname}%" ${config_file}
 
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
-        /bin/sed -i "s%<<siteurl>>%https://${WEBSITE_URL}/%" ${config_file_site}
+        /bin/sed -i "s%{{wwwroot}}%https://${WEBSITE_URL}/%" ${config_file}
 
         data_directory="`/bin/grep "^DATA_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
-        /bin/sed -i "s%<<datadir>>%${data_directory}/%" ${config_file_site}
+        /bin/sed -i "s%{{dataroot}}%${data_directory}/%" ${config_file}
+
+        /bin/sed -i "s%{{dbprefix}}%${dbprefix}%" ${config_file}
+
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
-                ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
-                /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/elgg.install.php
+                
+               # ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
+               # /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/elgg.install.php
         else
                 /bin/touch ${webroot_directory}/installation/INSTALLED
                 /bin/chown www-data:www-data ${webroot_directory}/installation/INSTALLED
@@ -203,39 +190,28 @@ else
 fi
 
 #This is how we tell ourselves this is a the Open Source Social Network  application
-/bin/echo "OSSN" > /var/www/html/dba.dat
+/bin/echo "ELGG" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
 then
-        /bin/sed -i 's/order allow,deny/Require all granted/g' ${webroot_directory}/installation/configs/htaccess.dist
-        /bin/sed -i 's/deny from all//g' ${webroot_directory}/installation/configs/htaccess.dist
-        /bin/cp ${webroot_directory}/installation/configs/htaccess.dist ${webroot_directory}/.htaccess 
+        /bin/sed -i 's/order allow,deny/Require all granted/g' ${webroot_directory}/vendor/elgg/elgg/install/config/htaccess.dist
+        /bin/sed -i 's/deny from all//g' ${webroot_directory}/vendor/elgg/elgg/install/config/htaccess.dist
+        /bin/cp ${webroot_directory}/vendor/elgg/elgg/install/config/htaccess.dist ${webroot_directory}/.htaccess 
         /bin/chown www-data:www-data ${webroot_directory}/.htaccess 
         /bin/chmod 440 ${webroot_directory}/.htaccess
 fi
 
-if ( [ -f ${webroot_directory}/elgg.config.db.php ] )
+if ( [ -f ${webroot_directory}/settings.php ] )
 then
-        /bin/mv ${webroot_directory}/elgg.config.db.php ${config_file}
+        /bin/mv ${webroot_directory}/settings.php ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/chown 740 ${config_file}
 fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configurations/elgg.config.db.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/elgg.config.db.php
-/bin/chmod 440 ${webroot_directory}/configurations/elgg.config.db.php
-
-if ( [ -f ${webroot_directory}/elgg.config.site.php ] )
-then
-        /bin/mv ${webroot_directory}/elgg.config.site.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chown 740 ${config_file}
-fi
-
-/bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/configurations/elgg.config.site.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/elgg.config.site.php
-/bin/chmod 440 ${webroot_directory}/configurations/elgg.config.site.php
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/elgg-config/settings.php
+/bin/chown www-data:www-data ${webroot_directory}/elgg-config/settings.php
+/bin/chmod 440 ${webroot_directory}/elgg-config/settings.php
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
