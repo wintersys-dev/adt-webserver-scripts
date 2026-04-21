@@ -85,12 +85,6 @@ then
         webroot_directory="/var/www/html/elgg"
 fi
 
-if ( [ ! -d ${webroot_directory} ] )
-then
-        /bin/mkdir -p ${webroot_directory}
-        /bin/chown www-data:www-data ${webroot_directory}
-        /bin/chmod 755 ${webroot_directory}
-fi
 
 if ( [ "${verified_archive_type}" != "" ] )
 then
@@ -102,7 +96,7 @@ then
                 /bin/tar xvfz elgg.${verified_archive_type} -C /var/www/html
         fi
         /bin/rm elgg.${verified_archive_type}
-        /bin/mv /var/www/html/elgg* /var/www/html/elgg
+        /bin/mv /var/www/html/elgg* ${webroot_directory}
         /bin/chown -R www-data:www-data ${webroot_directory}/*
 fi
 
