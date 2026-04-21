@@ -69,7 +69,7 @@ then
                 done
         fi
 
-        template="recipies/`/bin/grep "^TEMPLATE_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/TEMPLATE_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        template="`/bin/grep "^TEMPLATE_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/TEMPLATE_TO_INSTALL://g'`"
         if ( [ "${template}" != "" ] )
         then
                 /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${template}
@@ -112,12 +112,6 @@ then
                 do
                         /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${theme}
                 done
-        fi
-
-        template="recipies/`/bin/grep "^TEMPLATE_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/TEMPLATE_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
-        if ( [ "${template}" != "" ] )
-        then
-                /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${template}
         fi
         
         cd ${HOME}
