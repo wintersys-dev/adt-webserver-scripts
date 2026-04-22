@@ -33,12 +33,8 @@ then
 	authentication_token=":${repository_token}"
 fi
 
-
-if ( [ "`/usr/bin/pwd`" = "/var/www/html" ] )
-then
-	cd /var/www
-    /bin/rm -r /var/www/html
-fi
+/bin/rm -r /var/www/*
+cd /var/www
 
 count="0"
 /bin/ls /tmp/test.$$
