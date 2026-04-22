@@ -33,7 +33,7 @@ WEBSITE_NAME_LOWER="`/bin/echo ${WEBSITE_NAME} | /usr/bin/tr '[:upper:]' '[:lowe
 WEBSITE_NAME_FIRST="`/bin/echo ${WEBSITE_NAME_LOWER} | /bin/sed -e 's/\b\(.\)/\u\1/g'`"
 domainspecifier="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{ for(i = 1; i <= NF; i++) { print $i; } }' | /usr/bin/cut -c1-3 | /usr/bin/tr '\n' '-' | /bin/sed 's/-//g'`"
 
-/bin/echo "Applyiing  application branding. This may take a bit of time...."
+/bin/echo "Applying  application branding. This may take a bit of time...."
 /usr/bin/find /var/www/html -type f -exec sed -i -e "s/ApplicationDomainSpec/${domainspecifier}/g" -e "s/applicationdomainwww.tld/${WEBSITE_URL}/g" -e "s/applicationrootdomain.tld/${ROOT_DOMAIN}/g" -e "s/The GreatApplication/${WEBSITE_NAME}/g" -e "s/THE GREATAPPLICATION/${WEBSITE_NAME_UPPER}/g" -e "s/GREATAPPLICATION/${WEBSITE_NAME_UPPER}/g" -e  "s/GreatApplication/${WEBSITE_NAME}/g" -e "s/greatapplication/${WEBSITE_NAME_LOWER}/g" -e "s/Greatapplication/${WEBSITE_NAME_FIRST}/g" {} \;
 
 
