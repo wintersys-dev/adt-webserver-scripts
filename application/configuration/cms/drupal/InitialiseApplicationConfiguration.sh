@@ -259,7 +259,7 @@ if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ] )
 then
         /bin/cp ${HOME}/application/configuration/cms/drupal/htaccess-private.txt /var/www/html/private/.htaccess
         /bin/chown www-data:www-data /var/www/html/private/.htaccess
-        /bin/chmow 400 /var/www/html/private/.htaccess
+        /bin/chown 400 /var/www/html/private/.htaccess
 fi
 
 
