@@ -180,8 +180,13 @@ else
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
 
                 /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'', '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/sites/default/settings.php
- 
-                /usr/sbin/drush site:install -y 
+
+                if ( [ "`/bin/grep "^APPLICATION_TYPE:droopler" ${HOME}/runtime/application.dat`" != "" ] )                
+                then
+                        /usr/sbin/drush site-install droopler -y
+                else
+                        /usr/sbin/drush site:install -y
+                fi
                 /usr/sbin/drush cr
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
                 /usr/sbin/drush user:role:add "administrator" "${website_username}"
