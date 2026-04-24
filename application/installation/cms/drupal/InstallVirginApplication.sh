@@ -110,4 +110,21 @@ then
         
         cd ${HOME}
         /bin/echo "success"
+elif ( [ "`/bin/grep "^APPLICATION_TYPE:droopler" ${HOME}/runtime/application.dat`" != "" ] )
+then
+        cd ${HOME}
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        /bin/rm -r /var/www/*
+        /bin/chown www-data:www-data /var/www
+       # cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
+        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project droptica/droopler-project /var/www/html --no-interaction --no-install
+       # /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} /var/www/html --no-interaction --no-install
+        /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
+        cd /var/www/html
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
+        /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
 fi
