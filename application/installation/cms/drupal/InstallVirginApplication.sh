@@ -121,7 +121,7 @@ then
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${droopler_version} /var/www/html --no-interaction --no-install
         /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
         cd /var/www/html
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install
+        /usr/bin/yes | /usr/bin/sudo -u www-data /usr/local/bin/composer install
         /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
         /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
         /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
