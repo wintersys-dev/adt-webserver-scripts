@@ -117,9 +117,8 @@ then
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
-       # cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
-        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project droptica/droopler-project /var/www/html --no-interaction --no-install
-       # /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} /var/www/html --no-interaction --no-install
+        droopler_version="`/bin/grep "^DROOPLER_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DROOPLER_VERSION://g'`"
+        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${droopler_version} /var/www/html --no-interaction --no-install
         /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
         cd /var/www/html
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
