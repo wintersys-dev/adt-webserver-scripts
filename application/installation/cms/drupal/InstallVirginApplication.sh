@@ -117,13 +117,19 @@ then
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
-        droopler_version="`/bin/grep "^DROOPLER_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DROOPLER_VERSION://g'`"
-        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${droopler_version} /var/www/html --no-interaction --no-install
-        /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
+        droopler_project="`/bin/grep "^DROOPLER_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DROOPLER_VERSION://g' | /usr/bin/awk -F':' '{print $1}'`"
+        droopler_version="`/bin/grep "^DROOPLER_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DROOPLER_VERSION://g' | /usr/bin/awk -F':' '{print $2}'`"
+        /bin/mkdir -p /var/www/html
+        /bin/chown www-data:www-data /var/www/html
         cd /var/www/html
+        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${droopler_project} --no-interaction --no-install /var/www/html
+        /usr/bin/sudo -u www-data /usr/local/bin/composer update ${droopler_project}  
+        /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
         /usr/bin/yes | /usr/bin/sudo -u www-data /usr/local/bin/composer install
         /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
         /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
         /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
         /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+        /bin/cp -r /var/www/html/web* /var/www/html/drupal
+        /bin/rm -r /var/www/html/web
 fi
