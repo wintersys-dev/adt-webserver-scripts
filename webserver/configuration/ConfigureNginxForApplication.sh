@@ -40,6 +40,11 @@ else
 	/bin/mkdir -p /etc/nginx/sites-available
 fi
 
+if ( [ -f /etc/nginx/fastcgi.conf ] )
+then
+	/bin/cp /etc/nginx/fastcgi.conf /etc/nginx/fastcgi_params
+fi
+
 if ( [ -d /etc/nginx/sites-enabled ] && [ "`/usr/bin/find /etc/nginx/sites-enabled -prune -empty 2>/dev/null`" = "" ] )
 then
 	/bin/rm /etc/nginx/sites-enabled/*
