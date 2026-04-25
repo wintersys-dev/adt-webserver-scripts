@@ -40,7 +40,7 @@ then
         /bin/chown www-data:www-data /var/www
         drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} /var/www/html --no-interaction --no-install
-        /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
+      #  /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
         cd /var/www/html
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
         /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
@@ -80,7 +80,7 @@ then
         /bin/chown www-data:www-data /var/www
         cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} /var/www/html --no-interaction --no-install
-        /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
+   #     /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
         cd /var/www/html
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
         /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
@@ -124,12 +124,12 @@ then
         cd /var/www/html
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${droopler_project} --no-interaction --no-install /var/www/html
         /usr/bin/sudo -u www-data /usr/local/bin/composer update ${droopler_project}  
-        /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
+    #    /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
         /usr/bin/yes | /usr/bin/sudo -u www-data /usr/local/bin/composer install
         /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
         /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
         /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
         /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
-        /bin/cp -r /var/www/html/web* /var/www/html/drupal
-        /bin/rm -r /var/www/html/web
+    #    /bin/cp -r /var/www/html/web* /var/www/html/drupal
+    #    /bin/rm -r /var/www/html/web
 fi
