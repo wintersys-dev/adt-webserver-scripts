@@ -119,7 +119,9 @@ then
         /bin/mkdir /var/www/html
         /bin/chown www-data:www-data /var/www
        # /usr/bin/git clone https://github.com/droptica/droopler.git /var/www/html
-        /usr/bin/wget https://github.com/droptica/droopler_project/archive/refs/tags/8.3.3.0.tar.gz -C /var/www/html
+        /usr/bin/wget https://ftp.drupal.org/files/projects/droopler-5.1.1.tar.gz -C /var/www/html
+        /bin/mv /var/www/html/droopler/* /var/www/html
+        rm -r /var/www/html/droopler
         /bin/chown -R www-data:www-data /var/www/html
         cd /var/www/html
         /usr/bin/sudo -u www-data composer install
