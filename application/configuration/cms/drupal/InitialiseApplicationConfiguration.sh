@@ -32,7 +32,7 @@ webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/drupal"
+        webroot_directory="/var/www/html/web"
 fi
 
 if ( [ -f ${webroot_directory}/sites/default/default.settings.php ] )
