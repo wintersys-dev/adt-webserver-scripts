@@ -1,15 +1,15 @@
 #!/bin/sh
 #####################################################################################
-# Description: This script will download and unpack wordpress. The source url for which
-# version of wordpress to use is set in  
-# ${BUILD_HOME}/application/descriptors/wordpress.dat
+# Description: This script will download and unpack moodle. The source url for which
+# version of moodle to use is set in  
+# ${BUILD_HOME}/application/descriptors/moodle.dat
 # And this can be set to any valid URL of your choosing which includes alpha, beta and
-# release candidate archives of wordpress.
+# release candidate archives of moodle.
 # Tar achives and zip archives are supported and which is used depends on the setting in
-# ${BUILD_HOME}/application/descriptors/wordpress.dat. 
+# ${BUILD_HOME}/application/descriptors/moodle.dat. 
 # The archives have checksum verifications applied so you have to supply the expected
 # and valid checksum(s) for your archive in 
-# ${BUILD_HOME}/application/descriptors/wordpress.dat.
+# ${BUILD_HOME}/application/descriptors/moodle.dat.
 # Author: Peter Winter
 # Date: 04/01/2017
 #################################################################################
