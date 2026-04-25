@@ -110,35 +110,4 @@ then
         
         cd ${HOME}
         /bin/echo "success"
-elif ( [ "`/bin/grep "^APPLICATION_TYPE:droopler" ${HOME}/runtime/application.dat`" != "" ] )
-then
-        cd ${HOME}
-        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        /bin/rm -r /var/www/*
-        /bin/mkdir /var/www/html
-        /bin/chown www-data:www-data /var/www
-       # /usr/bin/git clone https://github.com/droptica/droopler.git /var/www/html
-        /usr/bin/wget https://ftp.drupal.org/files/projects/droopler-5.1.1.tar.gz -C /var/www/html
-        /bin/mv /var/www/html/droopler/* /var/www/html
-        rm -r /var/www/html/droopler
-        /bin/chown -R www-data:www-data /var/www/html
-        cd /var/www/html
-        /usr/bin/sudo -u www-data composer install
-      #  /bin/cp -r starter-theme/ web/themes/custom/
-      #  droopler_project="`/bin/grep "^DROOPLER_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DROOPLER_VERSION://g' | /usr/bin/awk -F':' '{print $1}'`"
-      #  droopler_version="`/bin/grep "^DROOPLER_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DROOPLER_VERSION://g' | /usr/bin/awk -F':' '{print $2}'`"
-      #  /bin/mkdir -p /var/www/html
-      #  /bin/chown www-data:www-data /var/www/html
-      #  cd /var/www/html
-      #  /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${droopler_project} --no-interaction --no-install /var/www/html
-      #  /usr/bin/sudo -u www-data /usr/local/bin/composer update ${droopler_project}  
-      #  /usr/bin/yes | /usr/bin/sudo -u www-data /usr/local/bin/composer install
-        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
-        /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
-        /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
-        /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
-       # /bin/cp -r /var/www/html/starter-theme/ /var/www/html/web/themes/custom/
-      #  /usr/bin/curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | /usr/bin/bash
-      #  /usr/bin/bash -c " npm install --global gulp-cli ; cd web/profiles/contrib/droopler/themes/custom/droopler_theme ; npm install ; gulp compile ; cd -; cd web/themes/custom/droopler_subtheme; npm install; gulp compile"
 fi
