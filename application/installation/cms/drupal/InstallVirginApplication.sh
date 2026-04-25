@@ -130,6 +130,16 @@ then
         /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
         /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
         /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+ npm install --global gulp-cli
+ cd web/profiles/contrib/droopler/themes/custom/droopler_theme
+ npm install
+ gulp compile
+ cd -
+ cd web/themes/custom/droopler_subtheme
+ npm install
+ gulp compile
     #    /bin/cp -r /var/www/html/web* /var/www/html/drupal
     #    /bin/rm -r /var/www/html/web
 fi
