@@ -116,8 +116,10 @@ then
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
         /bin/rm -r /var/www/*
+        /bin/mkdir /var/www/html
         /bin/chown www-data:www-data /var/www
-        /usr/bin/git clone https://github.com/droptica/droopler.git /var/www/html
+       # /usr/bin/git clone https://github.com/droptica/droopler.git /var/www/html
+        /usr/bin/wget https://github.com/droptica/droopler_project/archive/refs/tags/8.3.3.0.tar.gz -C /var/www/html
         /bin/chown -R www-data:www-data /var/www/html
         cd /var/www/html
         /usr/bin/sudo -u www-data composer install
