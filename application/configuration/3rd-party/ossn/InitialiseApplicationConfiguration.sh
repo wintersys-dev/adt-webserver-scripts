@@ -1,16 +1,22 @@
 #!/bin/sh
 ###########################################################################################################
-# Description:This script will generate a /var/www/html/configuration.php using the values that you have set in
+# Description:
+# This script will generate the configuration files 
 #
-#        ${BUILD_HOME}/application/descriptors/joomla.dat
+#       ${webroot_directory}/configurations/ossn.config.db.php
+#       ${webroot_directory}/configurations/ossn.config.db.php
 #
-# If a virgin copy of joomla is being installed, then, /usr/bin/php /var/www/html/installation/joomla.php is used
+# Using the values set in:
+#
+#        ${BUILD_HOME}/application/3rd-party/ossn/descriptor.dat
+#
+# If a virgin copy of ossn is being installed, then, the database is imported from installation/sql/opensource-socialnetwork.sql
 # when making a non-interactive installation this means that the installer doesn't have to do anything once they 
-# have started the build they next thing they will see is a fully configured virgin joomla application. 
+# have started the build they next thing they will see is a fully configured virgin ossn application. 
 # If you are deploying a baseline or a temporal backup then the configuration.php file is manually generated
 # based on the values set in 
 #
-#         ${BUILD_HOME}/application/descriptors/joomla.dat
+#        ${BUILD_HOME}/application/3rd-party/ossn/descriptor.dat
 #
 # Author : Peter Winter
 # Date: 17/05/2017
@@ -36,8 +42,8 @@ then
         /bin/mkdir -p ${HOME}/logs/application_configuration
 fi
 
-#exec 1>>${HOME}/logs/application_configuration/ossn_out.log
-#exec 2>>${HOME}/logs/application_configuration/ossn_err.log
+exec 1>>${HOME}/logs/application_configuration/ossn_out.log
+exec 2>>${HOME}/logs/application_configuration/ossn_err.log
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -95,7 +101,6 @@ then
                         /bin/sleep 1
                 done
         fi
-
 else
         if ( [ -f ${config_file} ] )
         then
@@ -152,7 +157,7 @@ else
         then
                 /bin/cp /var/www/html/ossn.config.db.php.default ${config_file}
         else
-                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
                 exit
         fi
 
@@ -160,7 +165,7 @@ else
         then
                 /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
         else
-                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
                 exit
         fi
 
@@ -275,5 +280,5 @@ fi
 
 if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
 then
-        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
+        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy ossn configuration file to the live location during application initiation" "ERROR"
 fi
