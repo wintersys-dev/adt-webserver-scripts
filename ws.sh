@@ -94,6 +94,8 @@ UsePAM no
 X11Forwarding no 
 EOF
 
+ ${HOME}/utilities/processing/RunServiceCommand.sh "ssh" restart
+
 #Setup operational directories if needed
 if ( [ ! -d ${HOME}/logs/initialbuild ] )
 then
