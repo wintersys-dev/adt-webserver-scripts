@@ -1,15 +1,17 @@
 #!/bin/sh
 #####################################################################################
-# Description: This script will download and unpack joomla. The source url for which
-# version of joomla to use is set in  
-# ${BUILD_HOME}/application/descriptors/joomla.dat
-# And this can be set to any valid URL of your choosing which includes alpha, beta and
-# release candidate archives of joomla.
-# Tar achives and zip archives are supported and which is used depends on the setting in
-# ${BUILD_HOME}/application/descriptors/joomla.dat. 
-# The archives have checksum verifications applied so you have to supply the expected
-# and valid checksum(s) for your archive in 
-# ${BUILD_HOME}/application/descriptors/joomla.dat.
+# Description: This script will download and unpack ossn software. The source url for which
+# version of ossn to use is set in  
+#
+#       ${BUILD_HOME}/application/descriptors/ossn.dat
+#
+# Tar achives and zip archives are supported and which is used depends on availablility and
+# the setting in
+#
+#       ${BUILD_HOME}/application/descriptors/ossn.dat
+#
+# The archives can have checksum verifications applied so you have to supply the expected
+# and valid checksum(s) for your archive in  that case
 # Author: Peter Winter
 # Date: 04/01/2017
 ######################################################################################
