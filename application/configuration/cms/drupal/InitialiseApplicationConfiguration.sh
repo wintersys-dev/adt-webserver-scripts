@@ -201,9 +201,9 @@ else
 fi
 
 public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
-private_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
-/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}" ${webroot_directory}/sites/default/settings.php
-/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}" ${webroot_directory}/sites/default/settings.php
+private_ip="`${HOME}/utilities/processing/GetIP.sh`"
+/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${webroot_directory}/sites/default/settings.php
+/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${webroot_directory}/sites/default/settings.php
 
 #This is how we tell ourselves this is a drupal application
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
