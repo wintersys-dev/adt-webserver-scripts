@@ -205,11 +205,11 @@ private_ip="`${HOME}/utilities/processing/GetIP.sh`"
 /bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${webroot_directory}/sites/default/settings.php
 /bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${webroot_directory}/sites/default/settings.php
 
-website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
 
 if ( [ "${website_name}" != "" ] )
 then
-        /usr/sbin/drush -y vset site_name "${website_name}"
+        /usr/sbin/drush config:set system.site name "${website_name}" -y
 fi
 
 #This is how we tell ourselves this is a drupal application
