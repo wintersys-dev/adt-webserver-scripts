@@ -81,6 +81,7 @@ fi
 PermitRootLogin no
 KbdInteractiveAuthentication no
 AddressFamily inet
+LoginGraceTime 60
 StrictModes yes
 MaxAuthTries 3
 MaxSessions 10
