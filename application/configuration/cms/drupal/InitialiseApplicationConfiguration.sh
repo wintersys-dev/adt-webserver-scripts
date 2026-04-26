@@ -192,7 +192,6 @@ else
 
                 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '`/usr/sbin/drush eval "echo Drupal\Component\Utility\Crypt::randomBytesBase64(55) . PHP_EOL"`';%" ${webroot_directory}/sites/default/settings.php
                 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/sites/default/settings.php
-
                 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
                 if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
                 then 
@@ -200,6 +199,11 @@ else
                 fi
         fi
 fi
+
+public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
+private_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
+/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}" ${webroot_directory}/sites/default/settings.php
+/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}" ${webroot_directory}/sites/default/settings.php
 
 #This is how we tell ourselves this is a drupal application
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
