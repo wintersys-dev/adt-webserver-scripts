@@ -29,7 +29,7 @@ additions="`${HOME}/services/datastore/operations/ListFromDatastore.sh "${bucket
 
 for addition in ${additions}
 do
-        #added needs to be tested
+        #Get the tar from the datastore using GetFrom and then get the timestamp of when the additions held by the archive  were processed
         /usr/bin/tar -xfvz filesystem-sync/${bucket_type}/additions/${addition} --wildcards "webroot_sync_timestamp.add" -C ${HOME}/runtime/datastore_workarea
 
         current_time="`/usr/bin/date +%s`"
