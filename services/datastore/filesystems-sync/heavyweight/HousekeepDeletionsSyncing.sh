@@ -29,6 +29,21 @@ deletions="`${HOME}/services/datastore/operations/ListFromDatastore.sh "${bucket
 
 for deletion in ${deletions}
 do
+        /usr/bin/tar -xfvz filesystem-sync/${bucket_type}/additions/${addition} --wildcards "webroot_sync_timestamp.dat" -C ${HOME}/runtime/datastore_workarea
+
+        current_time="`/usr/bin/date +%s`"
+        processing_time="`/bin/cat ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat`"
+
+        if ( [ -f ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat ] )
+        then
+                /bin/rm ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat
+        fi
+        
+        if ( [ "`/usr/bin/expr ${current_time} - ${processing_time}`" -gt "60" ] )
+        then
+                ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "${bucket_type}" "filesystem-sync/${bucket_type}/additions/${addition}" "distributed" "${target_directory}"
+        fi
+        
         if ( [ "`${HOME}/services/datastore/operations/AgeOfDatastoreFile.sh "${bucket_type}" "filesystem-sync/${bucket_type}/deletions/${deletion}" "${target_directory}"`" -gt "60" ] )
         then
                 ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "${bucket_type}" "filesystem-sync/${bucket_type}/deletions/${deletion}" "distributed" "${target_directory}"
