@@ -136,7 +136,7 @@ provider_id=""
 
 if ( [ "${MULTI_REGION}" = "1" ] && [ "${PRIMARY_REGION}" = "0" ] )
 then
-        provider_id=-"${CLOUDHOST}"
+        provider_id="-${CLOUDHOST}"
 fi
 
 #datastore="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-${period}${provider_id}"
