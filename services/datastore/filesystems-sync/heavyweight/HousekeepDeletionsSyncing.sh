@@ -29,17 +29,8 @@ deletions="`${HOME}/services/datastore/operations/ListFromDatastore.sh "${bucket
 
 for deletion in ${deletions}
 do
-        #Get the logfile from the datastore using GetFrom and then get the timestamp of when the deletions in the logfile were processed
-        #Logfile needs to contain the timestamp in the filename of the file in the logfile
-
-
         current_time="`/usr/bin/date +%s`"
-        processing_time="`/bin/cat ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.del`"
-
-        if ( [ -f ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.del ] )
-        then
-                /bin/rm ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.del
-        fi
+        processing_time="`/bin/echo ${deletion} | /usr/bin/awk -F'.' '{print $3}'`"
         
         if ( [ "`/usr/bin/expr ${current_time} - ${processing_time}`" -gt "60" ] )
         then
