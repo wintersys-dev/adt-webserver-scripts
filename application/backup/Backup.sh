@@ -64,6 +64,28 @@ then
         exit
 fi
 
+if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
+then
+        /bin/rm ${HOME}/runtime/datastore_workarea/time_backup_written
+fi
+
+${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "time_backup_written" "${HOME}/runtime/datastore_workarea" "${period}"
+
+if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
+then
+        current_time="`/usr/bin/date +%s`"
+        backup_time="`/bin/cat ${HOME}/runtime/datastore_workarea/time_backup_written`"
+        
+        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "600" ] )
+        then
+                exit
+        fi
+fi
+
+time_backup_written="`/usr/bin/date +%s`"
+/bin/echo "${time_backup_written}" > ${HOME}/runtime/datastore_workarea/time_backup_written
+${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/runtime/datastore_workarea/time_backup_written" "root" "distributed" "no" "${period}${provider_id}"
+
 if ( [ -d ${HOME}/backuparea ] )
 then
         /bin/rm -r ${HOME}/backuparea
@@ -157,22 +179,6 @@ then
         exit
 fi
 
-if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
-then
-        /bin/rm ${HOME}/runtime/datastore_workarea/time_backup_written
-fi
-
-${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "time_backup_written" "${HOME}/runtime/datastore_workarea" "${period}"
-
-if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
-then
-        current_time="`/usr/bin/date +%s`"
-        backup_time="`/bin/cat ${HOME}/runtime/datastore_workarea/time_backup_written`"
-        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "600" ] )
-        then
-                exit
-        fi
-fi
 
 #Write the backup to the datastore
 if ( [ -f ${HOME}/livebackup/applicationsourcecode.tar.gz ] )
@@ -186,9 +192,6 @@ then
         fi
 
         /bin/systemd-inhibit --why="Persisting sourcecode to datastore" ${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/livebackup/applicationsourcecode.tar.gz" "root" "distributed" "no" "${period}${provider_id}"
-        time_backup_written="`/usr/bin/date +%s`"
-        /bin/echo "${time_backup_written}" > ${HOME}/runtime/datastore_workarea/time_backup_written
-        ${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/runtime/datastore_workarea/time_backup_written" "root" "distributed" "no" "${period}${provider_id}"
         /bin/rm -r ${HOME}/livebackup
 fi
 
