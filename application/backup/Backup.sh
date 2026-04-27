@@ -76,7 +76,7 @@ then
         current_time="`/usr/bin/date +%s`"
         backup_time="`/bin/cat ${HOME}/runtime/datastore_workarea/time_backup_written`"
         
-        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "600" ] )
+        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "300" ] )
         then
                 exit
         fi
