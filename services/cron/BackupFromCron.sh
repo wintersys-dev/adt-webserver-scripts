@@ -46,13 +46,13 @@ if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
 then
         current_time="`/usr/bin/date +%s`"
         backup_time="`/bin/cat ${HOME}/runtime/datastore_workarea/time_backup_written`"
-        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "600" ] )
+        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "300" ] )
         then
                 exit
         fi
 fi
 
-/bin/sleep "`/usr/bin/shuf -i1-600 -n1`"
+/bin/sleep "`/usr/bin/shuf -i1-300 -n1`"
 
 if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "BACKUP_RUNNING"`" != "" ] )
 then
