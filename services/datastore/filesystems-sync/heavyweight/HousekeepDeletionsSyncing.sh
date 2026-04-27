@@ -29,10 +29,10 @@ deletions="`${HOME}/services/datastore/operations/ListFromDatastore.sh "${bucket
 
 for deletion in ${deletions}
 do
-        /usr/bin/tar -xfvz filesystem-sync/${bucket_type}/deletions/${deletion} --wildcards "webroot_sync_timestamp.dat" -C ${HOME}/runtime/datastore_workarea
+        /usr/bin/tar -xfvz filesystem-sync/${bucket_type}/deletions/${deletion} --wildcards "webroot_sync_timestamp.del" -C ${HOME}/runtime/datastore_workarea
 
         current_time="`/usr/bin/date +%s`"
-        processing_time="`/bin/cat ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat`"
+        processing_time="`/bin/cat ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.del`"
 
         if ( [ -f ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat ] )
         then
