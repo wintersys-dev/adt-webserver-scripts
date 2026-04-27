@@ -48,6 +48,9 @@ then
         first_run="1"
 fi
 
+time_output_processed="`/usr/bin/date +%s`"
+/bin/echo "${time_output_processed}" > ${target_dirctory}/webroot_sync_timestamp.dat
+
 additions_command='cd '${target_directory}' ; /usr/bin/rsync -ri --dry-run --ignore-existing '${exclude_command}'  '${target_directory}'/ '${target_directory}'1/ | /usr/bin/cut -d" " -f2 | /bin/sed -e "s;^;\./;g" -e "/.*\/$/d" | /usr/bin/cpio -pdmvu '${target_directory}'1 2>&1 | /bin/grep "^/" | /bin/sed "s;'${target_directory}'1/;;g" | /usr/bin/tr " " "\\n"'
 modifieds_command='cd '${target_directory}'1 ; /usr/bin/rsync -ri --dry-run --checksum '${exclude_command}' '${target_directory}'/ '${target_directory}'1/ | /usr/bin/cut -d" " -f2 | /bin/sed -e "s;^;\./;g" -e  "/.*\/$/d" | /usr/bin/cpio -pdmvu '${target_directory}'1 2>&1 | /bin/grep "^/" | /bin/sed "s;'${target_directory}'1/;;g" | /usr/bin/tr " " "\\n"'
 additions=""
