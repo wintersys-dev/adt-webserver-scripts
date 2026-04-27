@@ -30,10 +30,10 @@ additions="`${HOME}/services/datastore/operations/ListFromDatastore.sh "${bucket
 for addition in ${additions}
 do
         #added needs to be tested
-        /usr/bin/tar -xfvz filesystem-sync/${bucket_type}/additions/${addition} --wildcards "webroot_sync_timestamp.dat" -C ${HOME}/runtime/datastore_workarea
+        /usr/bin/tar -xfvz filesystem-sync/${bucket_type}/additions/${addition} --wildcards "webroot_sync_timestamp.add" -C ${HOME}/runtime/datastore_workarea
 
         current_time="`/usr/bin/date +%s`"
-        processing_time="`/bin/cat ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat`"
+        processing_time="`/bin/cat ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.add`"
 
         if ( [ -f ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat ] )
         then
