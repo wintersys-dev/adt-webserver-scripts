@@ -177,13 +177,14 @@ set -x
 #Write the backup to the datastore
 if ( [ -f ${HOME}/livebackup/applicationsourcecode.tar.gz ] )
 then
-        if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}.BACKUP" "${period}${provider_id}"`" != "" ] )
-        then
-                ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "backup" "${backup_file}.BACKUP" "${period}${provider_id}"
-        fi
+        id="`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}.BACKUP" "${period}${provider_id}"`"
+       # if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}.BACKUP" "${period}${provider_id}"`" != "" ] )
+       # then
+       #         ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "backup" "${backup_file}.BACKUP" "${period}${provider_id}"
+       # fi
         if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}" "${period}${provider_id}"`" != "" ] )
         then
-                ${HOME}/services/datastore/operations/MoveDatastore.sh "backup" "${backup_file}" "${backup_file}.BACKUP" "distributed" "${period}${provider_id}"
+                ${HOME}/services/datastore/operations/MoveDatastore.sh "backup" "${backup_file}" "${backup_file}.BACKUP.${id}" "distributed" "${period}${provider_id}"
         fi
 
         /bin/systemd-inhibit --why="Persisting sourcecode to datastore" ${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/livebackup/applicationsourcecode.tar.gz" "root" "distributed" "no" "${period}${provider_id}"
