@@ -29,21 +29,14 @@ additions="`${HOME}/services/datastore/operations/ListFromDatastore.sh "${bucket
 
 for addition in ${additions}
 do
-        #Get the tar from the datastore using GetFrom and then get the timestamp of when the additions held by the archive  were processed
-        /usr/bin/tar -xfvz filesystem-sync/${bucket_type}/additions/${addition} --wildcards "webroot_sync_timestamp.add" -C ${HOME}/runtime/datastore_workarea
-
         current_time="`/usr/bin/date +%s`"
-        processing_time="`/bin/cat ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.add`"
-
-        if ( [ -f ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat ] )
-        then
-                /bin/rm ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat
-        fi
+        processing_time="`/bin/echo ${addition} | /usr/bin/awk -F'.' '{print $3}'`"
         
         if ( [ "`/usr/bin/expr ${current_time} - ${processing_time}`" -gt "60" ] )
         then
                 ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "${bucket_type}" "filesystem-sync/${bucket_type}/additions/${addition}" "distributed" "${target_directory}"
         fi
+
    #     if ( [ "`${HOME}/services/datastore/operations/AgeOfDatastoreFile.sh "${bucket_type}" "filesystem-sync/${bucket_type}/additions/${addition}" "${target_directory}"`" -gt "60" ] )
    #     then
    #             ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "${bucket_type}" "filesystem-sync/${bucket_type}/additions/${addition}" "distributed" "${target_directory}"
