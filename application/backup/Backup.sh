@@ -170,7 +170,6 @@ fi
 /usr/bin/find . -name ".*" -exec tar cvfz ${HOME}/livebackup/applicationsourcecode.tar.gz {} +
 
 #Check that a backup hasn't just been made by another webserver
-#backup_file="${datastore}/applicationsourcecode.tar.gz"
 backup_file="applicationsourcecode.tar.gz"
 
 if ( [ ! -f ${HOME}/livebackup/applicationsourcecode.tar.gz ] )
@@ -185,7 +184,7 @@ if ( [ -f ${HOME}/livebackup/applicationsourcecode.tar.gz ] )
 then
         if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}" "${period}${provider_id}"`" != "" ] )
         then
-                ${HOME}/services/datastore/operations/MoveDatastore.sh "backup" "${backup_file}" "${backup_file}.BACKUP.`/usr/bin/date +%F-%Hhr`" "distributed" "${period}${provider_id}"
+                ${HOME}/services/datastore/operations/MoveDatastore.sh "backup" "${backup_file}" "${backup_file}.ARCHIVE.`/usr/bin/date +%F-%Hhr`" "distributed" "${period}${provider_id}"
         fi
 
         /bin/systemd-inhibit --why="Persisting sourcecode to datastore" ${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/livebackup/applicationsourcecode.tar.gz" "root" "distributed" "no" "${period}${provider_id}"
