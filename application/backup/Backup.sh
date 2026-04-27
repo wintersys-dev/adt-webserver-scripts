@@ -49,7 +49,6 @@ ROOT_DOMAIN="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{$1=""}1' | /bin/se
 WEBSITE_DISPLAY_NAME="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEDISPLAYNAME' | /bin/sed 's/_/ /g'`"
 WEBSITE_DISPLAY_NAME_UPPER="`/bin/echo ${WEBSITE_DISPLAY_NAME} | /usr/bin/tr '[:lower:]' '[:upper:]'`"
 WEBSITE_DISPLAY_NAME_LOWER="`/bin/echo ${WEBSITE_DISPLAY_NAME} | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-#DIRSTOOMIT="`${HOME}/utilities/config/ExtractConfigValues.sh 'DIRECTORIESTOMOUNT' 'stripped' | /bin/sed 's/\./\//g' | /usr/bin/tr '\n' ' ' | /bin/sed 's/  / /g'`"
 
 CLOUDHOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'CLOUDHOST'`"
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTI_REGION'`"
@@ -98,16 +97,13 @@ then
         then
                 /bin/mkdir -p ${HOME}/runtime/backupworkarea
         fi
-        
+
         /bin/echo "${exclude_list}" | /bin/tr ' ' '\n' | /bin/sed -e 's;^/;;' -e 's;^;/;' > ${HOME}/runtime/backupworkarea/exclusion_list.dat
         exclude_command="--exclude-from ${HOME}/runtime/backupworkarea/exclusion_list.dat"
 fi
 
 #I sync the webroot to a holding directory to make the backup from excluding any asset directories that  have been mounted 
 command="/usr/bin/rsync -av ${exclude_command} /var/www/html/ ${HOME}/backuparea"
-
-#${HOME}/application/customise/CustomiseBackupByApplication.sh            
-
 eval "${command}"
 
 exclude_list="`/bin/grep "^EXCLUDE_FROM_BACKUP:" ${HOME}/runtime/application.dat | /bin/sed 's/EXCLUDE_FROM_BACKUP://g' | /bin/sed 's/:/ /g'`"
@@ -139,13 +135,8 @@ then
         provider_id="-${CLOUDHOST}"
 fi
 
-#datastore="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-${period}${provider_id}"
-
 #Mount the datastore that we are going to write the backup to
 ${HOME}/services/datastore/operations/MountDatastore.sh "backup" "distributed" "${period}${provider_id}"
-
-
-
 
 if ( [ ! -d ${HOME}/livebackup ] )
 then
@@ -166,28 +157,38 @@ then
         exit
 fi
 
-if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}" "${period}${provider_id}"`" != "" ] )
+if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
 then
-        if ( [ "`${HOME}/services/datastore/operations/AgeOfDatastoreFile.sh "backup" "${backup_file}" "${period}${provider_id}"`" -lt "300" ] )
+        /bin/rm ${HOME}/runtime/datastore_workarea/time_backup_written
+fi
+
+${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "time_backup_written" "${HOME}/runtime/datastore_workarea" "${period}"
+
+if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
+then
+        current_time="`/usr/bin/date +%s`"
+        backup_time="`/bin/cat ${HOME}/runtime/datastore_workarea/time_backup_written`"
+        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "60" ] )
         then
                 exit
         fi
 fi
-set -x
+
 #Write the backup to the datastore
 if ( [ -f ${HOME}/livebackup/applicationsourcecode.tar.gz ] )
 then
         backup_id="`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}.BACKUP" "${period}${provider_id}" | /usr/bin/wc -l`"
-       # if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}.BACKUP" "${period}${provider_id}"`" != "" ] )
-       # then
-       #         ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "backup" "${backup_file}.BACKUP" "${period}${provider_id}"
-       # fi
+        backup_id="`/usr/bin/expr ${backup_id} + 1`"
+
         if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}" "${period}${provider_id}"`" != "" ] )
         then
                 ${HOME}/services/datastore/operations/MoveDatastore.sh "backup" "${backup_file}" "${backup_file}.BACKUP.${backup_id}" "distributed" "${period}${provider_id}"
         fi
 
         /bin/systemd-inhibit --why="Persisting sourcecode to datastore" ${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/livebackup/applicationsourcecode.tar.gz" "root" "distributed" "no" "${period}${provider_id}"
+        time_backup_written="`/usr/bin/date +%s`"
+        /bin/echo "${time_backup_written}" > ${HOME}/runtime/datastore_workarea/time_backup_written
+        ${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/runtime/datastore_workarea/time_backup_written" "root" "distributed" "no" "${period}${provider_id}"
         /bin/rm -r ${HOME}/livebackup
 fi
 
