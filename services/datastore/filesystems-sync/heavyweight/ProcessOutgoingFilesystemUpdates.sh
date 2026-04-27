@@ -29,6 +29,7 @@ bucket_type="${2}"
 exclude_list=`${HOME}/application/configuration/GetApplicationConfigFilename.sh`
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+processing_time="`/usr/bin/date +%s`"
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
 then
@@ -47,8 +48,6 @@ if ( [ ! -d ${target_directory}1 ] )
 then
         first_run="1"
 fi
-
-processing_time="`/usr/bin/date +%s`"
 
 additions_command='cd '${target_directory}' ; /usr/bin/rsync -ri --dry-run --ignore-existing '${exclude_command}'  '${target_directory}'/ '${target_directory}'1/ | /usr/bin/cut -d" " -f2 | /bin/sed -e "s;^;\./;g" -e "/.*\/$/d" | /usr/bin/cpio -pdmvu '${target_directory}'1 2>&1 | /bin/grep "^/" | /bin/sed "s;'${target_directory}'1/;;g" | /usr/bin/tr " " "\\n"'
 modifieds_command='cd '${target_directory}'1 ; /usr/bin/rsync -ri --dry-run --checksum '${exclude_command}' '${target_directory}'/ '${target_directory}'1/ | /usr/bin/cut -d" " -f2 | /bin/sed -e "s;^;\./;g" -e  "/.*\/$/d" | /usr/bin/cpio -pdmvu '${target_directory}'1 2>&1 | /bin/grep "^/" | /bin/sed "s;'${target_directory}'1/;;g" | /usr/bin/tr " " "\\n"'
@@ -98,18 +97,20 @@ done
 /usr/bin/find ${target_directory} -type d -empty -delete
 /usr/bin/find ${target_directory}1 -type d -empty -delete
 
-rnd="`/usr/bin/shuf -i1-10000 -n1`"
+#rnd="`/usr/bin/shuf -i1-10000 -n1`"
 
 if ( [ -f ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.${processing_time}.tar.gz ] )
 then
         ${HOME}/services/datastore/operations/PutToDatastore.sh  "${bucket_type}" "${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.${processing_time}.tar.gz" "filesystem-sync/${bucket_type}/additions" "distributed" "no" "${target_directory}"
-        /bin/mv ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.${processing_time}.tar.gz ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.${processing_time}.${rnd}.tar.gz
-        ${HOME}/services/datastore/operations/PutToDatastore.sh  "${bucket_type}"  "${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.${processing_time}.${rnd}.tar.gz" "filesystem-sync/${bucket_type}/historical/additions" "distributed" "no" "${target_directory}"
+     ###What were these here for
+     #   /bin/mv ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.${processing_time}.tar.gz ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.${processing_time}.${rnd}.tar.gz
+     #   ${HOME}/services/datastore/operations/PutToDatastore.sh  "${bucket_type}"  "${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.${processing_time}.${rnd}.tar.gz" "filesystem-sync/${bucket_type}/historical/additions" "distributed" "no" "${target_directory}"
 fi
 
 if ( [ -f ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/deletions/deletions.${machine_ip}.${processing_time}.log ] )
 then
         ${HOME}/services/datastore/operations/PutToDatastore.sh   "${bucket_type}"  "${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/deletions/deletions.${machine_ip}.${processing_time}.log" "filesystem-sync/${bucket_type}/deletions" "distributed" "no" "${target_directory}"
-        /bin/mv ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/deletions/deletions.${machine_ip}.${processing_time}.log ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/deletions/deletions.${machine_ip}.${processing_time}.${rnd}.log 
-        ${HOME}/services/datastore/operations/PutToDatastore.sh   "${bucket_type}" "${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/deletions/deletions.${machine_ip}.${processing_time}.${rnd}.log" "filesystem-sync/${bucket_type}/historical/deletions" "distributed" "no" "${target_directory}"
+     # What were these here for
+     #   /bin/mv ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/deletions/deletions.${machine_ip}.${processing_time}.log ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/deletions/deletions.${machine_ip}.${processing_time}.${rnd}.log 
+     #   ${HOME}/services/datastore/operations/PutToDatastore.sh   "${bucket_type}" "${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/deletions/deletions.${machine_ip}.${processing_time}.${rnd}.log" "filesystem-sync/${bucket_type}/historical/deletions" "distributed" "no" "${target_directory}"
 fi
