@@ -29,14 +29,15 @@ deletions="`${HOME}/services/datastore/operations/ListFromDatastore.sh "${bucket
 
 for deletion in ${deletions}
 do
-        /usr/bin/tar -xfvz filesystem-sync/${bucket_type}/deletions/${deletion} --wildcards "webroot_sync_timestamp.del" -C ${HOME}/runtime/datastore_workarea
+        #Get the logfile from the datastore using GetFrom and then get the timestamp of when the logfile was processed
+
 
         current_time="`/usr/bin/date +%s`"
         processing_time="`/bin/cat ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.del`"
 
-        if ( [ -f ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat ] )
+        if ( [ -f ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.del ] )
         then
-                /bin/rm ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.dat
+                /bin/rm ${HOME}/runtime/datastore_workarea/webroot_sync_timestamp.del
         fi
         
         if ( [ "`/usr/bin/expr ${current_time} - ${processing_time}`" -gt "60" ] )
