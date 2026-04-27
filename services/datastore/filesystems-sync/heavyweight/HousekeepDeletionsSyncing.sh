@@ -29,7 +29,8 @@ deletions="`${HOME}/services/datastore/operations/ListFromDatastore.sh "${bucket
 
 for deletion in ${deletions}
 do
-        #Get the logfile from the datastore using GetFrom and then get the timestamp of when the logfile was processed
+        #Get the logfile from the datastore using GetFrom and then get the timestamp of when the deletions in the logfile were processed
+        #Logfile needs to contain the timestamp in the filename of the file in the logfile
 
 
         current_time="`/usr/bin/date +%s`"
