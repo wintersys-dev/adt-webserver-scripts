@@ -48,8 +48,8 @@ then
         first_run="1"
 fi
 
-time_adds_processed="`/usr/bin/date +%s`"
-/bin/echo "${time_adds_processed}" > ${target_dirctory}/webroot_sync_timestamp.add
+time_additions_processed="`/usr/bin/date +%s`"
+/bin/echo "${time_additions_processed}" > ${target_dirctory}/webroot_sync_timestamp.add
 
 additions_command='cd '${target_directory}' ; /usr/bin/rsync -ri --dry-run --ignore-existing '${exclude_command}'  '${target_directory}'/ '${target_directory}'1/ | /usr/bin/cut -d" " -f2 | /bin/sed -e "s;^;\./;g" -e "/.*\/$/d" | /usr/bin/cpio -pdmvu '${target_directory}'1 2>&1 | /bin/grep "^/" | /bin/sed "s;'${target_directory}'1/;;g" | /usr/bin/tr " " "\\n"'
 modifieds_command='cd '${target_directory}'1 ; /usr/bin/rsync -ri --dry-run --checksum '${exclude_command}' '${target_directory}'/ '${target_directory}'1/ | /usr/bin/cut -d" " -f2 | /bin/sed -e "s;^;\./;g" -e  "/.*\/$/d" | /usr/bin/cpio -pdmvu '${target_directory}'1 2>&1 | /bin/grep "^/" | /bin/sed "s;'${target_directory}'1/;;g" | /usr/bin/tr " " "\\n"'
@@ -77,6 +77,11 @@ then
 fi
 
 /bin/rm ${HOME}/runtime/filesystem_sync/${bucket_type}/outgoing/additions/additions.${machine_ip}.$$.log
+
+/bin/rm ${target_dirctory}1/webroot_sync_timestamp.del 2>/dev/null
+
+time_deletions_processed="`/usr/bin/date +%s`"
+/bin/echo "${time_deletions_processed}" > ${target_dirctory}1/webroot_sync_timestamp.del
 
 deletes_command='/usr/bin/rsync --dry-run -vr '${exclude_command}' '${target_directory}'1/ '${target_directory}' 2>&1 | /bin/sed -e "/^$/d" -e  "/.*\/$/d" | /usr/bin/tail -n +2 | /usr/bin/head -n -2 | /usr/bin/tr " " "\\n" '
 deletes=`eval ${deletes_command}`
