@@ -1,13 +1,12 @@
 #!/bin/sh
 ###########################################################################################################
-# Description:On the build machine you can set directories and files corresponding to joomla that this
-# script will compare against the joomla you have installed for integrity reasons. For example, if for
-# some reason a tar archive only partially untarred then this script checks for that by checking against
-# the list of directories and files you have said you expect to be there for joomla.
+# Description:On the build machine you can set directories and files corresponding to social messenger that this
+# script will compare against the social messenger you have installed for integrity reasons. This script checks 
+# partial installation by checking against the list of directories and files you have said you expect to be there.
 # You can adjust the directories you expect to be there in the application descriptor which in the case of 
-# joomla you will find in the build-machine repository at:
+# social messenger you will find in the build-machine repository at:
 #
-#       ${BUILD_HOME}/application/descriptors/joomla.dat
+#       ${BUILD_HOME}/application/3rd-party/social-messenger/descriptor.dat
 #
 # Author : Peter Winter
 # Date: 17/05/2017
