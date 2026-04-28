@@ -42,61 +42,44 @@ then
         /bin/mkdir -p ${HOME}/logs/application_configuration
 fi
 
-exec 1>>${HOME}/logs/application_configuration/ossn_out.log
-exec 2>>${HOME}/logs/application_configuration/ossn_err.log
+exec 1>>${HOME}/logs/application_configuration/social_messager_out.log
+exec 2>>${HOME}/logs/application_configuration/social_messager_err.log
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/ossn"
+        webroot_directory="/var/www/html/social-messenger"
 fi
 
-if ( [ -f ${webroot_directory}/configurations/ossn.config.db.example.php ] )
+if ( [ -f ${webroot_directory}/config.php ] )
 then
-        /bin/cp ${webroot_directory}/configurations/ossn.config.db.example.php /var/www/html/ossn.config.db.php.default
-        /bin/chown www-data:www-data /var/www/html/ossn.config.db.php.default
+        /bin/cp ${webroot_directory}/config.php /var/www/html/config.php.default
+        /bin/chown www-data:www-data /var/www/html/config.phpdefault
 fi
 
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file}" = "" ] )
 then
-        config_file="/var/www/html/ossn.config.db.php"
+        config_file="/var/www/html/config.php"
 fi
 
-if ( [ -f ${webroot_directory}/ossn.config.db.php ] )
+if ( [ -f ${webroot_directory}/config.php ] )
 then
-        /bin/rm ${webroot_directory}/ossn.config.db.php
+        /bin/rm ${webroot_directory}/config.php
 fi
 
-config_file_site="`/bin/grep "^CONFIG_FILE_SITE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
-if ( [ "${config_file_site}" = "" ] )
-then
-        config_file_site="/var/www/html/ossn.site.db.php"
-fi
-
-if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
-then
-        /bin/rm ${webroot_directory}/ossn.config.site.php
-fi
-
-if ( [ -f ${webroot_directory}/configurations/ossn.config.site.example.php ] )
-then
-        /bin/cp ${webroot_directory}/configurations/ossn.config.site.example.php /var/www/html/ossn.config.site.php.default
-        /bin/chown www-data:www-data /var/www/html/ossn.config.site.php.default
-fi
-
-dbprefix="ossn_"
+dbprefix="social_messenger_"
 /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
 /bin/chown www-data:www-data /var/www/html/dbp.dat
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
-        if ( [ ! -f ${webroot_directory}/ossn.config.db.php ] || [ ! -f ${webroot_directory}/ossn.site.db.php ] )
+        if ( [ ! -f ${webroot_directory}/config.php ] )
         then
-                while ( [ ! -f ${webroot_directory}/ossn.config.db.php ] || [ ! -f ${webroot_directory}/ossn.site.db.php ] )
+                while ( [ ! -f ${webroot_directory}/config.php ] )
                 do
                         /bin/sleep 1
                 done
@@ -153,17 +136,9 @@ else
                 done
         fi
 
-        if ( [ -f /var/www/html/ossn.config.db.php.default ] )
+        if ( [ -f /var/www/html/config.php.default ] )
         then
-                /bin/cp /var/www/html/ossn.config.db.php.default ${config_file}
-        else
-                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
-                exit
-        fi
-
-        if ( [ -f /var/www/html/ossn.config.site.php.default ] )
-        then
-                /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
+                /bin/cp /var/www/html/config.php.default ${config_file}
         else
                 ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
                 exit
