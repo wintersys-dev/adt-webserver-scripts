@@ -84,6 +84,7 @@ then
                         for module in ${php_modules}
                         do
                                 ${install_command} php${PHP_VERSION}-${module}
+                                 /usr/bin/dpkg -L php${PHP_VERSION}-${module} > /tmp/file
                         done
 
                         /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
@@ -106,6 +107,7 @@ then
                         for module in ${php_modules}
                         do
                                 ${install_command} php${PHP_VERSION}-${module}
+                                 /usr/bin/dpkg -L php${PHP_VERSION}-${module} > /tmp/file
                         done
                         /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                 fi
