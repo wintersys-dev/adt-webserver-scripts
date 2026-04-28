@@ -156,7 +156,7 @@ else
                 type="mysqli"
         fi
 
-        /bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}}'");/g' ${config_file}
+        /bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}'");/g' ${config_file}
         /bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${user}'");/g' ${config_file}
         /bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${password}'");/g' ${config_file}
         /bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${dbname}'");/g' ${config_file}
