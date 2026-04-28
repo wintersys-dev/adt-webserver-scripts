@@ -158,24 +158,16 @@ else
                 type="mysqli"
         fi
 
-        /bin/sed -i "s%<<host>>%${HOST}%" ${config_file}
-        /bin/sed -i "s%<<port>>%${DB_PORT}%" ${config_file}
-        /bin/sed -i "s%<<user>>%${user}%" ${config_file}
-        /bin/sed -i "s%<<password>>%${password}%" ${config_file}
-        /bin/sed -i "s%<<dbname>>%${dbname}%" ${config_file}
+        /bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${var}'");/g' ${config_file}
+        /bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${var}'");/g' ${config_file}
+        /bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${var}'");/g' ${config_file}
+        /bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${var}'");/g' ${config_file}
 
-        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
-        /bin/sed -i "s%<<siteurl>>%https://${WEBSITE_URL}/%" ${config_file_site}
-
-        data_directory="`/bin/grep "^DATA_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-        /bin/sed -i "s%<<datadir>>%${data_directory}/%" ${config_file_site}
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
-                ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
-                /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/ossn.install.php
+                ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/database.sql
         else
                 /bin/touch ${webroot_directory}/installation/INSTALLED
                 /bin/chown www-data:www-data ${webroot_directory}/installation/INSTALLED
@@ -183,7 +175,7 @@ else
 fi
 
 #This is how we tell ourselves this is a the Open Source Social Network  application
-/bin/echo "OSSN" > /var/www/html/dba.dat
+/bin/echo "SOCIAL-MESSENGER" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
@@ -195,27 +187,16 @@ then
         /bin/chmod 440 ${webroot_directory}/.htaccess
 fi
 
-if ( [ -f ${webroot_directory}/ossn.config.db.php ] )
+if ( [ -f ${webroot_directory}/config.php ] )
 then
-        /bin/mv ${webroot_directory}/ossn.config.db.php ${config_file}
+        /bin/mv ${webroot_directory}/config.php ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/chown 740 ${config_file}
 fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configurations/ossn.config.db.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
-/bin/chmod 440 ${webroot_directory}/configurations/ossn.config.db.php
-
-if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
-then
-        /bin/mv ${webroot_directory}/ossn.config.site.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chown 740 ${config_file}
-fi
-
-/bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chmod 440 ${webroot_directory}/configurations/ossn.config.site.php
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
+/bin/chown www-data:www-data ${webroot_directory}/config.php
+/bin/chmod 440 ${webroot_directory}/config.php
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
