@@ -177,14 +177,6 @@ fi
 /bin/echo "SOCIAL-MESSENGER" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
-if ( [ ! -f ${webroot_directory}/.htaccess ] )
-then
-        /bin/sed -i 's/order allow,deny/Require all granted/g' ${webroot_directory}/installation/configs/htaccess.dist
-        /bin/sed -i 's/deny from all//g' ${webroot_directory}/installation/configs/htaccess.dist
-        /bin/cp ${webroot_directory}/installation/configs/htaccess.dist ${webroot_directory}/.htaccess 
-        /bin/chown www-data:www-data ${webroot_directory}/.htaccess 
-        /bin/chmod 440 ${webroot_directory}/.htaccess
-fi
 
 if ( [ -f ${webroot_directory}/config.php ] )
 then
@@ -226,7 +218,7 @@ then
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
 fi
 
-/usr/bin/php -ln ${config_file_site}
+/usr/bin/php -ln ${config_file}
 
 if ( [ "$?" != "0" ] )
 then
