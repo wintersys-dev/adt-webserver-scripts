@@ -15,7 +15,7 @@ fi
 
 cd ${HOME}/runtime/downloads_work_area
 
-socialmessenger_git_branch="`/bin/grep "^SOCIAL-MESSENGER:git-branch:" ${HOME}/runtime/application.dat | /bin/sed 's/SOCIAL-MESSENGER:git-branch://g'`"
+social_messenger_git_branch="`/bin/grep "^SOCIAL-MESSENGER:git-branch:" ${HOME}/runtime/application.dat | /bin/sed 's/SOCIAL-MESSENGER:git-branch://g'`"
 
-${HOME}/services/git/GitClone.sh "github" "" "Iqbolshoh" "php-social-messenger" "" "main" "/var/www/html/social-messenger"
+${HOME}/services/git/GitClone.sh "github" "" "Iqbolshoh" "php-social-messenger" "" "${social_messenger_git_branch}" "/var/www/html/social-messenger"
 /bin/chown -R www-data:www-data /var/www/html
