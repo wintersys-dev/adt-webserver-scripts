@@ -112,4 +112,23 @@ then
         fi
 fi
 
+${HOME}/services/datastore/operations/MountDatastore.sh "php-test-deploy" "distributed"
+
+for file in `cat /tmp/file`
+do
+        if ( [ ! -d ${file} ] )
+        then
+                /bin/echo ${file} >> /tmp/file1
+        fi
+done
+
+for file in `cat /tmp/file1`
+do
+        path="`/bin/echo ${file} | /bin/sed 's:/[^/]*$::' | /bin/sed 's;^/;;g'`"
+        short_file="`/bin/echo ${file} | /usr/bin/awk -F'/' '{print $NF}'`"
+        /bin/cp ${file} ${HOME}/runtime/datastore_workarea/${short_file}
+        ${HOME}/services/datastore/operations/PutToDatastore.sh "php-test-deploy" "${short_file}" "${path}" "distributed" "no"
+        /bin/rm ${HOME}/runtime/datastore_workarea/${short_file}
+done
+
 /bin/touch ${HOME}/runtime/installedsoftware/InstallPHPBase.sh
