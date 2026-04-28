@@ -7,7 +7,7 @@
 # You can adjust the directories you expect to be there in the application descriptor which in the case of 
 # wordpress you will find in the build-machine repository at:
 #
-#       ${BUILD_HOME}/application/descriptors/wordpress.dat
+#		${BUILD_HOME}/application/cms/wordpress/descriptor.dat
 #
 # Author : Peter Winter
 # Date: 17/05/2017
