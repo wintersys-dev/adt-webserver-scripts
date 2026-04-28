@@ -1,6 +1,9 @@
 #!/bin/sh
 ###########################################################################################################
 # Description:Check if a drupal application has been installed
+#
+# 		${BUILD_HOME}/application/cms/drupal/descriptor.dat
+#
 # Author : Peter Winter
 # Date: 17/05/2017
 ######################################################################################################
