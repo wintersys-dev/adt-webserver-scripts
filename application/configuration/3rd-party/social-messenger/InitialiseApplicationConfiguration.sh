@@ -50,10 +50,10 @@ then
         webroot_directory="/var/www/html/social-messenger"
 fi
 
-if ( [ -f ${webroot_directory}/config.php ] )
+if ( [ -f ${webroot_directory}/config.php ] && [ ! -f /var/www/html/config.php.default ] )
 then
         /bin/cp ${webroot_directory}/config.php /var/www/html/config.php.default
-        /bin/chown www-data:www-data /var/www/html/config.phpdefault
+        /bin/chown www-data:www-data /var/www/html/config.php.default
 fi
 
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -69,7 +69,7 @@ then
 fi
 
 
-dbprefix="social_messenger_"
+dbprefix="social_messenger_" #This is expected to be present even though it is not used by other parts of the processing
 /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
 /bin/chown www-data:www-data /var/www/html/dbp.dat
 
