@@ -69,6 +69,7 @@ then
                         for module in ${php_application_modules}
                         do
                                 ${install_command} php${PHP_VERSION}-${module}
+                                /usr/bin/dpkg -L php${PHP_VERSION}-${module} > /tmp/file
                         done
                 fi
         fi
@@ -82,6 +83,7 @@ then
                         for module in ${php_application_modules}
                         do
                                 ${install_command} php${PHP_VERSION}-${module}
+                                /usr/bin/dpkg -L php${PHP_VERSION}-${module} > /tmp/file
                         done
                 fi
         fi
