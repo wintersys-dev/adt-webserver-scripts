@@ -42,8 +42,6 @@ then
         /bin/mkdir -p ${HOME}/logs/application_configuration
 fi
 
-exec 1>>${HOME}/logs/application_configuration/social_messager_out.log
-exec 2>>${HOME}/logs/application_configuration/social_messager_err.log
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -158,15 +156,16 @@ else
                 type="mysqli"
         fi
 
-        /bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${var}'");/g' ${config_file}
-        /bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${var}'");/g' ${config_file}
-        /bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${var}'");/g' ${config_file}
-        /bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${var}'");/g' ${config_file}
+        /bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}}'");/g' ${config_file}
+        /bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${user}'");/g' ${config_file}
+        /bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${password}'");/g' ${config_file}
+        /bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${dbname}'");/g' ${config_file}
 
 
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
+                /bin/sed -i "s/social_messenger_db/${dbname}/g" ${webroot_directory}/database.sql
                 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/database.sql
         else
                 /bin/touch ${webroot_directory}/installation/INSTALLED
