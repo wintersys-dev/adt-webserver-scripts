@@ -152,6 +152,11 @@ then
 	/bin/chown www-data:www-data /var/www/html/*
 	/bin/chmod 644 /var/www/html/*
 	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
+	if ( [ ! -d /var/www/basic-auth ] )
+	then
+        /bin/mkdir /var/www/basic-auth
+        /bin/chown www-data:www-data /var/www/basic-auth
+	fi
 fi
 
 if ( [ -d /var/www/html/html ] )
