@@ -279,7 +279,7 @@ then
 
                 if ( [ "${firewall}" = "ufw" ] )
                 then
-                        if ( [ "${port}" = "cloudflare" ] )
+                        if ( [ "${ip_address}" = "cloudflare" ] )
                         then
                                 for ip in `/usr/bin/curl https://www.cloudflare.com/ips-v4/#`
                                 do
