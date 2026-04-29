@@ -158,11 +158,13 @@ then
 	php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
 	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/log/basic-auth%" ${php_ini}
 	
-	${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
-	${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm start 
 fi
 
-${HOME}/utilities/processing/RunServiceCommand.sh apache2 restart
+${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
+${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm start 
+${HOME}/utilities/processing/RunServiceCommand.sh apache2 stop
+${HOME}/utilities/processing/RunServiceCommand.sh apache2 start
+
 
 #${HOME}/services/dns/TrustRemoteProxy.sh
 ${HOME}/services/email/SendEmail.sh "THE APACHE WEBSERVER HAS BEEN INSTALLED" "Apache webserver built from repositories is installed and primed" "INFO"
