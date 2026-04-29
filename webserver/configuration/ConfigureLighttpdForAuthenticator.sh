@@ -131,6 +131,11 @@ then
 	/bin/chown www-data:www-data /var/www/html/*
 	/bin/chmod 644 /var/www/html/*
 	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
+	if ( [ ! -d /var/www/basic-auth ] )
+	then
+        /bin/mkdir /var/www/basic-auth
+        /bin/chown www-data:www-data /var/www/basic-auth
+	fi
 fi
 
 ${HOME}/services/email/SendEmail.sh "THE LIGHTTPD WEBSERVER HAS BEEN INSTALLED" "Lighttpd webserver is installed and primed" "INFO"
