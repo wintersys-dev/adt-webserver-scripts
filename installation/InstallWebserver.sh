@@ -19,7 +19,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ##################################################################################
 ##################################################################################
-set -x
+#set -x
 
 WEBSERVER_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSERVERCHOICE'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
@@ -30,33 +30,63 @@ buildos=""
 
 if ( [ "${1}" != "" ] )
 then
-	buildos="${1}"
+        buildos="${1}"
 fi
 
 if ( [ "${buildos}" = "" ] )
 then
-	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 else 
-	BUILDOS="${buildos}"
+        BUILDOS="${buildos}"
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "NGINX" ] )
 then
-	${HOME}/installation/InstallNGINX.sh ${BUILDOS}
-	${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
+        ${HOME}/installation/InstallNGINX.sh ${BUILDOS}
+
+        if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
+        elif ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureNginxForReverseProxy.sh
+        elif ( [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureNginxForAuthenticator.sh
+        fi
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
 then
-	${HOME}/installation/InstallApache.sh ${BUILDOS}
-	${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
+        ${HOME}/installation/InstallApache.sh ${BUILDOS}
+
+        if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
+        elif ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureApacheForReverseProxy.sh
+        elif ( [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureApacheForAuthenticator.sh
+        fi
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "LIGHTTPD" ] )
 then
-	${HOME}/installation/InstallLighttpd.sh ${BUILDOS}	
-	${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
+        ${HOME}/installation/InstallLighttpd.sh ${BUILDOS}
+
+        if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
+        elif ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureLighttpdForReverseProxy.sh
+        elif ( [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+        then
+                ${HOME}/webserver/configuration/ConfigureLighttpdForAuthenticator.sh
+        fi
 fi
 
-/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh				
+/bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh			
 
