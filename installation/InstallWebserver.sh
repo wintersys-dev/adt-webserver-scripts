@@ -43,49 +43,20 @@ fi
 if ( [ "${WEBSERVER_TYPE}" = "NGINX" ] )
 then
         ${HOME}/installation/InstallNGINX.sh ${BUILDOS}
-
-        if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
-        elif ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureNginxForReverseProxy.sh
-        elif ( [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureNginxForAuthenticator.sh
-        fi
+        ${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
 then
         ${HOME}/installation/InstallApache.sh ${BUILDOS}
-
-        if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
-        elif ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureApacheForReverseProxy.sh
-        elif ( [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureApacheForAuthenticator.sh
-        fi
+        ${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "LIGHTTPD" ] )
 then
         ${HOME}/installation/InstallLighttpd.sh ${BUILDOS}
+        ${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
 
-        if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
-        elif ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureLighttpdForReverseProxy.sh
-        elif ( [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
-        then
-                ${HOME}/webserver/configuration/ConfigureLighttpdForAuthenticator.sh
-        fi
 fi
 
 /bin/touch ${HOME}/runtime/installedsoftware/InstallWebserver.sh			
