@@ -162,9 +162,6 @@ then
 	php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
 	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/log/basic-auth%" ${php_ini}
 
-	${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
-	${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm start 
-	
 fi
 
 if ( [ -d /var/www/html/html ] )
@@ -172,5 +169,9 @@ then
         /bin/rm -r /var/www/html/html
 fi
 
-${HOME}/utilities/processing/RunServiceCommand.sh nginx.service restart &
+${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
+${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm start 
+${HOME}/utilities/processing/RunServiceCommand.sh nginx stop
+${HOME}/utilities/processing/RunServiceCommand.sh nginx start
+
 ${HOME}/services/email/SendEmail.sh "THE NGINX WEBSERVER HAS BEEN INSTALLED" "Nginx authenticator is installed and primed" "INFO"
