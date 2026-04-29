@@ -16,9 +16,9 @@ basic_auth_previous_credentials="${HOME}/runtime/authenticator/previous-basic-au
 
 /bin/touch ${basic_auth_previous_credentials}
 
-if ( [ -f /var/www/html/tmp/basic-auth.dat ] )
+if ( [ -f /var/www/basic-auth/basic-auth.dat ] )
 then
-        /bin/mv /var/www/html/tmp/basic-auth.dat ${basic_auth_file}.$$
+        /bin/mv /var/www/basic-auth/basic-auth.dat ${basic_auth_file}.$$
 else
         exit
 fi
