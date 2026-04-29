@@ -136,6 +136,11 @@ then
         /bin/mkdir /var/www/basic-auth
         /bin/chown www-data:www-data /var/www/basic-auth
 	fi
+
+	PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
+	php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
+	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/log/basic-auth%" ${php_ini}
+	
 fi
 
 ${HOME}/services/email/SendEmail.sh "THE LIGHTTPD WEBSERVER HAS BEEN INSTALLED" "Lighttpd webserver is installed and primed" "INFO"
