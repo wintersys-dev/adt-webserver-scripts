@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################################################
-# Description: This will generate a one time link to a file allowing the user to input their IP address
+# Description: This will generate a one time link to a QR code for access to wireguard enabled servers
 # Author : Peter Winter
 # Date: 17/05/2017
 ######################################################################################################
@@ -30,24 +30,29 @@ then
         /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
 fi
 
-email_list="`/bin/cat ${HOME}/runtime/authenticator/authentication-emails.dat | /usr/bin/awk -F':' '{print $NF}'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+email_addresses=`/bin/ls /etc/wireguard/freshqrcodes/client_*.png | /bin/sed -e 's/.*client_//g' -e 's/\.png//g'`
 
-#create a diirectory for new QR codes send the email to email address that the QR code is labelled as  and then move the QR code into processed. 
-#When we generate the QR code check if it exists in the processed directory and if it does, copy it from the processed to tbe new
-#Also copy all the processed QR codes to the datastore and sync them down to the processed directory from other machines
-
-for email_address in ${email_list}
+for email_address in ${email_addresses}
 do
-        file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-        full_file_name="/var/www/html/authorise-email-${file_name}.html"
-        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/request_authorisation.html ${full_file_name}
-        /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
-        /bin/chown www-data:www-data ${full_file_name}
-        /bin/chmod 644 ${full_file_name}
-        website_url="https://${WEBSITE_URL}/authorise-email-${file_name}.html"
-        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${website_url}"'>Enable Your IP Address</a> </body> </html>"
-        ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
-        /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/authentication-emails.dat
+        if ( [ -f /etc/wireguard/freshqrcodes/client_${email_address}.png ] )
+        then
+                file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
+                full_file_name="/var/www/html/qrcode-${file_name}-${email_address}.png"
+                /bin/cp /etc/wireguard/freshqrcodes/client_${email_address}.png ${full_file_name}
+                /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
+                /bin/chown www-data:www-data ${full_file_name}
+                /bin/chmod 644 ${full_file_name}
+                website_url="https://${WEBSITE_URL}/authorise-email-${file_name}.html"
+                message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${website_url}"'>View Your Wireguard QR Code</a> </body> </html>"
+                ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
+               
+                if ( [ ! -d /etc/wireguard/processedqrcodes ] )
+                then
+                        /bin/mkdir /etc/wireguard/processedqrcodes
+                fi
+                
+                /bin/mv /etc/wireguard/freshqrcodes/client_${email_address}.png /etc/wireguard/processedqrcodes/client_${email_address}.png
+        fi              
 done
