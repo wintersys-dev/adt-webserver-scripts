@@ -54,7 +54,7 @@ then
 
                         /bin/echo "[Interface]
                         PrivateKey = ${server_private_key}
-                        Address = 10.0.0.1/8
+                        Address = 10.0.0.1/16
                         ListenPort = ${wireguard_port}
                         PostUp = iptables -t nat -I POSTROUTING -o ens4 -j MASQUERADE
                         PostDown = iptables -t nat -D POSTROUTING -o ens4 -j MASQUERADE" > /etc/wireguard/wg0.conf
@@ -77,10 +77,14 @@ then
                 server_public_key="`/bin/cat /etc/wireguard/server_public.key`"
                 server_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
+                twenty_four="`/usr/bin/expr ${client_no} / 255`"
+                iteration="`/usr/bin/expr ${twenty_four} * 255`" 
+                thirty_two="`/usr/bin/expr ${client_no} - ${interation}`"
+
                 # Add peer to server config
                 /bin/echo "[Peer]
                 PublicKey = ${new_client_public_key}
-                AllowedIPs = 10.0.0.${client_no}/32" >> /etc/wireguard/wg0.conf 
+                AllowedIPs = 10.0.${twenty_four}.${client_no}/32" >> /etc/wireguard/wg0.conf 
 
 
                 # Create client config
