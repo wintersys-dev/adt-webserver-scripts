@@ -45,7 +45,7 @@ export DEBIAN_FRONTEND=noninteractive
 install_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y install "
 
 count="0"
-while ( [ ! -f /usr/bin/wireguard ] && [ "${count}" -lt "5" ] )
+while ( [ ! -f /usr/bin/wg ] && [ "${count}" -lt "5" ] )
 do
 	if ( [ "${apt}" != "" ] )
 	then
@@ -63,7 +63,7 @@ do
 done
 
 
-if ( [ ! -x /usr/bin/wireguard ] && [ "${count}" = "5" ] )
+if ( [ ! -x /usr/bin/wg ] && [ "${count}" = "5" ] )
 then
 	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR wireguard" "I believe that wireguard hasn't installed correctly, please investigate" "ERROR"
 else
