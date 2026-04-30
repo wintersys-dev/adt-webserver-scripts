@@ -19,7 +19,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-#set -x
+set -x
 
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
@@ -119,6 +119,9 @@ then
         done
 fi
 
-/bin/rm ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
+if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
+then
+        /bin/rm ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
+fi
 
 ###### Put the /etc/wireguard/wg0.conf file to the datastore and put each of the /etc/wireguard/client-${email_address}.conf files to the datastore
