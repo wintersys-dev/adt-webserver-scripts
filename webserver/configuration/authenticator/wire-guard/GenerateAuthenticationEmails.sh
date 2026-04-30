@@ -27,7 +27,7 @@ fi
 
 if ( [ -f /tmp/authentication-emails.dat ] )
 then
-	/bin/mv /tmp/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
+	/bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
 fi
 
 email_list="`/bin/cat ${HOME}/runtime/authenticator/authentication-emails.dat | /usr/bin/awk -F':' '{print $NF}'`"
