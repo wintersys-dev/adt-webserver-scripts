@@ -38,7 +38,7 @@ for email_address in ${email_list}
 do
 	file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 	full_file_name="/var/www/html/ip-address-${file_name}.html"
-	/bin/cp ${HOME}/webserver/configuration/authenticator/firewall/ip-collector.html ${full_file_name}
+	/bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/authorised-email.html ${full_file_name}
 	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
 	/bin/chown www-data:www-data ${full_file_name}
 	/bin/chmod 644 ${full_file_name}
