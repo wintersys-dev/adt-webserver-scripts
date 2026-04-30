@@ -107,7 +107,11 @@ then
 
                 if ( [ ! -f /etc/wireguard/client_${email_address}.png ] )
                 then
-                        /usr/bin/qrencode -t png -o /etc/wireguard/client_${email_address}.png -r /etc/wireguard/client_${email_address}.conf
+                        if ( [ ! -d /etc/wireguard/freshqrcodes ] )
+                        then
+                                /bin/mkdir /etc/wireguard/freshqrcodes
+                        fi
+                        /usr/bin/qrencode -t png -o /etc/wireguard/freshqrcodes/client_${email_address}.png -r /etc/wireguard/client_${email_address}.conf
                 fi
                 
                 /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
