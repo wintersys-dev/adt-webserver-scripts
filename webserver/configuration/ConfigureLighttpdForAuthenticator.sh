@@ -157,7 +157,7 @@ then
                 /bin/mkdir /var/www/wire-guard
                 /bin/chown www-data:www-data /var/www/wire-guard
         fi
-        #/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/wire-guard%" ${php_ini}
+        /bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/wire-guard%" ${php_ini}
 fi
 
 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
