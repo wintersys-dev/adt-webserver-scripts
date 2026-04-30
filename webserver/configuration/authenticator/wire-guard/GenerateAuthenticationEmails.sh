@@ -44,7 +44,7 @@ do
                 /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
                 /bin/chown www-data:www-data ${full_file_name}
                 /bin/chmod 644 ${full_file_name}
-                website_url="https://${WEBSITE_URL}/authorise-email-${file_name}.html"
+                website_url="https://${WEBSITE_URL}/qrcode-${file_name}-${email_address}.png"
                 message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${website_url}"'>View Your Wireguard QR Code</a> </body> </html>"
                 ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
 
