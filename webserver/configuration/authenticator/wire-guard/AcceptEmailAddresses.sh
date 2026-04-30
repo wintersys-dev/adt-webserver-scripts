@@ -104,7 +104,17 @@ then
                         AllowedIPs = 0.0.0.0/0
                         PersistentKeepalive = 25" > /etc/wireguard/client_${email_address}.conf
                 fi
+
+                if ( [ ! -f /etc/wireguard/client_${email_address}.png ] )
+                then
+                        /usr/bin/qrencode -t png -o /etc/wireguard/client_${email_address}.png -r /etc/wireguard/client_${email_address}.conf
+                fi
+                
+                /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
+
         done
 fi
+
+/bin/rm ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 
 ###### Put the /etc/wireguard/wg0.conf file to the datastore and put each of the /etc/wireguard/client-${email_address}.conf files to the datastore
