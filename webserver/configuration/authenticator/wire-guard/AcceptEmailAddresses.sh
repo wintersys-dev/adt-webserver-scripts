@@ -78,19 +78,19 @@ then
                 # Add peer to server config
                 /bin/echo "[Peer]
                 PublicKey = ${new_client_public_key}
-                AllowedIPs = 10.0.0.$((CLIENT_NUM + 1))/32" >> /etc/wireguard/wg0.conf 
+                AllowedIPs = 10.0.0.${client_no}/32" >> /etc/wireguard/wg0.conf 
 
 
                 # Create client config
                 /bin/echo "[Interface]
                 PrivateKey = ${new_client_private_key}
-                Address = 10.0.0.$((CLIENT_NUM + 1))/32
+                Address = 10.0.0.${client_no}/32
                 DNS = 1.1.1.1, 1.0.0.1
 
                 [Peer]
                 PublicKey = ${server_public_key}
                 Endpoint = ${server_ip}:${wireguard_port}
                 AllowedIPs = 0.0.0.0/0, ::/0
-                PersistentKeepalive = 25" > /etc/wireguard/client${client_no}.conf
+                PersistentKeepalive = 25" > /etc/wireguard/client-${email_address}.conf
         done
 fi
