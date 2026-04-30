@@ -37,12 +37,13 @@ WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEUR
 for email_address in ${email_list}
 do
         file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-        full_file_name="/var/www/html/ip-address-${file_name}.html"
-        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/authorise-email.html ${full_file_name}
+        full_file_name="/var/www/html/authorise-email-${file_name}.html"
+        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/request_authorisation.html ${full_file_name}
+        exit
         /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
         /bin/chown www-data:www-data ${full_file_name}
         /bin/chmod 644 ${full_file_name}
-        website_url="https://${WEBSITE_URL}/ip-address-${file_name}.html"
+        website_url="https://${WEBSITE_URL}/authorise-email-${file_name}.html"
         message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${website_url}"'>Enable Your IP Address</a> </body> </html>"
         ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
         /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/authentication-emails.dat
