@@ -78,13 +78,16 @@ then
                 server_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
                 twenty_four="`/usr/bin/expr ${client_no} / 255`"
-                iteration="`/usr/bin/expr ${twenty_four} * 255`" 
-                thirty_two="`/usr/bin/expr ${client_no} - ${interation}`"
+                iteration1="`/usr/bin/expr ${twenty_four} \* 255`" 
+                thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
+                sixteen="`/usr/bin/expr ${twenty_four} / 255`"
+                iteration2="`/usr/bin/expr ${sixteen} \* 255`" 
+                twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
                 # Add peer to server config
                 /bin/echo "[Peer]
                 PublicKey = ${new_client_public_key}
-                AllowedIPs = 10.0.${twenty_four}.${client_no}/32" >> /etc/wireguard/wg0.conf 
+                AllowedIPs = "10.${sixteen}.${twenty_four}.${thirty_two}/32" >> /etc/wireguard/wg0.conf 
 
 
                 # Create client config
