@@ -1,6 +1,6 @@
 <?php
   $email = $_POST["email"];
-  $file="/var/www/basic-auth/authentication-emails.dat";
+  $file="/var/www/firewall/authentication-emails.dat";
   $data = "$email\n";
   file_put_contents($file, $data, FILE_APPEND );
   echo "<h2>Email Address Submitted, if needed you should shortly receive an authentication email at $email.</h2>";
