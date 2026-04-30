@@ -22,12 +22,12 @@
 
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
-	/bin/mkdir ${HOME}/runtime/authenticator
+        /bin/mkdir ${HOME}/runtime/authenticator
 fi
 
 if ( [ -f /var/www/wire-guard/authentication-emails.dat ] )
 then
-	/bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
+        /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
 fi
 
 email_list="`/bin/cat ${HOME}/runtime/authenticator/authentication-emails.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -36,14 +36,14 @@ WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEUR
 
 for email_address in ${email_list}
 do
-	file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-	full_file_name="/var/www/html/ip-address-${file_name}.html"
-	/bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/authorise-email.html ${full_file_name}
-	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
-	/bin/chown www-data:www-data ${full_file_name}
-	/bin/chmod 644 ${full_file_name}
-	website_url="https://${WEBSITE_URL}/ip-address-${file_name}.html"
-	message="<!DOCTYPE html> <html> <body> <h1>IP address authorisation form for ${WEBSITE_URL_ORIGINAL}</h1> <p>From the SAME browser as you want to connect from (your phone broswer might have a different ip address to your laptop if one is on WIFI and one is on 5G go to www.whatsmyip.com and enter the IPV4 IP address in the form that appears when you click the link below. Cheers. This link will be valid for 5 minutes before being deleted. </p> <a href='"${website_url}"'>Enable Your IP Address</a> </body> </html>"
-	${HOME}/services/email/SendEmail.sh "Authenticated IP claim request for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
-	/bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/authentication-emails.dat
+        file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
+        full_file_name="/var/www/html/ip-address-${file_name}.html"
+        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/authorise-email.html ${full_file_name}
+        /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
+        /bin/chown www-data:www-data ${full_file_name}
+        /bin/chmod 644 ${full_file_name}
+        website_url="https://${WEBSITE_URL}/ip-address-${file_name}.html"
+        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${website_url}"'>Enable Your IP Address</a> </body> </html>"
+        ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
+        /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/authentication-emails.dat
 done
