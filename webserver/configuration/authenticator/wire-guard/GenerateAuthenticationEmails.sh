@@ -34,7 +34,7 @@ email_list="`/bin/cat ${HOME}/runtime/authenticator/authentication-emails.dat | 
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 
-#create a new diirectory for QR codes send the email to email address that the QR code is labelled as  and then move the QR code into processed. 
+#create a diirectory for new QR codes send the email to email address that the QR code is labelled as  and then move the QR code into processed. 
 #When we generate the QR code check if it exists in the processed directory and if it does, copy it from the processed to tbe new
 #Also copy all the processed QR codes to the datastore and sync them down to the processed directory from other machines
 
