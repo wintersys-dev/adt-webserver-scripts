@@ -146,7 +146,7 @@ then
         /bin/mkdir /var/www/firewall
         /bin/chown www-data:www-data /var/www/firewall
 	fi
-	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/firewall%" ${php_ini}
+#	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/firewall%" ${php_ini}
 elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 then
 	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
@@ -159,7 +159,7 @@ then
         /bin/mkdir /var/www/basic-auth
         /bin/chown www-data:www-data /var/www/basic-auth
 	fi
-	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/basic-auth%" ${php_ini}
+	#/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/basic-auth%" ${php_ini}
 elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
 	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
@@ -172,7 +172,7 @@ then
         /bin/mkdir /var/www/wire-guard
         /bin/chown www-data:www-data /var/www/wire-guard
 	fi
-	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/wire-guard%" ${php_ini}
+	#/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/wire-guard%" ${php_ini}
 fi
 
 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
