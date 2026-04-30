@@ -62,45 +62,48 @@ then
                         /bin/chmod 600 /etc/wireguard/wg0.conf
                 fi
 
-                if ( [ -f /etc/wireguard/wg0.conf ] )
+                if ( [ ! -f /etc/wireguard/client_${email_address}.conf ] )
                 then
-                        client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
-                        client_no="`/usr/bin/expr ${client_no} + 1`"
-                fi
+                        if ( [ -f /etc/wireguard/wg0.conf ] )
+                        then
+                                client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
+                                client_no="`/usr/bin/expr ${client_no} + 1`"
+                        fi
                 
-                /usr/bin/wg genkey > /etc/wireguard/client_${email_address}_private.key"
-                /bin/cat /etc/wireguard/client_${email_address}_private.key" | /usr/bin/wg pubkey > /etc/wireguard/client_${email_address}_public.key
+                        /usr/bin/wg genkey > /etc/wireguard/client_${email_address}_private.key"
+                        /bin/cat /etc/wireguard/client_${email_address}_private.key" | /usr/bin/wg pubkey > /etc/wireguard/client_${email_address}_public.key
 
-                # Get the keys and server info
-                new_client_private_key="`/bin/cat /etc/wireguard/client_${email_address}_private.key`"
-                new_client_public_key=="`/bin/cat /etc/wireguard/client_${email_address}_public.key`"
-                server_public_key="`/bin/cat /etc/wireguard/server_public.key`"
-                server_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
+                        # Get the keys and server info
+                        new_client_private_key="`/bin/cat /etc/wireguard/client_${email_address}_private.key`"
+                        new_client_public_key=="`/bin/cat /etc/wireguard/client_${email_address}_public.key`"
+                        server_public_key="`/bin/cat /etc/wireguard/server_public.key`"
+                        server_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
-                twenty_four="`/usr/bin/expr ${client_no} / 255`"
-                iteration1="`/usr/bin/expr ${twenty_four} \* 255`" 
-                thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
-                sixteen="`/usr/bin/expr ${twenty_four} / 255`"
-                iteration2="`/usr/bin/expr ${sixteen} \* 255`" 
-                twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
+                        twenty_four="`/usr/bin/expr ${client_no} / 255`"
+                        iteration1="`/usr/bin/expr ${twenty_four} \* 255`" 
+                        thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
+                        sixteen="`/usr/bin/expr ${twenty_four} / 255`"
+                        iteration2="`/usr/bin/expr ${sixteen} \* 255`" 
+                        twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
-                # Add peer to server config
-                /bin/echo "[Peer]
-                PublicKey = ${new_client_public_key}
-                AllowedIPs = "10.${sixteen}.${twenty_four}.${thirty_two}/32" >> /etc/wireguard/wg0.conf 
+                        # Add peer to server config
+                        /bin/echo "[Peer]
+                        PublicKey = ${new_client_public_key}
+                        AllowedIPs = "10.${sixteen}.${twenty_four}.${thirty_two}/32" >> /etc/wireguard/wg0.conf 
 
 
-                # Create client config
-                /bin/echo "[Interface]
-                PrivateKey = ${new_client_private_key}
-                Address = 10.0.0.${client_no}/32
-                DNS = 1.1.1.1, 1.0.0.1
+                        # Create client config
+                        /bin/echo "[Interface]
+                        PrivateKey = ${new_client_private_key}
+                        Address = 10.0.0.${client_no}/32
+                        DNS = 1.1.1.1, 1.0.0.1
 
-                [Peer]
-                PublicKey = ${server_public_key}
-                Endpoint = ${server_ip}:${wireguard_port}
-                AllowedIPs = 0.0.0.0/0
-                PersistentKeepalive = 25" > /etc/wireguard/client_${email_address}.conf
+                        [Peer]
+                        PublicKey = ${server_public_key}
+                        Endpoint = ${server_ip}:${wireguard_port}
+                        AllowedIPs = 0.0.0.0/0
+                        PersistentKeepalive = 25" > /etc/wireguard/client_${email_address}.conf
+                fi
         done
 fi
 
