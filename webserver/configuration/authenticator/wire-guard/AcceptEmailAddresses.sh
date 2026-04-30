@@ -57,16 +57,21 @@ then
                         PostUp = iptables -t nat -I POSTROUTING -o ens4 -j MASQUERADE
                         PostDown = iptables -t nat -D POSTROUTING -o ens4 -j MASQUERADE" > /etc/wireguard/wg0.conf
 
-                        sudo chmod 600 /etc/wireguard/wg0.conf
+                        /bin/chmod 600 /etc/wireguard/wg0.conf
                 fi
 
-                CLIENT_NUM=2  # Change this number for each new client
-                /usr/bin/wg genkey > /etc/wireguard/client${CLIENT_NUM}_private.key"
-                /bin/cat /etc/wireguard/client${CLIENT_NUM}_private.key" | /usr/bin/wg pubkey > /etc/wireguard/client${CLIENT_NUM}_public.key
+                if ( [ -f /etc/wireguard/wg0.conf ] )
+                then
+                        client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
+                        client_no="`/usr/bin/expr ${client_no} + 1`"
+                fi
+                
+                /usr/bin/wg genkey > /etc/wireguard/client${client_no}_private.key"
+                /bin/cat /etc/wireguard/client${client_no}_private.key" | /usr/bin/wg pubkey > /etc/wireguard/client${client_no}_public.key
 
                 # Get the keys and server info
-                new_client_private_key="`/bin/cat /etc/wireguard/client${CLIENT_NUM}_private.key`"
-                new_client_public_key=="`/bin/cat /etc/wireguard/client${CLIENT_NUM}_public.key`"
+                new_client_private_key="`/bin/cat /etc/wireguard/client${client_no}_private.key`"
+                new_client_public_key=="`/bin/cat /etc/wireguard/client${client_no}_public.key`"
                 server_public_key="`/bin/cat /etc/wireguard/server_public.key`"
                 server_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
@@ -83,9 +88,9 @@ then
                 DNS = 1.1.1.1, 1.0.0.1
 
                 [Peer]
-                PublicKey = ${SERVER_PUBLIC_KEY}
-                Endpoint = ${SERVER_IP}:51820
+                PublicKey = ${server_public_key}
+                Endpoint = ${server_ip}:${wireguard_port}
                 AllowedIPs = 0.0.0.0/0, ::/0
-                PersistentKeepalive = 25" > /etc/wireguard/client${CLIENT_NUM}.conf
+                PersistentKeepalive = 25" > /etc/wireguard/client${client_no}.conf
         done
 fi
