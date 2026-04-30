@@ -96,6 +96,9 @@ else
 	/bin/sed -i "s/^;listen.mode/listen.mode/" ${www_conf}
 fi
 
+/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www%" ${php_ini}
+
+
 if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
 then
         /bin/sed -i "s/#XXXXFASTCGIPORTXXXX//g" ${HOME}/webserver/configuration/authenticator/apache/site-available.conf
@@ -175,7 +178,6 @@ then
 		/bin/mkdir /var/www/wire-guard
 		/bin/chown www-data:www-data /var/www/wire-guard
     fi
-	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/wire-guard%" ${php_ini}
 fi
 
 
