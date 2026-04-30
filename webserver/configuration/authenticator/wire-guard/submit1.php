@@ -3,5 +3,5 @@
   $file="/tmp/ipaddresses.dat";
   $data = "$email\n";
   file_put_contents($file, $data, FILE_APPEND );
-  echo "<h2>Wireguard access for your client has been requested</h2>";
+  echo "<h2>Wireguard access for your client has been requested. Shortly you should receive an QR code to your supplied email address</h2>";
 ?>
