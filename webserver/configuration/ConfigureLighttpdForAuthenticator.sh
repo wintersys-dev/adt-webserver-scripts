@@ -145,8 +145,6 @@ then
 	fi
 elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
-	${HOME}/installation/InstallWireguard.sh
-	${HOME}/installation/InstallQREncode.sh
 	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
 	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
 	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit1.php /var/www/html/submit1.php
