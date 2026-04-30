@@ -47,12 +47,12 @@ do
                 website_url="https://${WEBSITE_URL}/authorise-email-${file_name}.html"
                 message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${website_url}"'>View Your Wireguard QR Code</a> </body> </html>"
                 ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
-               
+
                 if ( [ ! -d /etc/wireguard/processedqrcodes ] )
                 then
                         /bin/mkdir /etc/wireguard/processedqrcodes
                 fi
-                
+
                 /bin/mv /etc/wireguard/freshqrcodes/client_${email_address}.png /etc/wireguard/processedqrcodes/client_${email_address}.png
         fi              
 done
