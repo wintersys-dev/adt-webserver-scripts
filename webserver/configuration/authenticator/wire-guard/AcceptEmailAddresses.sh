@@ -38,6 +38,8 @@ then
         /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 fi
 
+###### Get the /etc/wireguard/wg0.conf file from the datastore
+
 if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
 then
         for email_address in `/bin/cat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$`
@@ -94,3 +96,5 @@ then
                 PersistentKeepalive = 25" > /etc/wireguard/client-${email_address}.conf
         done
 fi
+
+###### Put the /etc/wireguard/wg0.conf file to the datastore and put each of the /etc/wireguard/client-${email_address}.conf files to the datastore
