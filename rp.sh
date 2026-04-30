@@ -164,6 +164,13 @@ fi
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
 ${HOME}/services/security/SetupFirewall.sh
 
+AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
+
+if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+then
+	${HOME}/installation/InstallWireguard.sh
+fi
+
 cd ${HOME}
 
 /bin/echo "${0} Initialising crontab"
