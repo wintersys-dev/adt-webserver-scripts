@@ -31,9 +31,9 @@ then
         /bin/mkdir -p ${HOME}/runtime/authenticator 
 fi
 
-if ( [ -f /var/www/wire-guard/authentication-emails.dat  ] )
+if ( [ -f ${HOME}/runtime/authenticator/authentication-emails.dat ] )
 then
-        /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
+        /bin/mv ${HOME}/runtime/authenticator/authentication-emails.dat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 fi
 
 ###### Get the /etc/wireguard/wg0.conf file from the datastore
