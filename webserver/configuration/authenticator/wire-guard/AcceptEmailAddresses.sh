@@ -24,6 +24,7 @@
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
+wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
@@ -48,7 +49,6 @@ then
                         /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > /etc/wireguard/server_public.key
 
                         server_private_key="`/bin/cat /etc/wireguard/server_private.key`"
-                        wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
                         /bin/echo "[Interface]
                         PrivateKey = ${server_private_key}
