@@ -25,7 +25,7 @@ then
 	/bin/mkdir ${HOME}/runtime/authenticator
 fi
 
-if ( [ -f /tmp/authentication-emails.dat ] )
+if ( [ -f /var/www/firewall/authentication-emails.dat ] )
 then
 	/bin/mv /var/www/firewall/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
 fi
