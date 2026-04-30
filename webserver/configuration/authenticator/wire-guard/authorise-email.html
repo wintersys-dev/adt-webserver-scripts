@@ -1,1 +1,22 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+    <title>Enter the IP Address that you want to allow access to</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="main">
+        <h1>Request Authorisation for Wireguard access</h1>
+        <h3>Enter exactly: "AUTHORISE ME" below and submit. Anything else and authorisation will be denied.</h3>
+        <br></br>
+        <form action="submit1.php" method="post">
+          <label for="Authorise">Authorise:</label>
+            <input type="text" name="authorise" placeholder="IP Address" required autocomplete="off"> <br>                
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+
+</html>
