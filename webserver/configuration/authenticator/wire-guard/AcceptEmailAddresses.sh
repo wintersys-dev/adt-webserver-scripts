@@ -19,7 +19,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-set -x
+#set -x
 
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
@@ -30,8 +30,6 @@ if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
         /bin/mkdir -p ${HOME}/runtime/authenticator 
 fi
-
-/bin/touch ${HOME}/runtime/authenticator/emailaddresses.dat
 
 if ( [ -f /var/www/wire-guard/authentication-emails.dat  ] )
 then
@@ -69,9 +67,9 @@ then
                                 client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
                                 client_no="`/usr/bin/expr ${client_no} + 1`"
                         fi
-                
-                        /usr/bin/wg genkey > /etc/wireguard/client_${email_address}_private.key"
-                        /bin/cat /etc/wireguard/client_${email_address}_private.key" | /usr/bin/wg pubkey > /etc/wireguard/client_${email_address}_public.key
+
+                        /usr/bin/wg genkey > /etc/wireguard/client_${email_address}_private.key
+                        /bin/cat /etc/wireguard/client_${email_address}_private.key | /usr/bin/wg pubkey > /etc/wireguard/client_${email_address}_public.key
 
                         # Get the keys and server info
                         new_client_private_key="`/bin/cat /etc/wireguard/client_${email_address}_private.key`"
@@ -113,7 +111,7 @@ then
                         fi
                         /usr/bin/qrencode -t png -o /etc/wireguard/freshqrcodes/client_${email_address}.png -r /etc/wireguard/client_${email_address}.conf
                 fi
-                
+
                 /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 
         done
