@@ -54,7 +54,7 @@ then
 
                         /bin/echo "[Interface]
                         PrivateKey = ${server_private_key}
-                        Address = 10.0.0.1/24
+                        Address = 10.0.0.1/8
                         ListenPort = ${wireguard_port}
                         PostUp = iptables -t nat -I POSTROUTING -o ens4 -j MASQUERADE
                         PostDown = iptables -t nat -D POSTROUTING -o ens4 -j MASQUERADE" > /etc/wireguard/wg0.conf
