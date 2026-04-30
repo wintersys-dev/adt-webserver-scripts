@@ -141,6 +141,12 @@ then
 	/bin/chmod 644 /var/www/html/*
 	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
 	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
+	if ( [ ! -d /var/www/firewall ] )
+	then
+        /bin/mkdir /var/www/firewall
+        /bin/chown www-data:www-data /var/www/firewall
+	fi
+	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/firewall%" ${php_ini}
 elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 then
 	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
@@ -153,11 +159,7 @@ then
         /bin/mkdir /var/www/basic-auth
         /bin/chown www-data:www-data /var/www/basic-auth
 	fi
-	
-	PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
-	php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
-	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/log/basic-auth%" ${php_ini}
-	
+	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/basic-auth%" ${php_ini}
 fi
 
 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
