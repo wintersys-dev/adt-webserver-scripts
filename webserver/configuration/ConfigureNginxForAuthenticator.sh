@@ -164,6 +164,19 @@ then
         /bin/chown www-data:www-data /var/www/basic-auth
 	fi
 	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/basic-auth%" ${php_ini}
+elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+then
+	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
+	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
+	/bin/chown www-data:www-data /var/www/html/*
+	/bin/chmod 644 /var/www/html/*
+	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
+	if ( [ ! -d /var/www/wire-guard ] )
+	then
+        /bin/mkdir /var/www/wire-guard
+        /bin/chown www-data:www-data /var/www/wire-guard
+	fi
+	/bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www/wire-guard%" ${php_ini}
 fi
 
 if ( [ -d /var/www/html/html ] )
