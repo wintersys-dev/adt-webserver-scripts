@@ -104,6 +104,11 @@ do
         /usr/bin/find /etc/apache2 -name '*' -type f -exec sed -i "s/^${setting_name}.*/${setting_name} ${setting_value}/" {} +
 done
 
+if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+then
+	${HOME}/installation/InstallWireguard.sh
+fi
+
 /bin/chown -R www-data:www-data /etc/apache2
 
 if ( [ -f /etc/apache2/conf-enabled/sec* ] )
