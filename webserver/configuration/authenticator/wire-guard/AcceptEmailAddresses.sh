@@ -125,6 +125,20 @@ then
         done
 fi
 
+if ( [ -d  ${HOME}/runtime/authenticator/qrcodes ] )
+then
+        qrcodes_list=`/bin/ls ${HOME}/runtime/authenticator/qrcodes`
+        for qrcode in ${qrcodes_list}
+        do
+                if ( [ ! -f /etc/wireguard/processedqrcodes/${qrcode} ] )
+                then
+                        /bin/cp ${HOME}/runtime/authenticator/qrcode/${qrcode}   /etc/wireguard/freshqrcodes/${qrcode}
+                fi
+        done 
+
+        /bin/cp -r ${HOME}/runtime/authenticator/configs/* /etc/wireguard
+fi
+
 if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
 then
         /bin/rm ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
