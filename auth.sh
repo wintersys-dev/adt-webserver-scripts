@@ -179,6 +179,7 @@ if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
 	${HOME}/installation/InstallWireguard.sh
 	${HOME}/installation/InstallQREncode.sh	
+	${HOME}/services/datastore/operations/MountDatastore.sh "wireguard-config" "distributed"
 fi
 
 cd ${HOME}
