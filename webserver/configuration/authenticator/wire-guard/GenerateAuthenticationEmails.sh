@@ -43,6 +43,7 @@ do
                 /bin/cp /etc/wireguard/freshqrcodes/client_${email_address}.png ${full_file_name}
                 full_file_name_html="/var/www/html/client-${file_name}-${email_address}.html"
                 /bin/cp /etc/wireguard/client_${email_address}.conf ${full_file_name_html}
+                /usr/bin/awk '/Peer/,0' ${full_file_name_html} > /var/www/html/wire-guard/client-${file_name}-${email_address}.html && /bin/mv /var/www/html/wire-guard/client-${file_name}-${email_address}.html ${full_file_name_html}
                 /bin/sed -i '1s;^;<link href="txtstyle.css" rel="stylesheet" type="text/css" />\n;' ${full_file_name_html}
                 if ( [ ! -f /var/www/html/txtstyle.css ] )
                 then
