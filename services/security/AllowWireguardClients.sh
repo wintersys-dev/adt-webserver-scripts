@@ -12,3 +12,13 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wireguard-config" "w
 /bin/cp ${HOME}/runtime/authenticator/client/* /etc/wireguard
 /bin/cp ${HOME}/runtime/authenticator/server/* /etc/wireguard
 
+now="`/usr/bin/date +%s`" 
+modified="`/usr/bin/stat -c %Y /etc/wireguard`"
+
+if ( [ "`/usr/bin/expr ${modified} - ${now}`" -lt "90" ] )
+then
+  ${HOME}/utilities/processing/RunServiceCommand.sh wg-quick@wg0 stop
+  ${HOME}/utilities/processing/RunServiceCommand.sh wg-quick@wg0 start
+fi
+
+
