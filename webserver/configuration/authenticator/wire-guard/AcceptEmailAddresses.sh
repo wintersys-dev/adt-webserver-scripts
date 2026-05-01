@@ -131,24 +131,13 @@ then
         done
 fi
 
-if ( [ -d  ${HOME}/runtime/authenticator/qrcodes ] )
-then
-        qrcodes_list=`/bin/ls ${HOME}/runtime/authenticator/qrcodes`
-        for qrcode in ${qrcodes_list}
-        do
-                if ( [ ! -f /etc/wireguard/processedqrcodes/${qrcode} ] )
-                then
-                        /bin/cp ${HOME}/runtime/authenticator/qrcode/${qrcode}   /etc/wireguard/freshqrcodes/${qrcode}
-                fi
-        done 
+#/bin/cp ${HOME}/runtime/authenticator/qrcode/* /etc/wireguard/freshqrcodes
+#/bin/cp ${HOME}/runtime/authenticator/client/* /etc/wireguard
+#/bin/cp ${HOME}/runtime/authenticator/server/* /etc/wireguard
 
-        /bin/cp -r ${HOME}/runtime/authenticator/client/* /etc/wireguard
-        /bin/cp -r ${HOME}/runtime/authenticator/server/* /etc/wireguard
-fi
 
 if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
 then
         /bin/rm ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 fi
 
-###### Put the /etc/wireguard/wg0.conf file to the datastore and put each of the /etc/wireguard/client-${email_address}.conf files to the datastore
