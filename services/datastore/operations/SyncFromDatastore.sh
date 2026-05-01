@@ -104,6 +104,16 @@ then
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-basic-auth-credentials"    
+elif ( [ "${bucket_type}" = "wireguard-config" ] )
+then
+        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        then
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+        else
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+        fi
+        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="${active_bucket}-wireguard-config"
 fi
 
 if ( [ "${place_to_sync}" = "root" ] )
