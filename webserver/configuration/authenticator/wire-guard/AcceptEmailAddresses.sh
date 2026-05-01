@@ -112,6 +112,9 @@ then
                         /usr/bin/qrencode -t png -o /etc/wireguard/freshqrcodes/client_${email_address}.png -r /etc/wireguard/client_${email_address}.conf
                 fi
 
+                ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/freshqrcodes/client_${email_address}.png "qrcodes" "distributed" "no"
+                ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/client_${email_address}.conf "configs" "distributed" "no"
+
                 /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 
         done
