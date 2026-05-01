@@ -175,7 +175,10 @@ ${HOME}/services/security/SetupFirewall.sh
 
 AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
 
-if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+if ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
+then
+	${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed"
+elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
 	${HOME}/installation/InstallWireguard.sh
 	${HOME}/installation/InstallQREncode.sh	
