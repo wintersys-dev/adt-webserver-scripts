@@ -12,16 +12,6 @@ then
   /bin/mkdir -p /etc/wireguard/freshqrcodes
 fi
 
-if ( [ ! -d /etc/wireguard/client ] )
-then
-  /bin/mkdir -p /etc/wireguard/client
-fi
-
-if ( [ ! -d /etc/wireguard/server ] )
-then
-  /bin/mkdir -p /etc/wireguard/server
-fi
-
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wireguard-config" "wireguard-config/*" "${HOME}/runtime/authenticator"
 /bin/cp ${HOME}/runtime/authenticator/qrcode/*  /etc/wireguard/freshqrcodes
 /bin/cp ${HOME}/runtime/authenticator/client/* /etc/wireguard
