@@ -41,7 +41,7 @@ then
         /bin/mv ${HOME}/runtime/authenticator/authentication-emails.dat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 fi
 
-###### Get the /etc/wireguard/wg0.conf file from the datastore
+config_updated="0"
 
 if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
 then
@@ -63,6 +63,7 @@ then
                         PostDown = iptables -t nat -D POSTROUTING -o ens4 -j MASQUERADE" > /etc/wireguard/wg0.conf
 
                         /bin/chmod 600 /etc/wireguard/wg0.conf
+                        config_updated="1"
                 fi
 
                 if ( [ ! -f /etc/wireguard/client_${email_address}.conf ] )
@@ -106,6 +107,7 @@ then
                         Endpoint = ${server_ip}:${wireguard_port}
                         AllowedIPs = 0.0.0.0/0
                         PersistentKeepalive = 25" > /etc/wireguard/client_${email_address}.conf
+                        config_updated="1"
                 fi
 
                 if ( [ ! -f /etc/wireguard/client_${email_address}.png ] )
@@ -115,11 +117,15 @@ then
                                 /bin/mkdir /etc/wireguard/freshqrcodes
                         fi
                         /usr/bin/qrencode -t png -o /etc/wireguard/freshqrcodes/client_${email_address}.png -r /etc/wireguard/client_${email_address}.conf
+                        config_updated="1"
                 fi
 
-                ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/freshqrcodes/client_${email_address}.png "qrcodes" "distributed" "no"
-                ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/client_${email_address}.conf "configs" "distributed" "no"
-
+                if ( [ "${config_updated}" = "1" ] )
+                then
+                        ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/freshqrcodes/client_${email_address}.png "qrcodes" "distributed" "no"
+                        ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/client_${email_address}.conf "client" "distributed" "no"
+                        ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/wg0.conf  "server" "distributed" "no"
+                fi
                 /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 
         done
@@ -136,7 +142,8 @@ then
                 fi
         done 
 
-        /bin/cp -r ${HOME}/runtime/authenticator/configs/* /etc/wireguard
+        /bin/cp -r ${HOME}/runtime/authenticator/client/* /etc/wireguard
+        /bin/cp -r ${HOME}/runtime/authenticator/server/* /etc/wireguard
 fi
 
 if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
