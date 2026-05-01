@@ -63,7 +63,7 @@ then
 	then
 		machine_id="`/usr/bin/hostname | /bin/sed 's/NO\-//g' | /usr/bin/awk -F'-' '{print $1}'`"
 		delay="`/usr/bin/expr ${machine_id} \* 20`"
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep ${delay} && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
+		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep ${delay} && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
