@@ -41,11 +41,19 @@ do
                 file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
                 full_file_name="/var/www/html/qrcode-${file_name}-${email_address}.png"
                 /bin/cp /etc/wireguard/freshqrcodes/client_${email_address}.png ${full_file_name}
+                full_file_name_html="/var/www/html/client-${file_name}-${email_address}.html"
+                /bin/cp /etc/wireguard/client_${email_address}.conf ${full_file_name_html}
+                /bin/sed -i '1s/^/<link href="txtstyle.css" rel="stylesheet" type="text/css" />/' ${full_file_name_html}
+                if ( [ ! -f /var/www/html/txtstyle.css ] )
+                then
+                        /bin/echo "html, body {font-family:Helvetica, Arial, sans-serif}" > /var/www/html/txtstyle.css
+                fi
                 /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
                 /bin/chown www-data:www-data ${full_file_name}
                 /bin/chmod 644 ${full_file_name}
-                website_url="https://${WEBSITE_URL}/qrcode-${file_name}-${email_address}.png"
-                message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${website_url}"'>View Your Wireguard QR Code</a> </body> </html>"
+                qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${email_address}.png"
+                client_url="https://${WEBSITE_URL}/client-${file_name}-${email_address}.png"
+                message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  </br> </body> </html>"
                 ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
 
                 if ( [ ! -d /etc/wireguard/processedqrcodes ] )
