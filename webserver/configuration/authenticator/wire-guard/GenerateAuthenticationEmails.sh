@@ -25,11 +25,6 @@ then
         /bin/mkdir ${HOME}/runtime/authenticator
 fi
 
-if ( [ -f /var/www/wire-guard/authentication-emails.dat ] )
-then
-        /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
-fi
-
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 email_addresses=`/bin/ls /etc/wireguard/freshqrcodes/client_*.png | /bin/sed -e 's/.*client_//g' -e 's/\.png//g'`
