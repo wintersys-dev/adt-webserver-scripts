@@ -31,6 +31,11 @@ then
         /bin/mkdir -p ${HOME}/runtime/authenticator 
 fi
 
+if ( [ -f /var/www/wire-guard/authentication-emails.dat ] )
+then
+        /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
+fi
+
 if ( [ -f ${HOME}/runtime/authenticator/authentication-emails.dat ] )
 then
         /bin/mv ${HOME}/runtime/authenticator/authentication-emails.dat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
