@@ -52,7 +52,7 @@ do
                 /bin/chown www-data:www-data ${full_file_name}
                 /bin/chmod 644 ${full_file_name}
                 qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${email_address}.png"
-                client_url="https://${WEBSITE_URL}/client-${file_name}-${email_address}.png"
+                client_url="https://${WEBSITE_URL}/client-${file_name}-${email_address}.html"
                 message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  </br> </body> </html>"
                 ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
 
