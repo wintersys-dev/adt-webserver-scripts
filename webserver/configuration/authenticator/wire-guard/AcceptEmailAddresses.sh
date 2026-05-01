@@ -100,13 +100,18 @@ then
                         /bin/echo "[Interface]
                         PrivateKey = ${new_client_private_key}
                         Address = 10.0.0.${client_no}/32
-                        DNS = 1.1.1.1, 1.0.0.1
+                        DNS = 1.1.1.1, 1.0.0.1 " > /etc/wireguard/client_${email_address}.conf
 
-                        [Peer]
-                        PublicKey = ${server_public_key}
-                        Endpoint = ${server_ip}:${wireguard_port}
-                        AllowedIPs = 0.0.0.0/0
-                        PersistentKeepalive = 25" > /etc/wireguard/client_${email_address}.conf
+                        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "reverseproxypublicips/*"`"
+
+                        for server_ip in ${server_ips}
+                        do
+                                /bin/echo "[Peer]
+                 PublicKey = ${server_public_key}
+                 Endpoint = ${server_ip}:${wireguard_port}
+                 AllowedIPs = 0.0.0.0/0
+                 PersistentKeepalive = 25" >> /etc/wireguard/client_${email_address}.conf
+                        done
                         config_updated="1"
                 fi
 
