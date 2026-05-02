@@ -49,6 +49,7 @@ then
         do
                 if ( [ ! -f /etc/wireguard/server_private.key ] )
                 then
+                        umask 077
                         /usr/bin/wg genkey > /etc/wireguard/server_private.key
                         /bin/chmod 600 /etc/wireguard/server_private.key
                         /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > /etc/wireguard/server_public.key
@@ -59,10 +60,10 @@ then
                         PrivateKey = ${server_private_key}
                         Address = 10.0.0.1/16
                         ListenPort = ${wireguard_port}
-                        PostUp = iptables -t nat -I POSTROUTING -o ens4 -j MASQUERADE
-                        PostDown = iptables -t nat -D POSTROUTING -o ens4 -j MASQUERADE" > /etc/wireguard/wg0.conf
+                        PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+                        PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE" > /etc/wireguard/wg0.conf
 
-                        /bin/chmod 600 /etc/wireguard/wg0.conf
+                       # /bin/chmod 600 /etc/wireguard/wg0.conf
                         config_updated="1"
                 fi
 
@@ -109,7 +110,7 @@ then
                                 /bin/echo "[Peer]
                  PublicKey = ${server_public_key}
                  Endpoint = ${server_ip}:${wireguard_port}
-                 AllowedIPs =  10.${sixteen}.${twenty_four}.${thirty_two}/32
+                 AllowedIPs =  10.0.0.1/16
                  PersistentKeepalive = 25" >> /etc/wireguard/client_${email_address}.conf
                         done
                         config_updated="1"
