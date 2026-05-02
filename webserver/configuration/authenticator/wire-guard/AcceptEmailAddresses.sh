@@ -62,7 +62,7 @@ then
                         ListenPort = ${wireguard_port}
                         SaveConfig = true
                         PersistentKeepAlive = 25 
-                       
+                        PreUp = sysctl -w net.ipv4.ip_forward=1
                         PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
                         PostUp = iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
                         PostUp = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
