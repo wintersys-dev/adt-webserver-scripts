@@ -60,6 +60,7 @@ then
                         PrivateKey = ${server_private_key}
                         Address = 10.0.0.1/16
                         ListenPort = ${wireguard_port}
+                        SaveConfig = true
                         PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
                         PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE" > /etc/wireguard/wg0.conf
 
