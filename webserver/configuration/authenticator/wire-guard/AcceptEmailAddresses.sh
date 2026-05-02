@@ -72,7 +72,7 @@ then
                         if ( [ -f /etc/wireguard/wg0.conf ] )
                         then
                                 client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
-                                client_no="`/usr/bin/expr ${client_no} + 1`"
+                                client_no="`/usr/bin/expr ${client_no} + 2`"
                         fi
 
                         /usr/bin/wg genkey > /etc/wireguard/client_${email_address}_private.key
