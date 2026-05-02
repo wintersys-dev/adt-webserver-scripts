@@ -103,8 +103,8 @@ then
                         Address = 10.0.0.${client_no}/32
                         DNS = 1.1.1.1, 1.0.0.1 " > /etc/wireguard/client_${email_address}.conf
 
-                        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "reverseproxypublicips/*"`"
-
+                        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-reverseproxy"`"
+                        
                         for server_ip in ${server_ips}
                         do
                                 /bin/echo "[Peer]
