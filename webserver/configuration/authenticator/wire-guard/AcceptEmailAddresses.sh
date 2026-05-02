@@ -61,9 +61,14 @@ then
                         Address = 10.0.0.1/16
                         ListenPort = ${wireguard_port}
                         SaveConfig = true
+                        PersistentKeepAlive = 25 
+                       
                         PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-                        PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE" > /etc/wireguard/wg0.conf
-
+                        PostUp = iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+                        PostUp = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
+                        PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE 
+                        PostDown = iptables -D FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+                        PostDowb = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT" > /etc/wireguard/wg0.conf
                        # /bin/chmod 600 /etc/wireguard/wg0.conf
                         config_updated="1"
                 fi
