@@ -64,7 +64,7 @@ then
                         Address = 10.0.0.1/24
                         MTU = 1420
                         ListenPort = ${wireguard_port}
-                        SaveConfig = true
+                        SaveConfig = false
                         PreUp = sysctl -w net.ipv4.ip_forward=1
                         PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
                         PostUp = iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
