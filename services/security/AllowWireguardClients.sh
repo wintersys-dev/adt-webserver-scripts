@@ -7,15 +7,7 @@ then
   /bin/touch ${HOME}/runtime/IP_FORWARDING_ENABLED 
 fi
 
-if ( [ ! -d /etc/wireguard/freshqrcodes ] )
-then
-  /bin/mkdir -p /etc/wireguard/freshqrcodes
-fi
 
-if ( [ ! -d /etc/wireguard/client ] )
-then
-        /bin/mkdir -p /etc/wireguard/client
-fi
 
 if ( [ ! -d /etc/wireguard/server ] )
 then
@@ -23,28 +15,12 @@ then
 fi
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wireguard-config" "wireguard-config/*" "${HOME}/runtime/authenticator"
-/bin/cp ${HOME}/runtime/authenticator/qrcode/*  /etc/wireguard/freshqrcodes
-/bin/cp ${HOME}/runtime/authenticator/client/* /etc/wireguard
+#/bin/cp ${HOME}/runtime/authenticator/qrcode/*  /etc/wireguard/freshqrcodes
+#/bin/cp ${HOME}/runtime/authenticator/client/* /etc/wireguard
 /bin/cp ${HOME}/runtime/authenticator/server/* /etc/wireguard
 
-ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
-
-/bin/sed -i "s/XXXXSERVER_PUBLIC_IPXXXX/${ip}/" /etc/wireguard/wg0.conf
-
-is_modified="0"
-now="`/usr/bin/date +%s`" 
-
-modified="`/usr/bin/stat -c %Y /etc/wireguard/freshqrcodes`"
-if ( [ "`/usr/bin/expr ${modified} - ${now}`" -lt "90" ] )
-then
-  is_modified="1"
-fi
-
-modified="`/usr/bin/stat -c %Y /etc/wireguard/client`"
-if ( [ "`/usr/bin/expr ${modified} - ${now}`" -lt "90" ] )
-then
-  is_modified="1"
-fi
+#ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
+#/bin/sed -i "s/XXXXSERVER_PUBLIC_IPXXXX/${ip}/" /etc/wireguard/wg0.conf
 
 modified="`/usr/bin/stat -c %Y /etc/wireguard/server`"
 if ( [ "`/usr/bin/expr ${modified} - ${now}`" -lt "90" ] )
