@@ -75,20 +75,15 @@ then
                         MTU = 1420
                         ListenPort = ${wireguard_port}
                         SaveConfig = false
-                        PreUp = sysctl -w net.ipv4.ip_forward=1
-                        PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-                     #   PostUp = iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-                     #   PostUp = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
-                        PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE 
-                     #   PostDown = iptables -D FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-                     #   PostDown = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
+                        PostUp = /etc/wireguard/postup.sh
+                        PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
 
-                        [Peer]
-                        PublicKey = ${server_public_key}
-                        AllowedIPs = 10.0.0.0/24
-                        #  Endpoint = XXXXSERVER_PUBLIC_IPXXXX:${wireguard_port}
-                        Endpoint = 127.0.0.1:443" > /etc/wireguard/wg0.conf
-                        # /bin/chmod 600 /etc/wireguard/wg0.conf
+                     #   [Peer]
+                     #   PublicKey = ${server_public_key}
+                     #   AllowedIPs = 10.0.0.0/24
+                     #   #  Endpoint = XXXXSERVER_PUBLIC_IPXXXX:${wireguard_port}
+                     #   Endpoint = 127.0.0.1:443" > /etc/wireguard/wg0.conf
+                     #   # /bin/chmod 600 /etc/wireguard/wg0.conf
                         config_updated="1"
                 fi
 
@@ -118,7 +113,6 @@ then
                         # Add peer to server config
                         /bin/echo "[Peer]
                         PublicKey = ${new_client_public_key}
-                        Endpoint = 127.0.0.1:443
                         AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32" >> /etc/wireguard/wg0.conf 
 
 
