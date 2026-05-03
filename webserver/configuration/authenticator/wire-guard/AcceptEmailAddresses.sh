@@ -60,7 +60,7 @@ then
                         /bin/echo "[Interface]
                         PrivateKey = ${server_private_key}
                         Address = 10.0.0.1/24
-                        MTU = 1420
+                        MTU = 1380
                         ListenPort = ${wireguard_port}
                         SaveConfig = false
                         PostUp = /etc/wireguard/postup.sh
@@ -108,7 +108,7 @@ then
                         /bin/echo "[Interface]
                         PrivateKey = ${new_client_private_key}
                         Address = 10.0.0.${client_no}/32
-                        MTU = 1384
+                        MTU = 1380
                         DNS = 1.1.1.1, 1.0.0.1 " > /etc/wireguard/client_${email_address}.conf
 
 
