@@ -73,7 +73,7 @@ then
                         
                         PublicKey = ${server_public_key}
                         AllowedIPs = 10.0.0.0/24
-                        Endpoint = 203.0.113.1:${wireguard_port}" > /etc/wireguard/wg0.conf
+                        Endpoint = XXXXSERVER_PUBLIC_IPXXXX:${wireguard_port}" > /etc/wireguard/wg0.conf
                        # /bin/chmod 600 /etc/wireguard/wg0.conf
                         config_updated="1"
                 fi
@@ -113,7 +113,6 @@ then
                         Address = 10.0.0.${client_no}/32
                         DNS = 1.1.1.1, 1.0.0.1 " > /etc/wireguard/client_${email_address}.conf
 
-                        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-reverseproxy"`"
                         
                         for server_ip in ${server_ips}
                         do
