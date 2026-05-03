@@ -70,7 +70,8 @@ then
                         PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE 
                         PostDown = iptables -D FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
                         PostDowb = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
-                        
+
+                        [Peer]
                         PublicKey = ${server_public_key}
                         AllowedIPs = 10.0.0.0/24
                         Endpoint = XXXXSERVER_PUBLIC_IPXXXX:${wireguard_port}" > /etc/wireguard/wg0.conf
