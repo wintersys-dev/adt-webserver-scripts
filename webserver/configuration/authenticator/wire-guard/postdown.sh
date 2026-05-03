@@ -1,7 +1,7 @@
 interface="eth0"                  
 wg_interface="wg0"                     
 subnet="10.0.0.0/24"            
-wg_port="1036"                  
+wg_port="XXXXWG_PORTXXXX"                  
   
 /usr/sbin/iptables -t nat -D POSTROUTING -s ${subnet} -o ${interface} -j MASQUERADE
 /usr/sbin/iptables -D INPUT -i ${wg_interface} -j ACCEPT
