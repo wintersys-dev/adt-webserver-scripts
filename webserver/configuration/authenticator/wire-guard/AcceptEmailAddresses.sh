@@ -67,11 +67,11 @@ then
                         SaveConfig = false
                         PreUp = sysctl -w net.ipv4.ip_forward=1
                         PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-                        PostUp = iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-                        PostUp = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
+                     #   PostUp = iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+                     #   PostUp = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
                         PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE 
-                        PostDown = iptables -D FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-                        PostDown = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
+                     #   PostDown = iptables -D FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+                     #   PostDown = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
 
                         [Peer]
                         PublicKey = ${server_public_key}
