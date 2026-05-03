@@ -55,10 +55,11 @@ then
                         /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > /etc/wireguard/server_public.key
 
                         server_private_key="`/bin/cat /etc/wireguard/server_private.key`"
+                        server_public_key="`/bin/cat /etc/wireguard/server_public.key`"
 
                         /bin/echo "[Interface]
                         PrivateKey = ${server_private_key}
-                        Address = 10.0.0.1/16
+                        Address = 10.0.0.1/24
                         ListenPort = ${wireguard_port}
                         SaveConfig = true
                         PersistentKeepAlive = 25 
@@ -68,7 +69,11 @@ then
                         PostUp = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
                         PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE 
                         PostDown = iptables -D FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-                        PostDowb = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT" > /etc/wireguard/wg0.conf
+                        PostDowb = iptables -I INPUT 1 -i eth0 -p udp --dport ${wireguard_port} -j ACCEPT
+                        
+                        PublicKey = ${server_public_key}
+                        AllowedIPs = 10.0.0.0/24
+                        Endpoint = 203.0.113.1:${wireguard_port}" > /etc/wireguard/wg0.conf
                        # /bin/chmod 600 /etc/wireguard/wg0.conf
                         config_updated="1"
                 fi
