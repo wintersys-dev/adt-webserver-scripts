@@ -108,6 +108,7 @@ then
                         # Add peer to server config
                         /bin/echo "[Peer]
                         PublicKey = ${new_client_public_key}
+                        Endpoint = 127.0.0.1:443
                         AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32" >> /etc/wireguard/wg0.conf 
 
 
