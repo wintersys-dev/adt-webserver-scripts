@@ -7,6 +7,16 @@ then
         /bin/touch ${HOME}/runtime/IP_FORWARDING_ENABLED 
 fi
 
+if ( [ ! -f /etc/wireguard/postup.sh ] )
+then
+        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postup.sh /etc/wireguard/postup.sh
+fi
+
+if ( [ ! -f /etc/wireguard/postdown.sh ] )
+then
+        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postdown.sh /etc/wireguard/postdown.sh
+fi
+
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wireguard-config" "wireguard-config/*" "${HOME}/runtime/authenticator"
 if ( ( [ -f ${HOME}/runtime/authenticator/server/wg0.conf ] && [ -f /etc/wireguard/wg0.conf ] ) || [ ! -f /etc/wireguard/wg0.conf ] )
 then
