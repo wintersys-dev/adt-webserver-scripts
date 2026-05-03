@@ -13,11 +13,13 @@ WG_PORT="`/usr/bin/expr ${SSH_PORT} + 1`"
 if ( [ ! -f /etc/wireguard/postup.sh ] )
 then
         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postup.sh /etc/wireguard/postup.sh
+        /bin/sed -i "s/XXXXWG_PORTXXXX/${WG_PORT}/g" /etc/wireguard/postup.sh
 fi
 
 if ( [ ! -f /etc/wireguard/postdown.sh ] )
 then
         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postdown.sh /etc/wireguard/postdown.sh
+        /bin/sed -i "s/XXXXWG_PORTXXXX/${WG_PORT}/g" /etc/wireguard/postdown.sh
 fi
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wireguard-config" "wireguard-config/*" "${HOME}/runtime/authenticator"
