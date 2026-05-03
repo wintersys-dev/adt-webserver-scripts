@@ -118,7 +118,7 @@ then
                                 PublicKey = ${server_public_key}
                                 Endpoint = ${server_ip}:${wireguard_port}
                                 AllowedIPs =  10.0.0.0/16
-                                PersistentKeepalive = 5" >> /etc/wireguard/client_${email_address}.conf
+                                PersistentKeepalive = 25" >> /etc/wireguard/client_${email_address}.conf
                         done
                         config_updated="1"
                 fi
