@@ -123,14 +123,14 @@ then
                         do
                                 /bin/echo "[Peer]
                                 PublicKey = ${server_public_key}
-                                Endpoint = ${server_ip}:${wireguard_port}
+                                Endpoint = 127.0.0.1:443
                                 AllowedIPs =  10.0.0.0/16
                                 PersistentKeepalive = 5" >> /etc/wireguard/client_${email_address}.conf
                         done
                         config_updated="1"
                 fi
 
-                if ( [ ! -f /etc/wireguard/client_${email_address}.png ] )
+                if ( [ ! -f /etc/wireguard/client_${email_address}.png ] && [ -f /etc/wireguard/client_${email_address}.conf ] )
                 then
                         /usr/bin/qrencode -t png -o /etc/wireguard/client_${email_address}.png -r /etc/wireguard/client_${email_address}.conf
                         config_updated="1"
@@ -138,19 +138,12 @@ then
 
                 if ( [ "${config_updated}" = "1" ] )
                 then
-                        ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/client_${email_address}.png "qrcodes" "distributed" "no"
-                        ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/client_${email_address}.conf "client" "distributed" "no"
                         ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/wg0.conf  "server" "distributed" "no"
                 fi
                 /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 
         done
 fi
-
-#/bin/cp ${HOME}/runtime/authenticator/qrcode/* /etc/wireguard/freshqrcodes
-#/bin/cp ${HOME}/runtime/authenticator/client/* /etc/wireguard
-#/bin/cp ${HOME}/runtime/authenticator/server/* /etc/wireguard
-
 
 if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
 then
