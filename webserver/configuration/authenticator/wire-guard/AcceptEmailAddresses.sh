@@ -60,6 +60,7 @@ then
                         /bin/echo "[Interface]
                         PrivateKey = ${server_private_key}
                         Address = 10.0.0.1/24
+                        MTU = 1420
                         ListenPort = ${wireguard_port}
                         SaveConfig = true
                         PersistentKeepAlive = 25 
@@ -112,6 +113,7 @@ then
                         /bin/echo "[Interface]
                         PrivateKey = ${new_client_private_key}
                         Address = 10.0.0.${client_no}/32
+                        MTU = 1384
                         DNS = 1.1.1.1, 1.0.0.1 " > /etc/wireguard/client_${email_address}.conf
 
                         
@@ -122,7 +124,7 @@ then
                  Endpoint = ${server_ip}:${wireguard_port}
                  PersistentKeepAlive = 25
                  AllowedIPs =  10.0.0.0/16
-                 PersistentKeepalive = 25" >> /etc/wireguard/client_${email_address}.conf
+                 PersistentKeepalive = 5" >> /etc/wireguard/client_${email_address}.conf
                         done
                         config_updated="1"
                 fi
