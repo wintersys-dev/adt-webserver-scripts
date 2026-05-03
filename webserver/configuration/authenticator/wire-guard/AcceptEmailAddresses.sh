@@ -128,7 +128,7 @@ then
                         do
                                 /bin/echo "[Peer]
                                 PublicKey = ${server_public_key}
-                                Endpoint = 127.0.0.1:443
+                                Endpoint = ${server_ip}:${wireguard_port}
                                 AllowedIPs =  10.0.0.0/16
                                 PersistentKeepalive = 5" >> /etc/wireguard/client_${email_address}.conf
                         done
