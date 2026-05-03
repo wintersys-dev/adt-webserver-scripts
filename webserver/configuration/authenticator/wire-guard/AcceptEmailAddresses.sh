@@ -41,6 +41,16 @@ then
         /bin/mv ${HOME}/runtime/authenticator/authentication-emails.dat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 fi
 
+if ( [ ! -f /etc/wireguard/postup.sh ] )
+then
+        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postup.sh /etc/wireguard/postup.sh
+fi
+
+if ( [ ! -f /etc/wireguard/postdown.sh ] )
+then
+        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postdown.sh /etc/wireguard/postdown.sh
+fi
+
 server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-reverseproxy"`"
 
 config_updated="0"
