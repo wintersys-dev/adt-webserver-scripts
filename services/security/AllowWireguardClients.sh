@@ -7,6 +7,9 @@ then
         /bin/touch ${HOME}/runtime/IP_FORWARDING_ENABLED 
 fi
 
+SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
+WG_PORT="`/usr/bin/expr ${SSH_PORT} + 1`"
+
 if ( [ ! -f /etc/wireguard/postup.sh ] )
 then
         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postup.sh /etc/wireguard/postup.sh
