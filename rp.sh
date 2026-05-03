@@ -169,6 +169,7 @@ AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICAT
 if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
 	${HOME}/installation/InstallWireguard.sh
+	${HOME}/utilities/processing/RunServiceCommand.sh wg-quick@wg0 enable
 fi
 
 cd ${HOME}
