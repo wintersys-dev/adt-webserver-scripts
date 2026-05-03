@@ -74,7 +74,8 @@ then
                         [Peer]
                         PublicKey = ${server_public_key}
                         AllowedIPs = 10.0.0.0/24
-                        Endpoint = XXXXSERVER_PUBLIC_IPXXXX:${wireguard_port}" > /etc/wireguard/wg0.conf
+                      #  Endpoint = XXXXSERVER_PUBLIC_IPXXXX:${wireguard_port}
+                        Endpoint = 127.0.0.1:443" > /etc/wireguard/wg0.conf
                        # /bin/chmod 600 /etc/wireguard/wg0.conf
                         config_updated="1"
                 fi
