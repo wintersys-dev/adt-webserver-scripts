@@ -17,6 +17,10 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wireguard-config" "w
 #/bin/cp ${HOME}/runtime/authenticator/client/* /etc/wireguard
 /bin/cp ${HOME}/runtime/authenticator/server/* /etc/wireguard
 
+ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
+
+/bin/sed -i "s/XXXXSERVER_PUBLIC_IPXXXX/${ip}/" /etc/wireguard/wg0.conf
+
 is_modified="0"
 now="`/usr/bin/date +%s`" 
 
