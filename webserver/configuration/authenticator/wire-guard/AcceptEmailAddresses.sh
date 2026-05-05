@@ -57,9 +57,16 @@ then
                         server_private_key="`/bin/cat /etc/wireguard/server_private.key`"
                         server_public_key="`/bin/cat /etc/wireguard/server_public.key`"
 
+                        if ( [ ! -f /etc/wireguard/preshared.key ] )
+                        then
+                                /usr/bin/wg genpsk > /etc/wireguard/preshared.key
+                                preshared_key="`/bin/cat /etc/wireguard/preshared.key`"
+                        fi
+                        
                         /bin/echo "[Interface]
                         PrivateKey = ${server_private_key}
                         Address = 10.0.0.1/24
+                        PresharedKey = ${preshared_key}
                         MTU = 1380
                         ListenPort = ${wireguard_port}
                         SaveConfig = false
@@ -109,6 +116,7 @@ then
                         do
                                 /bin/echo "[Peer]
                                 PublicKey = ${server_public_key}
+                                PresharedKey = ${preshared_key}
                                 Endpoint = ${server_ip}:${wireguard_port}
                                 AllowedIPs =  10.0.0.0/16
                                 PersistentKeepalive = 25" >> /etc/wireguard/client_${email_address}.conf
