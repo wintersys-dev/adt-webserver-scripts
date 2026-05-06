@@ -173,12 +173,19 @@ else
                 /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/installation/joomla.php install --site-name="${website_name}" --admin-user="${website_user_description}" --admin-email="${webmaster_email}" --admin-username="${website_username}" --admin-password="${website_password}"  --db-type="${type}" --db-host="${HOST}:${DB_PORT}"  --db-user=${user} --db-pass=${password} --db-name=${db}  --db-prefix=${dbprefix} --no-interaction  
 
         else
-                if ( [ -f /var/www/html/configuration.php.default ] )
+
+                if ( [ -f /var/www/html/configuration.php.default ] && [ ! -f ${config_file} ] )
                 then
                         /bin/cp /var/www/html/configuration.php.default ${config_file}
+                        /bin/chown www-data:www-data ${config_file}
+                        /bin/chmod 400 ${config_file}
                 else
-                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
-                        exit
+                        if ( [ ! -f  ${HOME}/runtime/CONFIG_EMAIL_SENT ] )
+                        then
+                                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                                /bin/touch ${HOME}/runtime/CONFIG_EMAIL_SENT
+                                exit
+                        fi
                 fi
 
                 secret="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
