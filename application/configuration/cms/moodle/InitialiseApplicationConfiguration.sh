@@ -193,12 +193,21 @@ else
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
                 /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" 
         else
-                if ( [ ! -f ${config_file} ] )
+
+                if ( [ -f /var/www/html/config.php.default ] && [ ! -f ${config_file} ] )
                 then
                         /bin/cp /var/www/html/config.php.default ${config_file}
                         /bin/chown www-data:www-data ${config_file}
                         /bin/chmod 400 ${config_file}
+                else
+                        if ( [ ! -f  ${HOME}/runtime/CONFIG_EMAIL_SENT ] )
+                        then
+                                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                                /bin/touch ${HOME}/runtime/CONFIG_EMAIL_SENT
+                                exit
+                        fi
                 fi
+                
                 /bin/sed -i "s%\$CFG->dbuser.*$%\$CFG->dbuser = '${dbuser}';%" ${config_file}
                 /bin/sed -i "s%\$CFG->dbpass.*$%\$CFG->dbpass = '${dbpass}';%" ${config_file}
                 /bin/sed -i "s%\$CFG->dbname.*$%\$CFG->dbname = '${dbname}';%" ${config_file}
