@@ -153,20 +153,33 @@ else
                 done
         fi
 
-        if ( [ -f /var/www/html/ossn.config.db.php.default ] )
+
+        if ( [ -f /var/www/html/ossn.config.db.php.default ] && [ ! -f ${config_file} ] )
         then
                 /bin/cp /var/www/html/ossn.config.db.php.default ${config_file}
+                /bin/chown www-data:www-data ${config_file}
+                /bin/chmod 400 ${config_file}
         else
-                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
-                exit
+                if ( [ ! -f  ${HOME}/runtime/CONFIG_EMAIL_SENT ] )
+                then
+                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                        /bin/touch ${HOME}/runtime/CONFIG_EMAIL_SENT
+                        exit
+                fi
         fi
 
-        if ( [ -f /var/www/html/ossn.config.site.php.default ] )
+        if ( [ -f /var/www/html/ossn.config.site.php.default ] && [ ! -f ${config_file} ] )
         then
-                /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
+                /bin/cp /var/www/html/ossn.config.site.php.default ${config_file}
+                /bin/chown www-data:www-data ${config_file}
+                /bin/chmod 400 ${config_file}
         else
-                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
-                exit
+                if ( [ ! -f  ${HOME}/runtime/CONFIG_SITE_EMAIL_SENT ] )
+                then
+                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                        /bin/touch ${HOME}/runtime/CONFIG_SITE_EMAIL_SENT
+                        exit
+                fi
         fi
 
         user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
