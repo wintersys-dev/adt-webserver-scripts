@@ -46,6 +46,8 @@ fi
 SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL' | /bin/sed 's/www8/www/g'`"
 
+${HOME}/utilities/config/StoreConfigValue.sh "WEBSITEURL" "${WEBSITE_URL}"
+
 #REMOTE_PROXY_WEBSERVER="`${HOME}/utilities/config/ExtractConfigValue.sh 'REMOTEPROXYWEBSERVER'`"
 #${HOME}/utilities/config/StoreConfigValue.sh "WEBSERVERCHOICE" "${REMOTE_PROXY_WEBSERVER}"
 
