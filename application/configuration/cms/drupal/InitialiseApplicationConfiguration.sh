@@ -166,12 +166,18 @@ else
         database="'`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`'"
         collation="'`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`'"
 
-        if ( [ -f /var/www/html/settings.php.default ] )
+        if ( [ -f /var/www/html/settings.php.default ] && [ ! -f ${config_file} ] )
         then
-                /bin/cp /var/www/html/settings.php.default  ${webroot_directory}/sites/default/settings.php
-        else                        
-                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
-                exit
+                /bin/cp /var/www/html/settings.php.default ${config_file}
+                /bin/chown www-data:www-data ${config_file}
+                /bin/chmod 400 ${config_file}
+        else
+                if ( [ ! -f  ${HOME}/runtime/CONFIG_EMAIL_SENT ] )
+                then
+                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                        /bin/touch ${HOME}/runtime/CONFIG_EMAIL_SENT
+                        exit
+                fi
         fi
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
