@@ -162,7 +162,7 @@ else
         else
                 if ( [ ! -f  ${HOME}/runtime/CONFIG_EMAIL_SENT ] )
                 then
-                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
                         /bin/touch ${HOME}/runtime/CONFIG_EMAIL_SENT
                         exit
                 fi
@@ -176,7 +176,7 @@ else
         else
                 if ( [ ! -f  ${HOME}/runtime/CONFIG_SITE_EMAIL_SENT ] )
                 then
-                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
+                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn site configuration file is absent" "ERROR"
                         /bin/touch ${HOME}/runtime/CONFIG_SITE_EMAIL_SENT
                         exit
                 fi
