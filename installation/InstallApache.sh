@@ -85,7 +85,7 @@ do
 					#	modules_list="mpm_event ssl rewrite expires headers proxy proxy_http remoteip proxy_fcgi"
 					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 					then
-						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime"
+						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
 					elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 					then
 						modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:modules-list" "stripped"`"
