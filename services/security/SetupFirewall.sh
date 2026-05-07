@@ -256,6 +256,13 @@ then
         if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${VPC_IP_RANGE}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
         then
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport ${SSH_PORT} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+				if ( [ "${reverse_proxy_ips}" != "" ] )
+				then
+					for ip in ${reverse_proxy_ips}
+					do
+                		/usr/sbin/iptables -A INPUT -s ${ip}/32 -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+					done
+				fi
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p ICMP --icmp-type 8 -j ACCEPT
