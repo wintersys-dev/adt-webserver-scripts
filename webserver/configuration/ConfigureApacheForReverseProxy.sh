@@ -68,7 +68,6 @@ fi
 /usr/bin/openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 export HOME="`/bin/cat /home/homedir.dat`"
-/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s,XXXXHOMEXXXX,${HOME},g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXROOTDOMAINXXXX/${ROOT_DOMAIN}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
@@ -85,7 +84,7 @@ else
         /bin/sed -i "s/#XXXXPROXYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 fi
 
-
+/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXY}" = "1" ] )
 then
