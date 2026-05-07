@@ -298,9 +298,9 @@ then
     		fi
     	fi
 
-        if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${port}" = "443" ] )
+        if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${port}" = "443" ] && [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
         then
-        	: # skip 443 if we are using wireguard, 443 is set above where only reverse proxies are allowed
+        	: # skip 443 if we are using wireguard and are a webserver, 443 is set above so that only our reverse proxies are allowed access to 443
         else
         	if ( [ "${firewall}" = "ufw" ] )
         	then
