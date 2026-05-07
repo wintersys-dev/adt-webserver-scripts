@@ -168,11 +168,11 @@ else
                 fi
         fi
 
-        if ( [ -f /var/www/html/ossn.config.site.php.default ] && [ ! -f ${config_file} ] )
+        if ( [ -f /var/www/html/ossn.config.site.php.default ] && [ ! -f ${config_file_site} ] )
         then
-                /bin/cp /var/www/html/ossn.config.site.php.default ${config_file}
-                /bin/chown www-data:www-data ${config_file}
-                /bin/chmod 400 ${config_file}
+                /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
+                /bin/chown www-data:www-data ${config_file_site}
+                /bin/chmod 400 ${config_file_site}
         else
                 if ( [ ! -f  ${HOME}/runtime/CONFIG_SITE_EMAIL_SENT ] )
                 then
