@@ -76,6 +76,13 @@ export HOME="`/bin/cat /home/homedir.dat`"
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 
+if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+then
+        /bin/sed -i "s/#XXXXWIRE-GUARDXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
+else
+        /bin/sed -i "s/#XXXXPROXYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
+fi
+
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXY}" = "1" ] )
 then
         /bin/sed -i "s/#XXXXBASIC-AUTHXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
