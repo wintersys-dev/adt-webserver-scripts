@@ -275,13 +275,13 @@ if ( [ -f ${HOME}/runtime/firewall.dat ] )
 then
 	if ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 	then
-		ports="`/bin/grep "^REVERSEPROXYPORTS" ${HOME}/runtime/firewall.dat | /bin/sed 's/REVERSEPROXYPORTS//g'`"
+		ports="`/bin/grep "^REVERSEPROXYPORTS" ${HOME}/runtime/firewall.dat | /bin/sed 's/REVERSEPROXYPORTS://g'`"
 	elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 	then
 		ports="`/bin/grep "^WEBSERVERPORTS" ${HOME}/runtime/firewall.dat | /bin/sed 's/WEBSERVERPORTS://g'`"
 	elif ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 	then
-		ports="`/bin/grep "^AUTHENTICATORPORTS" ${HOME}/runtime/firewall.dat | /bin/sed 's/AUTHENTICATORPORTS//g'`"
+		ports="`/bin/grep "^AUTHENTICATORPORTS" ${HOME}/runtime/firewall.dat | /bin/sed 's/AUTHENTICATORPORTS://g'`"
 	fi
 
 	for port_token in ${ports}
