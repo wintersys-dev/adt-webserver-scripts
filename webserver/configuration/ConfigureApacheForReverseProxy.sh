@@ -71,15 +71,14 @@ export HOME="`/bin/cat /home/homedir.dat`"
 /bin/sed -i "s,XXXXHOMEXXXX,${HOME},g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXROOTDOMAINXXXX/${ROOT_DOMAIN}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-/bin/sed -i "s/XXXXWEBSITE_URLXXXXX/${WEBSERVER_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 
 if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         /bin/sed -i "s/#XXXXWIRE-GUARDXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-		WIREGUARD_WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/www/www8/g'`"
-        /bin/sed -i "s/XXXXWIREGUARD_WEBSITE_URLXXXXX/${WIREGUARD_WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
+		MAIN_WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/www/www8/g'`"
+        /bin/sed -i "s/XXXXMAIN_WEBSITE_URLXXXXX/${MAIN_WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 else
         /bin/sed -i "s/#XXXXPROXYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 fi
