@@ -298,8 +298,10 @@ then
     		fi
     	fi
 
-		if ( [ "${port}" != "443" ] && [ "${reverse_proxy_ips}" = "" ] )
-		then
+        if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${port}" = "443" ] )
+        then
+        	: # skip 443 if we are using wireguard, 443 is set above where only reverse proxies are allowed
+        else
         	if ( [ "${firewall}" = "ufw" ] )
         	then
         		if ( [ "${ip_address}" = "cloudflare" ] )
@@ -312,12 +314,12 @@ then
         					updated="1"
         				fi
         			done
-    			elif ( [ "`/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw status | /bin/grep -E "(${port}|ALLOW)"`" = "" ] && [ "${delete}" != "yes" ] )
+    			elif ( [ "`/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw status | /bin/grep "${port}" | /bin/grep "ALLOW" | /bin/grep "${ip_address}"`" = "" ] && [ "${delete}" != "yes" ] )
     			then
                 	/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw ${openness} from ${ip_address} to any port ${port}
                 	updated="1"
                 else
-                	if ( [ "`/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw status | /bin/grep -E "(${port}|ALLOW)"`" != "" ] && [ "${delete}" = "yes" ] )
+                	if ( [ "`/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw status | /bin/grep "${port}" | /bin/grep "ALLOW" | /bin/grep "${ip_address}"`" != "" ] && [ "${delete}" = "yes" ] )
                 	then
                 		/usr/bin/yes | /usr/sbin/ufw delete `/usr/sbin/ufw status numbered | /bin/grep ${port} | /usr/bin/awk -F"[\[\]]" '{print $2}' | /bin/sed 's/ //g'`
                 		updated="1"
