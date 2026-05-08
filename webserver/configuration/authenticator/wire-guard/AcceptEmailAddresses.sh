@@ -41,12 +41,38 @@ then
         /bin/mv ${HOME}/runtime/authenticator/authentication-emails.dat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
 fi
 
-server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-reverseproxy"`"
+if ( [ ! -f ${HOME}/runtime/authenticator/reverse_proxy_ips ] )
+then
+        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-reverseproxy"`"
+        
+        if ( [ "${server_ips}" != "" ] )
+        then
+                /bin/echo "${server_ips}" > ${HOME}/runtime/authenticator/reverse_proxy_ips
+        fi
+else
+        server_ips="`/bin/cat ${HOME}/runtime/authenticator/reverse_proxy_ips`"
+fi
+
 config_updated="0"
 if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
 then
         for email_address in `/bin/cat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$`
         do
+                if ( [ ! -f ${HOME}/runtime/authenticator/assigned_ip ] )
+                then
+                        server_ip="`/bin/echo ${server_ips} | /usr/bin/awk '{print $1}'`"
+                else
+                        previous_ip="`/bin/cat ${HOME}/runtime/authenticator/assigned_ip`"
+                        server_ip="`/bin/echo ${server_ips} | /bin/sed "s/.*${previous_ip}//g" | /usr/bin/awk '{print $1}'`"
+                        
+                        if ( [ "${server_ip}" = "" ] )
+                        then
+                                server_ip="`/bin/echo ${server_ips} | /usr/bin/awk '{print $1}'`"
+                        fi
+                fi
+                
+                /bin/echo ${ip} > ${HOME}/runtime/authenticator/assigned_ip
+                
                 if ( [ ! -f /etc/wireguard/client_${email_address}.png ] && [ ! -f /etc/wireguard/client_${email_address}.conf ] )
                 then
                         if ( [ ! -f /etc/wireguard/server_private.key ] )
