@@ -29,18 +29,16 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 email_addresses=`/bin/ls /etc/wireguard/client_*.png | /bin/sed -e 's/.*client_//g' -e 's/\.png//g'`
 
-
 for email_address in ${email_addresses}
 do
         if ( [ -f /etc/wireguard/client_${email_address}.png ] )
         then
                 file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
                 full_file_name="/var/www/html/qrcode-${file_name}-${email_address}.png"
-                /bin/mv /etc/wireguard/client_${email_address}.png ${full_file_name}
+                /bin/cp /etc/wireguard/client_${email_address}.png ${full_file_name}
                 full_file_name_html="/var/www/html/client-${file_name}-${email_address}.html"
                 /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
                 /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r /etc/wireguard/client_${email_address}.conf" -e 'd}' ${full_file_name_html}
-                /bin/rm /etc/wireguard/client_${email_address}.conf
                 if ( [ ! -f /var/www/html/txtstyle.css ] )
                 then
                         /bin/echo "html, body {font-family:Helvetica, Arial, sans-serif}" > /var/www/html/txtstyle.css
