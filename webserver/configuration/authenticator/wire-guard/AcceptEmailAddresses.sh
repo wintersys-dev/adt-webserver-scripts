@@ -47,36 +47,36 @@ if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
 then
         for email_address in `/bin/cat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$`
         do
-                if ( [ ! -f /etc/wireguard/server_private.key ] )
+                if ( [ ! -f /etc/wireguard/client_${email_address}.png ] && [ ! -f /etc/wireguard/client_${email_address}.conf ] )
                 then
-                        umask 077
-                        /usr/bin/wg genkey > /etc/wireguard/server_private.key
-                        /bin/chmod 600 /etc/wireguard/server_private.key
-                        /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > /etc/wireguard/server_public.key
-
-                        server_private_key="`/bin/cat /etc/wireguard/server_private.key`"
-                        server_public_key="`/bin/cat /etc/wireguard/server_public.key`"
-
-                        if ( [ ! -f /etc/wireguard/preshared.key ] )
+                        if ( [ ! -f /etc/wireguard/server_private.key ] )
                         then
-                                /usr/bin/wg genpsk > /etc/wireguard/preshared.key
-                                preshared_key="`/bin/cat /etc/wireguard/preshared.key`"
-                        fi
-                        
-                        /bin/echo "[Interface]
-                        PrivateKey = ${server_private_key}
-                        Address = 10.0.0.1/24
-                        PresharedKey = ${preshared_key}
-                        MTU = 1380
-                        ListenPort = ${wireguard_port}
-                        SaveConfig = false
-                        PostUp = /etc/wireguard/postup.sh
-                        PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
-                        config_updated="1"
-                fi
+                                umask 077
+                                /usr/bin/wg genkey > /etc/wireguard/server_private.key
+                                /bin/chmod 600 /etc/wireguard/server_private.key
+                                /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > /etc/wireguard/server_public.key
 
-                if ( [ ! -f /etc/wireguard/client_${email_address}.conf ] )
-                then
+                                server_private_key="`/bin/cat /etc/wireguard/server_private.key`"
+                                server_public_key="`/bin/cat /etc/wireguard/server_public.key`"
+
+                                if ( [ ! -f /etc/wireguard/preshared.key ] )
+                                then
+                                        /usr/bin/wg genpsk > /etc/wireguard/preshared.key
+                                        preshared_key="`/bin/cat /etc/wireguard/preshared.key`"
+                                fi
+                        
+                                /bin/echo "[Interface]
+                                PrivateKey = ${server_private_key}
+                                Address = 10.0.0.1/24
+                                PresharedKey = ${preshared_key}
+                                MTU = 1380
+                                ListenPort = ${wireguard_port}
+                                SaveConfig = false
+                                PostUp = /etc/wireguard/postup.sh
+                                PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
+                                config_updated="1"
+                        fi
+
                         if ( [ -f /etc/wireguard/wg0.conf ] )
                         then
                                 client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
@@ -97,11 +97,6 @@ then
                         sixteen="`/usr/bin/expr ${twenty_four} / 255`"
                         iteration2="`/usr/bin/expr ${sixteen} \* 255`" 
                         twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
-
-                        # Add peer to server config
-                      #  /bin/echo "[Peer]
-                      #  PublicKey = ${new_client_public_key}
-                      #  AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32" >> /etc/wireguard/wg0.conf 
 
                         /usr/bin/wg set wg0 peer ${new_client_public_key} allowed-ips 10.${sixteen}.${twenty_four}.${thirty_two}/32
 
@@ -136,7 +131,6 @@ then
                         ${HOME}/services/datastore/operations/PutToDatastore.sh "wireguard-config" /etc/wireguard/wg0.conf  "server" "distributed" "no"
                 fi
                 /bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$
-
         done
 fi
 
