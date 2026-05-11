@@ -103,7 +103,6 @@ then
                                 /bin/echo "[Interface]
                                 PrivateKey = ${server_private_key}
                                 Address = 10.0.0.1/24
-                                PresharedKey = ${preshared_key}
                                 MTU = 1380
                                 ListenPort = ${wireguard_port}
                                 SaveConfig = false
@@ -133,7 +132,13 @@ then
                         iteration2="`/usr/bin/expr ${sixteen} \* 255`" 
                         twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
-                        /usr/bin/wg set wg0 peer ${new_client_public_key} allowed-ips 10.${sixteen}.${twenty_four}.${thirty_two}/32
+                        # Add peer to server config
+                        /bin/echo "[Peer]
+                          PublicKey = ${new_client_public_key}
+                          AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
+                          PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf 
+
+                     #   /usr/bin/wg set wg0 peer ${new_client_public_key} allowed-ips 10.${sixteen}.${twenty_four}.${thirty_two}/32
 
                         # Create client config
                         /bin/echo "[Interface]
