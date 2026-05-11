@@ -106,6 +106,10 @@ then
         else
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         fi
+        if ( [ "`/bin/echo ${WEBSITE_URL} | /bin/grep 'protected'`" != "" ] )
+        then
+                WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\-protected//g'`"
+        fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-wireguard-config"
 fi
 
