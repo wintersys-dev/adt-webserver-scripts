@@ -58,6 +58,15 @@ if ( [ -f ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$ ] )
 then
         for email_address in `/bin/cat ${HOME}/runtime/authenticator/emailaddresses.dat.incoming.$$`
         do
+                if ( [ -f ${HOME}/runtime/authenticator/email-addresses-actioned/${email_address} ] )
+                then
+                        if ( [ ! -d ${HOME}/runtime/authenticator/email-addresses-actioned ] )
+                        then
+                                /bin/mkdir -p ${HOME}/runtime/authenticator/email-addresses-actioned 
+                        fi
+                        /bin/rm ${HOME}/runtime/authenticator/email-addresses-actioned/${email_address}
+                fi
+                
                 if ( [ ! -f ${HOME}/runtime/authenticator/assigned_ip ] )
                 then
                         server_ip="`/bin/echo ${server_ips} | /usr/bin/awk '{print $1}'`"
