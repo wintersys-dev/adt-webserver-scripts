@@ -44,7 +44,10 @@ then
 fi
 
 SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
-WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL' | /bin/sed 's/www-protected/www/g'`"
+WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+website_subdomain="`${WEBSITE_URL} | /usr/bin/awk -F'.' '{print $1}'`"
+WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed "s/${website_subdomain}-protected/${website_subdomain}/g"`"
+
 
 ${HOME}/utilities/config/StoreConfigValue.sh "WEBSITEURL" "${WEBSITE_URL}"
 
