@@ -77,7 +77,7 @@ export HOME="`/bin/cat /home/homedir.dat`"
 if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         /bin/sed -i "s/#XXXXWIRE-GUARDXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-		MAIN_WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/www/www8/g'`"
+		MAIN_WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/www/www-protected/g'`"
         /bin/sed -i "s/XXXXMAIN_WEBSITE_URLXXXX/${MAIN_WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 else
         /bin/sed -i "s/#XXXXPROXYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
