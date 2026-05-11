@@ -31,7 +31,7 @@ email_addresses=`/bin/ls /etc/wireguard/client_*.png | /bin/sed -e 's/.*client_/
 
 for email_address in ${email_addresses}
 do
-        if ( [ -f /etc/wireguard/client_${email_address}.png ] )
+        if ( [ ! -f ${HOME}/runtime/authenticator/email-addresses-actioned/${email_address} ] && [ -f /etc/wireguard/client_${email_address}.png ] )
         then
                 file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
                 full_file_name="/var/www/html/qrcode-${file_name}-${email_address}.png"
