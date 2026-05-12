@@ -23,14 +23,14 @@
 if ( [ ! -d /var/lib/adt-config ] )
 then
         /bin/mkdir /var/lib/adt-config
-        ${HOME}/services/datastore/operations/SyncFromDatastore.sh "config" "root" "/var/lib/adt-config"
+        ${HOME}/services/datastore/operations/SyncFromDatastore.sh "config" "/var/lib/adt-config"
 
         while ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "config" "INSTALLED_SUCCESSFULLY"`" = "" ] )
         do
                 /bin/sleep 1
         done
 
-        ${HOME}/services/datastore/operations/SyncFromDatastore.sh "config" "root" "/var/lib/adt-config"
+        ${HOME}/services/datastore/operations/SyncFromDatastore.sh "config" "/var/lib/adt-config"
 fi
 
 #while ( [ 1 ] )
