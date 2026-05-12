@@ -26,8 +26,9 @@
 #set -x
 
 bucket_type="${1}"
-destination="${2}"
-additional_specifier="${3}"
+source="${2}"
+mode="${3}"
+additional_specifier="${4}"
 
 export HOME=`/bin/cat /home/homedir.dat`
 
@@ -119,39 +120,24 @@ then
         active_bucket="${active_bucket}-wireguard-config"
 fi
 
-if ( [ "${WEBSITE_URL}" = "" ] )
-then
-        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-fi
+S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY'`"
 
-if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s3cmd'`" = "1" ] )
-then
-        datastore_tool="/usr/bin/s3cmd"
-elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s5cmd'`" = "1" ]  )
-then
-        datastore_tool="/usr/bin/s5cmd"
-elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:rclone'`" = "1" ]  )
-then
-        datastore_tool="/usr/bin/rclone"
-fi
+no_tokens="`/bin/echo "${S3_ACCESS_KEY}" | /usr/bin/fgrep -o '|' | /usr/bin/wc -l`"
+no_tokens="`/usr/bin/expr ${no_tokens} + 1`"
 
-if ( [ ! -d ${HOME}/runtime/datastore_workarea ] )
-then
-        /bin/mkdir -p ${HOME}/runtime/datastore_workarea
-fi
+count="1"
 
-if ( [ "${datastore_tool}" = "/usr/bin/s3cmd" ] )
+if ( [ "${mode}" = "local" ] )
 then
-        host_base="`/bin/grep ^host_base /root/.s3cfg-1 | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
-        datastore_cmd="${datastore_tool} --config=/root/.s3cfg-1 --host=https://${host_base} sync ${destination}/"
-elif ( [ "${datastore_tool}" = "/usr/bin/s5cmd" ] )
+        bucket_type="${1}"
+        source="${2}"
+        additional_specifier="${3}"
+        ${HOME}/services/datastore/operations/PerformSyncToDatastore.sh ${source} ${active_bucket} ${count}
+elif ( [ "${mode}" = "distributed" ] )
 then
-        host_base="`/bin/grep ^host_base /root/.s5cfg-1 | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
-        datastore_cmd="${datastore_tool} --credentials-file /root/.s5cfg-1 --endpoint-url https://${host_base} sync ${destination}/"
-elif ( [ "${datastore_tool}" = "/usr/bin/rclone" ] )
-then
-        host_base="`/bin/grep ^endpoint /root/.config/rclone/rclone.conf-1 | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`"
-        datastore_cmd="${datastore_tool} --config /root/.config/rclone/rclone.conf-1 --s3-endpoint ${host_base} sync ${destination}/"
+        while ( [ "${count}" -le "${no_tokens}" ] )
+        do
+                ${HOME}/services/datastore/operations/PerformSyncToDatastore.sh ${source} ${active_bucket} ${count}
+                count="`/usr/bin/expr ${count} + 1`"
+        done
 fi
-
-${datastore_cmd}  s3:${active_bucket}/
