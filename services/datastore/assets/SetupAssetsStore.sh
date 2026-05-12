@@ -22,7 +22,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ####################################################################################
 ####################################################################################
-#set -x
+set -x
 
 #if the s3 cache size grows to be greater than 10G, clean it out
 s3_cache_size="`/usr/bin/du -h --max-depth=1 /home | /bin/grep s3mount_cache | /usr/bin/awk '{print $1}' | /bin/grep 'G$' | /bin/sed 's/G//g'`" 
@@ -37,10 +37,10 @@ then
         /bin/mkdir /home/s3mount_cache
 fi
 
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] )
-then
-        exit
-fi
+#if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] )
+#then
+#       exit
+#fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" = "1" ] )
 then
@@ -53,29 +53,24 @@ webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.
 
 for directory in ${application_asset_dirs}
 do
-	asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
-	${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${directory}"
-	${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${webroot_directory}/${directory}" "${directory}"
+        asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
+        ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${directory}"
+        ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${webroot_directory}/${directory}" "distributed" "${directory}"
 done
 
 exit
 
-
-
-
-
-
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:source'`" = "1" ] )
 then
-  ${HOME}/services/datastore/assets/s3fs/SetupAssetsStore.sh
+        ${HOME}/services/datastore/assets/s3fs/SetupAssetsStore.sh
 elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:source'`" = "1" ] )
 then
-	${HOME}/services/datastore/assets/goofys/SetupAssetsStore.sh
+        ${HOME}/services/datastore/assets/goofys/SetupAssetsStore.sh
 elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:source'`" = "1" ] )
-then	
-	${HOME}/services/datastore/assets/geesefs/SetupAssetsStore.sh
+then
+        ${HOME}/services/datastore/assets/geesefs/SetupAssetsStore.sh
 elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:source'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:script'`" = "1" ] )
 then
-	${HOME}/services/datastore/assets/rclone/SetupAssetsStore.sh
+        ${HOME}/services/datastore/assets/rclone/SetupAssetsStore.sh
 fi
       
