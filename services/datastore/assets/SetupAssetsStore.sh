@@ -47,6 +47,7 @@ then
         exit
 fi
 
+
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:source'`" = "1" ] )
 then
   ${HOME}/services/datastore/assets/s3fs/SetupAssetsStore.sh
