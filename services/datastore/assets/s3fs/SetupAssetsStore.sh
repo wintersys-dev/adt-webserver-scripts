@@ -26,13 +26,7 @@ then
 	for asset_bucket in ${application_asset_buckets}
 	do
         asset_directory="`/bin/echo ${application_asset_dirs} | /usr/bin/cut -d " " -f ${loop}`"
-
-        if ( [ "${not_for_merge_mount_dirs}" != "" ] && [ "`/bin/echo ${not_for_merge_mount_dirs} | /bin/grep "${asset_directory}"`" != "" ] )
-        then
-                asset_directory="/var/www/html/${asset_directory}"
-        else
-                asset_directory="/var/www/${asset_directory}"
-        fi
+        asset_directory="/var/www/s3-${asset_directory}"
 
         if ( [ ! -d ${asset_directory} ] )
         then
