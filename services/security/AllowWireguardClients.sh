@@ -22,7 +22,7 @@ then
         /bin/sed -i "s/XXXXWG_PORTXXXX/${WG_PORT}/g" /etc/wireguard/postdown.sh
 fi
 
-${HOME}/services/datastore/operations/SyncFromDatastore.sh "wireguard-config" "wireguard-config/*" "${HOME}/runtime/authenticator"
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "wireguard-config" "${HOME}/runtime/authenticator"
 if ( ( [ -f ${HOME}/runtime/authenticator/server/wg0.conf ] && [ -f /etc/wireguard/wg0.conf ] ) || [ ! -f /etc/wireguard/wg0.conf ] )
 then
         if ( [ "`/usr/bin/diff ${HOME}/runtime/authenticator/server/wg0.conf /etc/wireguard/wg0.conf`" != "" ] || [ ! -f /etc/wireguard/wg0.conf ] )
