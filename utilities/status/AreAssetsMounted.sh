@@ -29,8 +29,9 @@ then
 	exit
 fi
 
-assetsdirectories="`${HOME}/utilities/config/ExtractConfigValues.sh 'DIRECTORIESTOMOUNT' 'stripped' | /bin/sed 's/\./\//g' | /usr/bin/tr '\n' ' ' | /bin/sed 's/  / /g' | /bin/sed 's/config//g'`"
+#assetsdirectories="`${HOME}/utilities/config/ExtractConfigValues.sh 'DIRECTORIESTOMOUNT' 'stripped' | /bin/sed 's/\./\//g' | /usr/bin/tr '\n' ' ' | /bin/sed 's/  / /g' | /bin/sed 's/config//g'`"
 
+assetsdirectories="`/bin/grep "^WEBROOT_DIRECTORIES_TO_MOUNT:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_DIRECTORIES_TO_MOUNT://g'`"
 for assetsdirectory in ${assetsdirectories}
 do
 	if ( [ "`/usr/bin/file /var/www/html/${assetsdirectory} | /bin/grep -v "No such" | /bin/grep "directory" > /dev/null`" ] || [ "`/bin/mount | /bin/grep "/var/www/html/${assetsdirectory}"`" = "" ] )
