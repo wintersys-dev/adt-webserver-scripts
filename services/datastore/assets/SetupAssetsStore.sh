@@ -84,7 +84,7 @@ do
                 done
                 options="`/bin/echo ${options} | /bin/sed 's/,$//g'`"
 
-                /usr/bin/s3fs ${options} ${asset_bucket} ${application_assets_directory}
+                /usr/bin/s3fs ${options} ${asset_bucket} ${absolute_application_assets_directory}
         elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:source'`" = "1" ] )
         then
                 if ( [ ! -d /root/.aws ] )
@@ -108,7 +108,7 @@ do
                         options="${options}${option} "
                 done
 
-                /usr/bin/goofys ${options} ${asset_bucket} ${application_assets_directory}
+                /usr/bin/goofys ${options} ${asset_bucket} ${absolute_application_assets_directory}
         elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:source'`" = "1" ] )
         then
                 if ( [ ! -d /root/.aws ] )
@@ -129,7 +129,7 @@ do
                         options="${options}${option} "
                 done
 
-                /usr/bin/geesefs ${options} ${asset_bucket} ${application_assets_directory}
+                /usr/bin/geesefs ${options} ${asset_bucket} ${absolute_application_assets_directory}
 
         elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:source'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:script'`" = "1" ] )
         then
@@ -142,7 +142,7 @@ do
                         options="${options}${option} "
                 done
 
-                /usr/bin/rclone mount ${options} s3:${asset_bucket} ${application_assets_directory} 
+                /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} 
         fi
 done
       
