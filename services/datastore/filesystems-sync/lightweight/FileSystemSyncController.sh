@@ -31,7 +31,7 @@ bucket_type="${2}"
 if ( [ ! -d ${active_directory} ] )
 then
         /bin/mkdir ${active_directory}
-        ${HOME}/services/datastore/operations/SyncFromDatastore.sh "${bucket_type}" "root" "${active_directory}"
+        ${HOME}/services/datastore/operations/SyncFromDatastore.sh "${bucket_type}" "${active_directory}"
 fi
 
 if ( [ ! -d ${HOME}/runtime/datastore_workarea/${bucket_type} ] )
@@ -112,7 +112,7 @@ update_to_and_from_datastore()
                         fi
                 fi
 
-                ${HOME}/services/datastore/operations/SyncFromDatastore.sh "${bucket_type}" "root" "${active_directory}"
+                ${HOME}/services/datastore/operations/SyncFromDatastore.sh "${bucket_type}" "${active_directory}"
 
                 if ( [ "`/usr/bin/find ${active_directory} | /bin/grep '\.delete_me$'`" != "" ] )
                 then
