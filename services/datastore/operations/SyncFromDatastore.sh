@@ -26,9 +26,8 @@
 #set -x
 
 bucket_type="${1}"
-place_to_sync="${2}"
-destination="${3}"
-additional_specifier="${4}"
+destination="${2}"
+additional_specifier="${3}"
 
 export HOME=`/bin/cat /home/homedir.dat`
 
