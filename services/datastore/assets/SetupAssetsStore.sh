@@ -24,6 +24,11 @@
 ####################################################################################
 #set -x
 
+if ( [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET ] )
+then
+        exit
+fi
+
 #if the s3 cache size grows to be greater than 10G, clean it out
 s3_cache_size="`/usr/bin/du -h --max-depth=1 /home | /bin/grep s3mount_cache | /usr/bin/awk '{print $1}' | /bin/grep 'G$' | /bin/sed 's/G//g'`" 
 
