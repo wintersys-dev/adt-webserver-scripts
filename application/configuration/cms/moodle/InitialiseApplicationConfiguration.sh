@@ -296,7 +296,7 @@ if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat
 then
         dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
 
-        for asset_directory in `/bin/grep "^WEBROOT_DIRECTORIES_TO_MOUNT:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_DIRECTORIES_TO_MOUNT://g' | /bin/sed 's/:/ /g'`
+        for asset_directory in `/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`
         do
                 if ( [ ! -d /var/www/html/${asset_directory} ] )
                 then
