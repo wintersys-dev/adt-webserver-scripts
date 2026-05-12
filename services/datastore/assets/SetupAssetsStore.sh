@@ -70,7 +70,8 @@ do
                 asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
                 ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
-
+                /bin/rm -r ${absolute_application_assets_directory}/*
+                
                 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:source'`" = "1" ] )
                 then
                         /bin/cp ${HOME}/services/datastore/assets/config/s3fs.conf ${HOME}/runtime/s3fs.conf
