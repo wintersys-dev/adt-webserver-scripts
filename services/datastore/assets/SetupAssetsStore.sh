@@ -65,84 +65,85 @@ do
                 absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
         fi
 
-        asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
-        ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
-        ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
-
-        if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:source'`" = "1" ] )
+        if ( [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
         then
-                /bin/cp ${HOME}/services/datastore/assets/config/s3fs.conf ${HOME}/runtime/s3fs.conf
-                /bin/sed -i -e "s/XXXXS3UIDXXXX/${s3fs_uid}/g" -e "s/XXXXS3GIDXXXX/${s3fs_gid}/g" -e "s;XXXXENDPOINTXXXX;${endpoint};g" ${HOME}/runtime/s3fs.conf
-                password_file="`/bin/grep "passwd_file" ${HOME}/runtime/s3fs.conf | /usr/bin/awk -F'=' '{print $NF}'`"
-                /bin/echo "${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}" > ${password_file}
-                /bin/chmod 600 ${password_file}
+                asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
+                ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
+                ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
 
-                options="-o "
-                for option in `/bin/cat ${HOME}/runtime/s3fs.conf`
-                do
-                        options="${options}${option},"
-                done
-                options="`/bin/echo ${options} | /bin/sed 's/,$//g'`"
-
-                /usr/bin/s3fs ${options} ${asset_bucket} ${absolute_application_assets_directory}
-        elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:source'`" = "1" ] )
-        then
-                if ( [ ! -d /root/.aws ] )
+                if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:source'`" = "1" ] )
                 then
-                        /bin/mkdir /root/.aws
-                fi
+                        /bin/cp ${HOME}/services/datastore/assets/config/s3fs.conf ${HOME}/runtime/s3fs.conf
+                        /bin/sed -i -e "s/XXXXS3UIDXXXX/${s3fs_uid}/g" -e "s/XXXXS3GIDXXXX/${s3fs_gid}/g" -e "s;XXXXENDPOINTXXXX;${endpoint};g" ${HOME}/runtime/s3fs.conf
+                        password_file="`/bin/grep "passwd_file" ${HOME}/runtime/s3fs.conf | /usr/bin/awk -F'=' '{print $NF}'`"
+                        /bin/echo "${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}" > ${password_file}
+                        /bin/chmod 600 ${password_file}
 
-                /bin/chmod 755 /root/.aws
-                /bin/echo "[default]" > /root/.aws/credentials
-                /bin/echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> /root/.aws/credentials
-                /bin/echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> /root/.aws/credentials
-                /bin/chmod 600 /root/.aws/credentials
+                        options="-o "
+                        for option in `/bin/cat ${HOME}/runtime/s3fs.conf`
+                        do
+                                options="${options}${option},"
+                        done
+                        options="`/bin/echo ${options} | /bin/sed 's/,$//g'`"
 
-                /bin/cp ${HOME}/services/datastore/assets/config/goofys.conf ${HOME}/runtime/goofys.conf
-
-                /bin/sed -i -e "s/XXXXS3UIDXXXX/${s3fs_uid}/g" -e "s/XXXXS3GIDXXXX/${s3fs_gid}/g" -e "s;XXXXENDPOINTXXXX;${endpoint};g" ${HOME}/runtime/goofys.conf
-
-                options=" "
-                for option in `/bin/cat ${HOME}/runtime/goofys.conf`
-                do
-                        options="${options}${option} "
-                done
-
-                /usr/bin/goofys ${options} ${asset_bucket} ${absolute_application_assets_directory}
-        elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:source'`" = "1" ] )
-        then
-                if ( [ ! -d /root/.aws ] )
+                        /usr/bin/s3fs ${options} ${asset_bucket} ${absolute_application_assets_directory}
+                elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:source'`" = "1" ] )
                 then
-                        /bin/mkdir /root/.aws
+                        if ( [ ! -d /root/.aws ] )
+                        then
+                                /bin/mkdir /root/.aws
+                        fi
+
+                        /bin/chmod 755 /root/.aws
+                        /bin/echo "[default]" > /root/.aws/credentials
+                        /bin/echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> /root/.aws/credentials
+                        /bin/echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> /root/.aws/credentials
+                        /bin/chmod 600 /root/.aws/credentials
+
+                        /bin/cp ${HOME}/services/datastore/assets/config/goofys.conf ${HOME}/runtime/goofys.conf
+
+                        /bin/sed -i -e "s/XXXXS3UIDXXXX/${s3fs_uid}/g" -e "s/XXXXS3GIDXXXX/${s3fs_gid}/g" -e "s;XXXXENDPOINTXXXX;${endpoint};g" ${HOME}/runtime/goofys.conf
+
+                        options=" "
+                        for option in `/bin/cat ${HOME}/runtime/goofys.conf`
+                        do
+                                options="${options}${option} "
+                        done
+
+                        /usr/bin/goofys ${options} ${asset_bucket} ${absolute_application_assets_directory}
+                elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:source'`" = "1" ] )
+                then
+                        if ( [ ! -d /root/.aws ] )
+                        then
+                                /bin/mkdir /root/.aws
+                        fi
+                        /bin/chmod 755 /root/.aws
+                        /bin/echo "[default]" > /root/.aws/credentials
+                        /bin/echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> /root/.aws/credentials
+                        /bin/echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> /root/.aws/credentials
+
+                        /bin/cp ${HOME}/services/datastore/assets/config/geesefs.conf ${HOME}/runtime/geesefs.conf
+                        /bin/sed -i -e "s/XXXXS3UIDXXXX/${s3fs_uid}/g" -e "s/XXXXS3GIDXXXX/${s3fs_gid}/g" -e "s;XXXXENDPOINTXXXX;${endpoint};g" ${HOME}/runtime/geesefs.conf
+
+                        options=" "
+                        for option in `/bin/cat ${HOME}/runtime/geesefs.conf`
+                        do
+                                options="${options}${option} "
+                        done
+
+                        /usr/bin/geesefs ${options} ${asset_bucket} ${absolute_application_assets_directory}
+                elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:source'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:script'`" = "1" ] )
+                then
+                        /bin/cp ${HOME}/services/datastore/assets/config/rclone.conf ${HOME}/runtime/rclone.conf
+                        /bin/sed -i -e "s/XXXXS3UIDXXXX/${s3fs_uid}/g" -e "s/XXXXS3GIDXXXX/${s3fs_gid}/g" -e "s;XXXXENDPOINTXXXX;${endpoint};g" ${HOME}/runtime/rclone.conf
+
+                        options=" "
+                        for option in `/bin/cat ${HOME}/runtime/rclone.conf`
+                        do
+                                options="${options}${option} "
+                        done
+                        /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} 
                 fi
-                /bin/chmod 755 /root/.aws
-                /bin/echo "[default]" > /root/.aws/credentials
-                /bin/echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> /root/.aws/credentials
-                /bin/echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> /root/.aws/credentials
-
-                /bin/cp ${HOME}/services/datastore/assets/config/geesefs.conf ${HOME}/runtime/geesefs.conf
-                /bin/sed -i -e "s/XXXXS3UIDXXXX/${s3fs_uid}/g" -e "s/XXXXS3GIDXXXX/${s3fs_gid}/g" -e "s;XXXXENDPOINTXXXX;${endpoint};g" ${HOME}/runtime/geesefs.conf
-
-                options=" "
-                for option in `/bin/cat ${HOME}/runtime/geesefs.conf`
-                do
-                        options="${options}${option} "
-                done
-
-                /usr/bin/geesefs ${options} ${asset_bucket} ${absolute_application_assets_directory}
-
-        elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:binary'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:source'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:rclone:script'`" = "1" ] )
-        then
-                /bin/cp ${HOME}/services/datastore/assets/config/rclone.conf ${HOME}/runtime/rclone.conf
-                /bin/sed -i -e "s/XXXXS3UIDXXXX/${s3fs_uid}/g" -e "s/XXXXS3GIDXXXX/${s3fs_gid}/g" -e "s;XXXXENDPOINTXXXX;${endpoint};g" ${HOME}/runtime/rclone.conf
-
-                options=" "
-                for option in `/bin/cat ${HOME}/runtime/rclone.conf`
-                do
-                        options="${options}${option} "
-                done
-
-                /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} 
         fi
 done
       
