@@ -65,6 +65,11 @@ do
                 absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
         fi
 
+        if ( [ ! -d ${absolute_application_assets_directory} ] )
+        then
+                /bin/mkdir -p ${absolute_application_assets_directory}
+        fi
+
         if ( [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
         then
                 asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
