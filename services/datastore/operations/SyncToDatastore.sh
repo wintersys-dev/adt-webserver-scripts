@@ -27,8 +27,7 @@
 
 bucket_type="${1}"
 destination="${2}"
-place_to_sync="${3}"
-additional_specifier="${4}"
+additional_specifier="${3}"
 
 export HOME=`/bin/cat /home/homedir.dat`
 
@@ -118,11 +117,6 @@ then
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
         active_bucket="${active_bucket}-wireguard-config"
-fi
-
-if ( [ "${place_to_sync}" = "root" ] )
-then
-        place_to_sync=""
 fi
 
 if ( [ "${WEBSITE_URL}" = "" ] )
