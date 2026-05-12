@@ -65,7 +65,7 @@ fi
  #       done
 #fi
 
-${HOME}/services/datastore/operations/SyncFromDatastore.sh "basic-auth-credentials" "basic-auth-credentials/*" "${HOME}/runtime/authenticator"
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "basic-auth-credentials" "${HOME}/runtime/authenticator"
 
 /bin/cat ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* > ${HOME}/runtime/authenticator/basic-auth.dat
 
