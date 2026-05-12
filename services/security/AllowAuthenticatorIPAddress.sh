@@ -58,7 +58,7 @@ then
         /bin/mkdir ${HOME}/runtime/authenticator
 fi
 
-${HOME}/services/datastore/operations/SyncFromDatastore.sh "firewall-auth-laptop-ips" "firewall-laptop-ips/*" "${HOME}/runtime/authenticator"
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "firewall-auth-laptop-ips"  "${HOME}/runtime/authenticator"
 
 /bin/cat ${HOME}/runtime/authenticator/firewall-laptop-ips/ipaddresses.dat* > ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
 
