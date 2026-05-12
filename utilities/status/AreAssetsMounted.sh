@@ -31,7 +31,7 @@ fi
 
 #assetsdirectories="`${HOME}/utilities/config/ExtractConfigValues.sh 'DIRECTORIESTOMOUNT' 'stripped' | /bin/sed 's/\./\//g' | /usr/bin/tr '\n' ' ' | /bin/sed 's/  / /g' | /bin/sed 's/config//g'`"
 assetsdirectories=""
-assetsdirectories="`/bin/grep "^WEBROOT_DIRECTORIES_TO_MOUNT:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_DIRECTORIES_TO_MOUNT://g'`"
+assetsdirectories="`/bin/grep "^WEBROOT_DIRECTORIES_TO_MOUNT:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_DIRECTORIES_TO_MOUNT://g' | /bin/sed 's/:/ /g'`"
 
 if ( [ "${assetsdirectories}" != "" ] )
 then
