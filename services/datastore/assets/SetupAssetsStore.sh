@@ -143,7 +143,7 @@ do
                         do
                                 options="${options}${option} "
                         done
-                        /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} 
+                        /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} &
                 fi
         fi
 done
