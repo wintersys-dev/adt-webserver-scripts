@@ -24,6 +24,19 @@
 ####################################################################################
 #set -x
 
+#if the s3 cache size grows to be greater than 10G, clean it out
+s3_cache_size="`/usr/bin/du -h --max-depth=1 /home | /bin/grep s3mount_cache | /usr/bin/awk '{print $1}' | /bin/grep 'G$' | /bin/sed 's/G//g'`" 
+
+if ( [ "${s3_cache_size}" != "" ] && [ "${s3_cache_size}" -gt "10" ] )
+then
+        /bin/rm -r /home/s3mount_cache/*
+fi
+
+if ( [ ! -d /home/s3mount_cache ] )
+then
+        /bin/mkdir /home/s3mount_cache
+fi
+
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:source'`" = "1" ] )
 then
   ${HOME}/services/datastore/assets/s3fs/SetupAssetsStore.sh
