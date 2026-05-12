@@ -11,3 +11,5 @@ application_asset_buckets=""
 for directory in ${application_asset_dirs}
 do
 	asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
+	application_asset_buckets="${application_asset_buckets} ${asset_bucket}"
+done
