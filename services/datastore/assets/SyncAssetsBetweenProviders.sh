@@ -3,7 +3,7 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
 application_asset_dirs=""
 application_asset_buckets=""
-application_asset_dirs="`/bin/grep "^WEBROOT_DIRECTORIES_TO_MOUNT:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_DIRECTORIES_TO_MOUNT://g' | /bin/sed 's/:/ /g'`"
+application_asset_dirs="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
 
 
 if ( [ "${application_asset_dirs}" != "" ] )
