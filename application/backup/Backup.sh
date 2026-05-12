@@ -102,7 +102,7 @@ then
         exclude_list="${exclude_list} `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' ' | /bin/sed 's;/var/www/html/;;g'`"
 elif ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "0" ] )
 then
-        directories_to_omit="`/bin/grep "^WEBROOT_DIRECTORIES_TO_MOUNT:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_DIRECTORIES_TO_MOUNT://g'`"
+        directories_to_omit="`/bin/grep "^WEBROOT_DIRECTORIES_TO_MOUNT:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_DIRECTORIES_TO_MOUNT://g' | /bin/sed 's/:/ /g'`"
 
         if ( [ "${directories_to_omit}" != "" ] )
         then
