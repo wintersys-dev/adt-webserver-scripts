@@ -294,8 +294,7 @@ fi
 
 if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
 then
-     #   for asset_directory in "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT_LIST:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_OUTSIDE_WEBROOT_LIST://g'`"
-        for asset_directory in "`${HOME}/utilities/config/ExtractConfigValues.sh 'DIRECTORIESTOMOUNT' 'stripped' | /bin/sed 's/:/ /g'`"
+        for asset_directory in `${HOME}/utilities/config/ExtractConfigValues.sh 'DIRECTORIESTOMOUNT' 'stripped' | /bin/sed 's/:/ /g'`
         do
                 if ( [ ! -d /var/www/html/${asset_directory} ] )
                 then
