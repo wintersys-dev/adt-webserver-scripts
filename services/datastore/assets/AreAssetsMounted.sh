@@ -32,16 +32,21 @@ fi
 assets_directories=""
 assets_directories="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
 mounted=""
-for directory in ${assets_directories}
-do
-        mounted="`/bin/mount | /bin/grep "/var/www/html/${directory}"`"
+if ( [ "${assets_directories}" != "" ] )
+then
+        for directory in ${assets_directories}
+        do
+                mounted="`/bin/mount | /bin/grep "/var/www/html/${directory}"`"
 
-        if ( [ "${mounted}" = "" ] )
-        then
-                mounted=""
-        else
-                mounted="MOUNTED"
-        fi
-done
+                if ( [ "${mounted}" = "" ] )
+                then
+                        mounted=""
+                else
+                        mounted="MOUNTED"
+                fi
+        done
+else
+        mounted="MOUNTED"
+fi
 
 /bin/echo ${mounted}
