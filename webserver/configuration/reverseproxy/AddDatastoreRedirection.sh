@@ -19,5 +19,5 @@ do
         /bin/sed -i '/#XXXXS3_REDIRECTIONXXXX/{ 
                 s/#XXXXS3_REDIRECTIONXXXX//g
                 r ${HOME}/runtime/redirection.conf 
-        }' /etc/apache2/sites-available/${WEBSITE_NAME}
+        }' ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 done
