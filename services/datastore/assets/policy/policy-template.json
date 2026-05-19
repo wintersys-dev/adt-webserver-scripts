@@ -1,0 +1,22 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::XXXXBUCKET_NAMEXXXX",
+                "arn:aws:s3:::XXXXBUCKET_NAMEXXXX/*"
+            ],
+
+                        "Condition": {  
+              "StringNotLike":{
+                  "aws:Referer":[
+                      "https://XXXXWEBSITE_URLXXXX/*"
+                  ]
+               }  
+            }
+        }
+    ]
+}
