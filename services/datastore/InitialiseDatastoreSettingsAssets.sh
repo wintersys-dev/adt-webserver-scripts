@@ -54,61 +54,52 @@ else
         S3_HOST_BASE="${4}"
 fi
 
-count="1"
 
 datastore_tool="/usr/bin/s3cmd"
-if ( [ -f ${HOME}/.s3cfg-${count} ] )
+if ( [ -f ${HOME}/.s3cfg ] )
 then
-        /bin/rm ${HOME}/.s3cfg-${count}
+        /bin/rm ${HOME}/.s3cfg
 fi
 
-/bin/cp ${HOME}/services/datastore/init-files/s3-cfg.tmpl ${HOME}/.s3cfg-${count}
+/bin/cp ${HOME}/services/datastore/init-files/s3-cfg.tmpl ${HOME}/.s3cfg
 
 if ( [ "${S3_ACCESS_KEY}" != "" ] )
 then
-        /bin/sed -i "s/XXXXACCESSKEYXXXX/${S3_ACCESS_KEY}/" ${HOME}/.s3cfg-${count}
+        /bin/sed -i "s/XXXXACCESSKEYXXXX/${S3_ACCESS_KEY}/" ${HOME}/.s3cfg
 else
         /bin/echo "${0} Couldn't find the S3_ACCESS_KEY setting" >> ${HOME}/logs/initialbuild/BUILD_PROCESS_MONITORING.log  
 fi
 
 if ( [ "${S3_SECRET_KEY}" != "" ] )
 then
-        /bin/sed -i "s;XXXXSECRETKEYXXXX;${S3_SECRET_KEY};" ${HOME}/.s3cfg-${count}
+        /bin/sed -i "s;XXXXSECRETKEYXXXX;${S3_SECRET_KEY};" ${HOME}/.s3cfg
 else
         /bin/echo "${0} Couldn't find the S3_SECRET_KEY setting" >> ${HOME}/logs/initialbuild/BUILD_PROCESS_MONITORING.log  
 fi
 
 if ( [ "${S3_LOCATION}" != "" ] )
 then
-        /bin/sed -i "s/XXXXLOCATIONXXXX/${S3_LOCATION}/" ${HOME}/.s3cfg-${count}
+        /bin/sed -i "s/XXXXLOCATIONXXXX/${S3_LOCATION}/" ${HOME}/.s3cfg
 else
         /bin/echo "${0} Couldn't find the S3_LOCATION setting" >> ${HOME}/logs/initialbuild/BUILD_PROCESS_MONITORING.log  
 fi
 
 if ( [ "${S3_HOST_BASE}" != "" ] )
 then
-        /bin/sed -i "s/XXXXHOSTBASEXXXX/${S3_HOST_BASE}/" ${HOME}/.s3cfg-${count}
+        /bin/sed -i "s/XXXXHOSTBASEXXXX/${S3_HOST_BASE}/" ${HOME}/.s3cfg
 
         if ( [ "`/bin/grep '^alias s3cmd=' /root/.bashrc`" = "" ] )
         then
-                /bin/echo "alias s3cmd='/usr/bin/s3cmd --config=/root/.s3cfg-1 --host=https://${S3_HOST_BASE} '" >> /root/.bashrc
+                /bin/echo "alias s3cmd='/usr/bin/s3cmd --config=/root/.s3cfg --host=https://${S3_HOST_BASE} '" >> /root/.bashrc
         fi
 else
         /bin/echo "${0} Couldn't find the S3_HOST_BASE setting" >> ${HOME}/logs/initialbuild/BUILD_PROCESS_MONITORING.log  
 fi
 
-if ( [ -f /root/.s3cfg-${count} ] )
-then
-        /bin/rm /root/.s3cfg-${count}
-fi
 
-/bin/cp ${HOME}/.s3cfg-${count} /root/.s3cfg-${count}
-/bin/chown ${SERVER_USER}:${SERVER_USER} ${HOME}/.s3cfg-${count}
+/bin/cp ${HOME}/.s3cfg /root/.s3cfg
+/bin/chown ${SERVER_USER}:${SERVER_USER} ${HOME}/.s3cfg
 
-if ( [ "${count}" = "1" ] )
-then
-        /bin/cp /root/.s3cfg-${count} /root/.s3cfg
-fi
 
 if ( [ "$?" != "0" ] )
 then
