@@ -8,4 +8,6 @@ for application_assets_directory in ${application_asset_dirs}
 do
         asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
         full_bucket_url="${asset_bucket}.${S3_HOST_BASE}"
+        /bin/cp ${HOME}/webserver/configuration/reverseproxy/apache/redirection-template.conf ${HOME}/runtime/redirection.conf
+        
 done
