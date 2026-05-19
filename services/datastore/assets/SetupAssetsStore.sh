@@ -180,8 +180,10 @@ do
                 reverse_proxy_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "reverseproxypublicips/*"`"
                 /bin/cp ${HOME}/services/datastore/assets/config/policy.json ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                 /bin/sed -i "s/XXXXBUCKET_NAMEXXXX/${asset_bucket}" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
-                
-                
+                for ip in ${reverse_proxy_ips}
+                do
+                        /bin/sed -i "/xxxxWEBSERVERIPHTTPSxxxx/a ${ip}/32" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                done
         fi
 done
       
