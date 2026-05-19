@@ -25,6 +25,13 @@ then
 	buildos="${1}"
 fi
 
+assets="0"
+
+if ( [ "${2}" != "" ] )
+then
+	assets="1"
+fi
+
 if ( [ "${buildos}" = "" ] )
 then
 	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
@@ -53,7 +60,7 @@ do
 	then
 		if ( [ "${BUILDOS}" = "ubuntu" ] )
 		then
-			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s3cmd:repo'`" = "1" ] )
+			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s3cmd:repo'`" = "1" ] || [ "${assets}" = "1" ] )
 			then
 				eval ${install_command} s3cmd	
 			elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s3cmd:source'`" = "1" ] )
@@ -70,7 +77,7 @@ do
 		fi
 		if ( [ "${BUILDOS}" = "debian" ] )
 		then
-			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s3cmd:repo'`" = "1" ] )
+			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s3cmd:repo'`" = "1" ] || [ "${assets}" = "1" ] )
 			then
 				eval ${install_command} s3cmd
 			elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s3cmd:source'`" = "1" ] )
