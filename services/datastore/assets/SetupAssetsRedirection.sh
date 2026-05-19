@@ -54,5 +54,7 @@ do
                 full_bucket_url="${asset_bucket}.${S3_HOST_BASE}"
                 #Do this in webserver part?
                 #Add this to the apache, nginx and lighttpd config files like I do for the reverse proxy ip addresses
+                #webserver/configuration/ConfigureApacheForReverseProxy.sh - call file "Set Datastore Redirection" and have a script like ip addresses for
+                # each webserver type. 
         fi
 done
