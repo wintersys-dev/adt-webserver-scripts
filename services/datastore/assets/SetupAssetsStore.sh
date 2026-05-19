@@ -42,6 +42,11 @@ then
         /bin/mkdir /home/s3mount_cache
 fi
 
+if ( [ ! -f /usr/bin/s3cmd ] && [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
+then
+        ${HOME}/installation/InstallS3CMD.sh "" "assets"
+        ${HOME}/services/datastore/InitialiseDatastoreSettingsAssets.sh
+fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
