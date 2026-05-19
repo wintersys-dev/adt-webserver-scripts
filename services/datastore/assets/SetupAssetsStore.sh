@@ -175,6 +175,8 @@ do
                         /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} &
                 fi
         fi
+        
+        #s3cmd is the only tool I use (I think) that can set bucket policies so we cludge it to make it so
         if ( [ "${asset_bucket}" != "" ] && [ -f /usr/bin/s3cmd ] && [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
         then
                 reverse_proxy_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "reverseproxypublicips/*"`"
@@ -184,6 +186,9 @@ do
                 do
                         /bin/sed -i '/XXXXRP_PUBLIC_IPXXXX/a "'${ip}'/32"' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                 done
+                /bin/sed -i 's/XXXXRP_PUBLIC_IPXXXX//g' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                /usr/bin/s3cmd setpolicy ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json s3://${asset_bucket}
+
         fi
 done
       
