@@ -31,6 +31,7 @@ then
 fi
 
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+S3_HOST_BASE="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3HOSTBASE'`"
 application_asset_dirs="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
 
 for application_assets_directory in ${application_asset_dirs}
@@ -51,6 +52,7 @@ do
                 /bin/sed -i 's/XXXXRP_PUBLIC_IPXXXX//g' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                 /usr/bin/s3cmd setpolicy ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json s3://${asset_bucket}
                 full_bucket_url="${asset_bucket}.${S3_HOST_BASE}"
+                #Do this in webserver part?
                 #Add this to the apache, nginx and lighttpd config files like I do for the reverse proxy ip addresses
         fi
 done
