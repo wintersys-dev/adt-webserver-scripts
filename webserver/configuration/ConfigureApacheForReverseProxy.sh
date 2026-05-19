@@ -99,6 +99,11 @@ then
         /bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 fi
 
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
+then
+	${HOME}/webserver/configuration/reverseproxy/AddDatastoreRedirection.sh
+fi
+
 /bin/sed -i '/#XXXX.*/d' ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/cat -s ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf > /etc/apache2/sites-available/${WEBSITE_NAME}
 /bin/chmod 600 /etc/apache2/sites-available/${WEBSITE_NAME}
