@@ -15,7 +15,12 @@
                   "aws:Referer":[
                       "https://XXXXWEBSITE_URLXXXX/*"
                   ]
-               }  
+               },
+                "NotIpAddress": {
+                 "aws:SourceIp": [
+                     XXXXRP_PUBLIC_IPXXXX
+                    ]
+               }
             }
         }
     ]
