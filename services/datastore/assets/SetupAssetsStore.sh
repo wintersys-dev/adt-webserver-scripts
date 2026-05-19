@@ -175,5 +175,9 @@ do
                         /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} &
                 fi
         fi
+        if ( [ "${asset_bucket}" != "" ] && [ -f /usr/bin/s3cmd ] && [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
+        then
+
+        fi
 done
       
