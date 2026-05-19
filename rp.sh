@@ -167,7 +167,7 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
 then
-	${HOME}/services/datastore/assets/
+	${HOME}/services/datastore/assets/SetupAssetsRedirection.sh
 fi
 
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
