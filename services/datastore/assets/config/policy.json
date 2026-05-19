@@ -6,8 +6,8 @@
             "Principal": "*",
             "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::<your-bucket-name>",
-                "arn:aws:s3:::<your-bucket-name>/*"
+                "arn:aws:s3:::XXXXBUCKET_NAMEXXXX",
+                "arn:aws:s3:::XXXXBUCKET_NAMEXXXX/*"
             ],
             "Condition": {
                 "NotIpAddress": {
