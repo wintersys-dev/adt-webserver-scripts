@@ -178,6 +178,9 @@ do
         if ( [ "${asset_bucket}" != "" ] && [ -f /usr/bin/s3cmd ] && [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
         then
                 reverse_proxy_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "reverseproxypublicips/*"`"
+                /bin/cp ${HOME}/services/datastore/assets/config/policy.json ${HOME}/runtime/datastore_workarea/policy.json
+                /bin/sed -i "s/XXXX"
+                
         fi
 done
       
