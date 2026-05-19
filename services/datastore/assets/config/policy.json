@@ -12,7 +12,7 @@
             "Condition": {
                 "NotIpAddress": {
                     "aws:SourceIp": [
-                        "<your-public-ip>/32"
+                        XXXXRP_PUBLIC_IPXXXX
                     ]
                 }
             }
