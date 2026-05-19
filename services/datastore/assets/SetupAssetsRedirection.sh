@@ -46,13 +46,13 @@ do
                 /bin/sed -i "s/XXXXBUCKET_NAMEXXXX/${asset_bucket}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                 /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
 
-                
-               # for ip in ${reverse_proxy_ips}
-               # do
-               #         /bin/sed -i '/XXXXRP_PUBLIC_IPXXXX/a "'${ip}'/32",' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
-               # done
-               # /bin/sed -zi 's/\(.*\),/\1/' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
-               # /bin/sed -i 's/XXXXRP_PUBLIC_IPXXXX//g' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+
+                for ip in ${reverse_proxy_ips}
+                do
+                        /bin/sed -i '/XXXXRP_PUBLIC_IPXXXX/a "'${ip}'/32",' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                done
+                /bin/sed -zi 's/\(.*\),/\1/' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                /bin/sed -i 's/XXXXRP_PUBLIC_IPXXXX//g' ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                 /usr/bin/s3cmd setpolicy ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json s3://${asset_bucket}
 
         fi
