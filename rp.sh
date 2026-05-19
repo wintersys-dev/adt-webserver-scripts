@@ -165,6 +165,11 @@ then
 	${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh &
 fi
 
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
+then
+	${HOME}/services/datastore/assets/
+fi
+
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
 ${HOME}/services/security/SetupFirewall.sh
 
