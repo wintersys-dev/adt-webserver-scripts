@@ -14,4 +14,5 @@ do
         /bin/sed -i "s/XXXXASSETSXXXX/${application_assets_directory}/" ${HOME}/runtime/redirection.conf
         /bin/sed -i "s/XXXXS3_HOST_URLXXXX/${full_bucket_url}/" ${HOME}/runtime/redirection.conf
         /bin/rm ${HOME}/runtime/redirection.conf 
+        #XXXXS3_REDIRECTIONXXXX
 done
