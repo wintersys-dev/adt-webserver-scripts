@@ -52,6 +52,7 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0
 then
         exit
 else
+        #As far as I know of the tools I use s3cmd is the only one that can set bucket policies so I have to cludge/force it if we are not using s3cmd already
         if ( [ ! -f /usr/bin/s3cmd ] )
         then
                 ${HOME}/installation/InstallS3CMD.sh "" "assets"
