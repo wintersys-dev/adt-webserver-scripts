@@ -51,6 +51,12 @@ fi
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" = "1" ] )
 then
         exit
+else
+        if ( [ ! -f /usr/bin/s3cmd ] )
+        then
+                ${HOME}/installation/InstallS3CMD.sh "" "assets"
+                ${HOME}/services/datastore/InitialiseDatastoreSettingsAssets.sh
+        fi
 fi
 
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
