@@ -24,7 +24,7 @@
 ####################################################################################
 #set -x
 
-if ( [ ! -f /usr/bin/s3cmd ] && [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
+if ( [ ! -f /usr/bin/s3cmd ] )
 then
         ${HOME}/installation/InstallS3CMD.sh "" "assets"
         ${HOME}/services/datastore/InitialiseDatastoreSettingsAssets.sh
