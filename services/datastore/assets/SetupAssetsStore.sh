@@ -103,7 +103,16 @@ do
                #         ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
                #         /bin/rm -r ${absolute_application_assets_directory}/*
                # fi
-                
+
+                ######EXPERIMENTAL
+
+                /bin/cp ${HOME}/services/datastore/assets/policy/policy-template.json ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                /bin/sed -i "s/XXXXBUCKET_NAMEXXXX/${asset_bucket}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                /usr/bin/s3cmd setpolicy ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json s3://${asset_bucket}
+
+                ######EXPERIMENTAL
+
                 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:source'`" = "1" ] )
                 then
                         /bin/cp ${HOME}/services/datastore/assets/config/s3fs.conf ${HOME}/runtime/s3fs.conf
