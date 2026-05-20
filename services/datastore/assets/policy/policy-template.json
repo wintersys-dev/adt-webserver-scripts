@@ -2,36 +2,20 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-
-           "Sid": "PublicReadGetObject",
-               "Effect": "Allow",
-            "Principal": "*",
-                "Action": [
-               "s3:GetObject"
-            ],
-           "Resource": [
-                "arn:aws:s3:::XXXXBUCKET_NAMEXXXX/*"
-            ],
-            "Effect": "Deny",
+            "Effect": "Allow",
             "Principal": "*",
             "Action": "s3:*",
             "Resource": [
                 "arn:aws:s3:::XXXXBUCKET_NAMEXXXX",
                 "arn:aws:s3:::XXXXBUCKET_NAMEXXXX/*"
             ],
-
-                        "Condition": {  
-              "StringNotLike":{
-                  "aws:Referer":[
-                      "https://XXXXWEBSITE_URLXXXX/*"
-                  ]
-               },
-                "NotIpAddress": {
-                 "aws:SourceIp": [
-                     XXXXRP_PUBLIC_IPXXXX
-                    ]
-               }
-            }
+      "Condition": {
+        "StringLike": {
+          "aws:Referer": [
+            "https://XXXXWEBSITE_URLXXXX"
+          ]
+        }
+        },
         }
     ]
 }
