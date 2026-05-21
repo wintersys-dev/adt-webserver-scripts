@@ -109,7 +109,7 @@ do
 
                 /bin/cp ${HOME}/services/datastore/assets/policy/policy-template.json ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                 /bin/sed -i "s/XXXXBUCKET_NAMEXXXX/${asset_bucket}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
-                /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}-${AWS_ACCESS_KEY_ID}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                 /usr/bin/s3cmd setpolicy ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json s3://${asset_bucket}
 
                 ######EXPERIMENTAL
