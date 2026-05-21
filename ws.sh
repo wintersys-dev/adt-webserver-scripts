@@ -212,11 +212,11 @@ fi
 
 cd ${HOME}
 
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
-then
-	/bin/echo "${0} Setup Assets Store"
-	${HOME}/services/datastore/assets/SetupAssetsStore.sh
-fi
+#if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
+#then
+#	/bin/echo "${0} Setup Assets Store"
+#	${HOME}/services/datastore/assets/SetupAssetsStore.sh
+#fi
 
 /bin/echo "${0} Initialising crontab"
 ${HOME}/services/cron/InitialiseCron.sh
