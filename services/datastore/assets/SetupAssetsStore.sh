@@ -96,10 +96,9 @@ do
                 /bin/mkdir -p ${absolute_application_assets_directory}
         fi
 
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] )
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
         then
                 ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
-                /bin/ls -l ${absolute_application_assets_directory}
                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
                 /bin/rm -r ${absolute_application_assets_directory}/*
         else
