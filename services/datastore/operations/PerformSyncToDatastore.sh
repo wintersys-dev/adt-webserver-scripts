@@ -17,8 +17,8 @@ fi
 
 if ( [ "${datastore_tool}" = "/usr/bin/s3cmd" ] )
 then
-        host_base="`/bin/grep ^host_base --no-delete-removed /root/.s3cfg-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`"
-        datastore_cmd="${datastore_tool} --config=/root/.s3cfg-${count} --host=https://${host_base} sync ${source}/"
+        host_base="`/bin/grep ^host_base /root/.s3cfg-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`"
+        datastore_cmd="${datastore_tool} --config=/root/.s3cfg-${count} --host=https://${host_base} --no-delete-removed sync ${source}/"
 elif ( [ "${datastore_tool}" = "/usr/bin/s5cmd" ] )
 then
         host_base="`/bin/grep ^host_base /root/.s5cfg-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`"
