@@ -70,7 +70,9 @@ then
         fi
 
         cd ${HOME}
+        /bin/echo "DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
+        
 elif ( [ "`/bin/grep "^APPLICATION_TYPE:cms" ${HOME}/runtime/application.dat`" != "" ] )
 then
         cd ${HOME}
@@ -109,5 +111,7 @@ then
         fi
         
         cd ${HOME}
+        /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
 fi
+
