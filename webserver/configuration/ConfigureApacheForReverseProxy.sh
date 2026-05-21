@@ -57,11 +57,11 @@ then
         /bin/sed -i 's/#XXXXSOURCE_STYLE####//g' ${HOME}/webserver/configuration/reverseproxy/apache/apache2.conf
         /bin/cp ${HOME}/webserver/configuration/reverseproxy/apache/envvars.conf /usr/sbin/envvars
 else
-    #    if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATIONLANGUAGE:PHP`" = "1" ] )
-    #    then
-     #           /usr/sbin/a2enmod php${PHP_VERSION}-fpm
-     #           /usr/sbin/a2enconf php${PHP_VERSION}-fpm
-     #   fi
+        #    if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATIONLANGUAGE:PHP`" = "1" ] )
+        #    then
+        #           /usr/sbin/a2enmod php${PHP_VERSION}-fpm
+        #           /usr/sbin/a2enconf php${PHP_VERSION}-fpm
+        #   fi
         /bin/sed -i 's/#XXXXREPO_STYLE####//g' ${HOME}/webserver/configuration/reverseproxy/apache/apache2.conf
 fi
 
@@ -80,8 +80,8 @@ export HOME="`/bin/cat /home/homedir.dat`"
 if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         /bin/sed -i "s/#XXXXWIRE-GUARDXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-		website_subdomain="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{print $1}'`"
-		MAIN_WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed "s/${website_subdomain}/${website_subdomain}\-protected/g"`"
+        website_subdomain="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{print $1}'`"
+        MAIN_WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed "s/${website_subdomain}/${website_subdomain}\-protected/g"`"
         /bin/sed -i "s/XXXXMAIN_WEBSITE_URLXXXX/${MAIN_WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 else
         /bin/sed -i "s/#XXXXPROXYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
@@ -104,19 +104,21 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
 then
-	application_asset_dirs="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
+        application_asset_dirs="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
 
-	for application_assets_directory in ${application_asset_dirs}
-	do
-        asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
-        full_bucket_url="${asset_bucket}.${S3_HOST_BASE}"
-        /bin/cp ${HOME}/webserver/configuration/reverseproxy/apache/redirection-template.conf ${HOME}/runtime/redirection.conf
-        /bin/sed -i "s/XXXXASSETSXXXX/${application_assets_directory}/" ${HOME}/runtime/redirection.conf
-        /bin/sed -i "s/XXXXS3_HOST_URLXXXX/${full_bucket_url}/" ${HOME}/runtime/redirection.conf
-		/bin/sed -i "s/XXXXREFERERXXXX/${WEBSITE_URL}-${S3_ACCESS_KEY}/g" ${HOME}/runtime/redirection.conf
-        /bin/sed -i -e "/#XXXXS3_REDIRECTIONXXXX/{r ${HOME}/runtime/redirection.conf" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf    
-		/bin/rm ${HOME}/runtime/redirection.conf 
-	done
+        count="1"
+        for application_assets_directory in ${application_asset_dirs}
+        do
+                asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
+                full_bucket_url="${asset_bucket}.${S3_HOST_BASE}"
+                /bin/cp ${HOME}/webserver/configuration/reverseproxy/apache/redirection-template.conf ${HOME}/runtime/redirection.conf.${count}
+                /bin/sed -i "s;XXXXASSETSXXXX;${application_assets_directory};g" ${HOME}/runtime/redirection.conf.${count}
+                /bin/sed -i "s/XXXXS3_HOST_URLXXXX/${full_bucket_url}/" ${HOME}/runtime/redirection.conf.${count}
+                /bin/sed -i "s/XXXXREFERERXXXX/${WEBSITE_URL}-${S3_ACCESS_KEY}/g" ${HOME}/runtime/redirection.conf.${count}
+                /bin/sed -i -e "/#XXXXS3_REDIRECTIONXXXX/{r ${HOME}/runtime/redirection.conf.${count}" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf    
+                /bin/rm ${HOME}/runtime/redirection.conf.${count} 
+                count="`/usr/bin/expr ${count} + 1`"
+        done
 fi
 
 /bin/sed -i '/#XXXX.*/d' ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
