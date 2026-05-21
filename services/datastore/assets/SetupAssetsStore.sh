@@ -82,6 +82,11 @@ do
         if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
         then
                 absolute_application_assets_directory="/var/www/html/${application_assets_directory}"
+                
+                if ( [ ! -d ${absolute_application_assets_directory} ] && [ -d ${webroot_directory}/${application_assets_directory} ] )
+                then
+                        absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
+                fi
         else
                 absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
         fi
