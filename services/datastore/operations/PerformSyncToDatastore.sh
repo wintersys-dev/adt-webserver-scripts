@@ -1,8 +1,8 @@
-set -x
+#!/bin/sh
+
 source="$1"
 destination_bucket="$2"
 count="$3"
-
 
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s3cmd'`" = "1" ] )
 then
@@ -14,6 +14,8 @@ elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:rclone'`" 
 then
         datastore_tool="/usr/bin/rclone"
 fi
+
+prefix="s3://"
 
 if ( [ "${datastore_tool}" = "/usr/bin/s3cmd" ] )
 then
@@ -27,6 +29,7 @@ elif ( [ "${datastore_tool}" = "/usr/bin/rclone" ] )
 then
         host_base="`/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`"
         datastore_cmd="${datastore_tool} --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} copy ${source}/"
+        prefix="s3:"
 fi
 
-${datastore_cmd}  s3:${destination_bucket}/
+${datastore_cmd}  ${prefix}${destination_bucket}/
