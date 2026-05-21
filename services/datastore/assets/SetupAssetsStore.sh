@@ -29,6 +29,14 @@ then
         exit
 fi
 
+if ( [ ! -d ${HOME}/logs/assets_preparation ] )
+then
+        /bin/mkdir -p ${HOME}/logs/assets_preparation
+fi
+
+exec 1>>${HOME}/logs/assets_preparation/assets_out.log
+exec 2>>${HOME}/logs/assets_preparation/assets_err.log
+
 #if the s3 cache size grows to be greater than 10G, clean it out
 s3_cache_size="`/usr/bin/du -h --max-depth=1 /home | /bin/grep s3mount_cache | /usr/bin/awk '{print $1}' | /bin/grep 'G$' | /bin/sed 's/G//g'`" 
 
