@@ -1,3 +1,4 @@
+set -x
 source="$1"
 destination_bucket="$2"
 count="$3"
