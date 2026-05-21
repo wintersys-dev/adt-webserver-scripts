@@ -31,6 +31,8 @@ NO_REVERSE_PROXY="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROX
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
+S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY'`"
+S3_HOST_BASE="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3HOSTBASE'`"
 
 if ( [ -d /etc/nginx/sites-available ] && [ "`/usr/bin/find /etc/nginx/sites-available -prune -empty 2>/dev/null`" = "" ] )
 then
@@ -73,6 +75,23 @@ then
 	then
 		/bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 	fi
+fi
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
+then
+	application_asset_dirs="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
+
+	for application_assets_directory in ${application_asset_dirs}
+	do
+        asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
+        full_bucket_url="${asset_bucket}.${S3_HOST_BASE}"
+        /bin/cp ${HOME}/webserver/configuration/reverseproxy/nginx/redirection-template.conf ${HOME}/runtime/redirection.conf
+        /bin/sed -i "s/XXXXASSETSXXXX/${application_assets_directory}/" ${HOME}/runtime/redirection.conf
+        /bin/sed -i "s/XXXXS3_HOST_URLXXXX/${full_bucket_url}/" ${HOME}/runtime/redirection.conf
+		/bin/sed -i "s/XXXXREFERERXXXX/${WEBSITE_URL}-${S3_ACCESS_KEY}/g" ${HOME}/runtime/redirection.conf
+        /bin/sed -i -e "/#XXXXS3_REDIRECTIONXXXX/{r ${HOME}/runtime/redirection.conf" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf    
+		/bin/rm ${HOME}/runtime/redirection.conf 
+	done
 fi
 
 /bin/sed -i "/#XXXX/d" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
