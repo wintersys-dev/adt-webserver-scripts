@@ -24,11 +24,6 @@
 ####################################################################################
 set -x
 
-if ( [ ! -f ${HOME}/runtime/WEBSERVER_READY ] )
-then
-        exit
-fi
-
 if ( [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET ] )
 then
         exit
