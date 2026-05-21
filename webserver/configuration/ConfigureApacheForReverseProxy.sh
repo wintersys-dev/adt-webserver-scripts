@@ -32,6 +32,8 @@ NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICA
 AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
+S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY' | /usr/bin/awk -F'|' '{print $1}'`"
+
 port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d'`"
 
 
@@ -112,7 +114,7 @@ then
         /bin/cp ${HOME}/webserver/configuration/reverseproxy/apache/redirection-template.conf ${HOME}/runtime/redirection.conf
         /bin/sed -i "s/XXXXASSETSXXXX/${application_assets_directory}/" ${HOME}/runtime/redirection.conf
         /bin/sed -i "s/XXXXS3_HOST_URLXXXX/${full_bucket_url}/" ${HOME}/runtime/redirection.conf
-		/bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}/g" ${HOME}/runtime/redirection.conf
+		/bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}-${S3_ACCESS_KEY}/g" ${HOME}/runtime/redirection.conf
         /bin/sed -i -e "/#XXXXS3_REDIRECTIONXXXX/{r ${HOME}/runtime/redirection.conf" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf    
 		/bin/rm ${HOME}/runtime/redirection.conf 
 	done
