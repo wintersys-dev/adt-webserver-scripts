@@ -36,13 +36,10 @@ if ( [ "${assets_directories}" != "" ] )
 then
         for directory in ${assets_directories}
         do
-                mounted="`/bin/mount | /bin/grep "/var/www/html/${directory}"`"
-
-                if ( [ "${mounted}" = "" ] )
+                mounted="MOUNTED"
+                if ( [ "`/bin/mount | /bin/grep -P "/var/www/html/${directory}(?=\s|$)"`" = "" ] || [ ! -f /var/www/html/${directory}/ ] )
                 then
                         mounted=""
-                else
-                        mounted="MOUNTED"
                 fi
         done
 else
