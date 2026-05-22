@@ -202,7 +202,7 @@ do
                 fi
                 if ( [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
                 then
-                        /bin/touch ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED
+                        /bin/touch ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE
                 fi
         fi
         
