@@ -104,7 +104,7 @@ then
 	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh" >> /var/spool/cron/crontabs/root
 	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/cron/ExecuteApplicationSpecificCronjob.sh" >> /var/spool/cron/crontabs/root
 
-	if ( [ "`${HOME}/utilities/config/ExtractConfigValue.sh 'PERSISTASSETSTODATASTORE'`" = "1" ] )
+	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
 	then
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/datastore/assets/SetupAssetsStore.sh" >> /var/spool/cron/crontabs/root
 	fi
