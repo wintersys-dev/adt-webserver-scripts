@@ -110,6 +110,7 @@ then
         if ( [ "${count}" = "1" ] )
         then
                 /bin/cp /root/.s3cfg-${count} /root/.s3cfg
+				/bin/cp /root/.s3cfg-${count} ${HOME}/.s3cfg
         fi
 fi
 
