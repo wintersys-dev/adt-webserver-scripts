@@ -53,13 +53,14 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
-       exit
+        exit
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" = "1" ] )
 then
         exit
-else
+elif ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+then
         #As far as I know of the tools I use s3cmd is the only one that can set bucket policies so I have to cludge/force it if we are not using s3cmd already
         if ( [ ! -f /usr/bin/s3cmd ] )
         then
@@ -82,7 +83,7 @@ do
         if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
         then
                 absolute_application_assets_directory="/var/www/html/${application_assets_directory}"
-                
+
                 if ( [ ! -d ${absolute_application_assets_directory} ] && [ -d ${webroot_directory}/${application_assets_directory} ] )
                 then
                         absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
@@ -91,41 +92,39 @@ do
                 absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
         fi
 
+
         if ( [ ! -d ${absolute_application_assets_directory} ] )
         then
                 /bin/mkdir -p ${absolute_application_assets_directory}
         fi
 
+
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
         then
                 ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
-                /bin/rm -r ${absolute_application_assets_directory}/*
+                if ( [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
+                then
+                        if ( [ -f ${absolute_application_assets_directory} ] )
+                        then
+                                /bin/rm -r ${absolute_application_assets_directory}/*
+                        fi
+                fi
         else
                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
         fi
 
-        if ( [ "`/usr/bin/mountpoint /var/www/html/images | /bin/grep 'is a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] && [ -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
+        if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] && [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
         then
-              #  ${HOME}/services/datastore/assets/ApplyAssetsRedirectionPolicy.sh
-                
                 asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
-               
-               # if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] )
-               # then
-               #         ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
-               #         ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
-               #         /bin/rm -r ${absolute_application_assets_directory}/*
-               # fi
 
-                ######EXPERIMENTAL
-
-                /bin/cp ${HOME}/services/datastore/assets/policy/policy-template.json ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
-                /bin/sed -i "s/XXXXBUCKET_NAMEXXXX/${asset_bucket}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
-                /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}-${AWS_ACCESS_KEY_ID}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
-                /usr/bin/s3cmd setpolicy ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json s3://${asset_bucket}
-
-                ######EXPERIMENTAL
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+                then
+                        /bin/cp ${HOME}/services/datastore/assets/policy/policy-template.json ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                        /bin/sed -i "s/XXXXBUCKET_NAMEXXXX/${asset_bucket}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                        /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}-${AWS_ACCESS_KEY_ID}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                        /usr/bin/s3cmd setpolicy ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json s3://${asset_bucket}
+                fi
 
                 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:s3fs:source'`" = "1" ] )
                 then
@@ -200,11 +199,10 @@ do
                         done
                         /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} &
                 fi
-                if ( [ "`/usr/bin/mountpoint /var/www/html/images | /bin/grep 'is a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" != "" ] )
+                if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is a mountpoint'`" != "" ] &&  [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" != "" ] )
                 then
                         /bin/touch ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE
                 fi
         fi
-        
 done
       
