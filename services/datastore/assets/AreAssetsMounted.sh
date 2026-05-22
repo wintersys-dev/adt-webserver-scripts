@@ -37,7 +37,7 @@ then
         for directory in ${assets_directories}
         do
                 mounted="MOUNTED"
-                if ( [ "`/bin/mount | /bin/grep -P "/var/www/html/${directory}(?=\s|$)"`" = "" ] || [ ! -f /var/www/html/${directory}/ ] )
+                if ( [ "`/bin/mount | /bin/grep -P "/var/www/html/${directory}(?=\s|$)"`" = "" ] || [ ! -f /var/www/html/${directory}/ASSETS_SUCCESSFULLY_MOUNTED ] )
                 then
                         mounted=""
                 fi
