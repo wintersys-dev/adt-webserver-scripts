@@ -200,7 +200,7 @@ do
                         done
                         /usr/bin/rclone mount ${options} s3:${asset_bucket} ${absolute_application_assets_directory} &
                 fi
-                if ( [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
+                if ( [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" != "" ] )
                 then
                         /bin/touch ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE
                 fi
