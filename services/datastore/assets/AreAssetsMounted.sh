@@ -21,29 +21,28 @@
 #######################################################################################
 #set -x
 
-mounted="1"
+mounted=""
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" = "1" ] && [ "${mounted}" = "1" ] )
 then
-        /bin/echo "MOUNTED"
-        exit
-fi
-
-assets_directories=""
-assets_directories="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
-mounted=""
-if ( [ "${assets_directories}" != "" ] )
-then
-        for directory in ${assets_directories}
-        do
-                mounted="MOUNTED"
-                if ( [ "`/bin/mount | /bin/grep -P "/var/www/html/${directory}(?=\s|$)"`" = "" ] || [ ! -f /var/www/html/${directory}/ASSETS_SUCCESSFULLY_MOUNTED ] )
-                then
-                        mounted=""
-                fi
-        done
-else
         mounted="MOUNTED"
+else
+        assets_directories=""
+        assets_directories="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
+        mounted=""
+        if ( [ "${assets_directories}" != "" ] )
+        then
+                for directory in ${assets_directories}
+                do
+                        mounted="MOUNTED"
+                        if ( [ "`/bin/mount | /bin/grep -P "/var/www/html/${directory}(?=\s|$)"`" = "" ] || [ ! -f /var/www/html/${directory}/ASSETS_SUCCESSFULLY_MOUNTED ] )
+                        then
+                                mounted=""
+                        fi
+                done
+        else
+                mounted="MOUNTED"
+        fi
 fi
 
 /bin/echo ${mounted}
