@@ -99,13 +99,13 @@ do
         fi
 
 
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
         then
                 ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
                 if ( [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
                 then
-                        if ( [ -f ${absolute_application_assets_directory} ] )
+                        if ( [ -d ${absolute_application_assets_directory} ] )
                         then
                                 /bin/rm -r ${absolute_application_assets_directory}/*
                         fi
