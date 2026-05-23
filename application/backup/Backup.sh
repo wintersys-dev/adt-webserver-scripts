@@ -54,6 +54,13 @@ CLOUDHOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'CLOUDHOST'`"
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTI_REGION'`"
 PRIMARY_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PRIMARYREGION'`"
 
+provider_id=""
+
+if ( [ "${MULTI_REGION}" = "1" ] && [ "${PRIMARY_REGION}" = "0" ] )
+then
+        provider_id="-${CLOUDHOST}"
+fi
+
 period="`/bin/echo $1 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 
 allowed_periods="hourly daily weekly monthly bimonthly shutdown"
@@ -69,7 +76,11 @@ then
         /bin/rm ${HOME}/runtime/datastore_workarea/time_backup_written
 fi
 
-${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "time_backup_written" "${HOME}/runtime/datastore_workarea" "${period}"
+
+if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "time_backup_written" "${period}${provider_id}"`" != "" ] )
+then
+        ${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "time_backup_written" "${HOME}/runtime/datastore_workarea" "${period}"
+fi
 
 if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
 then
@@ -150,13 +161,6 @@ fi
 
 #Make any customisations that tbe backup needs to have made
 #${HOME}/application/customise/CustomiseBackupByApplication.sh ${HOME}/backuparea
-
-provider_id=""
-
-if ( [ "${MULTI_REGION}" = "1" ] && [ "${PRIMARY_REGION}" = "0" ] )
-then
-        provider_id="-${CLOUDHOST}"
-fi
 
 #Mount the datastore that we are going to write the backup to
 ${HOME}/services/datastore/operations/MountDatastore.sh "backup" "distributed" "${period}${provider_id}"
