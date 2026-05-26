@@ -34,35 +34,35 @@ port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /u
 
 if ( [ -d /etc/nginx/sites-available ] && [ "`/usr/bin/find /etc/nginx/sites-available -prune -empty 2>/dev/null`" = "" ] )
 then
-	/bin/rm /etc/nginx/sites-available/*
+        /bin/rm /etc/nginx/sites-available/*
 else
-	/bin/mkdir -p /etc/nginx/sites-available
+        /bin/mkdir -p /etc/nginx/sites-available
 fi
 
 if ( [ -f /etc/nginx/fastcgi.conf ] )
 then
-	/bin/cp /etc/nginx/fastcgi.conf /etc/nginx/fastcgi_params
+        /bin/cp /etc/nginx/fastcgi.conf /etc/nginx/fastcgi_params
 fi
 
 if ( [ -d /etc/nginx/sites-enabled ] && [ "`/usr/bin/find /etc/nginx/sites-enabled -prune -empty 2>/dev/null`" = "" ] )
 then
-	/bin/rm /etc/nginx/sites-enabled/*
+        /bin/rm /etc/nginx/sites-enabled/*
 else
-	/bin/mkdir -p /etc/nginx/sites-enabled
+        /bin/mkdir -p /etc/nginx/sites-enabled
 fi
 
 /usr/bin/openssl dhparam -dsaparam -out /etc/ssl/certs/dhparam.pem 4096
 
-/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-/bin/sed -i "s;XXXXHOMEXXXX;${HOME};g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-/bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-/bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-/bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
+/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
+/bin/sed -i "s;XXXXHOMEXXXX;${HOME};g" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
+/bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
+/bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
+/bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
 
 if ( [ ! -d /var/lib/php/session ] )
 then
-	/bin/mkdir -p /var/lib/php/sessions
-	/bin/chown -R www-data:www-data /var/lib/php
+        /bin/mkdir -p /var/lib/php/sessions
+        /bin/chown -R www-data:www-data /var/lib/php
 fi
 
 php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
@@ -71,55 +71,55 @@ www_conf="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
 
 if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
 then
-	/bin/sed -i "s/^listen =.*/listen = 127.0.0.1:${port}/g" ${www_conf}
-	/bin/sed -i "s/^;listen.allowed_clients/listen.allowed_clients/" ${www_conf}
+        /bin/sed -i "s/^listen =.*/listen = 127.0.0.1:${port}/g" ${www_conf}
+        /bin/sed -i "s/^;listen.allowed_clients/listen.allowed_clients/" ${www_conf}
 else
-	/bin/sed -i "s,^listen =.*,listen = /var/run/php${PHP_VERSION}-fpm.sock,g" ${www_conf}
-	/bin/sed -i "s/^;listen.mode/listen.mode/" ${www_conf}
+        /bin/sed -i "s,^listen =.*,listen = /var/run/php${PHP_VERSION}-fpm.sock,g" ${www_conf}
+        /bin/sed -i "s/^;listen.mode/listen.mode/" ${www_conf}
 fi
 
 /bin/sed -i "s%^open_basedir =.*%open_basedir = /var/www%" ${php_ini}
 
 if ( [ "`/bin/echo ${port} | /bin/grep -o "^[0-9]*$"`" != "" ] )
 then
-	/bin/sed -i "s/#XXXXPHPPORTXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
+        /bin/sed -i "s/#XXXXPHPPORTXXXX//g" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
 else
-	/bin/sed -i "s/#XXXXPHPSOCKETXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf	
+        /bin/sed -i "s/#XXXXPHPSOCKETXXXX//g" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:source'`" = "1" ] )
 then
-	if ( [ "${MOD_SECURITY}" = "1" ] )
-	then
-		/bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/application/nginx/site-available.conf
-	fi
+        if ( [ "${MOD_SECURITY}" = "1" ] )
+        then
+                /bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
+        fi
 fi
 
-/bin/sed -i "/#XXXX/d" ${HOME}/webserver/configuration/application/nginx/site-available.conf
+/bin/sed -i "/#XXXX/d" ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf
 
-/bin/cat -s ${HOME}/webserver/configuration/application/nginx/site-available.conf > /etc/nginx/sites-available/${WEBSITE_NAME}
+/bin/cat -s ${HOME}/webserver/configuration/authenticator/nginx/site-available.conf > /etc/nginx/sites-available/${WEBSITE_NAME}
 
 if ( [ -f /etc/nginx/sites-available/${WEBSITE_NAME} ] )
 then
-	/bin/chmod 600 /etc/nginx/sites-available/${WEBSITE_NAME}
-	/bin/chown root:root /etc/nginx/sites-available/${WEBSITE_NAME}
+        /bin/chmod 600 /etc/nginx/sites-available/${WEBSITE_NAME}
+        /bin/chown root:root /etc/nginx/sites-available/${WEBSITE_NAME}
 fi
 
-if ( [ -f ${HOME}/webserver/configuration/application/nginx/nginx.conf ] )
+if ( [ -f ${HOME}/webserver/configuration/authenticator/nginx/nginx.conf ] )
 then
-	if ( [ "${DNS_CHOICE}" = "cloudflare" ] )
-	then
-		${HOME}/services/dns/TrustRemoteProxy.sh
-		/bin/sed -i "s,#XXXXCLOUDFLAREXXXX,include /etc/nginx/cloudflare;,g" ${HOME}/webserver/configuration/application/nginx/nginx.conf
-	fi
-	/bin/cat -s ${HOME}/webserver/configuration/application/nginx/nginx.conf > /etc/nginx/nginx.conf
-	/bin/chmod 600  /etc/nginx/nginx.conf
-	/bin/chown root:root  /etc/nginx/nginx.conf
+        if ( [ "${DNS_CHOICE}" = "cloudflare" ] )
+        then
+                ${HOME}/services/dns/TrustRemoteProxy.sh
+                /bin/sed -i "s,#XXXXCLOUDFLAREXXXX,include /etc/nginx/cloudflare;,g" ${HOME}/webserver/configuration/authenticator/nginx/nginx.conf
+        fi
+        /bin/cat -s ${HOME}/webserver/configuration/authenticator/nginx/nginx.conf > /etc/nginx/nginx.conf
+        /bin/chmod 600  /etc/nginx/nginx.conf
+        /bin/chown root:root  /etc/nginx/nginx.conf
 fi
 
 if ( [ -f /etc/nginx/sites-available/${WEBSITE_NAME} ] )
 then
-	/bin/ln -s /etc/nginx/sites-available/${WEBSITE_NAME} /etc/nginx/sites-enabled/${WEBSITE_NAME}
+        /bin/ln -s /etc/nginx/sites-available/${WEBSITE_NAME} /etc/nginx/sites-enabled/${WEBSITE_NAME}
 fi
 
 /bin/echo "/etc/nginx/sites-available/${WEBSITE_NAME}" > ${HOME}/runtime/WEBSERVER_CONFIG_LOCATION.dat
@@ -128,57 +128,57 @@ config_settings="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX:set
 
 for setting in ${config_settings}
 do
-	setting_name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
-	setting_value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $2}'`"
-	/usr/bin/find /etc/nginx -name '*' -type f -exec sed -i "s/${setting_name}.*/${setting_name} ${setting_value};/" {} +
+        setting_name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
+        setting_value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $2}'`"
+        /usr/bin/find /etc/nginx -name '*' -type f -exec sed -i "s/${setting_name}.*/${setting_name} ${setting_value};/" {} +
 done
 
-if ( [ -f ${HOME}/webserver/configuration/application/nginx/logrotate.conf ] )
+if ( [ -f ${HOME}/webserver/configuration/authenticator/nginx/logrotate.conf ] )
 then
-	/bin/cp ${HOME}/webserver/configuration/application/nginx/logrotate.conf /etc/logrotate.d/nginx
+        /bin/cp ${HOME}/webserver/configuration/authenticator/nginx/logrotate.conf /etc/logrotate.d/nginx
 fi
 
 if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] )
 then
-	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
-	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
-	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit1.php /var/www/html/submit1.php
-	/bin/chown www-data:www-data /var/www/html/*
-	/bin/chmod 644 /var/www/html/*
-	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
-	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
-	if ( [ ! -d /var/www/firewall ] )
-	then
-        /bin/mkdir /var/www/firewall
-        /bin/chown www-data:www-data /var/www/firewall
-	fi
+        /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
+        /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
+        /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit1.php /var/www/html/submit1.php
+        /bin/chown www-data:www-data /var/www/html/*
+        /bin/chmod 644 /var/www/html/*
+        /bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
+        /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
+        if ( [ ! -d /var/www/firewall ] )
+        then
+                /bin/mkdir /var/www/firewall
+                /bin/chown www-data:www-data /var/www/firewall
+        fi
 elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 then
-	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
-	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
-	/bin/chown www-data:www-data /var/www/html/*
-	/bin/chmod 644 /var/www/html/*
-	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
-	if ( [ ! -d /var/www/basic-auth ] )
-	then
-        /bin/mkdir /var/www/basic-auth
-        /bin/chown www-data:www-data /var/www/basic-auth
-	fi
+        /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
+        /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
+        /bin/chown www-data:www-data /var/www/html/*
+        /bin/chmod 644 /var/www/html/*
+        /bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
+        if ( [ ! -d /var/www/basic-auth ] )
+        then
+                /bin/mkdir /var/www/basic-auth
+                /bin/chown www-data:www-data /var/www/basic-auth
+        fi
 elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
-	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
-	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
-	/bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit1.php /var/www/html/submit1.php
-	/bin/chown www-data:www-data /var/www/html/*
-	/bin/chmod 644 /var/www/html/*
-	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
-	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
-        
-	if ( [ ! -d /var/www/wire-guard ] )
-	then
-		/bin/mkdir /var/www/wire-guard
-		/bin/chown www-data:www-data /var/www/wire-guard
-	fi
+        /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
+        /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
+        /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit1.php /var/www/html/submit1.php
+        /bin/chown www-data:www-data /var/www/html/*
+        /bin/chmod 644 /var/www/html/*
+        /bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
+        /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
+
+        if ( [ ! -d /var/www/wire-guard ] )
+        then
+                /bin/mkdir /var/www/wire-guard
+                /bin/chown www-data:www-data /var/www/wire-guard
+        fi
 fi
 
 if ( [ -d /var/www/html/html ] )
