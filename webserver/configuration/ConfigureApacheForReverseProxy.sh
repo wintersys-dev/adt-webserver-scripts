@@ -31,7 +31,7 @@ SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
-DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'DNSCHOICE'`"
+LOADBALANCER="`${HOME}/utilities/config/ExtractConfigValue.sh 'LOADBALANCER'`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
 S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY' | /usr/bin/awk -F'|' '{print $1}'`"
 S3_HOST_BASE="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3HOSTBASE' | /usr/bin/awk -F'|' '{print $1}'`"
@@ -96,7 +96,7 @@ then
         /bin/sed -i "s/#XXXXBASIC-AUTHXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
         /bin/sed -i "s/Require all granted/#Require all granted/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
         
-        if ( [ "${DNS_CHOICE}" = "LOADBALANCER" ] )
+        if ( [ "${LOADBALANCER}" = "1" ] )
         then
                 /bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;127.0.0.1 ${BUILD_MACHINE_IP};g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
         else
