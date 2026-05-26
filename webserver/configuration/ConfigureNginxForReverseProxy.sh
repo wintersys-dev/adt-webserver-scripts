@@ -59,7 +59,6 @@ fi
 /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 /bin/sed -i "s;XXXXHOMEXXXX;${HOME};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 #/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;${VPC_IP_RANGE};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
-/bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 
 
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
@@ -69,9 +68,11 @@ then
 
 	if ( [ "${LOAD_BALANCER}" = "1" ] )
     then
-    	/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;127.0.0.1 ${BUILD_MACHINE_IP};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
-    else
-    	/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;127.0.0.1 ${VPC_IP_RANGE};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+    #	/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;127.0.0.1 ${BUILD_MACHINE_IP};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+    	/bin/sed -i "/XXXXVPC_IP_RANGEXXXX/d" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+		/bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+	else
+    	/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;${VPC_IP_RANGE};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
     fi
 
 fi
