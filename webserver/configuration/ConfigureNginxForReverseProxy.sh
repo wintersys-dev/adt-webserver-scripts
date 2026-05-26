@@ -58,7 +58,7 @@ fi
 
 /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 /bin/sed -i "s;XXXXHOMEXXXX;${HOME};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
-/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;${VPC_IP_RANGE};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+#/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;${VPC_IP_RANGE};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 
 
