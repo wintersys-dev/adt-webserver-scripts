@@ -31,6 +31,7 @@ NO_REVERSE_PROXY="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROX
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
+LOAD_BALANCER="`${HOME}/utilities/config/ExtractConfigValue.sh 'LOADBALANCER'`"
 S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY' | /usr/bin/awk -F'|' '{print $1}'`"
 S3_HOST_BASE="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3HOSTBASE' | /usr/bin/awk -F'|' '{print $1}'`"
 
@@ -65,9 +66,16 @@ if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-aut
 then
 	/bin/sed -i "s/#XXXXBASIC-AUTHXXXX//g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 	/bin/touch /etc/nginx/.htpasswd
-else
-	/bin/sed -i "/#XXXXBASIC-AUTHXXXX/d" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+
+	if ( [ "${LOADBALANCER}" = "1" ] )
+    then
+    	/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;127.0.0.1 ${BUILD_MACHINE_IP};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+    else
+    	/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;127.0.0.1 ${VPC_IP_RANGE};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+    fi
+
 fi
+
 
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:source'`" = "1" ] )
 then
