@@ -67,7 +67,7 @@ then
 	/bin/sed -i "s/#XXXXBASIC-AUTHXXXX//g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 	/bin/touch /etc/nginx/.htpasswd
 
-	if ( [ "${LOADBALANCER}" = "1" ] )
+	if ( [ "${LOAD_BALANCER}" = "1" ] )
     then
     	/bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;127.0.0.1 ${BUILD_MACHINE_IP};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
     else
