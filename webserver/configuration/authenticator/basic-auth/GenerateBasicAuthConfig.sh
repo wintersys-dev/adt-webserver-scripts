@@ -45,16 +45,19 @@ do
                         ${HOME}/services/email/SendEmail.sh "Basic Auth password request" "${message}" MANDATORY ${username} "HTML" "AUTHENTICATION"
                         /bin/sed -i "/${username}:${previous_password}/d" ${basic_auth_previous_credentials}
                         /bin/echo "${username}:${password}" >> ${basic_auth_previous_credentials}
-
-                        if ( [ -f ${basic_auth_file} ] )
-                        then
-                                /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
-                              #  ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
-                                ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
-                               /bin/rm ${basic_auth_file}.${machine_ip}
-                        fi     
                 fi
-        fi      
+        fi
+
+        if ( [ -f ${basic_auth_file} ] )
+        then
+                if ( [ ! -f ${basic_auth_file}.${machine_ip} ] || [ "`/usr/bin/diff ${basic_auth_file} ${basic_auth_file}.${machine_ip}`" != "" ] )
+                then
+                        /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
+                        ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
+                        ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
+                        /bin/rm ${basic_auth_file}.${machine_ip}
+                fi
+        fi     
 done
 
 
