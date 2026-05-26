@@ -36,7 +36,9 @@ do
                         then
                                 if ( [ "`/usr/bin/curl -m 2 --insecure -I 'https://'${webserver_ip}':443/index.php' 2>&1 | /bin/grep 'HTTP' | /bin/grep -w '200\|301\|302\|303'`" != "" ] )
                                 then
-                                        /bin/sed -i "/xxxxWEBSERVERIPHTTPSxxxx/a         BalancerMember https://${webserver_ip}:443" /etc/apache2/sites-available/${WEBSITE_NAME}
+                                        node_no="`/bin/grep "BalancerMember" /etc/apache2/sites-available/${WEBSITE_NAME} | /usr/bin/wc -l`"
+                                        node_no="`/usr/bin/expr ${node_no} + 1`"
+                                        /bin/sed -i "/xxxxWEBSERVERIPHTTPSxxxx/a         BalancerMember https://${webserver_ip}:443 route=node${node_no}" /etc/apache2/sites-available/${WEBSITE_NAME}
                                         updated="1"
                                 fi
                         fi
