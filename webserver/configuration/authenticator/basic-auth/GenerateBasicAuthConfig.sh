@@ -29,7 +29,7 @@ do
         previous_password="`/bin/echo ${data} | /usr/bin/awk -F':' '{print $2}'`"
         password="p`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-z0-9' | /usr/bin/cut -b 1-8`p"
 
-        if ( [ "`/bin/echo ${username} | /bin/grep "${USER_EMAIL_DOMAIN}$"`" != "" ] )
+        if ( [ "`/bin/echo ${username} | /bin/grep "${USER_EMAIL_DOMAIN}$"`" != "" ] && [ "${previous_password}" != "" ] )
         then
                 if ( [ ! -f ${basic_auth_file} ] )
                 then
@@ -38,7 +38,7 @@ do
                         /bin/sed -i "/^${username}:/d" ${basic_auth_file}
                         /usr/bin/htpasswd -b ${basic_auth_file} ${username} ${password}
                 fi
-                /bin/sed -i "s/^${username}:/NEW:${previous_password}/g" ${basic_auth_file}
+                /bin/sed -i "s/^${username}:/NEW:${previous_password}:${username}:/g" ${basic_auth_file}
                 message="<!DOCTYPE html> <html> <body> <h1>The basic auth password you requested for ${WEBSITE_URL} is: ${password} </body> </html>"
                 ${HOME}/services/email/SendEmail.sh "Basic Auth password request" "${message}" MANDATORY ${username} "HTML" "AUTHENTICATION"
                 /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
