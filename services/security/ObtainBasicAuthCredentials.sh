@@ -47,27 +47,16 @@ fi
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "basic-auth-credentials" "${HOME}/runtime/authenticator"
 
-if ( [ -f ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* ] )
+if ( [ -f ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth\* ] )
 then
-        /bin/cat ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* >> ${HOME}/runtime/authenticator/aggregate-basic-auth.dat
-        /bin/grep ^NEW ${HOME}/runtime/authenticator/aggregate-basic-auth.dat > ${HOME}/runtime/authenticator/new-basic-auth.dat
-        /bin/rm ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth*
-       
-        for new_credential in `/bin/cat ${HOME}/runtime/authenticator/new-basic-auth.dat`
+        /bin/cat ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* > ${HOME}/runtime/authenticator/aggregate-basic-auth.dat
+        for new_credential in `/bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat`
         do
-                if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat.processed ] )
-                then
-                        original_password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $2}'`"
-                        password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $3}'`"
-                        username="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $4}'`"
-
-                        if ( [ "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/aggregate-basic-auth.dat | /bin/grep ${username}`" != "" ] )
-                        then
-                                /bin/echo "`/bin/grep ${username} ${HOME}/runtime/authenticator/basic-auth.dat.processed | /bin/grep ${password} | /usr/bin/cut -d ":" -f 4-`" >> ${basic_auth_file}
-                        fi
-                fi
+                username="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $1}'`"
+                /bin/sed -i "/^${username}/d" ${basic_auth_file}
         done
 
+        /bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat >> ${basic_auth_file}
 fi
                 
 /bin/chmod 600 ${basic_auth_file}
