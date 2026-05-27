@@ -38,7 +38,7 @@ do
                         /bin/sed -i "/^${username}:/d" ${basic_auth_file}
                         /usr/bin/htpasswd -b ${basic_auth_file} ${username} ${password}
                 fi
-                /bin/sed -i "s/^${username}:/NEW:${previous_password}:${password}:${username}:/g" ${basic_auth_file}
+            #    /bin/sed -i "s/^${username}:/NEW:${previous_password}:${password}:${username}:/g" ${basic_auth_file}
                 message="<!DOCTYPE html> <html> <body> <h1>The basic auth password you requested for ${WEBSITE_URL} is: ${password} </body> </html>"
                 ${HOME}/services/email/SendEmail.sh "Basic Auth password request" "${message}" MANDATORY ${username} "HTML" "AUTHENTICATION"
                 /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
