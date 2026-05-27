@@ -71,6 +71,9 @@ then
         exit
 fi
 
+#Mount the datastore that we are going to write the backup to
+${HOME}/services/datastore/operations/MountDatastore.sh "backup" "distributed" "${period}${provider_id}"
+
 if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
 then
         /bin/rm ${HOME}/runtime/datastore_workarea/time_backup_written
