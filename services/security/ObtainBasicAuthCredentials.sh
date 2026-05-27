@@ -52,10 +52,16 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "basic-auth-credentia
 for new_credential in `/bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat`
 do
         username="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $1}'`"
-        /bin/sed -i "/^${username}/d" ${basic_auth_file}
+        password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $2}'`"
+
+        if ( [ "`/bin/grep ${username} ${basic_auth_file} | /bin/grep ${password}`" != "" ] )
+        then
+                /bin/sed -i "/^${username}/d" ${basic_auth_file}
+        fi
+        /bin/echo ${new_credential} >> ${basic_auth_file}
 done
 
-/bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat >> ${basic_auth_file}
+#/bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat >> ${basic_auth_file}
 
 /bin/chmod 600 ${basic_auth_file}
 /bin/chown www-data:www-data ${basic_auth_file}
