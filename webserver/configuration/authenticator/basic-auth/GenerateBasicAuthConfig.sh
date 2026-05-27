@@ -26,10 +26,9 @@ fi
 for data in `/bin/cat ${basic_auth_file}.$$`
 do
         username="`/bin/echo ${data} | /usr/bin/awk -F':' '{print $1}'`"
-        previous_password="`/bin/echo ${data} | /usr/bin/awk -F':' '{print $2}'`"
         password="p`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-z0-9' | /usr/bin/cut -b 1-8`p"
 
-        if ( [ "`/bin/echo ${username} | /bin/grep "${USER_EMAIL_DOMAIN}$"`" != "" ] && [ "${previous_password}" != "" ] )
+        if ( [ "`/bin/echo ${username} | /bin/grep "${USER_EMAIL_DOMAIN}$"`" != "" ] )
         then
                 if ( [ ! -f ${basic_auth_file} ] )
                 then
