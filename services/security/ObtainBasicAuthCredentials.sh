@@ -58,10 +58,13 @@ then
                         if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat.processed ] )
                         then
                                 original_password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $2}'`"
-                                if ( [ "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/basic-auth.dat.processed`" != "" ] )
-                                then
-                                        /bin/echo "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/basic-auth.dat.processed | /usr/bin/cut -d ":" -f 3-`" >> ${basic_auth_file}
-                                fi
+                                password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $3}'`"
+
+                           #     if ( [ "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/basic-auth.dat.processed`" != "" ] )
+                           #     then
+                           #             /bin/echo "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/basic-auth.dat.processed | /usr/bin/cut -d ":" -f 4-`" >> ${basic_auth_file}
+                           #             
+                           #     fi
                         fi
                 done
         fi
