@@ -49,25 +49,24 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "basic-auth-credentia
 
 if ( [ -f ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* ] )
 then
-        /bin/grep ^NEW ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* > ${HOME}/runtime/authenticator/basic-auth.dat.new
+        /bin/cat ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* >> ${HOME}/runtime/authenticator/aggregate-basic-auth.dat
+        /bin/grep ^NEW ${HOME}/runtime/authenticator/aggregate-basic-auth.dat > ${HOME}/runtime/authenticator/new-basic-auth.dat
+        /bin/rm ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth*
+       
+        for new_credential in `/bin/cat ${HOME}/runtime/authenticator/new-basic-auth.dat`
+        do
+                if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat.processed ] )
+                then
+                        original_password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $2}'`"
+                        password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $3}'`"
+                        username="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $4}'`"
 
-        if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat ] )
-        then
-                for new_credential in `/bin/cat ${HOME}/runtime/authenticator/basic-auth.dat.new`
-                do
-                        if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat.processed ] )
+                        if ( [ "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/aggregate-basic-auth.dat | /bin/grep ${username}`" != "" ] )
                         then
-                                original_password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $2}'`"
-                                password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $3}'`"
-
-                           #     if ( [ "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/basic-auth.dat.processed`" != "" ] )
-                           #     then
-                           #             /bin/echo "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/basic-auth.dat.processed | /usr/bin/cut -d ":" -f 4-`" >> ${basic_auth_file}
-                           #             
-                           #     fi
+                                /bin/echo "`/bin/grep ${username} ${HOME}/runtime/authenticator/basic-auth.dat.processed | /bin/grep ${password} | /usr/bin/cut -d ":" -f 4-`" >> ${basic_auth_file}
                         fi
                 done
-        fi
+
 fi
                 
 /bin/chmod 600 ${basic_auth_file}
