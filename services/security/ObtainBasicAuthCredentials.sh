@@ -47,18 +47,16 @@ fi
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "basic-auth-credentials" "${HOME}/runtime/authenticator"
 
-if ( [ -f ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth\* ] )
-then
-        /bin/cat ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* > ${HOME}/runtime/authenticator/aggregate-basic-auth.dat
-        for new_credential in `/bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat`
-        do
-                username="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $1}'`"
-                /bin/sed -i "/^${username}/d" ${basic_auth_file}
-        done
+/bin/cat ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* > ${HOME}/runtime/authenticator/aggregate-basic-auth.dat
+/bin/rm ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth*
+for new_credential in `/bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat`
+do
+        username="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $1}'`"
+        /bin/sed -i "/^${username}/d" ${basic_auth_file}
+done
 
-        /bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat >> ${basic_auth_file}
-fi
-                
+/bin/cat ${HOME}/runtime/authenticator/aggregate-basic-auth.dat >> ${basic_auth_file}
+
 /bin/chmod 600 ${basic_auth_file}
 /bin/chown www-data:www-data ${basic_auth_file}
 
