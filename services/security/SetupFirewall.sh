@@ -229,24 +229,11 @@ then
 	fi
 fi
 
-#reverse_proxy_ips=""
-#if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
-#then
-#	reverse_proxy_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "reverseproxypublicips/*"`"
-#fi
-
 if ( [ "${firewall}" = "ufw" ] )
 then
         if ( [ "`/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw status | /bin/grep "${SSH_PORT}.*ALLOW.*${VPC_IP_RANGE}"`" = "" ] )
         then
                 /bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port ${SSH_PORT}
-			#	if ( [ "${reverse_proxy_ips}" != "" ] )
-		#		then
-		#			for ip in ${reverse_proxy_ips}
-		#			do
-		#				/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw allow from ${ip}/32 to any port 443
-		#			done
-		#		fi
                 /bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port 443
 				/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S -E /usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port 80
                 updated="1"
@@ -256,13 +243,6 @@ then
         if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${VPC_IP_RANGE}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
         then
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport ${SSH_PORT} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-		#		if ( [ "${reverse_proxy_ips}" != "" ] )
-		#		then
-		#			for ip in ${reverse_proxy_ips}
-		#			do
-         #       		/usr/sbin/iptables -A INPUT -s ${ip}/32 -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-			#		done
-			#	fi
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p ICMP --icmp-type 8 -j ACCEPT
@@ -417,3 +397,8 @@ then
                 fi
         fi
 fi
+
+#This will check if we have a wireguard based authenticator active and if we have it will allow public connections from the reverse proxy machines 
+#only to our webservers. 
+${HOME}/services/security/SetupFirewallForWireguard.sh
+
