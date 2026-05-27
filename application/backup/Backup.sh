@@ -165,9 +165,6 @@ fi
 #Make any customisations that tbe backup needs to have made
 #${HOME}/application/customise/CustomiseBackupByApplication.sh ${HOME}/backuparea
 
-#Mount the datastore that we are going to write the backup to
-${HOME}/services/datastore/operations/MountDatastore.sh "backup" "distributed" "${period}${provider_id}"
-
 if ( [ ! -d ${HOME}/livebackup ] )
 then
         /bin/mkdir ${HOME}/livebackup
