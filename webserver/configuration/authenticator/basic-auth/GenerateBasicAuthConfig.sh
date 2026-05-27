@@ -55,7 +55,10 @@ do
                         /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
                         ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
                         ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
+                        /bin/cp ${basic_auth_previous_credentials} ${basic_auth_previous_credentials}.${machine_ip}
+                        ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_previous_credentials} "basic-auth-credentials" "distributed" "no"
                         /bin/rm ${basic_auth_file}.${machine_ip}
+                        /bin/rm ${basic_auth_previous_credentials}.${machine_ip}
                 fi
         fi     
 done
