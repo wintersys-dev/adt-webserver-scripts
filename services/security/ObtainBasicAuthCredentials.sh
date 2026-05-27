@@ -45,59 +45,28 @@ then
         /bin/mkdir ${HOME}/runtime/authenticator
 fi
 
-#if ( [ "${MULTI_REGION}" = "1" ] )
-#then
- #       multi_region_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-multi-region"
-  #      
-   #     if ( [ ! -d ${HOME}/runtime/authenticator/incoming ] )
-    #    then
-     #           /bin/mkdir -p ${HOME}/runtime/authenticator/incoming
-      #  fi
- #       
- #       ${HOME}/services/datastore/operations/GetFromDatastore.sh "multi-region" "multi-region-basic-auth/*" "${HOME}/runtime/authenticator/incoming"
-  #      /bin/cat ${HOME}/runtime/authenticator/incoming/* > ${HOME}/runtime/authenticator/basic-auth.dat.new
-  #      /bin/rm ${HOME}/runtime/authenticator/incoming/*
-#else
- #       for host in ${HOST}
-  #      do
-   #             /usr/bin/scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${HOME}/.ssh/id_${ALGORITHM}_AGILE_DEPLOYMENT_BUILD_KEY_${BUILD_IDENTIFIER} -P ${SSH_PORT} ${SERVER_USER}@${host}:${HOME}/runtime/authenticator/basic-auth.dat ${HOME}/runtime/authenticator/basic-auth.dat.new.$$
-    #            /bin/cat ${HOME}/runtime/authenticator/basic-auth.dat.new.$$ > ${HOME}/runtime/authenticator/basic-auth.dat.new
- #       done
-#fi
-
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "basic-auth-credentials" "${HOME}/runtime/authenticator"
 
-/bin/cat ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* > ${HOME}/runtime/authenticator/basic-auth.dat
+if ( [ -f ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* ] )
+then
+        /bin/grep ^NEW ${HOME}/runtime/authenticator/basic-auth-credentials/basic-auth* > ${HOME}/runtime/authenticator/basic-auth.dat.new
 
-#if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat.new.$$ ] )
-#then
-#        /bin/rm ${HOME}/runtime/authenticator/basic-auth.dat.new.$$
-#fi
-
-new_user_details="0"        
-for userdetails in `/bin/cat ${HOME}/runtime/authenticator/basic-auth.dat`
-do
-        if ( [ "`/bin/grep ^${userdetails} ${basic_auth_file}`" = "" ] )
+        if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat ] )
         then
-                new_user_details="1"
-                username="`/bin/echo ${userdetails} | /usr/bin/awk -F':' '{print $1}'`"
-                if ( [ -f ${basic_auth_file} ] )
-                then
-                        /bin/sed -i "/^${username}/d" ${basic_auth_file}
-                fi
-                /bin/echo ${userdetails} >> ${basic_auth_file}
+                for new_credential in `/bin/cat ${HOME}/runtime/authenticator/basic-auth.dat.new`
+                do
+                        if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat.processed ] )
+                        then
+                                original_password="`/bin/echo ${new_credential} | /usr/bin/awk -F':' '{print $2}'`"
+                                if ( [ "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/basic-auth.dat.processed`" != "" ] )
+                                then
+                                        /bin/echo "`/bin/grep ${original_password} ${HOME}/runtime/authenticator/basic-auth.dat.processed | /usr/bin/cut -d ":" -f 3-`" >> ${basic_auth_file}
+                                fi
+                        fi
+                done
         fi
-done
-
-#if ( [ -f ${HOME}/runtime/authenticator/basic-auth.dat.new ] )
-#then
-#        /bin/rm ${HOME}/runtime/authenticator/basic-auth.dat.new
-#fi
-
+fi
+                
 /bin/chmod 600 ${basic_auth_file}
 /bin/chown www-data:www-data ${basic_auth_file}
 
-#if ( [ "${new_user_details}" = "1" ] )
-#then
-#        ${HOME}/webserver/ReloadWebserver.sh
-#fi
