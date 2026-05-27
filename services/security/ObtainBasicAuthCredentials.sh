@@ -65,7 +65,8 @@ then
                         then
                                 /bin/echo "`/bin/grep ${username} ${HOME}/runtime/authenticator/basic-auth.dat.processed | /bin/grep ${password} | /usr/bin/cut -d ":" -f 4-`" >> ${basic_auth_file}
                         fi
-                done
+                fi
+        done
 
 fi
                 
