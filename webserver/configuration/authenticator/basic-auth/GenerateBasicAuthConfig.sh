@@ -27,38 +27,23 @@ for data in `/bin/cat ${basic_auth_file}.$$`
 do
         username="`/bin/echo ${data} | /usr/bin/awk -F':' '{print $1}'`"
         previous_password="`/bin/echo ${data} | /usr/bin/awk -F':' '{print $2}'`"
+        password="p`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-z0-9' | /usr/bin/cut -b 1-8`p"
 
-        if ( ( [ "${previous_password}" = "none" ] && [ "`/bin/grep "^${username}:" ${basic_auth_previous_credentials}`" = "" ] ) || ( [ "`/bin/grep "^${username}:${previous_password}$" ${basic_auth_previous_credentials}`" != "" ] ) )
+        if ( [ "`/bin/echo ${username} | /bin/grep "${USER_EMAIL_DOMAIN}$"`" != "" ] )
         then
-                if ( [ "`/bin/echo ${username} | /bin/grep "${USER_EMAIL_DOMAIN}$"`" != "" ] )
+                if ( [ ! -f ${basic_auth_file} ] )
                 then
-                        password="p`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-z0-9' | /usr/bin/cut -b 1-8`p"
-
-                        if ( [ ! -f ${basic_auth_file} ] )
-                        then
-                                /usr/bin/htpasswd -b -c ${basic_auth_file} ${username} ${password}
-                        else
-                                /usr/bin/htpasswd -b ${basic_auth_file} ${username} ${password}
-                        fi
-
-                        message="<!DOCTYPE html> <html> <body> <h1>The basic auth password you requested for ${WEBSITE_URL} is: ${password} </body> </html>"
-                        ${HOME}/services/email/SendEmail.sh "Basic Auth password request" "${message}" MANDATORY ${username} "HTML" "AUTHENTICATION"
-                        /bin/sed -i "/${username}:${previous_password}/d" ${basic_auth_previous_credentials}
-                        /bin/echo "${username}:${password}" >> ${basic_auth_previous_credentials}
+                        /usr/bin/htpasswd -b -c ${basic_auth_file} ${username} ${password}
+                else
+                        /bin/sed -i "/^${username}:/d" ${basic_auth_file}
+                        /usr/bin/htpasswd -b ${basic_auth_file} ${username} ${password}
                 fi
+                /bin/sed -i "s/^${username}:/NEW:${previous_password}/g" ${basic_auth_file}
+                message="<!DOCTYPE html> <html> <body> <h1>The basic auth password you requested for ${WEBSITE_URL} is: ${password} </body> </html>"
+                ${HOME}/services/email/SendEmail.sh "Basic Auth password request" "${message}" MANDATORY ${username} "HTML" "AUTHENTICATION"
+                /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
+                ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
+                ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
+                /bin/rm ${basic_auth_file}.${machine_ip}
         fi
-
-        if ( [ -f ${basic_auth_file} ] )
-        then
-                if ( [ ! -f ${basic_auth_file}.${machine_ip} ] || [ "`/usr/bin/diff ${basic_auth_file} ${basic_auth_file}.${machine_ip}`" != "" ] )
-                then
-                        /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
-                        ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
-                        ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
-                        /bin/cp ${basic_auth_previous_credentials} ${basic_auth_previous_credentials}.${machine_ip}
-                        ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_previous_credentials} "basic-auth-credentials" "distributed" "no"
-                        /bin/rm ${basic_auth_file}.${machine_ip}
-                        /bin/rm ${basic_auth_previous_credentials}.${machine_ip}
-                fi
-        fi     
 done
