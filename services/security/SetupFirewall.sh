@@ -398,7 +398,4 @@ then
         fi
 fi
 
-#This will check if we have a wireguard based authenticator active and if we have it will allow public connections from the reverse proxy machines 
-#only to our webservers. 
-${HOME}/services/security/SetupFirewallForWireguard.sh
 
