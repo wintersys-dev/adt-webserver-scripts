@@ -79,19 +79,7 @@ export HOME="`/bin/cat /home/homedir.dat`"
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-
-if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
-then
-        /bin/sed -i "s/#XXXXWIRE-GUARDXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-        website_subdomain="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{print $1}'`"
-        MAIN_WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed "s/${website_subdomain}/${website_subdomain}\-protected/g"`"
-        /bin/sed -i "s/XXXXMAIN_WEBSITE_URLXXXX/${MAIN_WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-        /bin/sed -i "s/#XXXXPROXYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-else
-        /bin/sed -i "s/#XXXXPROXYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-        /bin/sed -i "s/##XXXXWIRE-GUARDXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-fi
-
+/bin/sed -i "s/#XXXXPROXYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
