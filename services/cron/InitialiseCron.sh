@@ -59,19 +59,6 @@ then
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root	
-	elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
-	then
-		machine_id="`/usr/bin/hostname | /bin/sed 's/NO\-//g' | /usr/bin/awk -F'-' '{print $1}'`"
-		delay="`/usr/bin/expr ${machine_id} \* 20`"
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep ${delay} && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root	
-		/bin/echo "*/1 * * * * /usr/bin/find /var/www/html/qrcode-* -mmin +5 -type f -exec rm -fv {} \;" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * /usr/bin/find /var/www/html/client-* -mmin +5 -type f -exec rm -fv {} \;" >> /var/spool/cron/crontabs/root	
 	fi
 	/bin/echo "22 4 * * * export HOME="${HOME}" && ${HOME}/utilities/software/UpdateSoftware.sh" >> /var/spool/cron/crontabs/root
 	/bin/echo "45 4 * * * export HOME="${HOME}" && /bin/rm ${HOME}/runtime/FIREWALL-ACTIVE" >> /var/spool/cron/crontabs/root
