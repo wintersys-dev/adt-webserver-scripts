@@ -181,11 +181,6 @@ then
 elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 then
 	${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed"
-elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
-then
-	${HOME}/installation/InstallWireguard.sh
-	${HOME}/installation/InstallQREncode.sh	
-	${HOME}/services/datastore/operations/MountDatastore.sh "wireguard-config" "distributed"
 fi
 
 cd ${HOME}
