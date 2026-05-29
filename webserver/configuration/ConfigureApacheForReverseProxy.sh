@@ -34,12 +34,9 @@ AUTH_SERVER_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 LOADBALANCER="`${HOME}/utilities/config/ExtractConfigValue.sh 'LOADBALANCER'`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
-S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY' | /usr/bin/awk -F'|' '{print $1}'`"
-S3_HOST_BASE="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3HOSTBASE' | /usr/bin/awk -F'|' '{print $1}'`"
-
+SECRET_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SECRETIDENTIFIER'`"
 
 port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d'`"
-
 
 if ( [ -d /etc/apache2/sites-available ] && [ "`/usr/bin/find /etc/nginx/sites-available -prune -empty 2>/dev/null`" = "" ] )
 then
@@ -60,11 +57,6 @@ then
         /bin/sed -i 's/#XXXXSOURCE_STYLE####//g' ${HOME}/webserver/configuration/reverseproxy/apache/apache2.conf
         /bin/cp ${HOME}/webserver/configuration/reverseproxy/apache/envvars.conf /usr/sbin/envvars
 else
-        #    if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATIONLANGUAGE:PHP`" = "1" ] )
-        #    then
-        #           /usr/sbin/a2enmod php${PHP_VERSION}-fpm
-        #           /usr/sbin/a2enconf php${PHP_VERSION}-fpm
-        #   fi
         /bin/sed -i 's/#XXXXREPO_STYLE####//g' ${HOME}/webserver/configuration/reverseproxy/apache/apache2.conf
 fi
 
@@ -115,7 +107,7 @@ then
                 /bin/cp ${HOME}/webserver/configuration/reverseproxy/apache/redirection-template.conf ${HOME}/runtime/redirection.conf.${count}
                 /bin/sed -i "s;XXXXASSETSXXXX;${application_assets_directory};g" ${HOME}/runtime/redirection.conf.${count}
                 /bin/sed -i "s/XXXXS3_HOST_URLXXXX/${full_bucket_url}/" ${HOME}/runtime/redirection.conf.${count}
-                /bin/sed -i "s/XXXXREFERERXXXX/${WEBSITE_URL}-${S3_ACCESS_KEY}/g" ${HOME}/runtime/redirection.conf.${count}
+                /bin/sed -i "s/XXXXREFERERXXXX/${WEBSITE_URL}-${SECRET_IDENTIFIER}/g" ${HOME}/runtime/redirection.conf.${count}
                 /bin/sed -i -e "/#XXXXS3_REDIRECTIONXXXX/{r ${HOME}/runtime/redirection.conf.${count}" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf    
                 /bin/rm ${HOME}/runtime/redirection.conf.${count} 
                 count="`/usr/bin/expr ${count} + 1`"
