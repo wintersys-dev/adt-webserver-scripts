@@ -33,7 +33,7 @@ AUTH_SERVER_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
 LOAD_BALANCER="`${HOME}/utilities/config/ExtractConfigValue.sh 'LOADBALANCER'`"
-S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY' | /usr/bin/awk -F'|' '{print $1}'`"
+SECRET_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SECRETIDENTIFIER'`"
 S3_HOST_BASE="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3HOSTBASE' | /usr/bin/awk -F'|' '{print $1}'`"
 
 if ( [ -d /etc/nginx/sites-available ] && [ "`/usr/bin/find /etc/nginx/sites-available -prune -empty 2>/dev/null`" = "" ] )
@@ -99,7 +99,7 @@ then
                 /bin/cp ${HOME}/webserver/configuration/reverseproxy/nginx/redirection-template.conf ${HOME}/runtime/redirection.conf.${count}
                 /bin/sed -i "s;XXXXASSETSXXXX;${application_assets_directory};g" ${HOME}/runtime/redirection.conf.${count}
                 /bin/sed -i "s/XXXXS3_HOST_URLXXXX/${full_bucket_url}/" ${HOME}/runtime/redirection.conf.${count}
-                /bin/sed -i "s/XXXXREFERERXXXX/${WEBSITE_URL}-${S3_ACCESS_KEY}/g" ${HOME}/runtime/redirection.conf.${count}
+                /bin/sed -i "s/XXXXREFERERXXXX/${WEBSITE_URL}-${SECRET_IDENTIFIER}/g" ${HOME}/runtime/redirection.conf.${count}
                 /bin/sed -i -e "/#XXXXS3_REDIRECTIONXXXX/{r ${HOME}/runtime/redirection.conf.${count}" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf    
                 /bin/rm ${HOME}/runtime/redirection.conf.${count}
                 count="`/usr/bin/expr ${count} + 1`"
