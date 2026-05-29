@@ -16,4 +16,13 @@ then
         /bin/mkdir -p ${HOME}/runtime/authenticator/granted 
 fi
 
+for email_address in `/bin/cat ${HOME}/runtime/authenticator/incoming/authentication-emails.dat`
+do
+        if ( [ ! -d ${HOME}/runtime/authenticator/granted/${email_address} ] )
+        then
+                /bin/mkdir -p ${HOME}/runtime/authenticator/granted/${email_address}
+                /bin/touch ${HOME}/runtime/authenticator/granted/${email_address}/CANDIDATE
+        fi
+done
+
 
