@@ -1,4 +1,4 @@
-if ( [ ! -d ${HOME}/runtime/authenticator ] )
+if ( [ ! -d ${HOME}/runtime/authenticator/incoming ] )
 then
         /bin/mkdir -p ${HOME}/runtime/authenticator/incoming
 fi
@@ -10,5 +10,10 @@ fi
 
 /usr/bin/uniq ${HOME}/runtime/authenticator/incoming/authentication-emails.dat >> ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$
 /bin/mv ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$ ${HOME}/runtime/authenticator/incoming/authentication-emails.dat
+
+if ( [ ! -d ${HOME}/runtime/authenticator/granted ] )
+then
+        /bin/mkdir -p ${HOME}/runtime/authenticator/granted 
+fi
 
 
