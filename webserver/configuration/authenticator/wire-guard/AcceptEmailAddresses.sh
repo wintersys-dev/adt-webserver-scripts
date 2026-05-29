@@ -1,3 +1,6 @@
+#Sync the S3 datastore to the granted directory
+
+
 if ( [ ! -d ${HOME}/runtime/authenticator/incoming ] )
 then
         /bin/mkdir -p ${HOME}/runtime/authenticator/incoming
@@ -21,7 +24,6 @@ do
         if ( [ ! -d ${HOME}/runtime/authenticator/granted/${email_address} ] )
         then
                 /bin/mkdir -p ${HOME}/runtime/authenticator/granted/${email_address}
-                /bin/touch ${HOME}/runtime/authenticator/granted/${email_address}/CANDIDATE
         fi
 done
 
@@ -36,5 +38,12 @@ then
 else
         server_ips="`/bin/cat ${HOME}/runtime/authenticator/reverse_proxy_ips`"
 fi
+
+# if there is no /etc/wireguard/wg0.conf create the Interface section  of the new wg0.conf
+
+# Generate server config entry for this new peer include a commented email address with new entry and remove any previous entry for that 
+# email address from the server if there is no entry in the server config that mataches email address and ip address of the current
+# peer config in the granted directory then add the peer config to wg0 sync the granted directory to s3
+
 
 
