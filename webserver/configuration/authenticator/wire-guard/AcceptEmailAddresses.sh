@@ -25,4 +25,16 @@ do
         fi
 done
 
+if ( [ ! -f ${HOME}/runtime/authenticator/reverse_proxy_ips ] )
+then
+        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-reverseproxy"`"
+
+        if ( [ "${server_ips}" != "" ] )
+        then
+                /bin/echo "${server_ips}" > ${HOME}/runtime/authenticator/reverse_proxy_ips
+        fi
+else
+        server_ips="`/bin/cat ${HOME}/runtime/authenticator/reverse_proxy_ips`"
+fi
+
 
