@@ -70,6 +70,7 @@ then
 fi
 
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+SECRET_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SECRETIDENTIFIER'`"
 application_asset_dirs="`/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 export AWS_ACCESS_KEY_ID="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY' | /usr/bin/awk -F'|' '{print $1}'`"
@@ -122,7 +123,7 @@ do
                 then
                         /bin/cp ${HOME}/services/datastore/assets/policy/policy-template.json ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                         /bin/sed -i "s/XXXXBUCKET_NAMEXXXX/${asset_bucket}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
-                        /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}-${AWS_ACCESS_KEY_ID}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
+                        /bin/sed -i "s/XXXXWEBSITE_URLXXXX/${WEBSITE_URL}-${SECRET_IDENTIFIER}/g" ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
                         /usr/bin/s3cmd setpolicy ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json s3://${asset_bucket}
                 fi
 
