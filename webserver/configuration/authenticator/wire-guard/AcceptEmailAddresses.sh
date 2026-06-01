@@ -14,19 +14,6 @@ fi
 /usr/bin/uniq ${HOME}/runtime/authenticator/incoming/authentication-emails.dat >> ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$
 /bin/mv ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$ ${HOME}/runtime/authenticator/incoming/authentication-emails.dat
 
-if ( [ ! -d ${HOME}/runtime/authenticator/granted ] )
-then
-        /bin/mkdir -p ${HOME}/runtime/authenticator/granted 
-fi
-
-for email_address in `/bin/cat ${HOME}/runtime/authenticator/incoming/authentication-emails.dat`
-do
-        if ( [ ! -d ${HOME}/runtime/authenticator/granted/${email_address} ] )
-        then
-                /bin/mkdir -p ${HOME}/runtime/authenticator/granted/${email_address}
-        fi
-done
-
 if ( [ ! -f ${HOME}/runtime/authenticator/reverse_proxy_ips ] )
 then
         server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-reverseproxy"`"
@@ -82,6 +69,42 @@ then
                 fi
         done
 fi
+
+if ( [ -f /etc/wireguard/wg0.conf ] )
+then
+        client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
+        client_no="`/usr/bin/expr ${client_no} + 2`"
+fi
+
+for email_address in `/bin/cat ${HOME}/runtime/authenticator/incoming/authentication-emails.dat`
+do
+        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_private.key
+        /bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_public.key
+
+        # Get the keys and server info
+        new_client_private_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_private.key`"
+        new_client_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_public.key`"
+        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_public.key`"
+
+        twenty_four="`/usr/bin/expr ${client_no} / 255`"
+        iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
+        thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
+        sixteen="`/usr/bin/expr ${twenty_four} / 255`"
+        iteration2="`/usr/bin/expr ${sixteen} \* 255`"
+        twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
+
+        # Add peer to server config
+        /bin/echo "[Peer]
+        PublicKey = ${new_client_public_key}
+        AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
+        PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
+
+        # Create client config
+        /bin/echo "[Interface]
+        PrivateKey = ${new_client_private_key}
+        Address = 10.0.0.${client_no}/32
+        MTU = 1380
+        DNS = 1.1.1.1, 1.0.0.1 " > /etc/wireguard/client_${email_address}.conf
 
 
 
