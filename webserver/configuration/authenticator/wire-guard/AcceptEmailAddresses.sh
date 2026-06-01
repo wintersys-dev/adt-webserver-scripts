@@ -112,7 +112,6 @@ do
         Endpoint = ${server_ip}:${wireguard_port}
         AllowedIPs =  10.0.0.0/16
         PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.conf
-        done
 
         /usr/bin/qrencode -t png -o ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.png -r ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.conf
 done
