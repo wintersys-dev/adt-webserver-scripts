@@ -45,30 +45,32 @@ fi
 # email address from the server if there is no entry in the server config that mataches email address and ip address of the current
 # peer config in the granted directory then add the peer config to wg0 sync the granted directory to s3
 
-for reverse_proxy_ip in ${server_ips}
-do
-        if ( [ ! -d ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip} ] )
-        then
-                /bin/mkdir -p ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}
-        fi
-        
-        if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key ] )
-        then
-                umask 077
-                /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key
-                /bin/chmod 600 ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key
-                /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_public.key
-
-                server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key`"
-                server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_public.key`"
-
-                if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key ] )
+if ( [ ! -f /etc/wireguard/wg0.conf ] )
+then
+        for reverse_proxy_ip in ${server_ips}
+        do
+                if ( [ ! -d ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip} ] )
                 then
-                        /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key
-                        preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key`"
+                        /bin/mkdir -p ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}
                 fi
+        
+                if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key ] )
+                then
+                        umask 077
+                        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key
+                        /bin/chmod 600 ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key
+                        /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_public.key
 
-                /bin/echo "[Interface]
+                        server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key`"
+                        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_public.key`"
+
+                        if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key ] )
+                        then
+                                /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key
+                                preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key`"
+                        fi
+
+                        /bin/echo "[Interface]
         PrivateKey = ${server_private_key}
         Address = 10.0.0.1/24
         PresharedKey = ${preshared_key}
@@ -77,7 +79,8 @@ do
         SaveConfig = false
         PostUp = /etc/wireguard/postup.sh
         PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
-        fi
+                fi
+        done
 fi
 
 
