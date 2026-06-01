@@ -14,16 +14,16 @@ fi
 /usr/bin/uniq ${HOME}/runtime/authenticator/incoming/authentication-emails.dat >> ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$
 /bin/mv ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$ ${HOME}/runtime/authenticator/incoming/authentication-emails.dat
 
-if ( [ ! -f ${HOME}/runtime/authenticator/reverse_proxy_ips ] )
+if ( [ ! -f ${HOME}/runtime/authenticators/authenticator_ips.dat ] )
 then
-        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-reverseproxy"`"
+        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-authenticator"`"
 
         if ( [ "${server_ips}" != "" ] )
         then
-                /bin/echo "${server_ips}" > ${HOME}/runtime/authenticator/reverse_proxy_ips
+                /bin/echo "${server_ips}" > ${HOME}/runtime/authenticators/authenticator_ips.dat
         fi
 else
-        server_ips="`/bin/cat ${HOME}/runtime/authenticator/reverse_proxy_ips`"
+        server_ips="`/bin/cat ${HOME}/runtime/authenticators/authenticator_ips.dat`"
 fi
 
 # if there is no /etc/wireguard/wg0.conf create the Interface section  of the new wg0.conf
@@ -34,27 +34,27 @@ fi
 
 if ( [ ! -f /etc/wireguard/wg0.conf ] )
 then
-        for reverse_proxy_ip in ${server_ips}
+        for authenticator_ip in ${server_ips}
         do
-                if ( [ ! -d ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip} ] )
+                if ( [ ! -d ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip} ] )
                 then
-                        /bin/mkdir -p ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}
+                        /bin/mkdir -p ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}
                 fi
         
-                if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key ] )
+                if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key ] )
                 then
                         umask 077
-                        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key
-                        /bin/chmod 600 ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key
-                        /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_public.key
+                        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key
+                        /bin/chmod 600 ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key
+                        /bin/cat /etc/wireguard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_public.key
 
-                        server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_private.key`"
-                        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/server_public.key`"
+                        server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key`"
+                        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_public.key`"
 
-                        if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key ] )
+                        if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/preshared.key ] )
                         then
-                                /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key
-                                preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/reverseproxies/${reverse_proxy_ip}/preshared.key`"
+                                /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/preshared.key
+                                preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/preshared.key`"
                         fi
 
                         /bin/echo "[Interface]
@@ -84,7 +84,7 @@ do
         # Get the keys and server info
         new_client_private_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_private.key`"
         new_client_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_public.key`"
-        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_public.key`"
+        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_public.key`"
 
         twenty_four="`/usr/bin/expr ${client_no} / 255`"
         iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
@@ -104,7 +104,15 @@ do
         PrivateKey = ${new_client_private_key}
         Address = 10.0.0.${client_no}/32
         MTU = 1380
-        DNS = 1.1.1.1, 1.0.0.1 " > /etc/wireguard/client_${email_address}.conf
+        DNS = 1.1.1.1, 1.0.0.1 
 
+        [Peer]
+        PublicKey = ${server_public_key}
+        PresharedKey = ${preshared_key}
+        Endpoint = ${server_ip}:${wireguard_port}
+        AllowedIPs =  10.0.0.0/16
+        PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.conf
+        done
 
-
+        /usr/bin/qrencode -t png -o ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.png -r ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.conf
+done
