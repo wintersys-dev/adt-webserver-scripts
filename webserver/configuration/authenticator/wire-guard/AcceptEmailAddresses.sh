@@ -1,3 +1,5 @@
+#!/bin/sh
+
 export HOME="`/bin/cat /home/homedir.dat`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
 wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
@@ -21,20 +23,20 @@ if ( [ ! -f /etc/wireguard/wg0.conf ] )
 then
         for authenticator_ip in ${server_ips}
         do
-                if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key ] )
+                if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/server_private.key ] )
                 then
                         umask 077
-                        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key
-                        /bin/chmod 600 ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key
-                        /bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_public.key
+                        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/server_private.key
+                        /bin/chmod 600 ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/server_private.key
+                        /bin/cat ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/server_public.key
 
-                        server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key`"
-                        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_public.key`"
+                        server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/server_private.key`"
+                        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/server_public.key`"
 
-                        if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/preshared.key ] )
+                        if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/preshared.key ] )
                         then
-                                /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/preshared.key
-                                preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/preshared.key`"
+                                /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/preshared.key
+                                preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/preshared.key`"
                         fi
 
                         /bin/echo "[Interface]
@@ -58,13 +60,13 @@ fi
 
 for email_address in `/bin/cat ${HOME}/runtime/authenticator/incoming/authentication-emails.dat`
 do
-        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_private.key
-        /bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_public.key
+        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_private.key
+        /bin/cat ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_public.key
 
         # Get the keys and server info
-        new_client_private_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_private.key`"
-        new_client_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client_public.key`"
-        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_public.key`"
+        new_client_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_private.key`"
+        new_client_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_public.key`"
+        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/authenticators/${authenticator_ip}/server_public.key`"
 
         twenty_four="`/usr/bin/expr ${client_no} / 255`"
         iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
@@ -91,7 +93,7 @@ do
         PresharedKey = ${preshared_key}
         Endpoint = ${server_ip}:${wireguard_port}
         AllowedIPs =  10.0.0.0/16
-        PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.conf
+        PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
 
-        /usr/bin/qrencode -t png -o ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.png -r ${HOME}/runtime/authenticator/wireguard/client/${email_address}/client.conf
+        /usr/bin/qrencode -t png -o ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.png -r ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
 done
