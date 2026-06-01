@@ -66,6 +66,10 @@ elif ( [ "${bucket_type}" = "config-reverseproxy" ] )
 then
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
         active_bucket="`/bin/echo "${WEBSITE_URL}"-config | /bin/sed 's/\./-/g'`-${TOKEN}/reverseproxypublicips"
+elif ( [ "${bucket_type}" = "config-authenticator" ] )
+then
+        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+        active_bucket="`/bin/echo "${WEBSITE_URL}"-config | /bin/sed 's/\./-/g'`-${TOKEN}/authenticatorpublicip"
 elif ( [ "${bucket_type}" = "asset" ] )
 then
         active_bucket="`/bin/echo "${WEBSITE_URL}-assets-${additional_specifier}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g'`"
