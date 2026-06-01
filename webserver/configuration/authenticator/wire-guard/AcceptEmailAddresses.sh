@@ -1,5 +1,6 @@
-#Sync the S3 datastore to the granted directory
-
+export HOME="`/bin/cat /home/homedir.dat`"
+SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
+wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
 if ( [ ! -d ${HOME}/runtime/authenticator/incoming ] )
 then
@@ -14,33 +15,12 @@ fi
 /usr/bin/uniq ${HOME}/runtime/authenticator/incoming/authentication-emails.dat >> ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$
 /bin/mv ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$ ${HOME}/runtime/authenticator/incoming/authentication-emails.dat
 
-if ( [ ! -f ${HOME}/runtime/authenticators/authenticator_ips.dat ] )
-then
-        server_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config-authenticator"`"
-
-        if ( [ "${server_ips}" != "" ] )
-        then
-                /bin/echo "${server_ips}" > ${HOME}/runtime/authenticators/authenticator_ips.dat
-        fi
-else
-        server_ips="`/bin/cat ${HOME}/runtime/authenticators/authenticator_ips.dat`"
-fi
-
-# if there is no /etc/wireguard/wg0.conf create the Interface section  of the new wg0.conf
-
-# Generate server config entry for this new peer include a commented email address with new entry and remove any previous entry for that 
-# email address from the server if there is no entry in the server config that mataches email address and ip address of the current
-# peer config in the granted directory then add the peer config to wg0 sync the granted directory to s3
+authenticator_ip="`${HOME}//utilities/processing/GetPublicIP.sh`"
 
 if ( [ ! -f /etc/wireguard/wg0.conf ] )
 then
         for authenticator_ip in ${server_ips}
         do
-                if ( [ ! -d ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip} ] )
-                then
-                        /bin/mkdir -p ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}
-                fi
-        
                 if ( [ ! -f ${HOME}/runtime/authenticator/wireguard/authenticators/${authenticator_ip}/server_private.key ] )
                 then
                         umask 077
@@ -58,14 +38,14 @@ then
                         fi
 
                         /bin/echo "[Interface]
-        PrivateKey = ${server_private_key}
-        Address = 10.0.0.1/24
-        PresharedKey = ${preshared_key}
-        MTU = 1380
-        ListenPort = ${wireguard_port}
-        SaveConfig = false
-        PostUp = /etc/wireguard/postup.sh
-        PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
+                        PrivateKey = ${server_private_key}
+                        Address = 10.0.0.1/24
+                        PresharedKey = ${preshared_key}
+                        MTU = 1380
+                        ListenPort = ${wireguard_port}
+                        SaveConfig = false
+                        PostUp = /etc/wireguard/postup.sh
+                        PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
                 fi
         done
 fi
