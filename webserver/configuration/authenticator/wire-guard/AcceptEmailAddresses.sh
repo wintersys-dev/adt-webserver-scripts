@@ -1,4 +1,4 @@
 
 
 
-${HOME}/services/datastore/operations/PutToDatastore.sh "authentication-emails" ${basic_auth_file}.${machine_ip} "emails" "distributed" "no"
+${HOME}/services/datastore/operations/PutToDatastore.sh "authentication-emails" /var/www/wire-guard/authentication-emails.dat "emails" "distributed" "no"
