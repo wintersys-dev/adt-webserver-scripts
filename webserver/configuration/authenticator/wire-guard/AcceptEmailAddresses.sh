@@ -3,6 +3,9 @@ export HOME="`/bin/cat /home/homedir.dat`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
 wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
+
+/usr/bin/find /var/www/html/qrcode-* -mmin +5 -type f -exec rm -fv {} \;
+
 if ( [ ! -d ${HOME}/runtime/authenticator/incoming ] )
 then
         /bin/mkdir -p ${HOME}/runtime/authenticator/incoming
