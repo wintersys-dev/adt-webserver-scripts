@@ -27,12 +27,12 @@ then
         /bin/mkdir -p ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}
 fi
 
-if ( [ ! -f ${HOME}/webserver/configuration/authenticator/wire-guard/postup.sh ] )
+if ( [ ! -f /etc/wireguard/postup.sh ] )
 then
         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postup.sh /etc/wireguard
 fi
 
-if ( [ ! -f ${HOME}/webserver/configuration/authenticator/wire-guard/postdown.sh ] )
+if ( [ ! -f /etc/wireguard/postdown.sh ] )
 then
         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postdown.sh /etc/wireguard
 fi
@@ -58,7 +58,6 @@ then
                 /bin/echo "[Interface]
                 PrivateKey = ${server_private_key}
                 Address = 10.0.0.1/24
-                PresharedKey = ${preshared_key}
                 MTU = 1380
                 ListenPort = ${wireguard_port}
                 SaveConfig = false
