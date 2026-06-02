@@ -28,19 +28,19 @@ USER_HOME="`/usr/bin/awk -F: '{ print $1}' /etc/passwd | /bin/grep "X*X"`"
 #comment/amend as you desire
 if ( [ ! -f /root/.vimrc-adt ] )
 then
-	/bin/echo "
-	color elflord
-	set clipboard=unnamedplus
-	set mouse=r
-	syntax on
-	filetype indent on
-	set smartindent
-	set nobackup
-	set fo-=or
-	autocmd BufRead,BufWritePre *.sh normal gg=G " > /root/.vimrc-adt
+        /bin/echo "
+        color elflord
+        set clipboard=unnamedplus
+        set mouse=r
+        syntax on
+        filetype indent on
+        set smartindent
+        set nobackup
+        set fo-=or
+        autocmd BufRead,BufWritePre *.sh normal gg=G " > /root/.vimrc-adt
 
-	/bin/echo "alias vim='/usr/bin/vim -u /root/.vimrc-adt'" >> /root/.bashrc
-	/bin/echo "alias vi='/usr/bin/vim -u /root/.vimrc-adt'" >> /root/.bashrc
+        /bin/echo "alias vim='/usr/bin/vim -u /root/.vimrc-adt'" >> /root/.bashrc
+        /bin/echo "alias vi='/usr/bin/vim -u /root/.vimrc-adt'" >> /root/.bashrc
 fi
 
 SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
@@ -61,14 +61,14 @@ SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
 #Set up more operational directories
 if ( [ ! -d ${HOME}/.ssh ] )
 then
-	/bin/mkdir ${HOME}/.ssh
+        /bin/mkdir ${HOME}/.ssh
 fi
 
 if ( [ ! -d ${HOME}/runtime ] )
 then
-	/bin/mkdir ${HOME}/runtime
-	/bin/chown ${SERVER_USER}:${SERVER_USER} ${HOME}/runtime
-	/bin/chmod 755 ${HOME}/runtime
+        /bin/mkdir ${HOME}/runtime
+        /bin/chown ${SERVER_USER}:${SERVER_USER} ${HOME}/runtime
+        /bin/chmod 755 ${HOME}/runtime
 fi
 
 /bin/echo "PasswordAuthentication no
@@ -86,17 +86,17 @@ GSSAPIAuthentication no
 UsePAM no
 X11Forwarding no" > /etc/ssh/sshd_config.d/99-hardening.conf
 
- ${HOME}/utilities/processing/RunServiceCommand.sh "ssh" restart
+${HOME}/utilities/processing/RunServiceCommand.sh "ssh" restart
 
 #Setup operational directories if needed
 if ( [ ! -d ${HOME}/logs/initialbuild ] )
 then
-	/bin/mkdir -p ${HOME}/logs/initialbuild
+        /bin/mkdir -p ${HOME}/logs/initialbuild
 fi
 
 if ( [ ! -d ${HOME}/super ] )
 then
-	/bin/mkdir ${HOME}/super
+        /bin/mkdir ${HOME}/super
 fi
 
 /bin/mv ${HOME}/utilities/security/Super.sh ${HOME}/super
@@ -118,17 +118,23 @@ then
         ${HOME}/utilities/config/StoreConfigValue.sh "NOAUTHENTICATORS" "2"
 fi
 
+
+WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+${HOME}/utilities/config/StoreConfigValue.sh "WEBSITEURLORIGINAL" "${WEBSITE_URL}"
+
 if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" != "" ] )
 then
-	WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/[^.]*/auth/'`"
+        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL' | /bin/sed 's/[^.]*/auth/'`"
 else
-	WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
 fi
+
+${HOME}/utilities/config/StoreConfigValue.sh "WEBSITEURL" "${WEBSITE_URL}"
 
 DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHDNSCHOICE'`"
 if ( [ "${DNS_CHOICE}" = "" ] )
 then
-	DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'DNSCHOICE'`"
+        DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'DNSCHOICE'`"
 fi
 SSL_GENERATION_SERVICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSLGENERATIONSERVICE'`"
 GIT_EMAIL_ADDRESS="`${HOME}/utilities/config/ExtractConfigValue.sh 'GITEMAILADDRESS'`"
@@ -136,12 +142,6 @@ BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 MACHINE_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'MACHINETYPE'`"
 /bin/touch ${HOME}/${MACHINE_TYPE}
 GIT_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'GITUSER' | /bin/sed 's/#/ /g'`"
-
-ROOT_DOMAIN="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{$1=""}1' | /bin/sed 's/^ //g' | /bin/sed 's/ /./g'`"
-${HOME}/utilities/config/StoreConfigValue.sh "WEBSITEURLORIGINAL" "${WEBSITE_URL}"
-#WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/[^.]*./auth./'`"
-WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
-${HOME}/utilities/config/StoreConfigValue.sh "WEBSITEURL" "${WEBSITE_URL}"
 
 
 ${HOME}/installation/InstallIPCalc.sh ${BUILDOS}
@@ -154,21 +154,21 @@ ${HOME}/installation/InstallIPCalc.sh ${BUILDOS}
 
 if ( [ -f ${HOME}/utilities/software/PushInfrastructureScriptsUpdates.sh ] )
 then
-	/bin/cp ${HOME}/utilities/software/PushInfrastructureScriptsUpdates.sh /usr/sbin/push
-	/bin/chmod 755 /usr/sbin/push
-	/bin/chown root:root /usr/sbin/push
+        /bin/cp ${HOME}/utilities/software/PushInfrastructureScriptsUpdates.sh /usr/sbin/push
+        /bin/chmod 755 /usr/sbin/push
+        /bin/chown root:root /usr/sbin/push
 fi
 if ( [ -f ${HOME}/utilities/software/PushAndSyncInfrastructureScriptsUpdates.sh ] )
 then
-	/bin/cp ${HOME}/utilities/software/PushAndSyncInfrastructureScriptsUpdates.sh /usr/sbin/push-and-sync
-	/bin/chmod 755 /usr/sbin/push-and-sync
-	/bin/chown root:root /usr/sbin/push-and-sync
+        /bin/cp ${HOME}/utilities/software/PushAndSyncInfrastructureScriptsUpdates.sh /usr/sbin/push-and-sync
+        /bin/chmod 755 /usr/sbin/push-and-sync
+        /bin/chown root:root /usr/sbin/push-and-sync
 fi
 if ( [ -f ${HOME}/utilities/software/SyncInfrastructureScriptsUpdates.sh ] )
 then
-	/bin/cp ${HOME}/utilities/software/SyncInfrastructureScriptsUpdates.sh /usr/sbin/sync
-	/bin/chmod 755 /usr/sbin/sync
-	/bin/chown root:root /usr/sbin/sync
+        /bin/cp ${HOME}/utilities/software/SyncInfrastructureScriptsUpdates.sh /usr/sbin/sync
+        /bin/chmod 755 /usr/sbin/sync
+        /bin/chown root:root /usr/sbin/sync
 fi
 
 cd ${HOME}
@@ -179,10 +179,10 @@ ${HOME}/services/datastore/InitialiseDatastoreSettings.sh
 /bin/echo "${0} Activating datastore configuration protocol"
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORECONFIGSTYLE" | /usr/bin/awk -F':' '{print $NF}'`" = "lightweight" ] )
 then
-	${HOME}/services/datastore/filesystems-sync/lightweight/FileSystemSyncController.sh "/var/lib/adt-config" "config" &
+        ${HOME}/services/datastore/filesystems-sync/lightweight/FileSystemSyncController.sh "/var/lib/adt-config" "config" &
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORECONFIGSTYLE" | /usr/bin/awk -F':' '{print $NF}'`" = "heavyweight" ] )
 then
-	${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh &
+        ${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh &
 fi
 
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
@@ -192,20 +192,20 @@ AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICAT
 
 if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] )
 then
-	${HOME}/services/datastore/operations/MountDatastore.sh "firewall-auth-laptop-ips" "distributed"
+        ${HOME}/services/datastore/operations/MountDatastore.sh "firewall-auth-laptop-ips" "distributed"
 elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 then
-	${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed"
+        ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed"
 elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
-		NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
+        NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
-		if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
-		then
-		    ${HOME}/installation/InstallWireguard.sh
-        	${HOME}/installation/InstallQREncode.sh 
-		fi
-			
+        if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
+        then
+                ${HOME}/installation/InstallWireguard.sh
+                ${HOME}/installation/InstallQREncode.sh 
+        fi
+
 
     #    ${HOME}/services/datastore/operations/MountDatastore.sh "wireguard-config" "distributed"
 fi
@@ -217,10 +217,10 @@ ${HOME}/services/cron/InitialiseCron.sh
 
 if ( [ "${SSL_GENERATION_SERVICE}" = "LETSENCRYPT" ] )
 then
-	service_token="lets"
+        service_token="lets"
 elif ( [ "${SSL_GENERATION_SERVICE}" = "ZEROSSL" ] )
 then
-	service_token="zero"
+        service_token="zero"
 fi
 
 ssl_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
@@ -229,24 +229,24 @@ ssl_bucket="${ssl_bucket}-${DNS_CHOICE}-${service_token}-ssl"
 /bin/echo "${0} `/bin/date`: Setting up the SSL certificates and keys" 
 if ( [ ! -d ${HOME}/ssl/live/${WEBSITE_URL} ] )
 then
-	/bin/mkdir -p ${HOME}/ssl/live/${WEBSITE_URL}
+        /bin/mkdir -p ${HOME}/ssl/live/${WEBSITE_URL}
 fi
 
 /bin/echo "${0} Configuring SSL certificate"
 count="0"
 while ( [ "${count}" -lt "5" ] && ( [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ] || [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem ] ) )
 do
-	${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "fullchain.pem" ${HOME}/ssl/live/${WEBSITE_URL}
-	${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "privkey.pem" ${HOME}/ssl/live/${WEBSITE_URL}
-	/bin/chown www-data:www-data ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
-	/bin/chmod 400 ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
-	/bin/chown root:root ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
-	count="`/usr/bin/expr ${count} + 1`"
+        ${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "fullchain.pem" ${HOME}/ssl/live/${WEBSITE_URL}
+        ${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "privkey.pem" ${HOME}/ssl/live/${WEBSITE_URL}
+        /bin/chown www-data:www-data ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
+        /bin/chmod 400 ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
+        /bin/chown root:root ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
+        count="`/usr/bin/expr ${count} + 1`"
 done
 
 if ( [ "${count}" = "5" ] )
 then
-	${HOME}/services/email/SendEmail.sh "SSL CERFICICATES NOT SUCCESSFULLY INSTALLED" "The ssl certificates for an authenticator machine have not been successfully installed" "ERROR"
+        ${HOME}/services/email/SendEmail.sh "SSL CERFICICATES NOT SUCCESSFULLY INSTALLED" "The ssl certificates for an authenticator machine have not been successfully installed" "ERROR"
 fi
 
 /bin/echo "${0} Sending 'successful build' notification email"
