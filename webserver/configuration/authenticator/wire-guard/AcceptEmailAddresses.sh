@@ -38,6 +38,12 @@ then
         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postdown.sh /etc/wireguard
 fi
 
+if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key ] )
+then
+        /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key
+        preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key`"
+fi
+
 if ( [ ! -f /etc/wireguard/wg0.conf ] )
 then
         if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key ] )
@@ -50,12 +56,6 @@ then
                 server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key`"
                 server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key`"
 
-                if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key ] )
-                then
-                        /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key
-                        preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key`"
-                fi
-
                 /bin/echo "[Interface]
                 PrivateKey = ${server_private_key}
                 Address = 10.0.0.1/24
@@ -67,7 +67,6 @@ then
                 PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
         fi
 fi
-
 
 for email_address in `/bin/cat ${HOME}/runtime/authenticator/incoming/authentication-emails.dat`
 do
