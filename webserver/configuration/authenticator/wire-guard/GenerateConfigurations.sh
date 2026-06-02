@@ -16,6 +16,8 @@ then
         /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/authenticator/incoming/authentication-emails.dat
 fi
 
+${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "" "${HOME}/runtime/authenticator/incoming"
+
 /bin/touch ${HOME}/runtime/authenticator/incoming/authentication-emails.dat
 /usr/bin/uniq ${HOME}/runtime/authenticator/incoming/authentication-emails.dat >> ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$
 /bin/mv ${HOME}/runtime/authenticator/incoming/authentication-emails.dat.$$ ${HOME}/runtime/authenticator/incoming/authentication-emails.dat
