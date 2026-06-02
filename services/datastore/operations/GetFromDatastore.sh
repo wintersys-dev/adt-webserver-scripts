@@ -80,6 +80,9 @@ elif ( [ "${bucket_type}" = "snap" ] )
 then
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
         active_bucket="${active_bucket}-${DNS_CHOICE}-snap"
+elif ( [ "${bucket_type}" = "authentication-emails" ] )
+then
+        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-authentication-emails"  
 fi
 
 datastore_tool=""
