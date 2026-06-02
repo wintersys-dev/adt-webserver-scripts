@@ -112,6 +112,12 @@ exec 2>>${HOME}/logs/${err_file}
 AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTIICATORS'`"
 
+if ( [ "${NO_AUTHENTICATORS}" = "1" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+then
+        NO_AUTHENTICATORS="2"
+        ${HOME}/utilities/config/StoreConfigValue.sh "NOAUTHENTICATORS" "2"
+fi
+
 if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" != "" ] )
 then
 	WEBSITE_URL="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/[^.]*/auth/'`"
