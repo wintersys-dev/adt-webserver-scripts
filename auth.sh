@@ -110,7 +110,7 @@ exec 2>>${HOME}/logs/${err_file}
 /bin/echo "${0} `/bin/date`: Building a new authorisation server" 
 
 AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
-NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTIICATORS'`"
+NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
 if ( [ "${NO_AUTHENTICATORS}" = "1" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
