@@ -236,8 +236,14 @@ fi
 count="0"
 while ( [ "${count}" -lt "5" ] && ( [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ] || [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem ] ) )
 do
-        ${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "fullchain.pem" ${HOME}/ssl/live/${WEBSITE_URL}
-        ${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "privkey.pem" ${HOME}/ssl/live/${WEBSITE_URL}
+        if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" != "" ] ) 
+        then
+                ${HOME}/services/datastore/operations/GetFromDatastore.sh "auth-ssl-1" "fullchain.pem" ${HOME}/ssl/live/${WEBSITE_URL}
+                ${HOME}/services/datastore/operations/GetFromDatastore.sh "auth-ssl-1" "privkey.pem" ${HOME}/ssl/live/${WEBSITE_URL}
+        else
+                ${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "fullchain.pem" ${HOME}/ssl/live/${WEBSITE_URL}
+                ${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "privkey.pem" ${HOME}/ssl/live/${WEBSITE_URL}
+        fi
         /bin/chown www-data:www-data ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
         /bin/chmod 400 ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
         /bin/chown root:root ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
