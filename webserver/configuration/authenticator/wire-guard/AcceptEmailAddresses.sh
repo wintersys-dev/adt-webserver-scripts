@@ -119,5 +119,6 @@ do
                 PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
 
                 /usr/bin/qrencode -t png -o ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.png -r ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
+                /bin/touch ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/CANDIDATE_QR_CODE
         fi
 done
