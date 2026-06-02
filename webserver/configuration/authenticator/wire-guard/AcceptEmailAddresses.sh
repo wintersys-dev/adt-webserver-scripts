@@ -30,11 +30,13 @@ fi
 if ( [ ! -f /etc/wireguard/postup.sh ] )
 then
         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postup.sh /etc/wireguard
+        /bin/sed -i "s/XXXXWG_PORTXXXX/${wireguard_port}/g" /etc/wireguard/postup.sh
 fi
 
 if ( [ ! -f /etc/wireguard/postdown.sh ] )
 then
         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/postdown.sh /etc/wireguard
+        /bin/sed -i "s/XXXXWG_PORTXXXX/${wireguard_port}/g" /etc/wireguard/postdown.sh
 fi
 
 if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key ] )
