@@ -29,6 +29,8 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 email_addresses=`/bin/ls /etc/wireguard/client_*.png | /bin/sed -e 's/.*client_//g' -e 's/\.png//g'`
 
+email_addresses="`/usr/bin/find  . -name "CANDIDATE_QR_CODE"  -print | /usr/bin/awk '{print $(NF-1)}'`"
+
 for email_address in ${email_addresses}
 do
         if ( [ ! -f ${HOME}/runtime/authenticator/email-addresses-actioned/${email_address} ] && [ -f /etc/wireguard/client_${email_address}.png ] )
