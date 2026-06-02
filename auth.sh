@@ -109,7 +109,16 @@ exec 2>>${HOME}/logs/${err_file}
 
 /bin/echo "${0} `/bin/date`: Building a new authorisation server" 
 
-WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
+NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTIICATORS'`"
+
+if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" != "" ] )
+then
+
+else
+	WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+fi
+
 DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHDNSCHOICE'`"
 if ( [ "${DNS_CHOICE}" = "" ] )
 then
