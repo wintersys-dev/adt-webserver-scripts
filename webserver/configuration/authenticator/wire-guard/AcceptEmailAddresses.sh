@@ -4,6 +4,7 @@ export HOME="`/bin/cat /home/homedir.dat`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
 wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
+
 /usr/bin/find /var/www/html/qrcode-* -mmin +5 -type f -exec rm -fv {} \;  2>/dev/null
 
 if ( [ ! -d ${HOME}/runtime/authenticator/incoming ] )
@@ -40,8 +41,8 @@ fi
 if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key ] )
 then
         /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key
-        preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key`"
 fi
+preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key`"
 
 if ( [ ! -f /etc/wireguard/wg0.conf ] )
 then
