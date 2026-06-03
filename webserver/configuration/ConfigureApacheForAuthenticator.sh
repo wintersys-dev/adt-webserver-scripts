@@ -187,6 +187,8 @@ then
                 /bin/mkdir /var/www/wire-guard
                 /bin/chown www-data:www-data /var/www/wire-guard
         	fi
+		else
+		:
 		fi
 fi
 
