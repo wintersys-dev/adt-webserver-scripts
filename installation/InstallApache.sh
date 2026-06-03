@@ -83,10 +83,10 @@ do
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
 							#modules_list="mpm_event ssl headers proxy_fcgi"
-							modules_list="proxy proxy_fcgi proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
+							modules_list="proxy proxy_fcgi proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
 					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 					then
-						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
+						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
 					elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 					then
 						modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:modules-list" "stripped"`"
@@ -144,11 +144,11 @@ do
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
 							#modules_list="mpm_event ssl headers proxy_fcgi"
-							modules_list="proxy proxy_fcgi proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
+							modules_list="proxy proxy_fcgi proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core  rewrite remoteip"
 							#modules_list="mpm_event ssl rewrite expires headers proxy proxy_http remoteip proxy_fcgi"
 					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 					then
-						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
+						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
 					elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 					then
 						modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:modules-list" "stripped"`"
