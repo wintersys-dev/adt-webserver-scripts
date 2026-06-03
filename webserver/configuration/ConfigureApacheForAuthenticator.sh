@@ -194,7 +194,7 @@ then
 		fi
 fi
 
-/bin/sed -i 's/#XXXXREQUEST_PROXYXXX//g' /etc/apache2/sites-available/${WEBSITE_NAME}
+/bin/sed -i 's/#XXXXWEBROOTXXX//g' /etc/apache2/sites-available/${WEBSITE_NAME}
 
 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm start 
