@@ -35,8 +35,6 @@ fi
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 MOD_SECURITY="`${HOME}/utilities/config/ExtractConfigValue.sh 'MODSECURITY'`"
 NO_REVERSE_PROXY="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
-AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
-NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
 apt=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
@@ -84,12 +82,7 @@ do
 					
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
-						if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
-        				then
-							modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
-						else
-							modules_list="mpm_event ssl headers proxy_fcgi"
-						fi
+						modules_list="mpm_event ssl headers proxy_fcgi"
 					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 					then
 						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
@@ -149,12 +142,7 @@ do
 					eval ${install_command} apache2 
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
-						if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
-        				then
-							modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
-						else
-							modules_list="mpm_event ssl headers proxy_fcgi"
-						fi
+						modules_list="mpm_event ssl headers proxy_fcgi"
 					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 					then
 						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
