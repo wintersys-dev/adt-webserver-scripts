@@ -189,7 +189,6 @@ then
         	fi
 		else
 			/bin/sed -i -e "/#-XXXXREQUEST_PROXYXXX/{r ${HOME}/webserver/configuration/authenticator/apache/redirection-template.conf" -e 'd}' /etc/apache2/sites-available/${WEBSITE_NAME}  
-			${HOME}/webserver/configuration/authenticator/wire-guard/AddReverseProxyIPs.sh	
 		fi
 fi
 
