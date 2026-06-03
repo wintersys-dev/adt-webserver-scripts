@@ -31,7 +31,7 @@ then
         NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
         if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
         else
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
         fi
