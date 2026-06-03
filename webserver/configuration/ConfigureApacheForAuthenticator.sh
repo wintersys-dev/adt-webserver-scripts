@@ -69,7 +69,6 @@ else
         /bin/sed -i 's/#XXXXREPO_STYLE####//g' ${HOME}/webserver/configuration/authenticator/apache/apache2.conf
 fi
 
-/bin/sed '/#XXXX.*/d' ${HOME}/webserver/configuration/authenticator/apache/apache2.conf
 /bin/cat -s ${HOME}/webserver/configuration/authenticator/apache/apache2.conf > /etc/apache2/apache2.conf
 
 /usr/bin/openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
@@ -194,7 +193,7 @@ then
 		fi
 fi
 
-/bin/sed -i 's/#XXXXWEBROOTXXX//g' /etc/apache2/sites-available/${WEBSITE_NAME}
+/bin/sed '/#XXXX.*/d' /etc/apache2/sites-available/${WEBSITE_NAME}
 
 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm stop                                                                               
 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm start 
