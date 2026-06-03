@@ -32,11 +32,11 @@ do
 	then
 		if ( [ "`/bin/grep ${reverseproxy_ip} /etc/apache2/sites-available/${WEBSITE_NAME}`" = "" ] )
 		then
-			if ( [ "`/usr/bin/curl -m 2 --insecure -I 'https://'${webserver_ip}':443/index.php' 2>&1 | /bin/grep 'HTTP' | /bin/grep -w '200\|301\|302\|303'`" != "" ] )
+			if ( [ "`/usr/bin/curl -m 2 --insecure -I 'https://'${reverseproxy_ip}':443/index.php' 2>&1 | /bin/grep 'HTTP' | /bin/grep -w '200\|301\|302\|303'`" != "" ] )
 			then
 				node_no="`/bin/grep "BalancerMember" /etc/apache2/sites-available/${WEBSITE_NAME} | /usr/bin/wc -l`"
 				node_no="`/usr/bin/expr ${node_no} + 1`"
-				/bin/sed -i "/xxxxREVERSEPROXYIPHTTPSxxxx/a         BalancerMember https://${webserver_ip}:443 route=node${node_no}" /etc/apache2/sites-available/${WEBSITE_NAME}
+				/bin/sed -i "/xxxxREVERSEPROXYIPHTTPSxxxx/a         BalancerMember https://${reverseproxy_ip}:443 route=node${node_no}" /etc/apache2/sites-available/${WEBSITE_NAME}
 				updated="1"
 			fi
 		fi
