@@ -78,11 +78,23 @@ do
 					fi
 				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] )
 				then
-					eval ${install_command} apache2     
+					eval ${install_command} apache2 
+					
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
-						modules_list="mpm_event ssl headers proxy_fcgi"
-					#	modules_list="mpm_event ssl rewrite expires headers proxy proxy_http remoteip proxy_fcgi"
+						AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
+						NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
+
+						if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+						then
+        					if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
+        					then
+								modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
+							fi
+						else
+							modules_list="mpm_event ssl headers proxy_fcgi"
+							#modules_list="mpm_event ssl rewrite expires headers proxy proxy_http remoteip proxy_fcgi"
+						fi
 					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 					then
 						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
@@ -142,8 +154,19 @@ do
 					eval ${install_command} apache2 
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
-						modules_list="mpm_event ssl headers proxy_fcgi"
-						#modules_list="mpm_event ssl rewrite expires headers proxy proxy_http remoteip proxy_fcgi"
+						AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
+						NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
+
+						if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+						then
+        					if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
+        					then
+								modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
+							fi
+						else
+							modules_list="mpm_event ssl headers proxy_fcgi"
+							#modules_list="mpm_event ssl rewrite expires headers proxy proxy_http remoteip proxy_fcgi"
+						fi
 					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 					then
 						modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm unixd authz_core log_config logio rewrite mime remoteip"
