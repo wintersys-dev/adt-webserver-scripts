@@ -188,7 +188,9 @@ then
                 /bin/chown www-data:www-data /var/www/wire-guard
         	fi
 		else
-			/bin/sed -i -e "/#XXXXREQUEST_PROXYXXX/{r ${HOME}/runtime/redirection.conf.${count}" -e 'd}' /etc/apache2/sites-available/${WEBSITE_NAME}    
+			/bin/sed -i -e "/#XXXXREQUEST_PROXYXXX/{r ${HOME}/webserver/configuration/authenticator/apache/redirection-template.conf" -e 'd}' /etc/apache2/sites-available/${WEBSITE_NAME}  
+
+			
 		fi
 fi
 
