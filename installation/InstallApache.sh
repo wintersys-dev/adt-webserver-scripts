@@ -84,7 +84,7 @@ do
 					
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
-						if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" != "" ] )
+						if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
         				then
 							modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
 						else
@@ -149,7 +149,7 @@ do
 					eval ${install_command} apache2 
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
-						if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" != "" ] )
+						if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] && [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
         				then
 							modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
 						else
