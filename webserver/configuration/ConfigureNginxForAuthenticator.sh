@@ -182,6 +182,7 @@ then
         	/bin/chmod 644 /var/www/html/*
         	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
         	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
+			/bin/sed -i 's/#XXXXWEBROOTXXX//g' /etc/nginx/sites-available/${WEBSITE_NAME}
 
         	if ( [ ! -d /var/www/wire-guard ] )
         	then
