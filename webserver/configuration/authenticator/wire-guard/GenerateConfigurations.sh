@@ -50,7 +50,7 @@ then
                 umask 077
                 /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/server_private.key
                 /bin/chmod 600 ${HOME}/runtime/authenticator/wire-guard/server_private.key
-                /bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key
+                /bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/server_public.key
 
                 server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key`"
                 server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_public.key`"
