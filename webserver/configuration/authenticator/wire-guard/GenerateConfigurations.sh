@@ -118,7 +118,7 @@ do
                 PublicKey = ${server_public_key}
                 PresharedKey = ${preshared_key}
                 Endpoint = ${server_ip}:${wireguard_port}
-                AllowedIPs =  10.0.0.0/16
+                AllowedIPs =  10.0.0.`/usr/bin/hostname | /bin/sed -e 's/NO-//g' -e 's/-.*//g'`/32,10.0.0.0/8
                 PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
 
                 /usr/bin/qrencode -t png -o ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
