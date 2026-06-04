@@ -35,6 +35,13 @@ then
                 iteration2="`/usr/bin/expr ${sixteen} \* 255`"
                 twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
+                if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key ] )
+                then
+                  /usr/bin/wg genpsk > ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key
+                fi
+                
+                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key`"
+
                 # Add peer to server config
                 /bin/echo "[Peer]
                 PublicKey = ${new_client_public_key}
