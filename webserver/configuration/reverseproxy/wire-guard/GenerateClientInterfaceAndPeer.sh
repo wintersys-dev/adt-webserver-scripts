@@ -1,3 +1,24 @@
+
+if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key ] )
+then
+  client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key`"
+fi
+
+if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/CLIENT_NO ] )
+then
+  client_no="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/CLIENT_NO`"
+fi
+                
+if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key ] )
+then
+  server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
+fi
+                
+if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key ] )
+then
+  preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key`"
+fi
+
 # Create client config
 /bin/echo "[Interface]
   PrivateKey = ${client_private_key}
