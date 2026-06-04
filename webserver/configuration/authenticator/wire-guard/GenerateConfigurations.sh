@@ -123,7 +123,7 @@ do
         PublicKey = ${server_public_key}
         PresharedKey = ${preshared_key}
         Endpoint = ${reverse_proxy_ip}:${wireguard_port}
-        AllowedIPs =  10.0.0.0/8
+        AllowedIPs =  ${reverse_proxy_ip},10.0.0.0/8
         PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
                         done
                         /usr/bin/qrencode -t png -o ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
