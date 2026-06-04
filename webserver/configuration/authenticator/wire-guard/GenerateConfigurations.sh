@@ -43,9 +43,11 @@ fi
 preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/preshared.key`"
 
 
-reverse_proxy_no="1"
+reverse_proxy_no="0"
 for reverse_proxy_ip in ${reverse_proxy_ips}
 do
+        reverse_proxy_no="`/usr/bin/expr ${reverse_proxy_no} + 1`"
+
         if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip} ] )
         then
                 if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/server_private.key ] )
@@ -61,13 +63,12 @@ do
 
                         /bin/echo "[Interface]
         PrivateKey = ${server_private_key}
-        Address = 10.0.0.${reverse_proxy_no}/24
+        Address = 10.0.0.${reverse_proxy_no}/8
         MTU = 1380
         ListenPort = ${wireguard_port}
         SaveConfig = false
         PostUp = /etc/wireguard/postup.sh
         PostDown = /etc/wireguard/postdown.sh" > ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip}
-                        reverse_proxy_no="`/usr/bin/expr ${reverse_proxy_no} + 1`"
         
                 fi
         fi
