@@ -1,13 +1,8 @@
-
-#Don't need to put server file onto the authenticator machine just install it and update it on the current reverse proxy
-#configure wg1 for authenticator 1 ?
-#wg2 for authenticator 2?
-#wg3 for authenticator 3?
+#!/bin/sh
 
 export HOME="`/bin/cat /home/homedir.dat`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
 wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
-
 
 if ( [ ! -f /etc/wireguard/postup.sh ] && [ -f ${HOME}/webserver/configuration/reverseproxy/wire-guard/postup.sh ] )
 then
@@ -46,5 +41,9 @@ then
                 SaveConfig = false
                 PostUp = /etc/wireguard/postup.sh
                 PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
+                
+                # Write the wireguard wg0.conf to the datastore with reverse proxy number in it and check for it when a machine first boots. If there is a wg0 available for 
+                # reverse proxy 1 or reverse proxy 2 then download the wg0 file to the reverse proxy with the same index and restart wireguard
+                # Send an email telling the user that the endpoint IP address has changed (maybe record the original IP address in the datastore)
         fi
 fi
