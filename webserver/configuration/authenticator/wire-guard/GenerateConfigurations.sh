@@ -48,7 +48,7 @@ for reverse_proxy_ip in ${reverse_proxy_ips}
 do
         reverse_proxy_no="`/usr/bin/expr ${reverse_proxy_no} + 1`"
 
-        if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip} ] )
+        if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf ] )
         then
                 if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/server_private.key ] )
                 then
@@ -68,7 +68,7 @@ do
         ListenPort = ${wireguard_port}
         SaveConfig = false
         PostUp = /etc/wireguard/postup.sh
-        PostDown = /etc/wireguard/postdown.sh" > ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip}
+        PostDown = /etc/wireguard/postdown.sh" > ${HOME}/runtime/authenticator/wire-guard/wg0.conf
         
                 fi
         fi
@@ -83,9 +83,9 @@ do
                         /bin/mkdir -p ${HOME}/runtime/authenticator/wire-guard/client/${email_address}
                 fi
 
-                if ( [ -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip} ] )
+                if ( [ -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf ] )
                 then
-                        client_no="`/bin/grep "Peer" ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip} | /usr/bin/wc -l`"
+                        client_no="`/bin/grep "Peer" ${HOME}/runtime/authenticator/wire-guard/wg0.conf | /usr/bin/wc -l`"
                         client_no="`/usr/bin/expr ${client_no} + 2`"
                 fi
 
@@ -109,7 +109,7 @@ do
                 /bin/echo "[Peer]
         PublicKey = ${new_client_public_key}
         AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
-        PresharedKey = ${preshared_key}" >> ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip}
+        PresharedKey = ${preshared_key}" >> ${HOME}/runtime/authenticator/wire-guard/wg0.conf
 
                 #Create client config
                 /bin/echo "[Interface]
