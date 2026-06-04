@@ -8,6 +8,9 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emails" "
 
 /bin/cat ${HOME}/runtime/wire-guard/emails/authentication-emails* > ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat
 
+/usr/bin/sort -u ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat | /bin/sed '/^$/d' >  ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat.$$
+/bin/mv ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat.$$ ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat
+
 if ( [ ! -d ${HOME}/runtime/wire-guard/emails/processing ] )
 then
   /bin/mkdir -p ${HOME}/runtime/wire-guard/emails/processing
@@ -20,4 +23,4 @@ else
     /bin/cp ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat
 fi
 
-/bin/mv ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat
+/bin/mv ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
