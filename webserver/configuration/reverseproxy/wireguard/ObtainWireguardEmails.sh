@@ -19,8 +19,9 @@ fi
 if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat ] )
 then
     /bin/grep -vf ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat > ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat 
+else
+    /bin/cp ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat
 fi
 
-/bin/mv ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
 
 
