@@ -79,9 +79,9 @@ do
                         /bin/mkdir -p ${HOME}/runtime/authenticator/wire-guard/client/${email_address}
                 fi
 
-                if ( [ -f /etc/wireguard/wg0.conf ] )
+                if ( [ -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf ] )
                 then
-                        client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
+                        client_no="`/bin/grep "Peer" ${HOME}/runtime/authenticator/wire-guard/wg0.conf | /usr/bin/wc -l`"
                         client_no="`/usr/bin/expr ${client_no} + 2`"
                 fi
 
