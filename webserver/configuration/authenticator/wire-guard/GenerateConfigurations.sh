@@ -36,24 +36,24 @@ then
         /bin/sed -i "s/XXXXWG_PORTXXXX/${wireguard_port}/g" /etc/wireguard/postdown.sh
 fi
 
-if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key ] )
+if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/preshared.key ] )
 then
-        /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key
+        /usr/bin/wg genpsk > ${HOME}/runtime/authenticator/wire-guard/preshared.key
 fi
-preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key`"
+preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/preshared.key`"
 
 
 if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf ] )
 then
-        if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key ] )
+        if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/server_private.key ] )
         then
                 umask 077
-                /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key
-                /bin/chmod 600 ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key
-                /bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key
+                /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/server_private.key
+                /bin/chmod 600 ${HOME}/runtime/authenticator/wire-guard/server_private.key
+                /bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key
 
-                server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key`"
-                server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key`"
+                server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key`"
+                server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_public.key`"
 
                 /bin/echo "[Interface]
                 PrivateKey = ${server_private_key}
@@ -90,7 +90,7 @@ do
                         # Get the keys and server info
                         new_client_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_private.key`"
                         new_client_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_public.key`"
-                        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key`"
+                        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_public.key`"
 
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
                         iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
