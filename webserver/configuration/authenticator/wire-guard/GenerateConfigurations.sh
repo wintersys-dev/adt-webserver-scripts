@@ -56,13 +56,13 @@ then
                 server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_public.key`"
 
                 /bin/echo "[Interface]
-                PrivateKey = ${server_private_key}
-                Address = 10.0.0.1/24
-                MTU = 1380
-                ListenPort = ${wireguard_port}
-                SaveConfig = false
-                PostUp = /etc/wireguard/postup.sh
-                PostDown = /etc/wireguard/postdown.sh" > ${HOME}/runtime/authenticator/wire-guard/wg0.conf
+        PrivateKey = ${server_private_key}
+        Address = 10.0.0.1/24
+        MTU = 1380
+        ListenPort = ${wireguard_port}
+        SaveConfig = false
+        PostUp = /etc/wireguard/postup.sh
+        PostDown = /etc/wireguard/postdown.sh" > ${HOME}/runtime/authenticator/wire-guard/wg0.conf
         fi
 fi
 
@@ -101,24 +101,26 @@ do
 
                         # Add peer to server config
                         /bin/echo "[Peer]
-                        PublicKey = ${new_client_public_key}
-                        AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
-                        PresharedKey = ${preshared_key}" >> ${HOME}/runtime/authenticator/wire-guard/wg0.conf
+        PublicKey = ${new_client_public_key}
+        AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
+        PresharedKey = ${preshared_key}" >> ${HOME}/runtime/authenticator/wire-guard/wg0.conf
 
                         #Create client config
                         /bin/echo "[Interface]
-                        PrivateKey = ${new_client_private_key}
-                        Address = 10.0.0.${client_no}/32
-                        MTU = 1380
-                        DNS = 1.1.1.1, 1.0.0.1 
+        PrivateKey = ${new_client_private_key}
+        Address = 10.0.0.${client_no}/32
+        MTU = 1380
+        DNS = 1.1.1.1, 1.0.0.1" >>  ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
 
-                        [Peer]
-                        PublicKey = ${server_public_key}
-                        PresharedKey = ${preshared_key}
-                        Endpoint = ${server_ip}:${wireguard_port}
-                        AllowedIPs =  10.0.0.0/16
-                        PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
-
+                        for reverse_proxy_ip in ${reverse_proxy_ips}
+                        do
+                                /bin/echo "[Peer]
+        PublicKey = ${server_public_key}
+        PresharedKey = ${preshared_key}
+        Endpoint = ${reverse_proxy_ip}:${wireguard_port}
+        AllowedIPs =  10.0.0.0/8
+        PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
+                        done
                         /usr/bin/qrencode -t png -o ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
                         /bin/touch ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/CANDIDATE_QR_CODE
                 fi
