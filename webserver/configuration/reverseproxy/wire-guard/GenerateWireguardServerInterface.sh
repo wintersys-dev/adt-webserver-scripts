@@ -33,10 +33,10 @@ then
                 umask 077
                 /usr/bin/wg genkey > ${HOME}/runtime/wire-guard/server/server_private.key
                 /bin/chmod 600 ${HOME}/runtime/wire-guard/server/server_private.key
-                /bin/cat ${HOME}/runtime//wire-guard/server/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime//wire-guard/server/server_public.key
+                /bin/cat ${HOME}/runtime//wire-guard/server/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/wire-guard/server/server_public.key
 
-                server_private_key="`/bin/cat ${HOME}/runtime//wire-guard/server/server_private.key`"
-                server_public_key="`/bin/cat ${HOME}/runtime//wire-guard/server/server_public.key`"
+                server_private_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_private.key`"
+                server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
 
                 /bin/echo "[Interface]
                 PrivateKey = ${server_private_key}
