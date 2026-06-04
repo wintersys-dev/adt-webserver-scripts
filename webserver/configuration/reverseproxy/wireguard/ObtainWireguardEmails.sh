@@ -25,7 +25,4 @@ fi
 
 /bin/mv ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
 
-for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
-do
 
-done
