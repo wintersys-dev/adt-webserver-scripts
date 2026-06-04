@@ -47,7 +47,7 @@ then
 fi
 preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/preshared.key`"
 
-if ( [ ! -f /etc/wireguard/wg0.conf ] )
+if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf ] )
 then
         if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key ] )
         then
@@ -66,7 +66,7 @@ then
                 ListenPort = ${wireguard_port}
                 SaveConfig = false
                 PostUp = /etc/wireguard/postup.sh
-                PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
+                PostDown = /etc/wireguard/postdown.sh" > ${HOME}/runtime/authenticator/wire-guard/wg0.conf
         fi
 fi
 
@@ -105,7 +105,7 @@ do
                 /bin/echo "[Peer]
                 PublicKey = ${new_client_public_key}
                 AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
-                PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
+                PresharedKey = ${preshared_key}" >> ${HOME}/runtime/authenticator/wire-guard/wg0.conf
 
                 # Create client config
                 /bin/echo "[Interface]
