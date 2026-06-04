@@ -1,6 +1,8 @@
 
-for email_address in `/bin/cat ${HOME}/runtime/authenticator/incoming/authentication-emails.dat`
-do
+if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ] )
+then
+  for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
+  do
         if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_public.key ] )
         then
                 if ( [ ! -d ${HOME}/runtime/authenticator/wire-guard/client/${email_address} ] )
