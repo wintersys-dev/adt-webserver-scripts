@@ -81,9 +81,9 @@ do
                                 /bin/mkdir -p ${HOME}/runtime/authenticator/wire-guard/client/${email_address}
                         fi
 
-                        if ( [ -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf ] )
+                        if ( [ -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip} ] )
                         then
-                                client_no="`/bin/grep "Peer" ${HOME}/runtime/authenticator/wire-guard/wg0.conf | /usr/bin/wc -l`"
+                                client_no="`/bin/grep "Peer" ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip} | /usr/bin/wc -l`"
                                 client_no="`/usr/bin/expr ${client_no} + 2`"
                         fi
 
@@ -107,7 +107,7 @@ do
                         /bin/echo "[Peer]
         PublicKey = ${new_client_public_key}
         AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
-        PresharedKey = ${preshared_key}" >> ${HOME}/runtime/authenticator/wire-guard/wg0.conf
+        PresharedKey = ${preshared_key}" >> ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip}
 
                         #Create client config
                         /bin/echo "[Interface]
