@@ -10,4 +10,4 @@
   PresharedKey = ${preshared_key}
   Endpoint = ${server_ip}:${wireguard_port}
   AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
-  PersistentKeepalive = 25" >> ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client.conf
+  PersistentKeepalive = 25" >> ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
