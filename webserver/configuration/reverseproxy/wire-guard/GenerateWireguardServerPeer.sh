@@ -3,11 +3,11 @@ if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication
 then
   for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
   do
-        if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_public.key ] )
+        if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/client_public.key ] )
         then
-                if ( [ ! -d ${HOME}/runtime/authenticator/wire-guard/client/${email_address} ] )
+                if ( [ ! -d ${HOME}/runtime/wire-guard/client/${email_address} ] )
                 then
-                        /bin/mkdir -p ${HOME}/runtime/authenticator/wire-guard/client/${email_address}
+                        /bin/mkdir -p ${HOME}/runtime/wire-guard/client/${email_address}
                 fi
 
                 if ( [ -f /etc/wireguard/wg0.conf ] )
@@ -16,13 +16,16 @@ then
                         client_no="`/usr/bin/expr ${client_no} + 2`"
                 fi
 
-                umask 077
-                /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_private.key
-                /bin/cat ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_public.key
-
+                if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key ] )
+                then
+                  umask 077
+                  /usr/bin/wg genkey > ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key
+                  /bin/cat ${HOME}/runtime/wire-guard//client/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/wire-guard/client/${email_address}/client_public.key
+                fi
+                
                 # Get the keys and server info
-                new_client_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_private.key`"
-                new_client_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_public.key`"
+                new_client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key`"
+                new_client_public_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_public.key`"
                 server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key`"
 
                 twenty_four="`/usr/bin/expr ${client_no} / 255`"
