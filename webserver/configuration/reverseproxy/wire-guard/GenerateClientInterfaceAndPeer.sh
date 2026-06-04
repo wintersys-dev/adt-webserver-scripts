@@ -51,6 +51,10 @@ then
   Endpoint = ${endpoint}:${wireguard_port}
   AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
   PersistentKeepalive = 25" >> ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
+        	/usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
 		fi
+		#Write the QR code to the wireguard datastore and download it to the webroot of the authenticator and then send an email from this machine
+		#with a link to the QR code on the webroot of the authenticator
 	done
 fi
+
