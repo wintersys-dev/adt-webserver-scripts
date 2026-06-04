@@ -43,31 +43,35 @@ fi
 preshared_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/preshared.key`"
 
 
-if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf ] )
-then
-        if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/server_private.key ] )
+reverse_proxy_no="1"
+for reverse_proxy_ip in ${reverse_proxy_ips}
+do
+        if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip} ] )
         then
-                umask 077
-                /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/server_private.key
-                /bin/chmod 600 ${HOME}/runtime/authenticator/wire-guard/server_private.key
-                /bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/server_public.key
+                if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/server_private.key ] )
+                then
+                        umask 077
+                        /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/server_private.key
+                        /bin/chmod 600 ${HOME}/runtime/authenticator/wire-guard/server_private.key
+                        /bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/server_public.key
 
-                server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key`"
-                server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_public.key`"
+                        server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_private.key`"
+                        server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/server_public.key`"
 
-                /bin/echo "[Interface]
+
+                        /bin/echo "[Interface]
         PrivateKey = ${server_private_key}
-        Address = 10.0.0.1/24
+        Address = 10.0.0.${reverse_proxy_no}/24
         MTU = 1380
         ListenPort = ${wireguard_port}
         SaveConfig = false
         PostUp = /etc/wireguard/postup.sh
-        PostDown = /etc/wireguard/postdown.sh" > ${HOME}/runtime/authenticator/wire-guard/wg0.conf
+        PostDown = /etc/wireguard/postdown.sh" > ${HOME}/runtime/authenticator/wire-guard/wg0.conf.${reverse_proxy_ip}
+                        reverse_proxy_no="`/usr/bin/expr ${reverse_proxy_no} + 1`"
+        
+                fi
         fi
-fi
 
-for reverse_proxy_ip in ${reverse_proxy_ips}
-do
         for email_address in `/bin/cat ${HOME}/runtime/authenticator/incoming/authentication-emails.dat`
         do
                 if ( [ ! -f ${HOME}/runtime/authenticator/wire-guard/client/${email_address}/client_public.key ] )
