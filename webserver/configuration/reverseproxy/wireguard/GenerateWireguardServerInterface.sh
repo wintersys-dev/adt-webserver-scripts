@@ -1,0 +1,45 @@
+
+#Don't need to put server file onto the authenticator machine just install it and update it on the current reverse proxy
+#configure wg1 for authenticator 1 ?
+#wg2 for authenticator 2?
+#wg3 for authenticator 3?
+
+export HOME="`/bin/cat /home/homedir.dat`"
+SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
+wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
+
+
+if ( [ ! -f /etc/wireguard/postup.sh ] && [ -f ${HOME}/webserver/configuration/reverseproxy/wire-guard/postup.sh ] )
+then
+        /bin/cp ${HOME}/webserver/configuration/reverseproxy/wire-guard/postup.sh /etc/wireguard
+        /bin/sed -i "s/XXXXWG_PORTXXXX/${wireguard_port}/g" /etc/wireguard/postup.sh
+fi
+
+if ( [ ! -f /etc/wireguard/postdown.sh ]  && [ -f ${HOME}/webserver/configuration/reverseproxy/wire-guard/postdown.sh ] )
+then
+        /bin/cp webserver/configuration/reverseproxy/wire-guard/postdown.sh /etc/wireguard
+        /bin/sed -i "s/XXXXWG_PORTXXXX/${wireguard_port}/g" /etc/wireguard/postdown.sh
+fi
+
+if ( [ ! -f /etc/wireguard/wg0.conf ] )
+then
+        if ( [ ! -f ${HOME}/runtime//wire-guard/${authenticator_ip}/server_private.key ] )
+        then
+                umask 077
+                /usr/bin/wg genkey > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key
+                /bin/chmod 600 ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key
+                /bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key
+
+                server_private_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_private.key`"
+                server_public_key="`/bin/cat ${HOME}/runtime/authenticator/wire-guard/${authenticator_ip}/server_public.key`"
+
+                /bin/echo "[Interface]
+                PrivateKey = ${server_private_key}
+                Address = 10.0.0.1/24
+                MTU = 1380
+                ListenPort = ${wireguard_port}
+                SaveConfig = false
+                PostUp = /etc/wireguard/postup.sh
+                PostDown = /etc/wireguard/postdown.sh" > /etc/wireguard/wg0.conf
+        fi
+fi
