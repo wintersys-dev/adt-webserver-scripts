@@ -199,15 +199,8 @@ then
 elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
-
-        if ( [ "${NO_AUTHENTICATORS}" -gt "1" ] && [ "`/usr/bin/hostname | /bin/grep '^NO-1'`" = "" ] )
-        then
-                ${HOME}/installation/InstallWireguard.sh
-                ${HOME}/installation/InstallQREncode.sh 
-        fi
-
-
-    #    ${HOME}/services/datastore/operations/MountDatastore.sh "wireguard-config" "distributed"
+        ${HOME}/installation/InstallWireguard.sh
+        ${HOME}/installation/InstallQREncode.sh 
 fi
 
 cd ${HOME}
