@@ -165,12 +165,12 @@ then
 	${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh &
 fi
 
+AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
+
 if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
-        NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
         ${HOME}/installation/InstallWireguard.sh
 		${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateWireguardServerInterface.sh
-   #     ${HOME}/installation/InstallQREncode.sh 
 fi
 
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
