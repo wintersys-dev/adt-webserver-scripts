@@ -176,7 +176,7 @@ then
 fi
 
 #Make absoultely certain that we are tied down
-${HOME}/services/security/KnickersUp.sh
+${HOME}/services/security/firewall/KnickersUp.sh
 
 updated_ssh="0"
 if ( [ "`/bin/grep ${VPC_IP_RANGE} /etc/ssh/sshd_config`" = "" ] )
