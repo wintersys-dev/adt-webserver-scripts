@@ -90,7 +90,7 @@ then
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
-        active_bucket="${active_bucket}-${DNS_CHOICE}-wireguard"
+        active_bucket="${active_bucket}-wireguard"
 elif ( [ "${bucket_type}" = "wire-guard-emails" ] )
 then
         if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
@@ -100,7 +100,7 @@ then
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
-        active_bucket="${active_bucket}-${DNS_CHOICE}-wireguardemails"
+        active_bucket="${active_bucket}-wireguardemails"
 fi
 
 
