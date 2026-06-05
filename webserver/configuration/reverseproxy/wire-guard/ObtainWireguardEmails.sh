@@ -6,7 +6,7 @@ fi
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emails" "${HOME}/runtime/wire-guard/emails/incoming"
 
 
-/bin/cat ${HOME}/runtime/wire-guard/emails/authentication-emails* > ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat
+/bin/cat ${HOME}/runtime/wire-guard/emails/incoming/authentication-emails* > ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat
 
 /usr/bin/sort -u ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat | /bin/sed '/^$/d' >  ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat.$$
 /bin/mv ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat.$$ ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat
