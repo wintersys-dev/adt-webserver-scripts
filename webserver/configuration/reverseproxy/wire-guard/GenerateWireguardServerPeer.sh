@@ -45,9 +45,9 @@ then
 
 			# Add peer to server config
 			/bin/echo "[Peer]
-			PublicKey = ${new_client_public_key}
-			AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
-			PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
+	PublicKey = ${new_client_public_key}
+	AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
+	PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
 		fi
 	done
 fi
