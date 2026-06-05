@@ -1,4 +1,16 @@
 
+
+#copy #add authenticator.dat to authenticator.dat.machineip
+#do a unique on authenticator.dat.macineid
+# on the reverse proxy machines get the authenticator.dat.machineid onto each machine
+# aggregate authenticator.dat.* into authenticator.dat
+# make it unique
+#if the directory exists for the email address skip it
+#othwrwise create dirdctory for enail address and generate config file
+#write newly generated client config file to s3
+#on the authenticator generate QR codes and email it to email addresses
+
+
 if ( [ -f /var/www/wire-guard/authentication-emails.dat ] )
 then
   if ( [ "`/bin/grep '@' /var/www/wire-guard/authentication-emails.dat`" != "" ] )
