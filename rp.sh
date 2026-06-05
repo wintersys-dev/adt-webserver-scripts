@@ -165,10 +165,12 @@ then
 	${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh &
 fi
 
-#if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] )
-#then
-#	${HOME}/services/datastore/assets/SetupAssetsRedirection.sh
-#fi
+if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+then
+        NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
+        ${HOME}/installation/InstallWireguard.sh
+   #     ${HOME}/installation/InstallQREncode.sh 
+fi
 
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
 ${HOME}/services/security/SetupFirewall.sh
