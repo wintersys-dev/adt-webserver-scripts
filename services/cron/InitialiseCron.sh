@@ -154,7 +154,7 @@ fi
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/MarkedForShutdown.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/CheckNetworkManagerStatus.sh" >> /var/spool/cron/crontabs/root
 
-/bin/echo "*/5 * * * * export HOME="${HOME}" &&  /bin/sleep 23 && ${HOME}/services/security/MonitorFirewall.sh" >> /var/spool/cron/crontabs/root
+/bin/echo "*/5 * * * * export HOME="${HOME}" &&  /bin/sleep 23 && ${HOME}/services/security/firewall/MonitorFirewall.sh" >> /var/spool/cron/crontabs/root
 
 /bin/echo "*/10 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/MonitorCron.sh" >> /var/spool/cron/crontabs/root
 #On a daily basis, check if the ssl certificate has expired. Once it has expired, we will try and install the new one
