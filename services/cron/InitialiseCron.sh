@@ -127,12 +127,12 @@ then
 			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/services/security/firewall/AllowAuthenticatorIPAddress.sh" >> /var/spool/cron/crontabs/root
 		elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 		then
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/security/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/services/security/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/services/security/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 &&  ${HOME}/services/security/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 &&  ${HOME}/services/security/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 &&  ${HOME}/services/security/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 &&  ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 &&  ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 &&  ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
 		fi
 	fi
 
