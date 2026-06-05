@@ -173,7 +173,7 @@ then
 fi
 
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
-${HOME}/services/security/SetupFirewall.sh
+${HOME}/services/security/firewall/SetupFirewall.sh
 
 cd ${HOME}
 
