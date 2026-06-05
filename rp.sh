@@ -169,6 +169,7 @@ if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
         ${HOME}/installation/InstallWireguard.sh
+		${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateWireguardServerInterface.sh
    #     ${HOME}/installation/InstallQREncode.sh 
 fi
 
