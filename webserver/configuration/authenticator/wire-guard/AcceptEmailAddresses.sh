@@ -23,7 +23,7 @@ then
     fi
     
     /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${rnd}
-    ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed"
+  #  ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed"
     ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${rnd} "" "distributed" "no"
   fi
 fi
