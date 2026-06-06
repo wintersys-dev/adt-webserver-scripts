@@ -13,7 +13,7 @@ fi
 
 if ( [ ! -f /etc/wireguard/postdown.sh ]  && [ -f ${HOME}/webserver/configuration/reverseproxy/wire-guard/postdown.sh ] )
 then
-        /bin/cp webserver/configuration/reverseproxy/wire-guard/postdown.sh /etc/wireguard
+        /bin/cp ${HOME}/webserver/configuration/reverseproxy/wire-guard/postdown.sh /etc/wireguard
         /bin/sed -i "s/XXXXWG_PORTXXXX/${wireguard_port}/g" /etc/wireguard/postdown.sh
         /bin/chmod 750 /etc/wireguard/postdown.sh
 fi
