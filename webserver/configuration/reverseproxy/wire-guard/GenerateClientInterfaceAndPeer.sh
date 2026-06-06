@@ -1,4 +1,7 @@
 
+
+#make client machines 10.1 for reverse proxy 10.2 for reverse proxy 2 and so on
+
 export HOME="`/bin/cat /home/homedir.dat`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
 wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
