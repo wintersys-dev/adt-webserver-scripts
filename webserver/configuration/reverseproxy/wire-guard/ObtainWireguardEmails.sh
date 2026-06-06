@@ -16,6 +16,8 @@ then
   /bin/mkdir -p ${HOME}/runtime/wire-guard/emails/processing
 fi
 
+/bin/touch ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat
+
 if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat ] )
 then
     /bin/grep -vf ${HOME}/runtime/wire-guard/emails/incoming/all_authentication-emails.dat ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat > ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat 
