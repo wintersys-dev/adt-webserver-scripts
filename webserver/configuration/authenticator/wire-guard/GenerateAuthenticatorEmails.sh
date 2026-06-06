@@ -20,6 +20,16 @@
 #######################################################################################################
 #set -x
 
+# Send emails ten seconds apart on each authrnticator
+# or 60 divided by number of authenticators seconds apart
+# when the email is sent write the email address to a processed
+#file in the darsstore and get tge processed file each time
+#and if the enail address is in the processed list ignore it
+#put send email into when the server interface is generated
+# to tell the user that a new setup is online
+
+
+
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
         /bin/mkdir ${HOME}/runtime/authenticator
