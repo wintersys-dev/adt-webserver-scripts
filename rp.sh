@@ -170,7 +170,7 @@ AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICAT
 if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         ${HOME}/installation/InstallWireguard.sh
-		${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateWireguardServerInterface.sh
+		${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerInterface.sh
 fi
 
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
