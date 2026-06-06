@@ -47,7 +47,7 @@ then
                         PrivateKey = ${client_private_key}
                         Address = 10.${sixteen}.${twenty_four}.${thirty_two}/32
                         MTU = 1380
-                        DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
+                        DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client.conf
 
                         index="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
 
@@ -56,7 +56,7 @@ then
                         PresharedKey = ${preshared_key}
                         Endpoint = ${endpoint}:${wireguard_port}
                         AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
-                        PersistentKeepalive = 25" | /usr/bin/tee -a ${HOME}/runtime/wire-guard/client/${email_address}/client.conf >> ${HOME}/runtime/wire-guard/client/${email_address}/client_peer.conf.${index}
+                        PersistentKeepalive = 25" | /usr/bin/tee -a ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client.conf >> ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf.${index}
                         #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
                 fi
                 #Write the QR code to the wireguard datastore and download it to the webroot of the authenticator and then send an email from this machine
@@ -65,7 +65,7 @@ then
         
         if ( [ "${processing_new_email}" = "1" ] )
         then
-                ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/client/${endpoint}" "distributed"
+                ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/client/" "distributed"
         fi
 fi
 
