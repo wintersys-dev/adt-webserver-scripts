@@ -65,7 +65,7 @@ then
         
         if ( [ "${processing_new_email}" = "1" ] )
         then
-                ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/client" "distributed"
+                ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/client/${endpoint}" "distributed"
         fi
 fi
 
