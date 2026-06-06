@@ -201,6 +201,7 @@ then
         NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
         ${HOME}/installation/InstallWireguard.sh
         ${HOME}/installation/InstallQREncode.sh 
+        ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed"
 fi
 
 cd ${HOME}
