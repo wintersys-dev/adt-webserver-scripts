@@ -11,6 +11,8 @@ then
 
   #Sync the client configs to the datastore and process them on the authenticator
 
+    ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh
+
   done
 
   /bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat >> ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
