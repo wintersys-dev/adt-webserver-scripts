@@ -9,8 +9,10 @@ endpoint="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
 if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ] )
 then
+        processing_new_email="0"
         for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
         do
+                processing_new_email="1"
                 if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/client.conf ] )
                 then
                         if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key ] )
@@ -60,5 +62,10 @@ then
                 #Write the QR code to the wireguard datastore and download it to the webroot of the authenticator and then send an email from this machine
                 #with a link to the QR code on the webroot of the authenticator
         done
+        
+        if ( [ "${processing_new_email}" = "1" ] )
+        then
+                ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
+        fi
 fi
 
