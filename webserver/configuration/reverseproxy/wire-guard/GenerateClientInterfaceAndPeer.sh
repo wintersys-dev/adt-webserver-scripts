@@ -1,4 +1,3 @@
-
 #make client machines 10.1 for reverse proxy 10.2 for reverse proxy 2 and so on
 
 export HOME="`/bin/cat /home/homedir.dat`"
@@ -24,14 +23,14 @@ then
                 if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf.${index} ] )
                 then
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key.${index} ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key.${index} ] )
                         then
-                                client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key.${index}`"
+                                client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key.${index}`"
                         fi
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/CLIENT_NO ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO ] )
                         then
-                                client_no="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/CLIENT_NO`"
+                                client_no="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO`"
                         fi
 
                         if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key.${index} ] )
@@ -39,9 +38,9 @@ then
                                 server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
                         fi
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key.${index} ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key.${index} ] )
                         then
-                                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key.${index}`"
+                                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key.${index}`"
                         fi
 
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
