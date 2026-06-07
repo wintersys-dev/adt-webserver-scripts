@@ -38,7 +38,8 @@ then
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
                         iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
                         thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
-                        sixteen="`/usr/bin/expr ${twenty_four} / 255`"
+                     #   sixteen="`/usr/bin/expr ${twenty_four} / 255`"
+                        sixteen="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
                         iteration2="`/usr/bin/expr ${sixteen} \* 255`"
                         twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
