@@ -15,16 +15,19 @@ then
 				/bin/mkdir -p ${HOME}/runtime/wire-guard/client/${email_address}
 			fi
 
+			index="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
+
 			if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key ] )
 			then
 				umask 077
-				/usr/bin/wg genkey > ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key
-				/bin/cat ${HOME}/runtime/wire-guard//client/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/wire-guard/client/${email_address}/client_public.key
+				/usr/bin/wg genkey > ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key.${index}
+				/bin/cat ${HOME}/runtime/wire-guard//client/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/wire-guard/client/${email_address}/client_public.key.${index}
 			fi
+
                 
 			# Get the keys and server info
-			new_client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key`"
-			new_client_public_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_public.key`"
+			new_client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key.${index}`"
+			new_client_public_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_public.key.${index}`"
 			server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
 
 			if ( [ -f /etc/wireguard/wg0.conf ] )
@@ -41,12 +44,12 @@ then
 			iteration2="`/usr/bin/expr ${sixteen} \* 255`"
 			twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
-			if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key ] )
+			if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key.${index} ] )
 			then
-				/usr/bin/wg genpsk > ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key
+				/usr/bin/wg genpsk > ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key.${index}
 			fi
                 
-			preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key`"
+			preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key.${index}`"
 
 			# Add peer to server config
 			/bin/echo "[Peer]
