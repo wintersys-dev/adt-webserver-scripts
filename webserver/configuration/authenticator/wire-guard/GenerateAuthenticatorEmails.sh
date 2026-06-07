@@ -20,6 +20,7 @@
 #######################################################################################################
 #set -x
 
+
 # Send emails ten seconds apart on each authrnticator
 # or 60 divided by number of authenticators seconds apart
 # when the email is sent write the email address to a processed
@@ -27,6 +28,11 @@
 #and if the enail address is in the processed list ignore it
 #put send email into when the server interface is generated
 # to tell the user that a new setup is online
+# Sync datastore client/* to the correct directory and check for each indexed file being there up to NO_REVERSE_PROXIES
+# When all the indexed files are there, generate the config and QR files for each index and send the email with a link
+# to each QR code and config file and say "please scan each of these QR codes into your wireguard app"
+# Then test with each of IP addresses, update the BuildReverseProxy to setup the reverse proxy IP addresses for
+# each reverse proxy in the wireguard network, for example, 10.0.0.1
 
 
 
