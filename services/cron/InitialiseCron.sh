@@ -155,6 +155,33 @@ then
 			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
 			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
 			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 55 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
+		
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 5 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 15 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 25 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 35 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 55 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
+
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 5 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 15 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 25 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 35 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 55 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
+			
 		fi
 	fi
 
