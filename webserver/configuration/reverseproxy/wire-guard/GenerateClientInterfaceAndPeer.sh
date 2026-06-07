@@ -54,7 +54,7 @@ then
                         PublicKey = ${server_public_key}
                         PresharedKey = ${preshared_key}
                         Endpoint = ${endpoint}:${wireguard_port}
-                        AllowedIPs =  10.${sixteen}.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
+                        AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
                         PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
                         #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
                 fi
