@@ -7,6 +7,8 @@ wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
 endpoint="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
+index="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
+
 if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ] )
 then
         processing_new_email="0"
@@ -15,9 +17,9 @@ then
                 processing_new_email="1"
                 if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/client.conf ] )
                 then
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key.${index} ] )
                         then
-                                client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key`"
+                                client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key.${index}`"
                         fi
 
                         if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/CLIENT_NO ] )
@@ -25,14 +27,14 @@ then
                                 client_no="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/CLIENT_NO`"
                         fi
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key.${index} ] )
                         then
-                                server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
+                                server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key.${index}`"
                         fi
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key.${index} ] )
                         then
-                                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key`"
+                                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key.${index}`"
                         fi
 
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
