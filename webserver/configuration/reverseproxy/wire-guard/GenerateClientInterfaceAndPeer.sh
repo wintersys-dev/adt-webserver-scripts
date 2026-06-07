@@ -6,8 +6,6 @@ wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
 endpoint="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
-index="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
-
 if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ] )
 then
         processing_new_email="0"
@@ -20,12 +18,12 @@ then
                         /bin/mkdir -p ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}
                 fi
 
-                if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf.${index} ] )
+                if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf ] )
                 then
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key.${index} ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key ] )
                         then
-                                client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key.${index}`"
+                                client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key`"
                         fi
 
                         if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO ] )
@@ -33,14 +31,14 @@ then
                                 client_no="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO`"
                         fi
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key.${index} ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key ] )
                         then
                                 server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
                         fi
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key.${index} ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key ] )
                         then
-                                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key.${index}`"
+                                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key`"
                         fi
 
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
@@ -56,14 +54,14 @@ then
                         PrivateKey = ${client_private_key}
                         Address = 10.${sixteen}.${twenty_four}.${thirty_two}/32
                         MTU = 1380
-                        DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf.${index}
+                        DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf
 
                         /bin/echo "[Peer]
                         PublicKey = ${server_public_key}
                         PresharedKey = ${preshared_key}
                         Endpoint = ${endpoint}:${wireguard_port}
                         AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
-                        PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf.${index}
+                        PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
                         #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
                 fi
                 #Write the QR code to the wireguard datastore and download it to the webroot of the authenticator and then send an email from this machine
