@@ -31,7 +31,6 @@ then
 			then
 				client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
 				client_no="`/usr/bin/expr ${client_no} + 10`"
-				/bin/echo ${client_no} > ${HOME}/runtime/wire-guard/client/${email_address}/CLIENT_NO
 			fi
 
 			twenty_four="`/usr/bin/expr ${client_no} / 255`"
