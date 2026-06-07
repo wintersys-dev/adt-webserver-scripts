@@ -15,8 +15,15 @@ then
         for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
         do
                 processing_new_email="1"
-                if ( [ ! -f ${HOME}/runtime/wire-guard/client/${email_address}/client.conf ] )
+
+                if ( [ ! -d ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address} ] )
                 then
+                        /bin/mkdir -p ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}
+                fi
+
+                if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf.${index} ] )
+                then
+
                         if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key.${index} ] )
                         then
                                 client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${email_address}/client_private.key.${index}`"
@@ -29,7 +36,7 @@ then
 
                         if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key.${index} ] )
                         then
-                                server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key.${index}`"
+                                server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
                         fi
 
                         if ( [ -f ${HOME}/runtime/wire-guard/client/${email_address}/preshared.key.${index} ] )
@@ -40,9 +47,9 @@ then
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
                         iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
                         thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
-                     #   sixteen="`/usr/bin/expr ${twenty_four} / 255`"
+                        sixteen1="`/usr/bin/expr ${twenty_four} / 255`"
                         sixteen="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
-                        iteration2="`/usr/bin/expr ${sixteen} \* 255`"
+                        iteration2="`/usr/bin/expr ${sixteen1} \* 255`"
                         twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
                         # Create client config
@@ -63,7 +70,7 @@ then
                 #Write the QR code to the wireguard datastore and download it to the webroot of the authenticator and then send an email from this machine
                 #with a link to the QR code on the webroot of the authenticator
         done
-        
+
         if ( [ "${processing_new_email}" = "1" ] )
         then
                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/client/" "distributed"
