@@ -26,11 +26,6 @@ then
                                 client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key`"
                         fi
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO ] )
-                        then
-                                client_no="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO`"
-                        fi
-
                         if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key ] )
                         then
                                 server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
