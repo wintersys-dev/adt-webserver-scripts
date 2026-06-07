@@ -28,10 +28,11 @@ then
 			server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
 
 			if ( [ -f /etc/wireguard/wg0.conf ] )
-			then
-				client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
-				client_no="`/usr/bin/expr ${client_no} + 10`"
-			fi
+            then
+            	client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
+            	client_no="`/usr/bin/expr ${client_no} + 10`"
+        		/bin/echo ${client_no} > ${HOME}/runtime/wire-guard/client/${email_address}/CLIENT_NO
+            fi
 
 			twenty_four="`/usr/bin/expr ${client_no} / 255`"
 			iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
