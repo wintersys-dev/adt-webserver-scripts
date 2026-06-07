@@ -71,10 +71,8 @@ then
         if ( [ "`/bin/echo ${file_to_delete} | /bin/grep 'delete-all$'`" != "" ] )
         then
                 file_to_delete="`/bin/echo ${file_to_delete} | /bin/sed 's/delete-all//g'`"
-        else
-                datastore_cmd="${datastore_tool} --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} ${include} delete s3:"
-        fi
-
+        fi                
+        datastore_cmd="${datastore_tool} --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} ${include} delete s3:"
 fi
 
 eval ${datastore_cmd}${file_to_delete} ${recursive}
