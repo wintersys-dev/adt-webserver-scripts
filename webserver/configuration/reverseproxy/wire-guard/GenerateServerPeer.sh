@@ -3,33 +3,30 @@ then
         /bin/mkdir -p ${HOME}/runtime/wire-guard/emails/processing
 fi
 
-index="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
 endpoint="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
 if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ] )
 then
         for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
         do
-                if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key.${index} ] )
+                if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key} ] )
                 then
                         if ( [ ! -d ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address} ] )
                         then
                                 /bin/mkdir -p ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}
                         fi
 
-                        index="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
-
-                        if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key.${index} ] )
+                        if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key ] )
                         then
                                 umask 077
-                                /usr/bin/wg genkey > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key.${index}
-                                /bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key.${index}
+                                /usr/bin/wg genkey > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key
+                                /bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key | /usr/bin/wg pubkey > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key
                         fi
 
 
                         # Get the keys and server info
-                        new_client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key.${index}`"
-                        new_client_public_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key.${index}`"
+                        new_client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key`"
+                        new_client_public_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key`"
                         server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
 
                         if ( [ -f /etc/wireguard/wg0.conf ] )
@@ -46,12 +43,12 @@ then
                         iteration2="`/usr/bin/expr ${sixteen} \* 255`"
                         twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
-                        if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key.${index} ] )
+                        if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key ] )
                         then
-                                /usr/bin/wg genpsk > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key.${index}
+                                /usr/bin/wg genpsk > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key
                         fi
 
-                        preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key.${index}`"
+                        preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key`"
 
                         # Add peer to server config
                         /bin/echo "[Peer]
