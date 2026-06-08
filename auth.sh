@@ -202,6 +202,10 @@ then
         ${HOME}/installation/InstallWireguard.sh
         ${HOME}/installation/InstallQREncode.sh 
         ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed"
+        if ( [ "`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`" = "1" ] )
+        then
+                /bin/touch ${HOME}/runtime/wire-guard/SEND_NOTIFICATION_EMAIL
+        fi
         #Send email to each email in the wire-guard-emails datastore to say that the servers have changed and then delete the emails as below
       #  ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails" "delete-all" "local"
 fi
