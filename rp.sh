@@ -173,6 +173,10 @@ then
 	${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerInterface.sh
 	${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard"  "delete-all" "local"
 	#${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
+	if ( [ "`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`" = "1" ] )
+	then
+		/bin/touch ${HOME}/runtime/wire-guard/SEND_NOTIFICATION_EMAIL
+    fi
 fi
 
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
