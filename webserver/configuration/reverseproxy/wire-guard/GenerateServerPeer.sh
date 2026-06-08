@@ -20,7 +20,7 @@ then
                 
                         message="The wireguard server IP addresses have changed at our end you will need to reconfigure your wireguard app by going to ${WEBSITE_URL} and replacing your previous wireguard client profile with a new one" 
                         message="${message} This happens when a redeployment of our servers is actioned."
-                        ${HOME}/services/email/SendEmail.sh "WIREGUARD SERVER ALTERATION" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
+                        ${HOME}/services/email/SendEmail.sh "WIREGUARD SERVER ALTERATION" "${message}" MANDATORY ${email_address} "HTML"
                 fi
                 
                 if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key} ] )
