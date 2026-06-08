@@ -36,10 +36,12 @@ then
                                 server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
                         fi
 
-                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key ] )
+                        if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key ] )
                         then
-                                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key`"
+                                /usr/bin/wg genpsk > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key
                         fi
+
+                        preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key`"
 
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
                         iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
