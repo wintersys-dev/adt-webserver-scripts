@@ -1,5 +1,10 @@
 #set -x
 
+if ( [ ! -f ${HOME}/runtime/REVERSEPROXY_READY ] )
+then
+        exit
+fi
+
 if ( [ ! -d ${HOME}/runtime/wire-guard/emails/processing ] )
 then
         /bin/mkdir -p ${HOME}/runtime/wire-guard/emails/processing
