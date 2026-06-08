@@ -12,11 +12,11 @@ if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication
 then
         for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
         do
-                if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SEND_NOTIFICATION_EMAIL"`" = "" ] )
+                if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" = "" ] )
                 then
-                        /bin/touch ${HOME}/runtime/wire-guard/SEND_NOTIFICATION_EMAIL
-                        ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SEND_NOTIFICATION_EMAIL "" "distributed" "no"
-                        /bin/rm ${HOME}/runtime/wire-guard/SEND_NOTIFICATION_EMAIL
+                        /bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
+                        ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL "" "distributed" "no"
+                        /bin/rm ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
                 
                         message="The wireguard server IP addresses have changed at our end you will need to reconfigure your wireguard app by going to ${WEBSITE_URL} and replacing your previous wireguard client profile with a new one" 
                         message="${message} This happens when a redeployment of our servers is actioned."
