@@ -1,4 +1,4 @@
-set -x
+#set -x
 
 if ( [ ! -d ${HOME}/runtime/wire-guard/emails/processing ] )
 then
@@ -56,8 +56,8 @@ then
                         AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
                         PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
                 fi
-                /bin/sed "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat
                 /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
         done
+        /bin/mv ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
 fi
               
