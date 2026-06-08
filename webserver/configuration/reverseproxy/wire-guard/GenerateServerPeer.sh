@@ -70,6 +70,6 @@ then
                 fi
                 /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
         done
-        /bin/mv ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
+        /bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat >> ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
 fi
               
