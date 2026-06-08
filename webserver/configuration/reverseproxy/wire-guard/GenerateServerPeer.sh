@@ -33,7 +33,6 @@ then
                         /bin/touch /etc/wireguard/wg0.conf
                         client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
                         client_no="`/usr/bin/expr ${client_no} + 10`"
-                        /bin/echo ${client_no} > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO
 
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
                         iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
