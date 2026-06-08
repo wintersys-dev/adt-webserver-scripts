@@ -1,5 +1,13 @@
 set -x
 
+export HOME="`/bin/cat /home/homedir.dat`"
+
+
+if ( [ ! -f ${HOME}/runtime/REVERSEPROXY_READY ] )
+then
+        exit
+fi
+
 if ( [ ! -d ${HOME}/logs/wire-guard ] )
 then
         /bin/mkdir -p ${HOME}/logs/wire-guard
@@ -8,7 +16,6 @@ fi
 exec 1>>${HOME}/logs/wire-guard/client-peers.out
 exec 2>>${HOME}/logs/wire-guard/client-peers.err
 
-export HOME="`/bin/cat /home/homedir.dat`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
 wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
