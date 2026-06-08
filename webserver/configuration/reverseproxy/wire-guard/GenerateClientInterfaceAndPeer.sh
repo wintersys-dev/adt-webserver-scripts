@@ -9,7 +9,7 @@ then
         processing_new_email="0"
         for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
         do
-                if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat.servers ] && [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat.servers`" != "" ] )
+                if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat ] && [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat`" != "" ] )
                 then
                         processing_new_email="1"
 
@@ -64,17 +64,17 @@ then
 
                                 # Create client config
                                 /bin/echo "[Interface]
-        PrivateKey = ${client_private_key}
-        Address = 10.${sixteen}.${twenty_four}.${thirty_two}/32
-        MTU = 1380
-        DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf
+                                PrivateKey = ${client_private_key}
+                                Address = 10.${sixteen}.${twenty_four}.${thirty_two}/32
+                                MTU = 1380
+                                DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf
 
                                 /bin/echo "[Peer]
-        PublicKey = ${server_public_key}
-        PresharedKey = ${preshared_key}
-        Endpoint = ${endpoint}:${wireguard_port}
-        AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
-        PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
+                                PublicKey = ${server_public_key}
+                                PresharedKey = ${preshared_key}
+                                Endpoint = ${endpoint}:${wireguard_port}
+                                AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
+                                PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
                                 #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
                         fi
                 fi
