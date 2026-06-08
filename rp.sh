@@ -173,7 +173,7 @@ then
 	${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerInterface.sh
 	${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard"  "delete-all" "local"
 	#${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
-	if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" = "" ] )
+	if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" != "" ] )
 	then
         ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL" "local"
 	fi
