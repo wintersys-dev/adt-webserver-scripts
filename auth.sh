@@ -202,7 +202,7 @@ then
         ${HOME}/installation/InstallWireguard.sh
         ${HOME}/installation/InstallQREncode.sh 
         ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed"
-        ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails" "delete-all" "local"
+      #  ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails" "delete-all" "local"
 fi
 
 cd ${HOME}
