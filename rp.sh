@@ -172,7 +172,7 @@ then
 	${HOME}/installation/InstallWireguard.sh
 	${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerInterface.sh
 	${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard"  "delete-all" "local"
-	${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
+	#${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
 fi
 
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
