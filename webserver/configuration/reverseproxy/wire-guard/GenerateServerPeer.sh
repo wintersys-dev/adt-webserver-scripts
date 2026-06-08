@@ -7,7 +7,7 @@ endpoint="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
 if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ] )
 then
-        for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.`
+        for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
         do
                 if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key} ] )
                 then
