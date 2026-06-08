@@ -6,6 +6,7 @@ then
 fi
 
 endpoint="`${HOME}/utilities/processing/GetPublicIP.sh`"
+WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
 
 if ( [ -f ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat ] )
 then
@@ -13,8 +14,11 @@ then
         do
                 if ( [ -f ${HOME}/runtime/wire-guard/SEND_NOTIFICATION_EMAIL ] )
                 then
-:
+                        message="The wireguard server IP addresses have changed at our end you will need to reconfigure your wireguard app by going to ${WEBSITE_URL} and replacing your previous wireguard client profile with a new one" 
+                        message="This happens when a redeployment of our servers is actioned."
+                        ${HOME}/services/email/SendEmail.sh "WIREGUARD SERVER ALTERATION" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
                 fi
+                
                 if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key} ] )
                 then
                         if ( [ ! -d ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address} ] )
