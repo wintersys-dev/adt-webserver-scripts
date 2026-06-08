@@ -67,8 +67,8 @@ then
                         PublicKey = ${new_client_public_key}
                         AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
                         PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
+                        /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
                 fi
-                /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
         done
         /bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat >> ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
 fi
