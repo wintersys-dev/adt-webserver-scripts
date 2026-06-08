@@ -74,6 +74,6 @@ then
                         fi
                 fi
         done
-        /bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat >> ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
+        /bin/cat ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat >> ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
 fi
               
