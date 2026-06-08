@@ -21,6 +21,11 @@ then
                 if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf ] )
                 then
 
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO ] )
+                        then
+                                client_no="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO`"
+                        fi
+
                         if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key ] )
                         then
                                 client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key`"
