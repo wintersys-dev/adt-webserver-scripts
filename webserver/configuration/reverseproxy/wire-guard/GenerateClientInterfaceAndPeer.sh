@@ -80,6 +80,7 @@ then
                 fi
                 #Write the QR code to the wireguard datastore and download it to the webroot of the authenticator and then send an email from this machine
                 #with a link to the QR code on the webroot of the authenticator
+                /bin/sed "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
         done
 
         if ( [ "${processing_new_email}" = "1" ] )
