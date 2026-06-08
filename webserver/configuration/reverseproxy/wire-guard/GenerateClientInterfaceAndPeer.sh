@@ -11,7 +11,7 @@ then
         processing_new_email="0"
         for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client`
         do
-                /bin/sed "s/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
+                /bin/sed -i "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
                 processing_new_email="1"
 
                 if ( [ ! -d ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address} ] )
