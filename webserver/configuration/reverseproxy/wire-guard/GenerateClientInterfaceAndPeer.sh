@@ -26,9 +26,19 @@ then
                                 client_no="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_NO`"
                         fi
 
+                        if ( [ "${client_no}" = "" ] )
+                        then
+                                exit
+                        fi
+
                         if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key ] )
                         then
                                 client_private_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key`"
+                        fi
+
+                        if ( [ "${client_private_key}" = "" ] )
+                        then
+                                exit
                         fi
 
                         if ( [ -f ${HOME}/runtime/wire-guard/server/server_public.key ] )
@@ -36,13 +46,21 @@ then
                                 server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
                         fi
 
-                        if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key ] )
+                        if ( [ "${server_public_key}" = "" ] )
                         then
-                                /usr/bin/wg genpsk > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key
+                                exit
+                        fi
+                        
+                        if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key ] )
+                        then
+                                preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key`"
                         fi
 
-                        preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key`"
-
+                        if ( [ "${preshared_key}" = "" ] )
+                        then
+                                exit
+                        fi
+                        
                         twenty_four="`/usr/bin/expr ${client_no} / 255`"
                         iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
                         thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
