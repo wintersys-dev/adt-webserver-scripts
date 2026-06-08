@@ -1,4 +1,12 @@
-#set -x
+set -x
+
+if ( [ ! -d ${HOME}/logs/wire-guard ] )
+then
+        /bin/mkdir -p ${HOME}/logs/wire-guard
+fi
+
+exec 1>>${HOME}/logs/wire-guard/client-peers.out
+exec 2>>${HOME}/logs/wire-guard/client-peers.err
 
 export HOME="`/bin/cat /home/homedir.dat`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
@@ -75,7 +83,7 @@ then
                         Endpoint = ${endpoint}:${wireguard_port}
                         AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
                         PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
-                        /bin/sed "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
+                        /bin/sed -i "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
                         #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
                 fi
                 #Write the QR code to the wireguard datastore and download it to the webroot of the authenticator and then send an email from this machine
