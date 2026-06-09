@@ -21,6 +21,16 @@ do
         email_addresses="`/bin/ls ${HOME}/runtime/wire-guard/configs/${ip}`"
         for email_address in ${email_addresses}
         do
+        ##################ONLY HERE FOR TESTING###################
+                if ( [ -f /home/XulGaUdwQiPEGH35yz4X/runtime/wire-guard/configs/${ip}/webmaster@nuocial.uk/client.conf ] )
+                then
+                        rm /home/XulGaUdwQiPEGH35yz4X/runtime/wire-guard/configs/${ip}/webmaster@nuocial.uk/client.conf
+                fi
+                if ( [ -f /home/XulGaUdwQiPEGH35yz4X/runtime/wire-guard/configs/${ip}/webmaster@nuocial.uk/qrcode.png ] )
+                then
+                        rm /home/XulGaUdwQiPEGH35yz4X/runtime/wire-guard/configs/${ip}/webmaster@nuocial.uk/qrcode.png
+                fi
+        ##################ONLY HERE FOR TESTING###################
                 if ( [ ! -f  ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
                 then
                         /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client_interface.conf ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf 
