@@ -37,9 +37,9 @@ do
         for email_address in ${email_addresses}
         do
                 file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-                full_file_name="/var/www/html/qrcode-${file_name}-`/bin/echo ${ip} | /bin/sed 's;.;-;'`-${email_address}.png"
+                full_file_name="/var/www/html/qrcode-${file_name}-${ip}-${email_address}.png"
                 /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
-                full_file_name_html="/var/www/html/client-${file_name}-`/bin/echo ${ip} | /bin/sed 's;.;-;'`-${email_address}.html"
+                full_file_name_html="/var/www/html/client-${file_name}-${ip}-${email_address}.html"
                 /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
                 /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf" -e 'd}' ${full_file_name_html}
 
