@@ -57,8 +57,8 @@ do
                 /bin/chown www-data:www-data /var/www/html/*
                 qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
                 client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
-                /bin/echo "${qrcode_url}" >> ${HOME}/runtime/wire-guard/qrcodes
-                /bin/echo "${client_url}" >> ${HOME}/runtime/wire-guard/clientconfig
+                /bin/echo "${email_address}:${qrcode_url}" >> ${HOME}/runtime/wire-guard/qrcodes
+                /bin/echo "${email_address}:${client_url}" >> ${HOME}/runtime/wire-guard/clientconfig
                 message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  </br> </body> </html>"
                # ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
                 /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/CANDIDATE_QR_CODE
