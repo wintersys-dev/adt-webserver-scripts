@@ -71,6 +71,8 @@ then
                         PublicKey = ${new_client_public_key}
                         AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/16
                         PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
+
+                        /bin/touch ${HOME}/runtime/wire-guard/WG_RELOAD
                         
                         if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat`" = "" ] )
                         then
@@ -78,6 +80,14 @@ then
                         fi
                 fi
         done
+        
+        if ( [ -f ${HOME}/runtime/wire-guard/WG_RELOAD ] )
+        then
+                /usr/bin/wg-quick down wg0
+                /usr/bin/wg-quick up wg0
+                /bin/rm ${HOME}/runtime/wire-guard/WG_RELOAD
+        fi
+        
         /bin/cat ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat >> ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
 fi
               
