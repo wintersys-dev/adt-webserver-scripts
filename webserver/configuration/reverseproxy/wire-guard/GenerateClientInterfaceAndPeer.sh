@@ -84,11 +84,17 @@ then
                         MTU = 1380
                         DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf
 
+                     #   /bin/echo "[Peer]
+                     #   PublicKey = ${server_public_key}
+                     #   PresharedKey = ${preshared_key}
+                     #   Endpoint = ${endpoint}:${wireguard_port}
+                     #   AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
+                     #   PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
                         /bin/echo "[Peer]
                         PublicKey = ${server_public_key}
                         PresharedKey = ${preshared_key}
                         Endpoint = ${endpoint}:${wireguard_port}
-                        AllowedIPs =  10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32,10.0.0.0/8
+                        AllowedIPs =  10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.0/32
                         PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
                         /bin/sed -i "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
                         #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
