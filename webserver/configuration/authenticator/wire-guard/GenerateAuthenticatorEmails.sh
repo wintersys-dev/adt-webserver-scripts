@@ -10,6 +10,9 @@ fi
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
+/usr/bin/find /var/www/html -mmin +5 -name "*qrcode*" -type f -exec rm -fv {} \;
+/usr/bin/find /var/www/html -mmin +5 -name "*client*" -type f -exec rm -fv {} \;
+
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
