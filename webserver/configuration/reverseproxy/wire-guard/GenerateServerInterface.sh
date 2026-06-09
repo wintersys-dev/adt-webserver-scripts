@@ -2,6 +2,7 @@
 
 export HOME="`/bin/cat /home/homedir.dat`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
+WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
 wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
 
 if ( [ ! -f /etc/wireguard/postup.sh ] && [ -f ${HOME}/webserver/configuration/reverseproxy/wire-guard/postup.sh ] )
