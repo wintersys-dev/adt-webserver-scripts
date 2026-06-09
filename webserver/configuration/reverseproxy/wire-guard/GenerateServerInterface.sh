@@ -65,7 +65,7 @@ then
         for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
         do
                 message="The wireguard server IP addresses have changed at our end you will need to reconfigure your wireguard app by going to ${WEBSITE_URL} and replacing your previous wireguard client profile with a new one" 
-                message="${message}. You should receive ${NO_REVERSE_PROXIES) emails please reconfigure your wireguard app with each new QR code, replacing the old ones. This happens when a redeployment of our servers is actioned."
+                message="${message}. You should receive ${NO_REVERSE_PROXIES} emails please reconfigure your wireguard app with each new QR code, replacing the old ones. This happens when a redeployment of our servers is actioned."
                 ${HOME}/services/email/SendEmail.sh "WIREGUARD SERVER ALTERATION" "${message}" "MANDATORY" "${email_address}" "HTML"
         done
 fi
