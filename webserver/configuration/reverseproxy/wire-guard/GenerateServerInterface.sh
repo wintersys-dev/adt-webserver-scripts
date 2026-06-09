@@ -38,7 +38,7 @@ then
 
                 /bin/echo "[Interface]
                 PrivateKey = ${server_private_key}
-                Address = 10.0.0.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`/32 #Might this need to be 24?
+                Address = 10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.0/32 
                 MTU = 1380
                 ListenPort = ${wireguard_port}
                 SaveConfig = false
