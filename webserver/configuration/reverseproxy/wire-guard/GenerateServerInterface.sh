@@ -51,6 +51,7 @@ then
 fi
 
 /bin/sleep `/usr/bin/shuf -i 1-100 -n 1`
+${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh
 
 if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" = "" ] )
 then
