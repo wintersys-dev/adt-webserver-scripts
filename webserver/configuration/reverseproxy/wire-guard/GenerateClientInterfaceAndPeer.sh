@@ -37,7 +37,6 @@ then
                 then
                         /bin/touch /etc/wireguard/wg0.conf
                         client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
-                        client_no="`/usr/bin/expr ${client_no} + 10`"
 
                         if ( [ -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_private.key ] )
                         then
