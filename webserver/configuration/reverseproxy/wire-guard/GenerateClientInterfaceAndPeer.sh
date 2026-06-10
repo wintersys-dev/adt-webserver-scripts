@@ -78,9 +78,15 @@ then
                         twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
                         # Create client config
+                  #      /bin/echo "[Interface]
+                  #      PrivateKey = ${client_private_key}
+                  #      Address = 10.${sixteen}.${twenty_four}.${thirty_two}/32
+                  #      MTU = 1380
+                  #      DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf
+                  
                         /bin/echo "[Interface]
                         PrivateKey = ${client_private_key}
-                        Address = 10.${sixteen}.${twenty_four}.${thirty_two}/32
+                        Address = 10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.${client_no}/32
                         MTU = 1380
                         DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf
 
