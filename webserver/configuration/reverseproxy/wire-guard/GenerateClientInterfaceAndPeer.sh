@@ -94,14 +94,8 @@ then
                         PublicKey = ${server_public_key}
                         PresharedKey = ${preshared_key}
                         Endpoint = ${endpoint}:${wireguard_port}
-                        AllowedIPs =  10.0.0.0/8
+                        AllowedIPs =  10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.${client_no}/32,10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.0/16
                         PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
-                 #       /bin/echo "[Peer]
-                  #      PublicKey = ${server_public_key}
-                   #     PresharedKey = ${preshared_key}
-                    #    Endpoint = ${endpoint}:${wireguard_port}
-                     #   AllowedIPs =  10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.${client_no}/32,10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.0/16
-                      #  PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
                         /bin/sed -i "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
                         #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
                 fi
