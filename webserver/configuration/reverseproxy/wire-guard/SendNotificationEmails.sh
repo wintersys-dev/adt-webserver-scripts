@@ -1,8 +1,11 @@
 /bin/sleep `/usr/bin/shuf -i 1-60 -n 1`
 
-if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" != "" ] )
+if ( [ -f ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL ] || [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" != "" ] )
 then
         exit
+else
+        /bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
+        ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL "" "distributed" "no"
 fi
 
 if ( [ ! -d ${HOME}/runtime/wire-guard/emails/notifications ] )
@@ -13,8 +16,6 @@ fi
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emails" "${HOME}/runtime/wire-guard/emails/notifications"
 
 NO_REVESE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
-/bin/touch ${HOME}/runtime/wire-guard/SENDING_NOTIFICATION_EMAIL
-${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SENDING_NOTIFICATION_EMAIL "" "distributed" "no"
 
 /bin/cat ${HOME}/runtime/wire-guard/emails/notifications/authentication-emails* > ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat
 /usr/bin/sort -u ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat | /bin/sed '/^$/d' >  ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat.$$
@@ -31,9 +32,4 @@ done
 /bin/rm -r ${HOME}/runtime/wire-guard/emails/notifications
 /bin/sleep 60
 ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
-/bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
-${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL "" "distributed" "no"
-${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "SENDING_NOTIFICATION_EMAIL" "local"
-/bin/rm ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
-/bin/rm ${HOME}/runtime/wire-guard/SENDING_NOTIFICATION_EMAIL
 
