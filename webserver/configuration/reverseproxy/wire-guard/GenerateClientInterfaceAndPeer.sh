@@ -88,7 +88,7 @@ then
                         PublicKey = ${server_public_key}
                         PresharedKey = ${preshared_key}
                         Endpoint = ${endpoint}:${wireguard_port}
-                        AllowedIPs =  10.${sixteen}.${twenty_four}.${thirty_two}/32,10.0.0.0/8
+                        AllowedIPs =  10.0.0.0/8
                         PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
                  #       /bin/echo "[Peer]
                   #      PublicKey = ${server_public_key}
