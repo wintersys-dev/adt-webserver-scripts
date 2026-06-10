@@ -67,6 +67,8 @@ if ( [ ! -x /usr/bin/wg ] && [ "${count}" = "5" ] )
 then
         ${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR wireguard" "I believe that wireguard hasn't installed correctly, please investigate" "ERROR"
 else
+        /bin/echo "net.ipv4.ip_forward=1" > /etc/sysctl.conf
+        /usr/sbin/sysctl -p
         ${HOME}/utilities/processing/RunServiceCommand.sh "wg-quick@wg0.service" "enable"
         /bin/touch ${HOME}/runtime/installedsoftware/InstallWireguard.sh
 fi
