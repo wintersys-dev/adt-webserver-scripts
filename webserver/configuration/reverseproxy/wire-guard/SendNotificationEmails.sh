@@ -31,5 +31,5 @@ done
 
 /bin/rm -r ${HOME}/runtime/wire-guard/emails/notifications
 /bin/sleep 60
-${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
+${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "distributed"
 
