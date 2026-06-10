@@ -20,7 +20,7 @@
 #set -x
 
 #Get ourselves orientated so we know where our home is
-USER_HOME="`/usr/bin/awk -F: '{ print $1}' /etc/passwd | /bin/grep "X*X"`"
+USER_HOME="`/usr/bin/awk -F: '{print $1}' /etc/passwd | /bin/grep "X*X"`"
 /bin/echo 'export HOME="/home/'${USER_HOME}'"' >> /home/${USER_HOME}/.bashrc
 /bin/chmod 644 /home/${USER_HOME}/.bashrc
 /bin/chown ${USER_HOME}:root /home/${USER_HOME}/.bashrc
