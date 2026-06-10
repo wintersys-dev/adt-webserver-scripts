@@ -12,7 +12,6 @@ if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-
 then
         /bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
         ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL "" "distributed" "no"
-        /bin/rm ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
 
         /bin/cat ${HOME}/runtime/wire-guard/emails/notifications/authentication-emails* > ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat
         /usr/bin/sort -u ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat | /bin/sed '/^$/d' >  ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat.$$
@@ -28,4 +27,6 @@ then
         /bin/rm -r ${HOME}/runtime/wire-guard/emails/notifications
         /bin/sleep 60
         ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
+        ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL "" "distributed" "no"
+        /bin/rm ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
 fi
