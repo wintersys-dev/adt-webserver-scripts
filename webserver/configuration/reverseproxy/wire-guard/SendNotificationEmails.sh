@@ -14,10 +14,16 @@ then
         ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL "" "distributed" "no"
         /bin/rm ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
 
-        for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat`
+        /bin/cat ${HOME}/runtime/wire-guard/emails/notifications/authentication-emails* > ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat
+        /usr/bin/sort -u ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat | /bin/sed '/^$/d' >  ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat.$$
+        /bin/mv ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat.$$ ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat
+
+
+        for email_address in `/bin/cat ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat`
         do
                 message="The wireguard server IP addresses have changed at our end you will need to reconfigure your wireguard app by going to ${WEBSITE_URL} and replacing your previous wireguard client profile with a new one"
                 message="${message}. You should receive ${NO_REVERSE_PROXIES} emails please reconfigure your wireguard app with each new QR code, replacing the old ones. This happens when a redeployment of our servers is actioned."
                 ${HOME}/services/email/SendEmail.sh "WIREGUARD SERVER ALTERATION" "${message}" "MANDATORY" "${email_address}" "HTML"
         done 
+        /bin/rm -r ${HOME}/runtime/wire-guard/emails/notifications
 fi
