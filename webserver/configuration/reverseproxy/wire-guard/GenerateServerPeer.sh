@@ -47,17 +47,17 @@ then
                         new_client_public_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_public.key`"
                         server_public_key="`/bin/cat ${HOME}/runtime/wire-guard/server/server_public.key`"
 
-                        /bin/touch /etc/wireguard/wg0.conf
-                        client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
-                        client_no="`/usr/bin/expr ${client_no} + 1`"
+                     #   /bin/touch /etc/wireguard/wg0.conf
+                     #   client_no="`/bin/grep "Peer" /etc/wireguard/wg0.conf | /usr/bin/wc -l`"
+                     #   client_no="`/usr/bin/expr ${client_no} + 1`"
 
-                        twenty_four="`/usr/bin/expr ${client_no} / 255`"
-                        iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
-                        thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
-                        sixteen1="`/usr/bin/expr ${twenty_four} / 255`"
-                        sixteen="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
-                        iteration2="`/usr/bin/expr ${sixteen1} \* 255`"
-                        twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
+                     #   twenty_four="`/usr/bin/expr ${client_no} / 255`"
+                     #   iteration1="`/usr/bin/expr ${twenty_four} \* 255`"
+                     #   thirty_two="`/usr/bin/expr ${client_no} - ${iteration1}`"
+                     #   sixteen1="`/usr/bin/expr ${twenty_four} / 255`"
+                     #   sixteen="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
+                     #   iteration2="`/usr/bin/expr ${sixteen1} \* 255`"
+                     #   twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
 
                         if ( [ ! -f ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key ] )
                         then
@@ -67,11 +67,16 @@ then
                         preshared_key="`/bin/cat ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/preshared.key`"
 
                         # Add peer to server config
-                        /bin/echo "[Peer]
-                        PublicKey = ${new_client_public_key}
-                        AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
-                        PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
+                      #  /bin/echo "[Peer]
+                      #  PublicKey = ${new_client_public_key}
+                      #  AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
+                      #  PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
 
+                         /bin/echo "[Peer]
+                         PublicKey = ${new_client_public_key}
+                         AllowedIPs = 10.0.0.0/8
+                         PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
+                       
                         /bin/touch ${HOME}/runtime/wire-guard/WG_RELOAD
                         
                         if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat`" = "" ] )
