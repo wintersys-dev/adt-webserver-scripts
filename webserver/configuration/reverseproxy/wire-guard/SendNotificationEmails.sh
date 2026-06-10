@@ -1,5 +1,12 @@
 /bin/sleep `/usr/bin/shuf -i 1-100 -n 1`
-${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh
+
+if ( [ ! -d ${HOME}/runtime/wire-guard/emails/notifications ] )
+then
+        /bin/mkdir -p ${HOME}/runtime/wire-guard/emails/notifications
+fi
+
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emails" "${HOME}/runtime/wire-guard/emails/notifications"
+
 NO_REVESE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
 if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" = "" ] )
 then
