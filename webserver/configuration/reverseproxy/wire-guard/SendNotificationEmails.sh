@@ -1,4 +1,4 @@
-/bin/sleep `/usr/bin/shuf -i 1-100 -n 1`
+/bin/sleep `/usr/bin/shuf -i 1-60 -n 1`
 
 if ( [ ! -d ${HOME}/runtime/wire-guard/emails/notifications ] )
 then
@@ -26,5 +26,6 @@ then
                 ${HOME}/services/email/SendEmail.sh "WIREGUARD SERVER ALTERATION" "${message}" "MANDATORY" "${email_address}" "HTML"
         done 
         /bin/rm -r ${HOME}/runtime/wire-guard/emails/notifications
+        /bin/sleep 60
         ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
 fi
