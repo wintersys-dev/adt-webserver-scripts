@@ -2,6 +2,7 @@
 
 if ( [ -f ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL ] || [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" != "" ] )
 then
+        /bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
         exit
 else
         /bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
@@ -30,6 +31,12 @@ do
 done 
 
 /bin/rm -r ${HOME}/runtime/wire-guard/emails/notifications
-/bin/sleep 60
+
+#Delete all emails from previous build - we have requested that those emails regenerate their wireguard config and make triple sure that
+#SENT_NOTIFICATIONS_EMAIL is deleted
 ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "distributed"
+/bin/sleep 60
+${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "SENT_NOTIFICATION_EMAIL" "distributed"
+/bin/sleep 60
+${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "SENT_NOTIFICATION_EMAIL" "distributed"
 
