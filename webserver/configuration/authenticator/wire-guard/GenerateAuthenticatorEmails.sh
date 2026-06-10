@@ -16,7 +16,7 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 
 email_addresses="`/bin/ls ${HOME}/runtime/wire-guard/configs/* | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
-reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
+#reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
 for email_address in ${email_addresses}
 do
@@ -76,9 +76,17 @@ done
 email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE"  -print | /usr/bin/awk -F'/' '{print $8}'`"
 email_addresses="`/bin/echo ${email_addresses} | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 
-for ip in ${reverse_proxy_ips}
+#for ip in ${reverse_proxy_ips}
+#do
+
+for email_address in ${email_addresses}
 do
-        for email_address in ${email_addresses}
+        reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
+        ips="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
+        reverse_proxy_ips="`/bin/echo ${reverse_proxy_ips} | /bin/sed "s/${ip}/g"`"
+        ips="${ips} `/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e | /bin/sed 's/  / /g'`"
+
+        for ip in ${ips}
         do
                 file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
                 full_file_name="/var/www/html/qrcode-${file_name}-${ip}-${email_address}.png"
