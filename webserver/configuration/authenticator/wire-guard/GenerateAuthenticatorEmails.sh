@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -x
+#set -x
 
 if ( [ ! -f ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL ] )
 then
@@ -24,6 +24,9 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 /usr/bin/find /var/www/html -mmin +30 -name "*client*" -type f -exec rm -fv {} \;
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
+
+email_addresses="`/bin/ls ${HOME}/runtime/wire-guard/configs/* | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
+reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
 for email_address in ${email_addresses}
 do
@@ -108,7 +111,7 @@ do
                 /bin/echo "${email_address}:${qrcode_url}" >> ${HOME}/runtime/wire-guard/qrcodes
                 /bin/echo "${email_address}:${client_url}" >> ${HOME}/runtime/wire-guard/clientconfig
                 message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  </br> </body> </html>"
-               # ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
+                # ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
                 /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/CANDIDATE_QR_CODE
         done
 done
