@@ -29,6 +29,7 @@ then
         ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
         /bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
         ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL "" "distributed" "no"
+        ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "SENDING_NOTIFICATION_EMAIL" "local"
         /bin/rm ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
         /bin/rm ${HOME}/runtime/wire-guard/SENDING_NOTIFICATION_EMAIL
 fi
