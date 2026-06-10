@@ -82,9 +82,9 @@ email_addresses="`/bin/echo ${email_addresses} | /usr/bin/xargs -n1 | /usr/bin/s
 for email_address in ${email_addresses}
 do
         reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
-        ips="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
+        ip="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
         reverse_proxy_ips="`/bin/echo ${reverse_proxy_ips} | /bin/sed "s/${ip}/g"`"
-        ips="${ips} `/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e | /bin/sed 's/  / /g'`"
+        ips="${ip} `/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e | /bin/sed 's/  / /g'`"
 
         for ip in ${ips}
         do
