@@ -69,7 +69,7 @@ then
                         # Add peer to server config
                         /bin/echo "[Peer]
                         PublicKey = ${new_client_public_key}
-                        AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/16
+                        AllowedIPs = 10.${sixteen}.${twenty_four}.${thirty_two}/32
                         PresharedKey = ${preshared_key}" >> /etc/wireguard/wg0.conf
 
                         /bin/touch ${HOME}/runtime/wire-guard/WG_RELOAD
