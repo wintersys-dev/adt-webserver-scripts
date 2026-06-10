@@ -1,5 +1,10 @@
 /bin/sleep `/usr/bin/shuf -i 1-60 -n 1`
 
+if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" != "" ] )
+then
+        exit
+fi
+
 if ( [ ! -d ${HOME}/runtime/wire-guard/emails/notifications ] )
 then
         /bin/mkdir -p ${HOME}/runtime/wire-guard/emails/notifications
