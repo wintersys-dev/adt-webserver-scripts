@@ -26,4 +26,5 @@ then
                 ${HOME}/services/email/SendEmail.sh "WIREGUARD SERVER ALTERATION" "${message}" "MANDATORY" "${email_address}" "HTML"
         done 
         /bin/rm -r ${HOME}/runtime/wire-guard/emails/notifications
+        ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emails"  "delete-all" "local"
 fi
