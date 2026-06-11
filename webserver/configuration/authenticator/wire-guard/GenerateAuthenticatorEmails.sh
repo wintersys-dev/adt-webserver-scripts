@@ -9,6 +9,8 @@ fi
 
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
+
 
 /usr/bin/find /var/www/html -mmin +30 -name "*qrcode*" -type f -exec rm -fv {} \;
 /usr/bin/find /var/www/html -mmin +30 -name "*client*" -type f -exec rm -fv {} \;
@@ -115,7 +117,12 @@ do
                 fi
                # /bin/echo "${email_address}:${qrcode_url}" >> ${HOME}/runtime/wire-guard/qrcodes
                # /bin/echo "${email_address}:${client_url}" >> ${HOME}/runtime/wire-guard/clientconfig
-                message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  </br> <a href='"${backup_qrcode_url}"'>View Your Backup Wireguard QR Code</a> <br> <a href='"${backup_client_url}"'>View Your Backup Wireguard QR Client File</a>  </br>  For future resiliance, install your primary and your backup QR codes now into your wireguard app. </body> </html>"
+                if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
+                then
+                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  </br> <a href='"${backup_qrcode_url}"'>View Your Backup Wireguard QR Code</a> <br> <a href='"${backup_client_url}"'>View Your Backup Wireguard QR Client File</a>  </br>  For future resiliance, install your primary and your backup QR codes now into your wireguard app. </body> </html>"
+                else
+                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  </br> </body> </html>"
+                fi
                 # ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
                 /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/CANDIDATE_QR_CODE
         done
