@@ -17,8 +17,7 @@ NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPR
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 
-email_addresses="`/bin/ls ${HOME}/runtime/wire-guard/configs/* | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
-#reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
+email_addresses="`/bin/ls ${HOME}/runtime/wire-guard/configs/*/ | /usr/bin/awk -F'/' '{print $NF}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs | /bin/sed 's/^: //g'`"#reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
 for email_address in ${email_addresses}
 do
