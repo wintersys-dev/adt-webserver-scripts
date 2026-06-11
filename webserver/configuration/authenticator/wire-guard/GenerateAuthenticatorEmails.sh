@@ -84,7 +84,7 @@ for email_address in ${email_addresses}
 do
         reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
         ip="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
-        reverse_proxy_ips="`/bin/echo ${reverse_proxy_ips} | /bin/sed "s/${ip}/g"`"
+        reverse_proxy_ips="`/bin/echo ${reverse_proxy_ips} | /bin/sed "s/${ip}//g"`"
         ips="${ip} `/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e | /bin/sed 's/  / /g'`"
         count="0"
         for ip in ${ips}
