@@ -54,8 +54,11 @@ do
                                 /bin/echo ${config_dir}/client.conf
                         fi
                 done
-                /usr/bin/qrencode -t png -o ${config_dir}/qrcode.png -r ${config_dir}/client.conf
-                /bin/touch ${config_dir}/CANDIDATE_QR_CODE
+                if ( [ ! -f ${config_dir}/qrcode.png ] )
+                then
+                        /usr/bin/qrencode -t png -o ${config_dir}/qrcode.png -r ${config_dir}/client.conf
+                        /bin/touch ${config_dir}/CANDIDATE_QR_CODE
+                fi
         done
 done
 
