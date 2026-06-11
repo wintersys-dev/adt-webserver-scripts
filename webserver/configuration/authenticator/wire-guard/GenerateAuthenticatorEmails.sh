@@ -19,8 +19,6 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}
 
 email_addresses="`/bin/ls ${HOME}/runtime/wire-guard/configs/*/ | /usr/bin/awk -F'/' '{print $NF}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs | /bin/sed 's/^: //g'`"
 
-email_addresses="${email_addresses} tester1234@nuocial.uk"
-
 for email_address in ${email_addresses}
 do
         config_dirs="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "${email_address}" -print`"
