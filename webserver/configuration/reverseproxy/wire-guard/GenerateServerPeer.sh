@@ -77,6 +77,7 @@ then
                         if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat`" = "" ] )
                         then
                                 /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/emails/processing/processed_authentication_emails.dat
+                                /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
                         fi
                 fi
         done
