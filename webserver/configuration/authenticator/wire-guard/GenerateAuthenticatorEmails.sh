@@ -66,7 +66,7 @@ fi
 
 for processed_email in ${processed_emails}
 do
-        email_addresses="`/bin/echo "${email_addresses}" | /bin/sed "s/${processed_email}//g"`"
+        email_addresses="`/bin/echo ${email_addresses} | /bin/sed "s/\<${processed_email}\>//g"`"
 done
 
 #email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE"  -print | /usr/bin/awk -F'/' '{print $8}'`"
