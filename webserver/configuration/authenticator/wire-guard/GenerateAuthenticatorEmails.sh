@@ -32,6 +32,7 @@ do
         done
 done
 
+processed_emails=""
 for email_address in ${email_addresses}
 do
         for config_dir in ${config_dirs}
@@ -39,6 +40,8 @@ do
                 if ( [ ! -f ${config_dir}/client.conf ] )
                 then
                         /bin/cp ${config_dir}/client_interface.conf ${config_dir}/client.conf
+                else
+                        processed_emails="${processed_emails} ${email_address}"
                 fi
 
                 config_dirs1="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "${email_address}" -print`"
@@ -55,6 +58,20 @@ do
                 /bin/touch ${config_dir}/CANDIDATE_QR_CODE
         done
 done
+
+live_email_addresses=""
+for email in ${email_addresses}
+do
+        for processed_email in ${processed_emails}
+        do
+                if ( [ "`/bin/echo ${email} | /bin/grep -w "${processed_email}"`" = "" ] )
+                then
+                        live_email_addresses="${live_email_addresses} ${email}"
+                fi
+        done
+done
+
+email_addresses="${live_email_addresses}"
 
 #reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
