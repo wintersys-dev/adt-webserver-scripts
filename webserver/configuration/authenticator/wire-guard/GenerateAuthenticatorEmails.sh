@@ -74,8 +74,7 @@ done
 #                fi
 #        done
 #done
-machine_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
-email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE"  -print | /usr/bin/awk -F'/' '{print $8}' | /bin/grep ${machine_ip}`"
+email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE"  -print | /usr/bin/awk -F'/' '{print $8}'`"
 email_addresses="`/bin/echo ${email_addresses} | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 
 #for ip in ${reverse_proxy_ips}
