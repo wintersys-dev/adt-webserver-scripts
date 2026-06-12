@@ -58,7 +58,7 @@ do
                         /bin/touch ${config_dir}/CANDIDATE_QR_CODE
                         if ( [ "`/bin/grep "^reminder-" ${email_address}`" != "" ] )
                         then
-                                reminder_email_address="`/bin/echo ${email_address} | /bin/sed 's/^reminder//g'`"
+                                reminder_email_address="`/bin/echo ${email_address} | /bin/sed 's/^reminder-//g'`"
                                 if ( [ -f ${HOME}/runtime/wire-guard/PROCESSED_EMAILS ] )
                                 then
                                         /bin/sed "/${reminder_email_address}/d" ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
