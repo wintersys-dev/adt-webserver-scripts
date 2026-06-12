@@ -50,10 +50,20 @@ do
                                 /bin/cat ${config_dir1}/client_peer.conf >> ${config_dir}/client.conf
                         fi
                 done
-                if ( [ ! -f ${config_dir}/qrcode.png ] )
+                if ( [ ! -f ${config_dir}/qrcode.png ] || [ "`/bin/grep "^reminder-" ${email_address}`" = "" ] )
                 then
                         /usr/bin/qrencode -t png -o ${config_dir}/qrcode.png -r ${config_dir}/client.conf
                         /bin/touch ${config_dir}/CANDIDATE_QR_CODE
+                else
+                        /bin/touch ${config_dir}/CANDIDATE_QR_CODE
+                        if ( [ "`/bin/grep "^reminder-" ${email_address}`" != "" ] )
+                        then
+                                reminder_email_address="`/bin/echo ${email_address} | /bin/sed 's/^reminder//g'`"
+                                if ( [ -f ${HOME}/runtime/wire-guard/PROCESSED_EMAILS ] )
+                                then
+                                        /bin/sed "/${reminder_email_address}/d" ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
+                                fi
+                        fi
                 fi
         done
 done
