@@ -62,7 +62,7 @@ if ( [ "${apt}" != "" ] )
 then
         if ( [ "${BUILDOS}" = "ubuntu" ] )
         then
-                if ( [ "${BUILDOSVERSION}" = "24.04" ] || [ "${BUILDOSVERSION}" = "24.04" ] )
+                if ( [ "${BUILDOSVERSION}" = "24.04" ] || [ "${BUILDOSVERSION}" = "26.04" ] )
                 then
                         ${install_command} software-properties-common
                         ${add_repository_command} ppa:ondrej/php
