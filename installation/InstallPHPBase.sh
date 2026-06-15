@@ -64,10 +64,9 @@ then
         then
                 if ( [ "${BUILDOS_VERSION}" = "24.04" ] || [ "${BUILDOS_VERSION}" = "26.04" ] )
                 then
-                        if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
+                        if ( ( [ "${BUILDOS_VERSION}" = "24.04" ] && [ "${PHP_VERSION}" = "8.3" ] ) || ( [ "${BUILDOS_VERSION}" = "26.04" ] && [ "${PHP_VERSION}" = "8.5" ] ) )
                         then
                                 PHP_VERSION=""
-                                ${HOME}/utilities/config/StoreConfigValue.sh "PHPVERSION" ""
                                 ${install_command} software-properties-common
                                 ${add_repository_command} universe
                                 ${upgrade_command}
