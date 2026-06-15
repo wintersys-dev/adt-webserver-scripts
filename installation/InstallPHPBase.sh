@@ -103,10 +103,9 @@ then
         then
                 if ( [ "${BUILDOS_VERSION}" = "13" ] )
                 then
-                        if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
+                        if ( [ "${PHP_VERSION}" = "8.4" ] )
                         then
                                 PHP_VERSION=""
-                                ${HOME}/utilities/config/StoreConfigValue.sh "PHPVERSION" ""
                                 ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
                                 ${update_command}
                                 ${install_command} php
