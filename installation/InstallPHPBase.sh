@@ -66,12 +66,13 @@ then
                 then
                         if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
                         then
+                                PHP_VERSION=""
+                                ${HOME}/utilities/config/StoreConfigValue.sh "PHPVERSION" ""
                                 ${install_command} software-properties-common
                                 ${add_repository_command} universe
                                 ${upgrade_command}
                                 ${install_command}
                                 ${install_command} software-properties-common
-                                PHP_VERSION=""
                         else
                                 ${add_repository_command} ppa:ondrej/php
                                 if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
@@ -105,6 +106,7 @@ then
                         if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
                         then
                                 PHP_VERSION=""
+                                ${HOME}/utilities/config/StoreConfigValue.sh "PHPVERSION" ""
                                 ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
                                 ${update_command}
                                 ${install_command} php
