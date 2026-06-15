@@ -84,8 +84,7 @@ then
                 then
                         if ( [ "PHP_VERSION}" = "OS-DEFAULT" ] )
                         then
-                                PHP_VERSION="8.4"
-                                ${HOME}/utilities/config/StoreConfigValue.sh "PHP_VERSION" "8.4"
+                                PHP_VERSION=""
                         fi
                 fi
                 
