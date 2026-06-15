@@ -26,7 +26,7 @@ then
 fi
 
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-BUILDOSVERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOSVERSION'`"
+BUILDOS_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOSVERSION'`"
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 WEBSERVER_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSERVERCHOICE'`"
 
@@ -57,13 +57,12 @@ export DEBIAN_FRONTEND=noninteractive
 add_repository_command="/usr/bin/add-apt-repository -y "
 install_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y install "
 update_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y update "
-#upgrade_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y upgrade "
 
 if ( [ "${apt}" != "" ] )
 then
         if ( [ "${BUILDOS}" = "ubuntu" ] )
         then
-                if ( [ "${BUILDOSVERSION}" = "24.04" ] || [ "${BUILDOSVERSION}" = "26.04" ] )
+                if ( [ "${BUILDOS_VERSION}" = "24.04" ] || [ "${BUILDOS_VERSION}" = "26.04" ] )
                 then
                         if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
                         then
@@ -86,7 +85,7 @@ then
                                 ${upgrade_command}
                                 ${install_command} php${PHP_VERSION}
                         fi
-                        #Install PHP Base Modules
+
                         php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
 
                         for module in ${php_modules}
@@ -101,7 +100,7 @@ then
 
         if ( [ "${BUILDOS}" = "debian" ] )
         then
-                if ( [ "${BUILDOSVERSION}" = "13" ] )
+                if ( [ "${BUILDOS_VERSION}" = "13" ] )
                 then
                         if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
                         then
