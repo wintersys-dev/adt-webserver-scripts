@@ -64,6 +64,11 @@ then
         then
                 if ( [ "${BUILDOS_VERSION}" = "24.04" ] || [ "${BUILDOS_VERSION}" = "26.04" ] )
                 then
+                        if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
+                        then
+                                PHP_VERSION=""
+                        fi
+                        
                         php_application_modules="`/bin/grep "^PHP_MODULES:" ${HOME}/runtime/application.dat | /bin/sed 's/^PHP_MODULES://g' | /bin/sed 's/:/ /g'`"
 
                         for module in ${php_application_modules}
