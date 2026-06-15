@@ -82,7 +82,7 @@ then
         then
                 if ( [ "${BUILDOS_VERSION}" = "13" ] )
                 then
-                        if ( [ "PHP_VERSION}" = "OS-DEFAULT" ] )
+                        if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
                         then
                                 PHP_VERSION=""
                         fi
