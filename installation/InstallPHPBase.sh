@@ -104,16 +104,18 @@ then
                 then
                         if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
                         then
-                                PHP_VERSION="8.4"
-                                ${HOME}/utilities/config/StoreConfigValue.sh "PHP_VERSION" "8.4"
+                                PHP_VERSION=""
+                                ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
+                                ${update_command}
+                                ${install_command} php
+                        else
+                                ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
+                                /usr/bin/wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+                                /bin/echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
+                                ${update_command}
+                                ${install_command} php${PHP_VERSION}
                         fi
                 fi
-                
-                ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
-                /usr/bin/wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-                /bin/echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
-                ${update_command}
-                ${install_command} php${PHP_VERSION}
 
                 php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
 
