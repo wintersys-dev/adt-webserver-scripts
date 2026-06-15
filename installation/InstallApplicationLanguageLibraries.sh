@@ -26,7 +26,7 @@ then
 fi
 
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-BUILDOSVERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOSVERSION'`"
+BUILDOS_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOSVERSION'`"
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 WEBSERVER_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSERVERCHOICE'`"
 
@@ -62,7 +62,7 @@ if ( [ "${apt}" != "" ] )
 then
         if ( [ "${BUILDOS}" = "ubuntu" ] )
         then
-                if ( [ "${BUILDOSVERSION}" = "24.04" ] || [ "${BUILDOSVERSION}" = "26.04" ] )
+                if ( [ "${BUILDOS_VERSION}" = "24.04" ] || [ "${BUILDOS_VERSION}" = "26.04" ] )
                 then
                         php_application_modules="`/bin/grep "^PHP_MODULES:" ${HOME}/runtime/application.dat | /bin/sed 's/^PHP_MODULES://g' | /bin/sed 's/:/ /g'`"
 
@@ -75,15 +75,21 @@ then
 
         if ( [ "${BUILDOS}" = "debian" ] )
         then
-                if ( [ "${BUILDOSVERSION}" = "13" ] )
+                if ( [ "${BUILDOS_VERSION}" = "13" ] )
                 then
-                        php_application_modules="`/bin/grep "^PHP_MODULES:" ${HOME}/runtime/application.dat | /bin/sed 's/^PHP_MODULES://g' | /bin/sed 's/:/ /g'`"
-
-                        for module in ${php_application_modules}
-                        do
-                                ${install_command} php${PHP_VERSION}-${module}
-                        done
+                        if ( [ "PHP_VERSION}" = "OS-DEFAULT" ] )
+                        then
+                                PHP_VERSION="8.4"
+                                ${HOME}/utilities/config/StoreConfigValue.sh "PHP_VERSION" "8.4"
+                        fi
                 fi
+                
+                php_application_modules="`/bin/grep "^PHP_MODULES:" ${HOME}/runtime/application.dat | /bin/sed 's/^PHP_MODULES://g' | /bin/sed 's/:/ /g'`"
+
+                for module in ${php_application_modules}
+                do
+                        ${install_command} php${PHP_VERSION}-${module}
+                done
         fi
 fi
 
