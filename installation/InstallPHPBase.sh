@@ -114,6 +114,7 @@ then
                                 /bin/echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
                                 ${update_command}
                                 ${install_command} php${PHP_VERSION}
+                                /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
                 fi
 
@@ -123,7 +124,7 @@ then
                 do
                         ${install_command} php${PHP_VERSION}-${module}
                 done
-                /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
+                
         fi
 fi
 
