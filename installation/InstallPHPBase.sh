@@ -19,6 +19,7 @@
 #######################################################################################################
 #######################################################################################################
 #set -x
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATIONLANGUAGE:PHP`" = "0" ] )
 then
         exit
@@ -64,20 +65,27 @@ then
         then
                 if ( [ "${BUILDOSVERSION}" = "24.04" ] || [ "${BUILDOSVERSION}" = "26.04" ] )
                 then
-                        ${install_command} software-properties-common
-                        ${add_repository_command} ppa:ondrej/php
-                        if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
+                        if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
                         then
-                                ${add_repository_command} ppa:ondrej/apache2
+                                ${install_command} software-properties-common
+                                ${add_repository_command} universe
+                                ${upgrade_command}
+                                ${install_command}
+                                ${install_command} software-properties-common
+                                PHP_VERSION=""
+                        else
+                                ${add_repository_command} ppa:ondrej/php
+                                if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
+                                then
+                                        ${add_repository_command} ppa:ondrej/apache2
+                                fi
+                                if ( [ "${WEBSERVER_TYPE}" = "NGINX" ] )
+                                then
+                                        ${add_repository_command} ppa:ondrej/nginx-mainline
+                                fi
+                                ${upgrade_command}
+                                ${install_command} php${PHP_VERSION}
                         fi
-                        if ( [ "${WEBSERVER_TYPE}" = "NGINX" ] )
-                        then
-                                ${add_repository_command} ppa:ondrej/nginx-mainline
-                        fi
-                      #  ${update_command}
-                        ${upgrade_command}
-                        ${install_command} php${PHP_VERSION}
-
                         #Install PHP Base Modules
                         php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
 
@@ -95,20 +103,25 @@ then
         then
                 if ( [ "${BUILDOSVERSION}" = "13" ] )
                 then
-                        ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
-                        /usr/bin/wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-                        /bin/echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
-                        ${update_command}
-                        ${install_command} php${PHP_VERSION}
-
-                        php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
-
-                        for module in ${php_modules}
-                        do
-                                ${install_command} php${PHP_VERSION}-${module}
-                        done
-                        /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
+                        if ( [ "${PHP_VERSION}" = "OS-DEFAULT" ] )
+                        then
+                                PHP_VERSION="8.4"
+                        fi
                 fi
+                
+                ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
+                /usr/bin/wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+                /bin/echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
+                ${update_command}
+                ${install_command} php${PHP_VERSION}
+
+                php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
+
+                for module in ${php_modules}
+                do
+                        ${install_command} php${PHP_VERSION}-${module}
+                done
+                /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
         fi
 fi
 
