@@ -273,6 +273,8 @@ then
         done
 fi
 
+/bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ./2 | /bin/sed 's/:/ /g' | grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
+
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
