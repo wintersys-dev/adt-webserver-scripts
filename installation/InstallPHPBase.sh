@@ -73,19 +73,51 @@ then
                                 ${install_command}
                                 ${install_command} software-properties-common
                         else
-                                ${update_command}
-                                ${install_command} software-properties-common
-                                ${add_repository_command} ppa:ondrej/php
-                                if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
+                          #      ${update_command}
+                          #      ${install_command} software-properties-common
+                          #      ${add_repository_command} ppa:ondrej/php
+                          #      if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
+                          #      then
+                          #              ${add_repository_command} ppa:ondrej/apache2
+                          #      fi
+                          #      if ( [ "${WEBSERVER_TYPE}" = "NGINX" ] )
+                          #      then
+                          #              ${add_repository_command} ppa:ondrej/nginx-mainline
+                          #      fi
+                          #      ${update_command}
+                           #     ${install_command} php${PHP_VERSION}
+
+                                ${install_command} ca-certificates curl
+                                /usr/bin/curl -fsSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
+                                . /etc/os-release
+
+                                if ( [ "${BUILDOS_VERSION}" = "24.04" ] )
                                 then
-                                        ${add_repository_command} ppa:ondrej/apache2
+                                        VERSION_CODENAME="noble"
                                 fi
-                                if ( [ "${WEBSERVER_TYPE}" = "NGINX" ] )
+                                if ( [ "${BUILDOS_VERSION}" = "26.04" ] )
                                 then
-                                        ${add_repository_command} ppa:ondrej/nginx-mainline
+                                        VERSION_CODENAME="resolute"
                                 fi
+
+                                case "$VERSION_CODENAME" in
+                                  resolute|noble)
+    printf '%s\n' \
+      'Types: deb' \
+      'URIs: https://packages.sury.org/php/' \
+      "Suites: $VERSION_CODENAME" \
+      'Components: main' \
+      "Architectures: amd64" \
+      'Signed-By: /usr/share/keyrings/deb.sury.org-php.gpg' | /usr/bin/tee /etc/apt/sources.list.d/php.sources > /dev/null
+    ;;
+  *)
+    printf 'Supported combinations: Ubuntu 26.04 on amd64; Ubuntu 26.04,24.04 on amd64. This host reports %s/%s.\n' "$VERSION_CODENAME" "amd64" >&2
+    false
+    ;;
+                                esac
+
+
                                 ${update_command}
-                                ${install_command} php${PHP_VERSION}
                                 /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
 
