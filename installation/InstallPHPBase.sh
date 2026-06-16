@@ -73,6 +73,8 @@ then
                                 ${install_command}
                                 ${install_command} software-properties-common
                         else
+                                ${update_command}
+                                ${install_command} software-properties-common
                                 ${add_repository_command} ppa:ondrej/php
                                 if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
                                 then
@@ -84,6 +86,7 @@ then
                                 fi
                                 ${update_command}
                                 ${install_command} php${PHP_VERSION}
+                                /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
 
                         php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
@@ -92,9 +95,6 @@ then
                         do
                                 ${install_command} php${PHP_VERSION}-${module}
                         done
-
-                        /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
-
                 fi
         fi
 
