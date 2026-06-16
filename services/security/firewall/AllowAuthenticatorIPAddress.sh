@@ -70,16 +70,19 @@ do
                 then
                         /usr/sbin/ipset add allowed-laptop-ips "${ip_address}/32"
                         /usr/sbin/ufw reload
-                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
+                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/previous_ipaddresses.dat
                 elif ( [ "${firewall}" = "iptables" ] )
                 then
                         /usr/sbin/ipset add allowed-laptop-ips ${ip_address}
-                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
+                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/previous_ipaddresses.dat
                 fi
         fi
 done
 
-/bin/mv ${HOME}/runtime/authenticator/ipaddresses.dat ${HOME}/runtime/authenticator/previous_ipaddresses.dat
+if ( [ -f ${HOME}/runtime/authenticator/ipaddresses.dat ] )
+then
+        /bin/rm ${HOME}/runtime/authenticator/ipaddresses.dat 
+fi
 
 if ( [ -f ${HOME}/runtime/authenticator/incoming_ipaddresses.dat ] )
 then
