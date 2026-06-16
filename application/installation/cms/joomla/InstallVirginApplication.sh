@@ -67,7 +67,7 @@ then
         archive_type="tar.gz"
 fi
 
-/usr/bin/wget https://${SOURCECODE_URL} -O joomla.${archive_type}
+/usr/bin/wget -4 https://${SOURCECODE_URL} -O joomla.${archive_type}
 /bin/echo "${0} `/bin/date`: Downloaded joomla from ${SOURCECODE_URL}" 
 
 verified_archive_type=""
