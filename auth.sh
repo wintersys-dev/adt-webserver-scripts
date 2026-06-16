@@ -193,6 +193,9 @@ AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICAT
 if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] )
 then
         ${HOME}/services/datastore/operations/MountDatastore.sh "firewall-auth-laptop-ips" "distributed"
+elif ( [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] )
+then
+        ${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "distributed"
 elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 then
         ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed"
