@@ -274,9 +274,6 @@ then
         /bin/chmod 400 /var/www/html/private/.htaccess
 fi
 
-
-
-
 if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
 then
         dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
@@ -303,6 +300,8 @@ then
                 fi
         done
 fi
+
+/bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ./2 | /bin/sed 's/:/ /g' | grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
 
 /usr/bin/php -ln ${config_file}
 
