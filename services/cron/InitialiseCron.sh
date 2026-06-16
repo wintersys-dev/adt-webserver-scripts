@@ -36,7 +36,7 @@ then
 
 	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/CheckWebserverIsUp.sh ${WEBSERVER_CHOICE}" >> /var/spool/cron/crontabs/root
 
-	if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] )
+	if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] || [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] )
 	then
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
