@@ -35,6 +35,7 @@ do
         for ip in ${reverse_proxy_ips}
         do
                 /bin/cat ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf >> ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf
+                /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf
         done
         /bin/rm ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf
 done
