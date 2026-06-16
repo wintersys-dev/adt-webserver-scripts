@@ -93,29 +93,28 @@ then
 
                                 if ( [ "${BUILDOS_VERSION}" = "24.04" ] )
                                 then
-                                        VERSION_CODENAME="noble"
+                                        version_codename="noble"
                                 fi
                                 if ( [ "${BUILDOS_VERSION}" = "26.04" ] )
                                 then
-                                        VERSION_CODENAME="resolute"
+                                        version_codename="resolute"
                                 fi
 
-                                case "$VERSION_CODENAME" in
+                                case "${version_codename}" in
                                   resolute|noble)
     printf '%s\n' \
       'Types: deb' \
       'URIs: https://packages.sury.org/php/' \
-      "Suites: $VERSION_CODENAME" \
+      "Suites: ${version_codename}" \
       'Components: main' \
       "Architectures: amd64" \
       'Signed-By: /usr/share/keyrings/deb.sury.org-php.gpg' | /usr/bin/tee /etc/apt/sources.list.d/php.sources > /dev/null
     ;;
   *)
-    printf 'Supported combinations: Ubuntu 26.04 on amd64; Ubuntu 26.04,24.04 on amd64. This host reports %s/%s.\n' "$VERSION_CODENAME" "amd64" >&2
+    printf 'Supported combinations: Ubuntu 26.04 on amd64; Ubuntu 26.04,24.04 on amd64. This host reports %s/%s.\n' "${version_codename}" "amd64" >&2
     false
     ;;
                                 esac
-
 
                                 ${update_command}
                                 /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
