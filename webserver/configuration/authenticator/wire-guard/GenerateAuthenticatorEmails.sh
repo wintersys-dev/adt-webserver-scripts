@@ -28,12 +28,9 @@ do
                 then
                         primed="0"
                 fi
-        done
 
-        if ( [ "${primed}" = "1" ] )
-        then
-                for ip in ${reverse_proxy_ips}
-                do
+                if ( [ "${primed}" = "1" ] )
+                then
                         if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
                         then
                                 if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf ] )
@@ -43,10 +40,7 @@ do
                                 /bin/echo "" >> ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf   
                                 /bin/cat ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client_peer.conf >> ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf
                         fi
-                done
-
-                for ip in ${reverse_proxy_ips}
-                do
+        
                         if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
                         then
                                 /bin/cat ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf >> ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf
@@ -57,9 +51,9 @@ do
                                         /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/NEEDS_PROCESSING
                                 fi
                         fi
-                done
+                fi
                 /bin/rm ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf
-        fi
+        done
 done
 
 for email_address in ${email_addresses}
