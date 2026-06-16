@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#set -x
+set -x
 
 if ( [ ! -d ${HOME}/runtime/wire-guard/configs ] )
 then
@@ -17,6 +17,6 @@ NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPR
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 
-email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "PROCESSING_NEEDED" -print`"
+email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 
 echo ${email_addresses}
