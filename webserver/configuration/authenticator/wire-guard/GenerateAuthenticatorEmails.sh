@@ -71,38 +71,42 @@ do
         count="0"
         for ip in ${ips}
         do
-                file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-                full_file_name="/var/www/html/qrcode-${file_name}-${ip}-${email_address}.png"
-                /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
-                full_file_name_html="/var/www/html/client-${file_name}-${ip}-${email_address}.html"
-                /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
-                /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf" -e 'd}' ${full_file_name_html}
-
-                if ( [ ! -f /var/www/html/txtstyle.css ] )
+                if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
                 then
-                        /bin/echo "html, body {font-family:Helvetica, Arial, sans-serif}" > /var/www/html/txtstyle.css
-                fi
+                        file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
+                        full_file_name="/var/www/html/qrcode-${file_name}-${ip}-${email_address}.png"
+                        /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
+                        full_file_name_html="/var/www/html/client-${file_name}-${ip}-${email_address}.html"
+                        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
+                        /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf" -e 'd}' ${full_file_name_html}
 
-                /bin/chmod 600 ${full_file_name}
-                /bin/chmod 600 ${full_file_name_html}
-                /bin/chown www-data:www-data /var/www/html/*
-                if ( [ "${count}" = "0" ] )
-                then
-                        qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
-                        client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
-                        count="`/usr/bin/expr ${count} + 1`"
-                else
-                        backup_qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
-                        backup_client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
-                fi
+                        if ( [ ! -f /var/www/html/txtstyle.css ] )
+                        then
+                                /bin/echo "html, body {font-family:Helvetica, Arial, sans-serif}" > /var/www/html/txtstyle.css
+                        fi
 
-                if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
-                then
-                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a> <br> <br><a href='"${backup_qrcode_url}"'>View Your Backup Wireguard QR Code</a> <br> <a href='"${backup_client_url}"'>View Your Backup Wireguard QR Client File</a> <br> <br> For future resiliance, install your primary AND your backup QR codes now into your wireguard app. The QR codes will be valid for half an hour. </body> </html>"
-                else
-                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  <br>  The QR code will be valid for half an hour. </body> </html>"
+                        /bin/chmod 600 ${full_file_name}
+                        /bin/chmod 600 ${full_file_name_html}
+                        /bin/chown www-data:www-data /var/www/html/*
+                
+                        if ( [ "${count}" = "0" ] )
+                        then
+                                qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
+                                client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
+                                count="`/usr/bin/expr ${count} + 1`"
+                        else
+                                backup_qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
+                                backup_client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
+                        fi
+
+                        if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
+                        then
+                                message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a> <br> <br><a href='"${backup_qrcode_url}"'>View Your Backup Wireguard QR Code</a> <br> <a href='"${backup_client_url}"'>View Your Backup Wireguard QR Client File</a> <br> <br> For future resiliance, install your primary AND your backup QR codes now into your wireguard app. The QR codes will be valid for half an hour. </body> </html>"
+                        else
+                                message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  <br>  The QR code will be valid for half an hour. </body> </html>"
+                        fi
+                        /usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE" -path "*${email_address}*" -delete
                 fi
-                /usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE" -path "*${email_address}*" -delete
         done
         ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
         /bin/echo ${email_address} >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
