@@ -67,8 +67,8 @@ then
 						if ( [ ! -d ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} ] || [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip}`" = "" ] )
                         then
                                 /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip}
-                                ${HOME}/services/datastore/operations/MountDatastore.sh "firewall-auth-laptop-ips" "distributed" 
-                                ${HOME}/services/datastore/operations/PutToDatastore.sh "firewall-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "firewall-laptop-ips" "distributed" "no"
+                                ${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "distributed" 
+                                ${HOME}/services/datastore/operations/PutToDatastore.sh "whitelist-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "firewall-laptop-ips" "distributed" "no"
                         fi      
                 fi              
         done
