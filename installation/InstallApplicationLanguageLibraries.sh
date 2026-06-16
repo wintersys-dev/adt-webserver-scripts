@@ -97,4 +97,4 @@ then
         fi
 fi
 
-/bin/touch ${HOME}/runtime/installedsoftware/InstallPHPApplication.sh
+/bin/touch ${HOME}/runtime/installedsoftware/InstallApplicationLanguageLibraries.sh
