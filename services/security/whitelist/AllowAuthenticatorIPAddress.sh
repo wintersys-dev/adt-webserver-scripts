@@ -3,7 +3,7 @@
 # Author: Peter Winter
 # Date :  9/4/2016
 # Description: If a machine has been allowed access by an authenticator machine
-# then allow its ip address through the firewall now
+# then allow its ip address through the whitelist of the webserver
 #################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
@@ -58,7 +58,7 @@ then
         /bin/mkdir ${HOME}/runtime/authenticator
 fi
 
-${HOME}/services/datastore/operations/SyncFromDatastore.sh "firewall-auth-laptop-ips"  "${HOME}/runtime/authenticator"
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "whitelist-auth-laptop-ips"  "${HOME}/runtime/authenticator"
 
 /bin/cat ${HOME}/runtime/authenticator/firewall-laptop-ips/ipaddresses.dat* > ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
 
