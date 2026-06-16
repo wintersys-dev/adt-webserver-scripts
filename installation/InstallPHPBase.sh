@@ -69,7 +69,7 @@ then
                                 PHP_VERSION=""
                                 ${install_command} software-properties-common
                                 ${add_repository_command} universe
-                                ${upgrade_command}
+                                ${update_command}
                                 ${install_command}
                                 ${install_command} software-properties-common
                         else
@@ -82,7 +82,7 @@ then
                                 then
                                         ${add_repository_command} ppa:ondrej/nginx-mainline
                                 fi
-                                ${upgrade_command}
+                                ${update_command}
                                 ${install_command} php${PHP_VERSION}
                         fi
 
