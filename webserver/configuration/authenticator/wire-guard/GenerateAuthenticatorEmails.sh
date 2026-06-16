@@ -16,3 +16,7 @@ NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPR
 /usr/bin/find /var/www/html -mmin +30 -name "*client*" -type f -exec rm -fv {} \;
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
+
+email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "PROCESSING_NEEDED" -print`"
+
+echo ${email_addresses}
