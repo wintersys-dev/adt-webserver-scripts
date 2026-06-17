@@ -31,9 +31,9 @@ fi
 
 /bin/touch ${HOME}/runtime/authenticator/ipaddresses.dat
 
-if ( [ -f /var/www/firewall/ipaddresses.dat ] )
+if ( [ -f /var/www/whitelist/ipaddresses.dat ] )
 then
-	/bin/mv /var/www/firewall/ipaddresses.dat ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$
+	/bin/mv /var/www/whitelist/ipaddresses.dat ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$
 fi
 
 #if ( [ -f ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ ] )
