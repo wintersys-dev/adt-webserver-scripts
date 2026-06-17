@@ -66,11 +66,6 @@ for ip_address in `/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.d
 do
         if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/previous_ipaddresses.dat`" = "" ] )
         then
-                if ( [ ! -d ${HOME}/runtime/authenticator ] )
-                then
-                        /bin/mkdir -p ${HOME}/runtime/authenticator
-                fi
-
                 ${HOME}/webserver/configuration/reverseproxy/whitelist/AllowIPAddress.sh "${ip_address}"
                 ${HOME}/webserver/ReloadWebserver.sh
                 /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
