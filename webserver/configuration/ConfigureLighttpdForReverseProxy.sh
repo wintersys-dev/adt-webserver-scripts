@@ -74,6 +74,8 @@ fi
 
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
 then
+        /bin/sed -i -e '/#XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat' -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
+
         /bin/sed -i "s;#XXXXWHITE-LISTXXXX;;g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
 fi
 
