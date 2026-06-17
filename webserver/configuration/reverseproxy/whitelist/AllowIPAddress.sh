@@ -29,3 +29,8 @@ then
         /bin/sed -i "1s/^/allow ${ip_address};\n/" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 fi
 
+if ( [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
+then
+
+fi
+
