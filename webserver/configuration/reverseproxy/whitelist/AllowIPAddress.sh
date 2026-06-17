@@ -4,6 +4,11 @@ ip_address="${1}"
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 WEBSERVER_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSERVERCHOICE'`"
 
+if ( [ ! -d ${HOME}/runtime/authenticator ] )
+then
+  /bin/mkdir -p ${HOME}/runtime/authenticator
+fi
+
 if ( [ "${WEBSERVER_CHOICE}" = "apache" ] )
 then
   if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
