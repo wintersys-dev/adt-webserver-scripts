@@ -91,6 +91,14 @@ then
         /bin/touch /etc/apache2/.htpasswd
 fi
 
+if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
+then
+        /bin/touch /etc/apache2/whitelist_ipaddresses.dat
+        /bin/sed -i "s;#XXXXWHITE-LISTXXXX;IncludeOptional /etc/apache2/whitelist_ipaddresses.dat;g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
+else
+        /bin/sed -i "s;#XXXXOPEN-PROXYXXXX ;            Require all granted;g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
+fi
+
 if ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXY}" = "0" ] )
 then
         /bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
