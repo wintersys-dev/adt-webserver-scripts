@@ -34,7 +34,6 @@ email_list="`/bin/cat ${HOME}/runtime/authenticator/authentication-emails.dat | 
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 
-/usr/bin/find /var/www/html -mmin +30 -name "*ip-address*" -type f -exec rm -fv {} \;
 
 for email_address in ${email_list}
 do
