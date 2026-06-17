@@ -136,7 +136,7 @@ then
         /bin/cp ${HOME}/webserver/configuration/authenticator/nginx/logrotate.conf /etc/logrotate.d/nginx
 fi
 
-if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] )
+if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] || [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] )
 then
         /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/index.html /var/www/html/index.html
         /bin/cp ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/submit.php /var/www/html/submit.php
@@ -145,10 +145,10 @@ then
         /bin/chmod 644 /var/www/html/*
         /bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
         /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
-        if ( [ ! -d /var/www/firewall ] )
+        if ( [ ! -d /var/www/${AUTHENTICATOR_TYPE} ] )
         then
-                /bin/mkdir /var/www/firewall
-                /bin/chown www-data:www-data /var/www/firewall
+                /bin/mkdir /var/www/${AUTHENTICATOR_TYPE}
+                /bin/chown www-data:www-data /var/www/${AUTHENTICATOR_TYPE}
         fi
 elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 then
@@ -157,10 +157,10 @@ then
         /bin/chown www-data:www-data /var/www/html/*
         /bin/chmod 644 /var/www/html/*
         /bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
-        if ( [ ! -d /var/www/basic-auth ] )
+        if ( [ ! -d /var/www/${AUTHENTICATOR_TYPE} ] )
         then
-                /bin/mkdir /var/www/basic-auth
-                /bin/chown www-data:www-data /var/www/basic-auth
+                /bin/mkdir /var/www/${AUTHENTICATOR_TYPE}
+                /bin/chown www-data:www-data /var/www/${AUTHENTICATOR_TYPE}
         fi
 elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
@@ -171,10 +171,10 @@ then
 	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
 	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
 
-	if ( [ ! -d /var/www/wire-guard ] )
+	if ( [ ! -d /var/www/${AUTHENTICATOR_TYPE} ] )
 	then
-		/bin/mkdir /var/www/wire-guard
-		/bin/chown www-data:www-data /var/www/wire-guard
+		/bin/mkdir /var/www/${AUTHENTICATOR_TYPE}
+		/bin/chown www-data:www-data /var/www/${AUTHENTICATOR_TYPE}
 	fi  
 fi
 
