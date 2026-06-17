@@ -60,7 +60,7 @@ fi
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "whitelist-auth-laptop-ips"  "${HOME}/runtime/authenticator"
 
-/bin/cat ${HOME}/runtime/authenticator/firewall-laptop-ips/ipaddresses.dat* > ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
+/bin/cat ${HOME}/runtime/authenticator/whitelist-laptop-ips/ipaddresses.dat* > ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
 
 for ip_address in `/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat`
 do
