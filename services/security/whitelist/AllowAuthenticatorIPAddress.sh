@@ -66,6 +66,10 @@ for ip_address in `/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.d
 do
         if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/previous_ipaddresses.dat`" = "" ] )
         then
+                if ( [ ! -d ${HOME}/runtime/authenticator ] )
+                then
+                        /bin/mkdir -p ${HOME}/runtime/authenticator
+                fi
                 /bin/echo "Require ip ${ip_address}" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
         fi
