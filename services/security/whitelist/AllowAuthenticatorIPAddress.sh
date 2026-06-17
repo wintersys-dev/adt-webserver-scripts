@@ -29,6 +29,7 @@ HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "
 BUILD_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDIDENTIFIER'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 
 HOME="`/bin/cat /home/homedir.dat`"
 
@@ -69,6 +70,10 @@ do
                 if ( [ ! -d ${HOME}/runtime/authenticator ] )
                 then
                         /bin/mkdir -p ${HOME}/runtime/authenticator
+                fi
+                if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
+                then
+                        /bin/echo "Require ip ${VPC_IP_RANGE}" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 fi
                 /bin/echo "Require ip ${ip_address}" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
