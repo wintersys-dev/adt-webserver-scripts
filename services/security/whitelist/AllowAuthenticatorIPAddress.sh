@@ -77,6 +77,7 @@ do
                         /bin/echo "Require ip 127.0.0.1" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 fi
                 /bin/echo "Require ip ${ip_address}" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                ${HOME}/webserver/ReloadWebserver.sh
                 /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
         fi
 done
