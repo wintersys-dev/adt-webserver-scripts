@@ -64,31 +64,26 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "whitelist-auth-lapto
 updated="0"
 for ip_address in `/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat`
 do
-        if ( [ ! -f ${HOME}/runtime/authenticator/previous_ipaddresses.dat ] || [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/previous_ipaddresses.dat`" = "" ] )
+        if ( [ ! -f ${HOME}/runtime/authenticator/processed_ipaddresses.dat ] || [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/processed_ipaddresses.dat`" = "" ] )
         then
                 if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat`" = "" ] )
                 then
                         updated="1"
                         ${HOME}/webserver/configuration/reverseproxy/whitelist/AllowIPAddress.sh "${ip_address}"
-                        if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/ipaddresses.dat`" = "" ] )
+                        if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/processed_ipaddresses.dat`" = "" ] )
                         then
-                                /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
+                                /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/processed_ipaddresses.dat
                         fi
                 fi
         fi
 done
 
-if ( [ "${updated}" = "1" ] )
-then
-        ${HOME}/webserver/ReloadWebserver.sh
-fi
-
-if ( [ -f ${HOME}/runtime/authenticator/ipaddresses.dat ] )
-then
-        /bin/cat ${HOME}/runtime/authenticator/ipaddresses.dat >> ${HOME}/runtime/authenticator/previous_ipaddresses.dat
-fi
-
 if ( [ -f ${HOME}/runtime/authenticator/incoming_ipaddresses.dat ] )
 then
         /bin/rm ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
+fi
+
+if ( [ "${updated}" = "1" ] )
+then
+        ${HOME}/webserver/ReloadWebserver.sh
 fi
