@@ -41,8 +41,11 @@ then
                 ip_addresses="`/bin/echo ${ip_addresses} | /bin/sed -e 's/.$//g' -e 's/ //g'`"
                 /bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/sed -i "s/XXXXIP_ADDRESSESXXXX/${ip_addresses}/" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
-                /bin/sed -i '/#WHITE-LIST-MARKER/d' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
-                /bin/sed -i -e '/#XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat' -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
+                /usr/bin/tac /etc/lighttpd/lighttpd.conf | /usr/bin/awk '!p && /#WHITE-LIST-MARKER/{print "#XXXXWHITE-LISTXXXX"; p=1} 1' | /usr/bin/tac > /etc/lighttpd/lighttpd.conf.$$
+                /bin/sed -i '/#WHITE-LIST-MARKER/d' /etc/lighttpd/lighttpd.conf.$$
+                /bin/sed -i -e '/#XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat' -e 'd}' /etc/lighttpd/lighttpd.conf.$$
+                /bin/mv /etc/lighttpd/lighttpd.conf.$$ /etc/lighttpd/lighttpd.conf
+
         fi
 
 fi
