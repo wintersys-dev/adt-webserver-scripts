@@ -93,7 +93,11 @@ fi
 
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
 then
-        /bin/touch ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+        if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
+        then
+                /bin/echo "Require ip ${VPC_IP_RANGE}" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                /bin/echo "Require ip 127.0.0.1" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+        fi
         /bin/sed -i "s;#XXXXWHITE-LISTXXXX;IncludeOptional ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat;g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 else
         /bin/sed -i "s/#XXXXOPEN-PROXYXXXX/            Require all granted/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
