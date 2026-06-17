@@ -41,6 +41,7 @@ then
                 ip_addresses="`/bin/echo ${ip_addresses} | /bin/sed -e 's/.$//g' -e 's/ //g'`"
                 /bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/sed -i "s/XXXXIP_ADDRESSESXXXX/${ip_addresses}/" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                /bin/sed -i -e '/#XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat' -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
         fi
 
 fi
