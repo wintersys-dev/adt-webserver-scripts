@@ -1,4 +1,5 @@
 
+ip_address="${1}"
                 
 if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
 then
