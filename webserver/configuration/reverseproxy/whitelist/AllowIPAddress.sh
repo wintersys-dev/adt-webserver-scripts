@@ -1,5 +1,7 @@
 
 ip_address="${1}"
+
+VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
                 
 if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
 then
