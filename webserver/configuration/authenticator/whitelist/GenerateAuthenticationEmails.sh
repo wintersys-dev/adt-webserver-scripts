@@ -25,9 +25,9 @@ then
 	/bin/mkdir ${HOME}/runtime/authenticator
 fi
 
-if ( [ -f /var/www/firewall/authentication-emails.dat ] )
+if ( [ -f /var/www/whitelist/authentication-emails.dat ] )
 then
-	/bin/mv /var/www/firewall/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
+	/bin/mv /var/www/whitelist/authentication-emails.dat ${HOME}/runtime/authenticator/authentication-emails.dat
 fi
 
 email_list="`/bin/cat ${HOME}/runtime/authenticator/authentication-emails.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -40,7 +40,7 @@ for email_address in ${email_list}
 do
 	file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 	full_file_name="/var/www/html/ip-address-${file_name}.html"
-	/bin/cp ${HOME}/webserver/configuration/authenticator/firewall/ip-collector.html ${full_file_name}
+	/bin/cp ${HOME}/webserver/configuration/authenticator/whitelist/ip-collector.html ${full_file_name}
 	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL_ORIGINAL}/g" ${full_file_name}
 	/bin/chown www-data:www-data ${full_file_name}
 	/bin/chmod 644 ${full_file_name}
