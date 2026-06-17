@@ -9,12 +9,12 @@ then
   /bin/mkdir -p ${HOME}/runtime/authenticator
 fi
 
-if ( [ "${WEBSERVER_CHOICE}" = "apache" ] )
+if ( [ "${WEBSERVER_CHOICE}" = "APACHE" ] )
 then
   /bin/echo "Require ip ${ip_address}" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 fi
 
-if ( [ "${WEBSERVER_CHOICE}" = "nginx" ] )
+if ( [ "${WEBSERVER_CHOICE}" = "NGINX" ] )
 then
 #  if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
 #  then
