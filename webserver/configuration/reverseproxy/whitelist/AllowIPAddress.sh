@@ -31,6 +31,17 @@ fi
 
 if ( [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
 then
+        if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
+        then
+                /bin/cat ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat > ${HOME}/runtime/authenticator/all_ips_whitelist.dat
+                ${HOME}/runtime/authenticator/processed_ipaddresses.dat >> ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
+                /usr/bin/awk '!seen[$0]++' ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$ > ${HOME}/runtime/authenticator/all_ips_whitelist.dat
+                /bin/rm ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
+                ip_addresses="`/bin/cat ${HOME}/runtime/authenticator/all_ips_whitelist.dat | /bin/sed 's/$/|/'`"
+                ip_addresses="`/bin/echo ${ip_addresses} | /bin/sed -e 's/.$//g' -e 's/ //g'`"
+                /bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                /bin/sed -i "s/XXXXIP_ADDRESSESXXXX/${ip_addresses}/" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+        fi
 
 fi
 
