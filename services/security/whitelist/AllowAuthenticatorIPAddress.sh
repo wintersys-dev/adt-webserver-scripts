@@ -66,16 +66,8 @@ for ip_address in `/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.d
 do
         if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/previous_ipaddresses.dat`" = "" ] )
         then
-                if ( [ "${firewall}" = "ufw" ] )
-                then
-                        /usr/sbin/ipset add allowed-laptop-ips "${ip_address}/32"
-                        /usr/sbin/ufw reload
-                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
-                elif ( [ "${firewall}" = "iptables" ] )
-                then
-                        /usr/sbin/ipset add allowed-laptop-ips ${ip_address}
-                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
-                fi
+                /bin/echo "Require ip ${ip_address}" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
         fi
 done
 
