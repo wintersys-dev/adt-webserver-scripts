@@ -26,6 +26,6 @@ then
                 /bin/echo "allow 127.0.0.1;" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "deny all;" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
         fi
-        /bin/sed -i "1s/^/allow ${ip_address};/" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+        /bin/sed -i "1s/^/allow ${ip_address};/" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 fi
 
