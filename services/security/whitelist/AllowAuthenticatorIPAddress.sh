@@ -70,10 +70,7 @@ do
                 then
                         updated="1"
                         ${HOME}/webserver/configuration/reverseproxy/whitelist/AllowIPAddress.sh "${ip_address}"
-                        if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/processed_ipaddresses.dat`" = "" ] )
-                        then
-                                /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/processed_ipaddresses.dat
-                        fi
+                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/processed_ipaddresses.dat
                 fi
         fi
 done
