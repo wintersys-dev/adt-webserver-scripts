@@ -75,7 +75,7 @@ fi
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
 then
         /bin/sed -i -e "/#XXXXWHITE-LISTXXXX/{r ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
-        /bin/sed -i "s/XXXXIP_ADDRESSESXXXX/${VPC_IP_RANGE}/g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
+        /bin/sed -i "s/XXXXIP_ADDRESSESXXXX/${VPC_IP_RANGE}|127.0.0.1/g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
 fi
 
 if ( [ -f ${HOME}/webserver/configuration/reverseproxy/lighttpd/mimetypes.conf ] )
