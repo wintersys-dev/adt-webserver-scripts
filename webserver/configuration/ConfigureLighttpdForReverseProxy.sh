@@ -72,6 +72,11 @@ else
 	/bin/sed -i "/#XXXXBASIC-AUTHXXXX/d" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
 fi
 
+if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
+then
+        /bin/sed -i "s;#XXXXWHITE-LISTXXXX;IncludeOptional ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat;g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
+fi
+
 if ( [ -f ${HOME}/webserver/configuration/reverseproxy/lighttpd/mimetypes.conf ] )
 then
 	/bin/cp ${HOME}/webserver/configuration/reverseproxy/lighttpd/mimetypes.conf /etc/lighttpd/mimetypes.conf
