@@ -68,7 +68,7 @@ then
                         then
                                 /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip}
                                 ${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "distributed" 
-                                ${HOME}/services/datastore/operations/PutToDatastore.sh "whitelist-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "firewall-laptop-ips" "distributed" "no"
+                                ${HOME}/services/datastore/operations/PutToDatastore.sh "whitelist-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "whitelist-laptop-ips" "distributed" "no"
                         fi      
                 fi              
         done
