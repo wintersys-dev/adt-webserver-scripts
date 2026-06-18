@@ -87,7 +87,7 @@ then
                 /bin/echo "allow ip 127.0.0.1;" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 			    /bin/echo "deny all;" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
         fi
-        /bin/sed -i 's/##XXXXWHITE-LISTXXXX//g' ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+        /bin/sed -i 's/###XXXXWHITE-LISTXXXX//g' ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 		/bin/sed -i "s,#XXXXWHITE-LISTXXXX,include ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat;,g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 		/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /var/www/html/${APPLICATION}/403-error.html
 else
