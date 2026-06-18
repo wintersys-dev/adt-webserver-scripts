@@ -33,14 +33,14 @@ fi
 
 if ( [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
 then
-        if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
+        if ( [ -f ${HOME}/runtime/authenticator/incoming_ipaddresses.dat ] && [ "`/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat`" != "" ] )
         then
-                /bin/cat ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat > ${HOME}/runtime/authenticator/all_ips_whitelist.dat
+                /bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat > ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
                 /bin/cat ${HOME}/runtime/authenticator/processed_ipaddresses.dat >> ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
                 /usr/bin/awk '!seen[$0]++' ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$ > ${HOME}/runtime/authenticator/all_ips_whitelist.dat
                 /bin/rm ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
                 ip_addresses="`/bin/cat ${HOME}/runtime/authenticator/all_ips_whitelist.dat`"
-                ip_addresses="`/bin/echo ${ip_addresses} | /bin/sed 's/ /|/g' | /bin/sed -e 's/.$//g' -e 's/ //g'`"
+                ip_addresses="`/bin/echo ${ip_addresses} | /bin/sed 's/ /|/g'`"
                 vpc="`/bin/echo ${VPC_IP_RANGE} | /usr/bin/cut -d. -f-3`\\."
                 ip_addresses="${ip_addresses}|${vpc}|127.0.0.1"
                 /bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
@@ -49,10 +49,6 @@ then
                 /bin/sed -i '/#WHITE-LIST-MARKER/d' /etc/lighttpd/lighttpd.conf.$$
                 /bin/sed -i -e "/##XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat" -e 'd}' /etc/lighttpd/lighttpd.conf.$$
                 /bin/mv /etc/lighttpd/lighttpd.conf.$$ /etc/lighttpd/lighttpd.conf
-        fi
-        if ( [ -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
-        then
-                /bin/rm ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat 
         fi
 fi
 
