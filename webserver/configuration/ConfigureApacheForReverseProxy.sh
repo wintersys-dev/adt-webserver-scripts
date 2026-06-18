@@ -99,6 +99,7 @@ then
                 /bin/echo "Require ip 127.0.0.1" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
         fi
         /bin/sed -i "s;#XXXXWHITE-LISTXXXX;IncludeOptional ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat;g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
+	/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /etc/apache2/403-error.html
 else
         /bin/sed -i "s/#XXXXOPEN-PROXYXXXX/            Require all granted/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 fi
