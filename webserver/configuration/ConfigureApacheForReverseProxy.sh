@@ -100,7 +100,7 @@ then
                 /bin/echo "Require ip ${VPC_IP_RANGE}" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "Require ip 127.0.0.1" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
         fi
-		/bin/sed -i 's/###XXXXWHITE-LISTXXXX//g' ${HOME}/webserver/configuration/reverseproxy/apache2/site-available.conf
+		/bin/sed -i 's/#XXXXERROR-PAGEXXXX//g' ${HOME}/webserver/configuration/reverseproxy/apache2/site-available.conf
         /bin/sed -i "s;#XXXXWHITE-LISTXXXX;IncludeOptional ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat;g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 		/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /var/www/html/${APPLICATION}/403-error.html
 else
