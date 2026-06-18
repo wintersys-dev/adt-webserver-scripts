@@ -37,22 +37,6 @@ then
         exit
 fi
 
-firewall=""
-if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}'`" = "ufw" ] )
-then
-        firewall="ufw"
-elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}'`" = "iptables" ] )
-then
-        firewall="iptables"
-fi
-
-if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep allowed-laptop-ips`" = "" ] )
-then
-        ${HOME}/installation/InstallIPSet.sh ${BUILDOS}
-        /usr/sbin/ipset create allowed-laptop-ips hash:ip maxelem 16777216
-        /usr/sbin/iptables -I INPUT -m set --match-set allowed-laptop-ips src -p tcp --dport 443 -j ACCEPT
-fi
-
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
         /bin/mkdir ${HOME}/runtime/authenticator
