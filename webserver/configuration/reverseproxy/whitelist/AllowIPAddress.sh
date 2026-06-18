@@ -18,6 +18,7 @@ then
                 /bin/echo "Require ip 127.0.0.1" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
         fi
         /bin/echo "Require ip ${ip_address}" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/processed_ipaddresses.dat
 fi
 
 if ( [ "${WEBSERVER_CHOICE}" = "NGINX" ] )
@@ -29,16 +30,11 @@ then
                 /bin/echo "deny all;" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
         fi
         /bin/sed -i "1s/^/allow ${ip_address};\n/" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/processed_ipaddresses.dat
 fi
 
 if ( [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
-then
-        if ( [ ! -f ${HOME}/runtime/LIGHTTPD_WHITELIST_PRIMED ] && [ -f ${HOME}/runtime/REVERSEPROXY_READY ] )
-        then
-                /bin/echo "111.111.111.111" > ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
-                /bin/touch ${HOME}/runtime/LIGHTTPD_WHITELIST_PRIMED
-        fi
-        
+then        
         if ( [ -f ${HOME}/runtime/authenticator/incoming_ipaddresses.dat ] && [ "`/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat`" != "" ] )
         then
                 /bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat > ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
@@ -55,6 +51,11 @@ then
                 /bin/sed -i '/#WHITE-LIST-MARKER/d' /etc/lighttpd/lighttpd.conf.$$
                 /bin/sed -i -e "/##XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat" -e 'd}' /etc/lighttpd/lighttpd.conf.$$
                 /bin/mv /etc/lighttpd/lighttpd.conf.$$ /etc/lighttpd/lighttpd.conf
+                
+                if ( [ "`/bin/grep ${ip_address} /etc/lighttpd/lighttpd.conf`" != "" ] )
+                then
+                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/processed_ipaddresses.dat
+                fi
         fi
 fi
 
