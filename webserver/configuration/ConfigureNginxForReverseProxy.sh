@@ -88,7 +88,7 @@ then
         fi
         /bin/sed -i 's/##WHITE-LIST//g' ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 		/bin/sed -i "s,#XXXXWHITE-LISTXXXX,include ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat;,g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
-		/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /etc/nginx/403-error.html
+		/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /var/www/html/${APPLICATION}/403-error.html
 else
         /bin/sed -i "s/#XXXXOPEN-PROXYXXXX/            Require all granted/g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 fi
