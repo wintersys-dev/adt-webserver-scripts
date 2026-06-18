@@ -33,6 +33,12 @@ fi
 
 if ( [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
 then
+        if ( [ ! -f ${HOME}/runtime/LIGHTTPD_WHITELIST_PRIMED ] )
+        then
+                /bin/echo "111.111.111.111" > ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
+                /bin/touch ${HOME}/runtime/LIGHTTPD_WHITELIST_PRIMED
+        fi
+        
         if ( [ -f ${HOME}/runtime/authenticator/incoming_ipaddresses.dat ] && [ "`/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat`" != "" ] )
         then
                 /bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat > ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
