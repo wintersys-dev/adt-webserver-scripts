@@ -41,7 +41,8 @@ then
                 /bin/rm ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
                 ip_addresses="`/bin/cat ${HOME}/runtime/authenticator/all_ips_whitelist.dat`"
                 ip_addresses="`/bin/echo ${ip_addresses} | /bin/sed -e 's/.$//g' -e 's/ //g'`"
-                ip_addresses="${ip_addresses}${VPC_IP_RANGE}|127.0.0.1"
+                vpc="`/bin/echo ${VPC_IP_RANGE} | /usr/bin/cut -d. -f-3`\\."
+                ip_addresses="${ip_addresses}${vpc}|127.0.0.1"
                 /bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/sed -i "s;XXXXIP_ADDRESSESXXXX;${ip_addresses};" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /usr/bin/tac /etc/lighttpd/lighttpd.conf | /usr/bin/awk '!p && /#WHITE-LIST-MARKER/{print "#XXXXWHITE-LISTXXXX"; p=1} 1' | /usr/bin/tac > /etc/lighttpd/lighttpd.conf.$$
