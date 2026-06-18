@@ -77,7 +77,7 @@ then
         /bin/sed -i -e "/#XXXXWHITE-LISTXXXX/{r ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
         vpc="`/bin/echo ${VPC_IP_RANGE} | /usr/bin/cut -d. -f-3`\\."
 		/bin/sed -i "s;XXXXIP_ADDRESSESXXXX;${vpc}|127.0.0.1;g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
-		/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /etc/lighttpd/403-error.html
+		/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /var/www/html/${APPLICATION}/403-error.html
 fi
 
 if ( [ -f ${HOME}/webserver/configuration/reverseproxy/lighttpd/mimetypes.conf ] )
