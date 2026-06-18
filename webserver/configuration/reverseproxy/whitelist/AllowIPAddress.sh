@@ -59,6 +59,11 @@ then
                                 /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/processed_ipaddresses.dat
                         fi
                 fi
+        else
+                if ( [ -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
+                then
+                        /bin/rm ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                fi
         fi
 fi
 
