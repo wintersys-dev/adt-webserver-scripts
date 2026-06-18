@@ -33,7 +33,7 @@ fi
 
 if ( [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
 then
-        if ( [ ! -f ${HOME}/runtime/LIGHTTPD_WHITELIST_PRIMED ] )
+        if ( [ ! -f ${HOME}/runtime/LIGHTTPD_WHITELIST_PRIMED ] && [ -f ${HOME}/runtime/REVERSEPROXY_READY ] )
         then
                 /bin/echo "111.111.111.111" > ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
                 /bin/touch ${HOME}/runtime/LIGHTTPD_WHITELIST_PRIMED
