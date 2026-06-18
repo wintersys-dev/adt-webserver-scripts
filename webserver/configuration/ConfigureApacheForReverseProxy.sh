@@ -31,6 +31,7 @@ SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
 AUTH_SERVER_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
+APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 LOADBALANCER="`${HOME}/utilities/config/ExtractConfigValue.sh 'LOADBALANCER'`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
@@ -100,7 +101,7 @@ then
         fi
 		/bin/sed -i 's/##WHITE-LIST//g' ${HOME}/webserver/configuration/reverseproxy/apache2/site-available.conf
         /bin/sed -i "s;#XXXXWHITE-LISTXXXX;IncludeOptional ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat;g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
-		/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /etc/apache2/403-error.html
+		/bin/cp ${HOME}webserver/configuration/reverseproxy/whitelist/403-error.html /var/www/html/${APPLICATION}/403-error.html
 else
         /bin/sed -i "s/#XXXXOPEN-PROXYXXXX/            Require all granted/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 fi
