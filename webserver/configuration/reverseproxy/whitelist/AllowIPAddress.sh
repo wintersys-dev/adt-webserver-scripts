@@ -35,8 +35,8 @@ fi
 
 if ( [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
 then        
-        if ( [ -f ${HOME}/runtime/REVERSEPROXY_READY ] )
-        then
+    #    if ( [ -f ${HOME}/runtime/REVERSEPROXY_READY ] )
+    #    then
                 if ( [ -f /etc/lighttpd/lighttpd.conf ] )
                 then
                         /bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat > ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
@@ -53,7 +53,7 @@ then
                         if ( [ ! -f  ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] || [ "`/usr/bin/diff ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$ ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat`" != "" ] )
                         then
                                 # as close to atomic as possible
-                                /bin/cp ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$ ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                                /bin/mv ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$ ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 
                                 if ( [ "`/bin/grep ${ip_address} /etc/lighttpd/lighttpd.conf`" != "" ] )
                                 then
@@ -61,10 +61,10 @@ then
                                 fi
                         fi
                 fi
-        else
-                if ( [ -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
-                then
-                        /bin/rm ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
-                fi
-        fi
+     #   else
+     #           if ( [ -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
+#                then
+ #                       /bin/rm ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+  #              fi
+   #     fi
 fi
