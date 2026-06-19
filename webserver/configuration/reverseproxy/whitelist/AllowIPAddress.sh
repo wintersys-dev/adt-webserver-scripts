@@ -47,18 +47,13 @@ then
                         ip_addresses="`/bin/echo ${ip_addresses} | /bin/sed 's/ /|/g'`"
                         vpc="`/bin/echo ${VPC_IP_RANGE} | /usr/bin/cut -d. -f-3`\\."
                         ip_addresses="${ip_addresses}|${vpc}|127.0.0.1"
-                        /bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
-                        /bin/sed -i "s;XXXXIP_ADDRESSESXXXX;${ip_addresses};" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                        /bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$
+                        /bin/sed -i "s;XXXXIP_ADDRESSESXXXX;${ip_addresses};" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$
 
-                        value1="`/bin/cat /etc/lighttpd/lighttpd.conf | /usr/bin/sort -u | /usr/bin/wc | /bin/sed 's/ //g'`"
-                        value2="`/bin/cat ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat /etc/lighttpd/lighttpd.conf | /usr/bin/sort -u | /usr/bin/wc | /bin/sed 's/ //g'`"
-
-                        if ( [ "${value1}" -ne "${value2}" ] )
+                        if ( [ ! -f  ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] || [ "`/usr/bin/diff ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$ ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat`" != "" ] )
                         then
-                                /usr/bin/tac /etc/lighttpd/lighttpd.conf | /usr/bin/awk '!p && /##WHITE-LIST-MARKER/{print "##XXXXWHITE-LISTXXXX"; p=1} 1' | /usr/bin/tac > /etc/lighttpd/lighttpd.conf.$$
-                                #/bin/sed -i '/#WHITE-LIST-MARKER/d' /etc/lighttpd/lighttpd.conf.$$
-                                #/bin/sed -i -e "/##XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat" -e 'd}' /etc/lighttpd/lighttpd.conf.$$
-                                /bin/mv /etc/lighttpd/lighttpd.conf.$$ /etc/lighttpd/lighttpd.conf
+                                # as close to atomic as possible
+                                /bin/cp ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$ ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 
                                 if ( [ "`/bin/grep ${ip_address} /etc/lighttpd/lighttpd.conf`" != "" ] )
                                 then
