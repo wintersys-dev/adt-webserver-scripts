@@ -37,8 +37,8 @@ if ( [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
 then        
     #    if ( [ -f ${HOME}/runtime/REVERSEPROXY_READY ] )
     #    then
-                if ( [ -f /etc/lighttpd/lighttpd.conf ] )
-                then
+             #   if ( [ -f /etc/lighttpd/lighttpd.conf ] )
+             #   then
                         /bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat > ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
                         /bin/cat ${HOME}/runtime/authenticator/processed_ipaddresses.dat >> ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$
                         /usr/bin/awk '!seen[$0]++' ${HOME}/runtime/authenticator/all_ips_whitelist.dat.$$ > ${HOME}/runtime/authenticator/all_ips_whitelist.dat
@@ -60,7 +60,7 @@ then
                                         /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/processed_ipaddresses.dat
                                 fi
                         fi
-                fi
+              #  fi
      #   else
      #           if ( [ -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
 #                then
