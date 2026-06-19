@@ -56,8 +56,8 @@ then
                         if ( [ "${value1}" -ne "${value2}" ] )
                         then
                                 /usr/bin/tac /etc/lighttpd/lighttpd.conf | /usr/bin/awk '!p && /##WHITE-LIST-MARKER/{print "##XXXXWHITE-LISTXXXX"; p=1} 1' | /usr/bin/tac > /etc/lighttpd/lighttpd.conf.$$
-                                /bin/sed -i '/#WHITE-LIST-MARKER/d' /etc/lighttpd/lighttpd.conf.$$
-                                /bin/sed -i -e "/##XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat" -e 'd}' /etc/lighttpd/lighttpd.conf.$$
+                                #/bin/sed -i '/#WHITE-LIST-MARKER/d' /etc/lighttpd/lighttpd.conf.$$
+                                #/bin/sed -i -e "/##XXXXWHITE-LISTXXXX/{r ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat" -e 'd}' /etc/lighttpd/lighttpd.conf.$$
                                 /bin/mv /etc/lighttpd/lighttpd.conf.$$ /etc/lighttpd/lighttpd.conf
 
                                 if ( [ "`/bin/grep ${ip_address} /etc/lighttpd/lighttpd.conf`" != "" ] )
