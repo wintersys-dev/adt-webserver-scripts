@@ -64,7 +64,7 @@ fi
 /bin/sed -i "s;XXXXVPC_IP_RANGEXXXX;${VPC_IP_RANGE};g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
 
-if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
+if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
 then
 	/bin/sed -i "s/#XXXXBASIC-AUTHXXXX//g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
 	/bin/touch /etc/nginx/.htpasswd
@@ -72,7 +72,7 @@ else
 	/bin/sed -i "/#XXXXBASIC-AUTHXXXX/d" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
 fi
 
-if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
+if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
 then
 	/bin/sed -i 's/#XXXXWHITE-LISTXXXX//g' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
    # /bin/sed -i -e "/#XXXXWHITE-LISTXXXX/{r ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
