@@ -105,7 +105,7 @@ else
         /bin/sed -i "s/#XXXXOPEN-PROXYXXXX/            Require all granted/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 fi
 
-if ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXY}" = "0" ] )
+if ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXIES}" = "0" ] )
 then
         /bin/sed -i "s/#XXXXMODSECURITYXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
 fi
