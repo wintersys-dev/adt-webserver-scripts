@@ -9,7 +9,7 @@ fi
 
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
+NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
 authenticator_no="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
 sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
