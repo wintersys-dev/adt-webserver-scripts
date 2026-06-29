@@ -109,7 +109,7 @@ then
 				limited="off"
 			fi
 		fi
-		if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] && [ "${NO_REVERSE_PROXY}" != "0" ] )
+		if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
 		then
 			limited="off"
 		fi
