@@ -16,7 +16,7 @@ fi
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emails" "${HOME}/runtime/wire-guard/emails/notifications"
 
-NO_REVESE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
+NO_REVESE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
 /bin/cat ${HOME}/runtime/wire-guard/emails/notifications/authentication-emails* > ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat
 /usr/bin/sort -u ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat | /bin/sed '/^$/d' >  ${HOME}/runtime/wire-guard/emails/notifications/all_authentication-emails.dat.$$
