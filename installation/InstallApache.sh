@@ -34,7 +34,7 @@ fi
 
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 MOD_SECURITY="`${HOME}/utilities/config/ExtractConfigValue.sh 'MODSECURITY'`"
-NO_REVERSE_PROXY="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
+NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
 apt=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
@@ -108,7 +108,7 @@ do
 
 			if ( [ "${MOD_SECURITY}" = "1" ] )
 			then
-				if ( ( [ "${NO_REVERSE_PROXY}" = "0" ] || ( [ "${NO_REVERSE_PROXY}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+				if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 				then
 					${install_command} libapache2-mod-security2
 					${HOME}/installation/modsecurity/ConfigureModSecurityForApache.sh
@@ -168,7 +168,7 @@ do
 
 			if ( [ "${MOD_SECURITY}" = "1" ] )
 			then
-				if ( ( [ "${NO_REVERSE_PROXY}" = "0" ] || ( [ "${NO_REVERSE_PROXY}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+				if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 				then
 					${install_command} libapache2-mod-security2
 					${HOME}/installation/modsecurity/ConfigureModSecurityForApache.sh
