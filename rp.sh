@@ -96,6 +96,9 @@ X11Forwarding no" > /etc/ssh/sshd_config.d/99-hardening.conf
 
  ${HOME}/utilities/processing/RunServiceCommand.sh "ssh" restart
 
+/bin/sed -i "s/managed=false/managed=true/" /etc/NetworkManager/NetworkManager.conf
+${HOME}/utilities/processing/RunServiceCommand.sh NetworkManager restart
+
 #Setup operational directories if needed
 if ( [ ! -d ${HOME}/logs/initialbuild ] )
 then
