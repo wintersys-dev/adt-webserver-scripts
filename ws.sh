@@ -274,9 +274,9 @@ fi
 /usr/bin/touch ${HOME}/runtime/INITIAL_BUILD_WEBSERVER_ONLINE
 /usr/bin/touch ${HOME}/runtime/WEBSERVER_READY
 
-/bin/echo "${0} Enforcing Permissions"
-${HOME}/utilities/security/EnforcePermissions.sh 
-
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
+
+/bin/echo "${0} Enforcing Permissions"
+${HOME}/utilities/security/EnforcePermissions.sh &
 
