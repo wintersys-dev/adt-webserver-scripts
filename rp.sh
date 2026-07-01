@@ -235,5 +235,5 @@ ${HOME}/utilities/housekeeping/CleanupAfterBuild.sh
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
 
-${HOME}/utilities/security/EnforcePermissions.sh &
+#${HOME}/utilities/security/EnforcePermissions.sh &
 
