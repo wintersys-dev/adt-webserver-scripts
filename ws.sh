@@ -278,6 +278,6 @@ fi
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
 
-#/bin/echo "${0} Enforcing Permissions"
-#${HOME}/utilities/security/EnforcePermissions.sh &
+/bin/echo "${0} Enforcing Permissions"
+/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh &
 
