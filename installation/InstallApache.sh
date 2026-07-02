@@ -54,7 +54,6 @@ then
 fi
 
 export DEBIAN_FRONTEND=noninteractive
-update_command="${manager} ${options} update " 
 install_command="${manager} ${options} install " 
 
 ${HOME}/installation/PurgeApache.sh
