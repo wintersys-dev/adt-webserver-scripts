@@ -62,8 +62,8 @@ do
 		if ( [ "${BUILDOS}" = "ubuntu" ] )
 		then
 			${HOME}/utilities/processing/RunServiceCommand.sh cron stop				
-			eval ${update_command}			
-			eval ${install_command} php${PHP_VERSION}-cli unzip	
+			eval ${update_command} ${tail_options}
+			eval ${install_command} php${PHP_VERSION}-cli unzip	${tail_options}
 			cd ~												
 			/usr/bin/curl -sS https://getcomposer.org/installer -o /opt/composer-setup.php			
 			HASH=`/usr/bin/curl -sS https://composer.github.io/installer.sig`				
@@ -75,8 +75,8 @@ do
 		if ( [ "${BUILDOS}" = "debian" ] )
 		then
 			${HOME}/utilities/processing/RunServiceCommand.sh cron stop				
-			eval ${update_command}			
-			eval ${install_command} php${PHP_VERSION}-cli unzip
+			eval ${update_command} ${tail_options}
+			eval ${install_command} php${PHP_VERSION}-cli unzip ${tail_options}
 			cd ~												
 			/usr/bin/curl -sS https://getcomposer.org/installer -o /opt/composer-setup.php			
 			HASH=`/usr/bin/curl -sS https://composer.github.io/installer.sig`				
