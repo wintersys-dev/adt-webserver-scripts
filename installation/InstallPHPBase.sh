@@ -47,6 +47,7 @@ HOME="`/bin/cat /home/homedir.dat`"
 manager=""
 options=""
 tail_options=""
+nala_update_command=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
         manager="/usr/bin/apt"
@@ -59,6 +60,7 @@ elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" 
 then
 	manager="/usr/bin/nala"
 	tail_options="-y"
+	nala_update_command="/usr/bin/nala update"
 fi            
 
 export DEBIAN_FRONTEND=noninteractive
@@ -128,6 +130,8 @@ then
                                 /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
 
+						${nala_update_command}
+
                         php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
 
                         for module in ${php_modules}
@@ -156,6 +160,8 @@ then
                                 /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
                 fi
+
+				${nala_update_command}
 
                 php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
 
