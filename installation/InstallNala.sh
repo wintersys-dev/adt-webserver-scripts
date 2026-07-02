@@ -1,6 +1,6 @@
 #!/bin/sh
 ######################################################################################################
-# Description: This script will install gawk
+# Description: This script will install nala
 # Author: Peter Winter
 # Date: 17/01/2017
 #######################################################################################################
@@ -33,21 +33,17 @@ fi
 HOME="`/bin/cat /home/homedir.dat`"
 
 manager=""
-if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
-then
-	manager="/usr/bin/apt"
-	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
-elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
+if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
 then
 	manager="/usr/bin/apt-get"
 	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
 fi
 
 export DEBIAN_FRONTEND=noninteractive
-install_command="${manager} ${options} install "
+install_command="${manager} ${options} install"
 
 count="0"
-while ( [ ! -f /usr/bin/gawk ] && [ "${count}" -lt "5" ] )
+while ( [ ! -f /usr/bin/bzip2 ] && [ "${count}" -lt "5" ] )
 do
 	if ( [ "${manager}" != "" ] )
 	then
@@ -67,7 +63,7 @@ done
 
 if ( [ ! -x /usr/bin/nala ] && [ "${count}" = "5" ] )
 then
-	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR NALA" "I believe that nala hasn't installed correctly, please investigate" "ERROR"
+	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR nala" "I believe that nala hasn't installed correctly, please investigate" "ERROR"
 else
-	/bin/touch ${HOME}/runtime/installedsoftware/InstallGawk.sh	
+	/bin/touch ${HOME}/runtime/installedsoftware/InstallNala.sh	
 fi
