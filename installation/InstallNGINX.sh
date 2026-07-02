@@ -48,6 +48,10 @@ then
 	manager="/usr/bin/apt-get"
 	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
 	options1="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y"
+elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
+then
+	manager="/usr/bin/nala"
+	tail_options="-y"
 fi
 
 ${HOME}/installation/PurgeApache.sh
