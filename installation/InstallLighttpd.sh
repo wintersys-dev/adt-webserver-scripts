@@ -72,7 +72,7 @@ do
 				then
 					if ( [ ! -f /etc/lighttpd/BUILT_FROM_SOURCE ] )
 					then
-						eval ${update_command} ${tail_options}
+						eval ${update_command}
 						software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:software-packages" "stripped"`"
 						if ( [ "${software_package_list}" != "" ] )
 						then
@@ -123,7 +123,7 @@ do
 				then
 					if ( [ ! -f /etc/lighttpd/BUILT_FROM_SOURCE ] )
 					then
-						eval ${update_command} ${tail_options}
+						eval ${update_command}
 						software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:software-packages" "stripped"`"
 						if ( [ "${software_package_list}" != "" ] )
 						then
