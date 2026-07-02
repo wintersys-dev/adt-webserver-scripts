@@ -64,7 +64,7 @@ do
 		then
 			if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 			then
-				eval ${install_command} apache2-utils
+				eval ${install_command} apache2-utils ${tail_options}
 			fi
 			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
 			then
@@ -82,7 +82,7 @@ do
 					fi
 				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
 				then
-					eval ${install_command} lighttpd
+					eval ${install_command} lighttpd ${tail_options}
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
 						modules_list="mod_fastcgi"
@@ -115,7 +115,7 @@ do
 		then
 			if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 			then
-				eval ${install_command} apache2-utils
+				eval ${install_command} apache2-utils ${tail_options}
 			fi
 			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
 			then
@@ -133,7 +133,7 @@ do
 					fi
 				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
 				then
-					eval ${install_command} lighttpd
+					eval ${install_command} lighttpd ${tail_options}
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
 						modules_list="mod_fastcgi"
