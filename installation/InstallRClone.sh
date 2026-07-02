@@ -44,7 +44,7 @@ then
 fi
 
 export DEBIAN_FRONTEND=noninteractive
-install_command="${manager} ${options}"
+install_command="${manager} ${options} install"
 
 cwd="`/usr/bin/pwd`"
 
