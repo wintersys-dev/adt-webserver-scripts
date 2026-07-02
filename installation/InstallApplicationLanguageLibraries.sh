@@ -81,7 +81,7 @@ then
 
                         for module in ${php_application_modules}
                         do
-                                ${install_command} php${PHP_VERSION}-${module}
+                                ${install_command} php${PHP_VERSION}-${module} ${tail_options}
                         done
                 fi
         fi
@@ -100,7 +100,7 @@ then
 
                 for module in ${php_application_modules}
                 do
-                        ${install_command} php${PHP_VERSION}-${module}
+                        ${install_command} php${PHP_VERSION}-${module} ${tail_options}
                 done
         fi
 fi
