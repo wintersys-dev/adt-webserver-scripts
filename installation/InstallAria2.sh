@@ -36,16 +36,15 @@ manager=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
 	manager="/usr/bin/apt"
+	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
 then
 	manager="/usr/bin/apt-get"
-elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
-then
-	manager="/usr/bin/nala"
+	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
 fi 
 
 export DEBIAN_FRONTEND=noninteractive
-install_command="${manager} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y install " 
+install_command="${manager} ${options} install " 
 
 count="0"
 while ( [ ! -f /usr/sbin/aria2c ] && [ "${count}" -lt "5" ] )
