@@ -60,7 +60,7 @@ do
 		then
 			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "GO" | /usr/bin/awk -F':' '{print $NF}'`" = "repo" ] )
 			then
-				eval ${install_command} golang-go
+				eval ${install_command} golang-go ${tail_options}
 			elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "GO" | /usr/bin/awk -F':' '{print $NF}'`" = "binary" ] )
 			then
 				version="`/usr/bin/curl https://go.dev/dl/?mode=json | /usr/bin/jq -r '.[0].version' | /bin/sed 's/go//g'1`"           
@@ -76,7 +76,7 @@ do
 		then
 			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "GO" | /usr/bin/awk -F':' '{print $NF}'`" = "repo" ] )
 			then
-				eval ${install_command} golang-go
+				eval ${install_command} golang-go ${tail_options}
 			elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "GO" | /usr/bin/awk -F':' '{print $NF}'`" = "binary" ] )
 			then
 				version="`/usr/bin/curl https://go.dev/dl/?mode=json | /usr/bin/jq -r '.[0].version' | /bin/sed 's/go//g'1`"           
