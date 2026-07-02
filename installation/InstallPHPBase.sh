@@ -75,11 +75,11 @@ then
                         if ( ( [ "${BUILDOS_VERSION}" = "24.04" ] && [ "${PHP_VERSION}" = "8.3" ] ) || ( [ "${BUILDOS_VERSION}" = "26.04" ] && [ "${PHP_VERSION}" = "8.5" ] ) )
                         then
                                 PHP_VERSION=""
-                                ${install_command} software-properties-common
+                                ${install_command} software-properties-common ${tail_options}
                                 ${add_repository_command} universe
-                                ${update_command}
-                                ${install_command}
-                                ${install_command} software-properties-common
+                                ${update_command} ${tail_options}
+                                ${install_command} ${tail_options}
+                                ${install_command} software-properties-common ${tail_options}
                         else
                           #      ${update_command}
                           #      ${install_command} software-properties-common
@@ -144,15 +144,15 @@ then
                         if ( [ "${PHP_VERSION}" = "8.4" ] )
                         then
                                 PHP_VERSION=""
-                                ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
-                                ${update_command}
-                                ${install_command} php
+                                ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common  ${tail_options}
+                                ${update_command} ${tail_options}
+                                ${install_command} php ${tail_options}
                         else
-                                ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common 
+                                ${install_command} lsb-release apt-transport-https ca-certificates software-properties-common  ${tail_options}
                                 /usr/bin/wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
                                 /bin/echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
-                                ${update_command}
-                                ${install_command} php${PHP_VERSION}
+                                ${update_command} ${tail_options}
+                                ${install_command} php${PHP_VERSION} ${tail_options}
                                 /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
                 fi
