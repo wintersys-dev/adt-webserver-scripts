@@ -35,28 +35,32 @@ fi
 MOD_SECURITY="`${HOME}/utilities/config/ExtractConfigValue.sh 'MODSECURITY'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
-apt=""
+manager=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
-        apt="/usr/bin/apt"
+	manager="/usr/bin/apt"
+	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+	options1="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
 then
-        apt="/usr/bin/apt-get"
+	manager="/usr/bin/apt-get"
+	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+	options1="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y"
 fi
 
 ${HOME}/installation/PurgeApache.sh
 
 export DEBIAN_FRONTEND=noninteractive
-update_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y update " 
-install_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y install " 
-install_command_confold="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y install " 
+update_command="${manager} ${options} update " 
+install_command="${manager} ${options} install " 
+install_command_confold="${manager} ${options1} install " 
 
 ${HOME}/installation/PurgeApache.sh
 
 count="0"
 while ( [ ! -f /usr/sbin/nginx ] && [ "${count}" -lt "5" ] )
 do
-        if ( [ "${apt}" != "" ] )
+        if ( [ "${manager}" != "" ] )
         then
                 if ( [ "${BUILDOS}" = "ubuntu" ] )
                 then
