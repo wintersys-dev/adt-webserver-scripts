@@ -140,7 +140,7 @@ do
 						software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:software-packages" "stripped"`"
 						if ( [ "${software_package_list}" != "" ] )
 						then
-							eval ${install_command} ${software_package_list}
+							eval ${install_command} ${software_package_list} ${tail_options}
 						fi 
 						${HOME}/installation/apache/BuildApacheFromSource.sh  "Debian" 	
 					fi
