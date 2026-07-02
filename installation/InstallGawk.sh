@@ -58,12 +58,12 @@ do
 	then
 		if ( [ "${BUILDOS}" = "ubuntu" ] )
 		then
-			eval ${install_command} gawk
+			eval ${install_command} gawk ${tail_options}
 		fi
 
 		if ( [ "${BUILDOS}" = "debian" ] )
 		then
-			eval ${install_command} gawk
+			eval ${install_command} gawk ${tail_options}
 		fi
 	fi
 	count="`/usr/bin/expr ${count} + 1`"
