@@ -72,7 +72,7 @@ do
                 then
                         if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
                         then
-                                eval ${install_command} apache2-utils
+                                eval ${install_command} apache2-utils ${tail_options}
                         fi
                         if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
                         then
@@ -83,13 +83,13 @@ do
                                                 software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX:software-packages" "stripped"`"
                                                 if ( [ "${software_package_list}" != "" ] )
                                                 then
-                                                        eval ${install_command} ${software_package_list}
+                                                        eval ${install_command} ${software_package_list} ${tail_options}
                                                 fi
                                                 if ( [ "${MOD_SECURITY}" = "1" ] )
                                                 then
                                                         if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
                                                         then
-                                                                ${install_command} g++ apt-utils autoconf automake build-essential libcurl4-openssl-dev libgeoip-dev liblmdb-dev libpcre2-dev libtool libxml2-dev libyajl-dev pkgconf zlib1g-dev
+                                                                ${install_command} g++ apt-utils autoconf automake build-essential libcurl4-openssl-dev libgeoip-dev liblmdb-dev libpcre2-dev libtool libxml2-dev libyajl-dev pkgconf zlib1g-dev ${tail_options}
                                                                 ${HOME}/installation/modsecurity/ConfigureModSecurityForNginx.sh
                                                         fi
                                                 fi
@@ -107,7 +107,7 @@ do
                                         eval ${install_command} nginx
 								elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:official'`" = "1" ] )
                                 then		
-                                        eval ${install_command} curl gnupg2 ca-certificates lsb-release ubuntu-keyring
+                                        eval ${install_command} curl gnupg2 ca-certificates lsb-release ubuntu-keyring ${tail_options}
                                         /usr/bin/curl https://nginx.org/keys/nginx_signing.key | /usr/bin/gpg --dearmor | /usr/bin/tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
                                         if ( [ "`/usr/bin/gpg --dry-run --quiet --no-keyring --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg | /bin/egrep "8540A6F18833A80E9C1653A42FD21310B49F6B46|573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62|9E9BE90EACBCDE69FE9B204CBCDCD8A38D88A2B3" | /usr/bin/wc -l`" = "3" ] )
                                         then
@@ -118,8 +118,8 @@ do
 												/bin/echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/ubuntu `lsb_release -cs` nginx" | /usr/bin/tee /etc/apt/sources.list.d/nginx.list		
 											fi
 											/bin/echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | /usr/bin/tee /etc/apt/preferences.d/99nginx
-	                                        eval ${update_command} 
-	                                        eval ${install_command_confold} nginx
+	                                        eval ${update_command} ${tail_options}
+	                                        eval ${install_command_confold} nginx ${tail_options}
                                         else
                                                 exit
                                         fi
@@ -138,7 +138,7 @@ do
 
                                         if ( [ "${modules_list}" != "" ] )
                                         then
-                                                eval ${install_command} ${modules_list}
+                                                eval ${install_command} ${modules_list} ${tail_options}
                                         fi
                                         /bin/touch /etc/nginx/BUILT_FROM_REPO
                                 fi
@@ -149,7 +149,7 @@ do
                 then
                         if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
                         then
-                                eval ${install_command} apache2-utils
+                                eval ${install_command} apache2-utils ${tail_options}
                         fi
                         if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
                         then
@@ -160,14 +160,14 @@ do
                                                 software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX:software-packages" "stripped"`"
                                                 if ( [ "${software_package_list}" != "" ] )
                                                 then
-                                                        eval ${install_command} ${software_package_list}
+                                                        eval ${install_command} ${software_package_list} ${tail_options}
                                                 fi
 
                                                 if ( [ "${MOD_SECURITY}" = "1" ] )
                                                 then
                                                         if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
                                                         then
-                                                                ${install_command} g++ apt-utils autoconf automake build-essential libcurl4-openssl-dev libgeoip-dev liblmdb-dev libpcre2-dev libtool libxml2-dev libyajl-dev pkgconf zlib1g-dev
+                                                                ${install_command} g++ apt-utils autoconf automake build-essential libcurl4-openssl-dev libgeoip-dev liblmdb-dev libpcre2-dev libtool libxml2-dev libyajl-dev pkgconf zlib1g-dev ${tail_options}
                                                                 ${HOME}/installation/modsecurity/ConfigureModSecurityForNginx.sh
                                                         fi
                                                 fi
@@ -181,10 +181,10 @@ do
                                         fi
 								elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:os'`" = "1" ] )
                                 then  
-                                        eval ${install_command} nginx
+                                        eval ${install_command} nginx ${tail_options}
 								elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:official'`" = "1" ] )
 								then
-                                        eval ${install_command} curl gnupg2 ca-certificates lsb-release debian-archive-keyring
+                                        eval ${install_command} curl gnupg2 ca-certificates lsb-release debian-archive-keyring ${tail_options}
                                         /bin/mkdir /root/.gnupg && /bin/chmod 700 /root/.gnupg
                                         /bin/mkdir ${HOME}/.gnupg && /bin/chmod 700 ${HOME}/.gnupg
                                         /usr/bin/curl https://nginx.org/keys/nginx_signing.key | /usr/bin/gpg --dearmor | /usr/bin/tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
@@ -197,8 +197,8 @@ do
                                                 	/bin/echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/debian `lsb_release -cs` nginx" | /usr/bin/tee /etc/apt/sources.list.d/nginx.list
                                                 fi
 												/bin/echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | /usr/bin/tee /etc/apt/preferences.d/99nginx
-                                                eval ${update_command} 
-                                                eval ${install_command_confold} nginx
+                                                eval ${update_command}  ${tail_options}
+                                                eval ${install_command_confold} nginx ${tail_options}
                                         else
                                                 exit
                                         fi
@@ -216,7 +216,7 @@ do
 
                                         if ( [ "${modules_list}" != "" ] )
                                         then
-                                                eval ${install_command} ${modules_list}
+                                                eval ${install_command} ${modules_list} ${tail_options}
                                         fi
                                         ${HOME}/utilities/processing/RunServiceCommand.sh "unmask" "nginx"
                                         /bin/touch /etc/nginx/BUILT_FROM_REPO
