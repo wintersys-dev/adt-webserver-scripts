@@ -62,14 +62,14 @@ do
 		then
 			uuid="`/usr/sbin/blkid | /bin/grep swap | /bin/sed -e 's/.*UUID="//g' -e 's/".*//g'`"
 			/bin/echo "RESUME=UUID=${uuid}" > /etc/initramfs-tools/conf.d/resume
-			eval ${install_command} fuse3
+			eval ${install_command} fuse3 ${tail_options}
 		fi
 
 		if ( [ "${BUILDOS}" = "debian" ] )
 		then
 			uuid="`/usr/sbin/blkid | /bin/grep swap | /bin/sed -e 's/.*UUID="//g' -e 's/".*//g'`"
 			/bin/echo "RESUME=UUID=${uuid}" > /etc/initramfs-tools/conf.d/resume
-			eval ${install_command} fuse3
+			eval ${install_command} fuse3 ${tail_options}
 		fi
 		/bin/chown root:root ${HOME}/utilities/security/EnforcePermissions.sh ${HOME}/utilities/config/ExtractConfigValue.sh
     	/bin/chmod 755 ${HOME}/utilities/security/EnforcePermissions.sh ${HOME}/utilities/config/ExtractConfigValue.sh
