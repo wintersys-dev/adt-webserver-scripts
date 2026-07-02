@@ -127,10 +127,9 @@ then
                                 esac
 
                                 ${update_command}
+								${nala_update_command}
                                 /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
-
-						${nala_update_command}
 
                         php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
 
@@ -156,12 +155,11 @@ then
                                 /usr/bin/wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
                                 /bin/echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
                                 ${update_command}
+								${nala_update_command}
                                 ${install_command} php${PHP_VERSION} ${tail_options}
                                 /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
                 fi
-
-				${nala_update_command}
 
                 php_modules="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /bin/sed 's/|.*//g'`"
 
