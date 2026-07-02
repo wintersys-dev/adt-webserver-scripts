@@ -34,59 +34,37 @@ else
 	BUILDOS="${buildos}"
 fi
 
-manager=""
-options=""
-tail_options=""
-if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
-then
-	manager="/usr/bin/apt"
-	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
-elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
-then
-	manager="/usr/bin/apt-get"
-	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
-elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
-then
-	manager="/usr/bin/nala"
-	tail_options="-y"
-fi
-
-export DEBIAN_FRONTEND=noninteractive
-install_command="${manager} ${options} install " 
 ${HOME}/installation/InstallGnuPG.sh
 
 count="0"
 while ( [ ! -x /usr/local/bin/wp ] && [ "${count}" -lt "5" ] )
 do
-	if ( [ "${manager}" != "" ] )
+	if ( [ "${BUILDOS}" = "ubuntu" ] )
 	then
-		if ( [ "${BUILDOS}" = "ubuntu" ] )
-		then
-			/usr/bin/curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-			/usr/bin/curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar.asc
-			/usr/bin/curl -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/wp-cli.pgp | /usr/bin/gpg --import
-			/usr/bin/gpg --verify wp-cli.phar.asc wp-cli.phar
-			/bin/chmod +x wp-cli.phar	
-			/bin/mv wp-cli.phar /usr/local/bin/wp
-			/bin/rm wp-cli.phar.asc
+		/usr/bin/curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+		/usr/bin/curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar.asc
+		/usr/bin/curl -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/wp-cli.pgp | /usr/bin/gpg --import
+		/usr/bin/gpg --verify wp-cli.phar.asc wp-cli.phar
+		/bin/chmod +x wp-cli.phar	
+		/bin/mv wp-cli.phar /usr/local/bin/wp
+		/bin/rm wp-cli.phar.asc
 	
-			# Verify installation
-			/usr/local/bin/wp --info
-		fi
+		# Verify installation
+		/usr/local/bin/wp --info
+	fi
 
-		if ( [ "${BUILDOS}" = "debian" ] )
-		then    
-			/usr/bin/curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-			/usr/bin/curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar.asc
-			/usr/bin/curl -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/wp-cli.pgp | /usr/bin/gpg --import
-			/usr/bin/gpg --verify wp-cli.phar.asc wp-cli.phar
-			/bin/chmod +x wp-cli.phar	
-			/bin/mv wp-cli.phar /usr/local/bin/wp
-		    /bin/rm wp-cli.phar.asc
+	if ( [ "${BUILDOS}" = "debian" ] )
+	then    
+		/usr/bin/curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+		/usr/bin/curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar.asc
+		/usr/bin/curl -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/wp-cli.pgp | /usr/bin/gpg --import
+		/usr/bin/gpg --verify wp-cli.phar.asc wp-cli.phar
+		/bin/chmod +x wp-cli.phar	
+		/bin/mv wp-cli.phar /usr/local/bin/wp
+		/bin/rm wp-cli.phar.asc
 	
-			# Verify installation
-			/usr/local/bin/wp --info
-		fi
+		# Verify installation
+		/usr/local/bin/wp --info
 	fi
 	count="`/usr/bin/expr ${count} + 1`"
 done
