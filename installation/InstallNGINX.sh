@@ -118,7 +118,7 @@ do
 												/bin/echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/ubuntu `lsb_release -cs` nginx" | /usr/bin/tee /etc/apt/sources.list.d/nginx.list		
 											fi
 											/bin/echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | /usr/bin/tee /etc/apt/preferences.d/99nginx
-	                                        eval ${update_command} ${tail_options}
+	                                        eval ${update_command}
 	                                        eval ${install_command_confold} nginx ${tail_options}
                                         else
                                                 exit
@@ -197,7 +197,7 @@ do
                                                 	/bin/echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/debian `lsb_release -cs` nginx" | /usr/bin/tee /etc/apt/sources.list.d/nginx.list
                                                 fi
 												/bin/echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | /usr/bin/tee /etc/apt/preferences.d/99nginx
-                                                eval ${update_command}  ${tail_options}
+                                                eval ${update_command} 
                                                 eval ${install_command_confold} nginx ${tail_options}
                                         else
                                                 exit
