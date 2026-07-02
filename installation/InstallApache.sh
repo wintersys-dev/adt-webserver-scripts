@@ -36,13 +36,16 @@ PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 MOD_SECURITY="`${HOME}/utilities/config/ExtractConfigValue.sh 'MODSECURITY'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
-apt=""
+manager=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
-	apt="/usr/bin/apt"
+	manager="/usr/bin/apt"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
 then
-	apt="/usr/bin/apt-get"
+	manager="/usr/bin/apt-get"
+elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
+then
+	manager="/usr/bin/nala"
 fi
 
 export DEBIAN_FRONTEND=noninteractive
@@ -54,7 +57,7 @@ ${HOME}/installation/PurgeApache.sh
 count="0"
 while ( [ ! -f /usr/sbin/apache2 ] && [ "${count}" -lt "5" ] )
 do
-	if ( [ "${apt}" != "" ] )
+	if ( [ "${manager}" != "" ] )
 	then
 		if ( [ "${BUILDOS}" = "ubuntu" ] )
 		then
