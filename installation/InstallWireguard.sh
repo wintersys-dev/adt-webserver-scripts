@@ -59,12 +59,12 @@ do
         then
                 if ( [ "${BUILDOS}" = "ubuntu" ] )
                 then
-                        eval ${install_command} wireguard
+                        eval ${install_command} wireguard ${tail_options}
                 fi
 
                 if ( [ "${BUILDOS}" = "debian" ] )
                 then
-                        eval ${install_command} wireguard
+                        eval ${install_command} wireguard ${tail_options}
                 fi
         fi
         count="`/usr/bin/expr ${count} + 1`"
