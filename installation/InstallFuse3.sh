@@ -45,7 +45,7 @@ then
 fi
 
 export DEBIAN_FRONTEND=noninteractive
-install_command="${apt} ${options} install "
+install_command="${manager} ${options} install "
 
 count="0"
 while ( [ ! -f /usr/bin/fusermount3 ] && [ "${count}" -lt "5" ] )
