@@ -44,21 +44,24 @@ else
 fi
 HOME="`/bin/cat /home/homedir.dat`"
 
-apt=""
+manager=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
-        apt="/usr/bin/apt"
+	manager="/usr/bin/apt"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
-then            
-        apt="/usr/bin/apt-get"
-fi              
+then
+	manager="/usr/bin/apt-get"
+elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
+then
+	manager="/usr/bin/nala"
+fi            
 
 export DEBIAN_FRONTEND=noninteractive
 add_repository_command="/usr/bin/add-apt-repository -y "
-install_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y install "
-update_command="${apt} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y update "
+install_command="${manager} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y install "
+update_command="${manager} -o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y update "
 
-if ( [ "${apt}" != "" ] )
+if ( [ "${manager}" != "" ] )
 then
         if ( [ "${BUILDOS}" = "ubuntu" ] )
         then
