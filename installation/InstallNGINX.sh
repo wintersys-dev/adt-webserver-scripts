@@ -104,7 +104,7 @@ do
                                         fi
                                 elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:os'`" = "1" ] )
                                 then
-                                        eval ${install_command} nginx
+                                        eval ${install_command} nginx ${tail_options}
 								elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:official'`" = "1" ] )
                                 then		
                                         eval ${install_command} curl gnupg2 ca-certificates lsb-release ubuntu-keyring ${tail_options}
