@@ -54,12 +54,12 @@ then
 	if ( [ "${BUILDOS}" = "ubuntu" ] )
 	then
 		${HOME}/installation/RemoveUnattendedUpgrades.sh "ubuntu"
-		DEBIAN_FRONTEND=noninteractive ${manager} ${options} upgrade
+		DEBIAN_FRONTEND=noninteractive ${manager} ${options} upgrade ${tail_options}
 	fi
 
 	if ( [ "${BUILDOS}" = "debian" ] )
 	then
-		DEBIAN_FRONTEND=noninteractive ${manager} ${options} upgrade
+		DEBIAN_FRONTEND=noninteractive ${manager} ${options} upgrade ${tail_options}
 	fi
 fi
 
