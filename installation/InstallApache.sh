@@ -37,6 +37,8 @@ MOD_SECURITY="`${HOME}/utilities/config/ExtractConfigValue.sh 'MODSECURITY'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
 manager=""
+options=""
+tail_options=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
 	manager="/usr/bin/apt"
@@ -45,6 +47,10 @@ elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" 
 then
 	manager="/usr/bin/apt-get"
 	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
+then
+	manager="/usr/bin/nala"
+	tail_options="-y"
 fi
 
 export DEBIAN_FRONTEND=noninteractive
@@ -62,7 +68,7 @@ do
 		then
 			if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 			then
-				eval ${install_command} apache2-utils
+				eval ${install_command} apache2-utils ${tail_options}
 			fi
 			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
 			then
@@ -73,14 +79,14 @@ do
 						software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:software-packages" "stripped"`"
 						if ( [ "${software_package_list}" != "" ] )
 						then
-							eval ${install_command} ${software_package_list}
+							eval ${install_command} ${software_package_list} ${tail_options}
 						fi	
 						
 						${HOME}/installation/apache/BuildApacheFromSource.sh  "Ubuntu" 		
 					fi
 				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] )
 				then
-					eval ${install_command} apache2 
+					eval ${install_command} apache2 ${tail_options}
 					
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
@@ -112,7 +118,7 @@ do
 			then
 				if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 				then
-					${install_command} libapache2-mod-security2
+					${install_command} libapache2-mod-security2 ${tail_options}
 					${HOME}/installation/modsecurity/ConfigureModSecurityForApache.sh
 				fi
 			fi
@@ -122,7 +128,7 @@ do
 		then
 			if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 			then
-				eval ${install_command} apache2-utils
+				eval ${install_command} apache2-utils ${tail_options}
 			fi
 			
 			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
@@ -141,7 +147,7 @@ do
 					fi
 				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] )
 				then
-					eval ${install_command} apache2 
+					eval ${install_command} apache2 ${tail_options}
 					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 					then
 						modules_list="mpm_event ssl headers proxy_fcgi"
@@ -172,7 +178,7 @@ do
 			then
 				if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
 				then
-					${install_command} libapache2-mod-security2
+					${install_command} libapache2-mod-security2 ${tail_options}
 					${HOME}/installation/modsecurity/ConfigureModSecurityForApache.sh
 				fi
 			fi
