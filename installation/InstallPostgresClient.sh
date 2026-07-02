@@ -65,9 +65,9 @@ do
 			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "POSTGRES" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
 			then
 				postgres_version="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "POSTGRES" | /usr/bin/awk -F':' '{print $NF}'`"
-				${install_command} postgresql-common
+				${install_command} postgresql-common ${tail_options}
 				/usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
-				${install_command} postgresql-client-${postgres_version}
+				${install_command} postgresql-client-${postgres_version} ${tail_options}
 				
 			#	export YES="yes"
 			#	postgres_version="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "POSTGRES" | /usr/bin/awk -F':' '{print $NF}'`"
@@ -88,9 +88,9 @@ do
 			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "POSTGRES" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
 			then
 				postgres_version="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "POSTGRES" | /usr/bin/awk -F':' '{print $NF}'`"
-				${install_command} postgresql-common
+				${install_command} postgresql-common ${tail_options}
 				/usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
-				${install_command} postgresql-client-${postgres_version}
+				${install_command} postgresql-client-${postgres_version} ${tail_options}
 
 
 			#	export YES="yes"
