@@ -34,7 +34,6 @@ fi
 
 manager=""
 options=""
-tail_options=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
 	manager="/usr/bin/apt"
@@ -46,7 +45,6 @@ then
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
 then
 	manager="/usr/bin/nala"
-	tail_options="-y"
 fi
 
 export DEBIAN_FRONTEND=noninteractive
@@ -57,12 +55,12 @@ then
 	if ( [ "${BUILDOS}" = "ubuntu" ] )
 	then
 		${HOME}/installation/RemoveUnattendedUpgrades.sh "ubuntu"
-		eval ${update_command} ${tail_options}
+		eval ${update_command}
 	fi
 
 	if ( [ "${BUILDOS}" = "debian" ] )
 	then
-		eval ${update_command} ${tail_options}
+		eval ${update_command}
 	fi
 fi
 
