@@ -95,7 +95,7 @@ then
                           #      ${update_command}
                            #     ${install_command} php${PHP_VERSION}
 
-                                ${install_command} ca-certificates curl
+                                ${install_command} ca-certificates curl ${tail_options}
                                 /usr/bin/curl -fsSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
                                 . /etc/os-release
 
@@ -124,7 +124,7 @@ then
     ;;
                                 esac
 
-                                ${update_command}
+                                ${update_command} ${tail_options}
                                 /usr/bin/update-alternatives --set php /usr/bin/php${PHP_VERSION}
                         fi
 
@@ -132,7 +132,7 @@ then
 
                         for module in ${php_modules}
                         do
-                                ${install_command} php${PHP_VERSION}-${module}
+                                ${install_command} php${PHP_VERSION}-${module} ${tail_options}
                         done
                 fi
         fi
@@ -161,7 +161,7 @@ then
 
                 for module in ${php_modules}
                 do
-                        ${install_command} php${PHP_VERSION}-${module}
+                        ${install_command} php${PHP_VERSION}-${module} ${tail_options}
                 done
                 
         fi
