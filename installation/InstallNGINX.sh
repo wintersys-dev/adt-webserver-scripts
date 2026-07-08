@@ -50,7 +50,7 @@ then
 	options1="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
 then
-	manager="/usr/bin/nala"
+	manager="${HOME}/installation/nala_wrapper.sh"
 	tail_options="-y"
 fi
 
