@@ -21,6 +21,8 @@
 #######################################################################################################
 #set -x
 
+archive_id="${1}"
+
 HOME="`/bin/cat /home/homedir.dat`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 BUILD_ARCHIVE_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDARCHIVECHOICE'`"
@@ -59,7 +61,7 @@ then
 elif ( [ "`/bin/echo 'hourly daily weekly monthly bimonthly' | /bin/grep ${BUILD_ARCHIVE_CHOICE}`" != "" ] )
 then
         cd ${HOME}
-        ${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "applicationsourcecode.tar.gz" "." "${BUILD_ARCHIVE_CHOICE}"
+        ${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "applicationsourcecode.tar.gz.${archive_id}" "." "${BUILD_ARCHIVE_CHOICE}"
         if ( [ ! -d ${HOME}/application_sourcecode ] )
         then
                 /bin/mkdir ${HOME}/application_sourcecode
