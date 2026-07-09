@@ -217,6 +217,7 @@ fi
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/cron/SetupFirewallFromCron.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/MarkedForShutdown.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/CheckNetworkManagerStatus.sh" >> /var/spool/cron/crontabs/root
+/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/cron/PerformEmergencyRestorationFromCron.sh" >> /var/spool/cron/crontabs/root
 
 /bin/echo "*/5 * * * * export HOME="${HOME}" &&  /bin/sleep 23 && ${HOME}/services/security/firewall/MonitorFirewall.sh" >> /var/spool/cron/crontabs/root
 
