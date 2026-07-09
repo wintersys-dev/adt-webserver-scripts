@@ -4,12 +4,12 @@
 HOME="`/bin/cat /home/homedir.dat`"
 archive_id="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "ACTIVATE_RESTORATION.ARCHIVE" | /bin/sed 's/ACTIVATE_RESTORATION\.//g'`"
 
-if ( [ ! -d ${HOME}/runtime/restoration_archives ] )
+if ( [ ! -d ${HOME}/runtime/restoration_archives/${archive_id} ] )
 then
-        /bin/mkdir -p ${HOME}/runtime/restoration_archives
+        /bin/mkdir -p ${HOME}/runtime/restoration_archives/${archive_id}
 fi
 
-/bin/mv /var/www/html ${HOME}/runtime/restoration_archives
+/bin/mv /var/www/html ${HOME}/runtime/restoration_archives/${archive_id}
 
 DB_N="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBNAME' | /bin/sed 's/_ARCHIVE.*//g'`"
 DB_N1="`/bin/echo .${archive_id} | /bin/sed -e 's/\./_/g' -e 's/-/_/g'`"
