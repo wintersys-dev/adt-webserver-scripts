@@ -53,7 +53,7 @@ then
         DB_P="`/bin/echo ${DB_P} | /usr/bin/awk -F':::' '{print $1}'`"
 fi
 
-DB_N="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBNAME'`"
+DB_N="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBNAME' | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
 then
