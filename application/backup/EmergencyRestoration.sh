@@ -3,6 +3,7 @@
 
 HOME="`/bin/cat /home/homedir.dat`"
 archive_id="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "ACTIVATE_RESTORATION.ARCHIVE" | /bin/sed 's/ACTIVATE_RESTORATION\.//g'`"
+archive_id="`/bin/echo ${archive_id} | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 
 if ( [ ! -d ${HOME}/runtime/restoration_archives/${archive_id} ] )
 then
