@@ -29,6 +29,11 @@ then
         exit
 fi
 
+if ( [ -f ${HOME}/runtime/APPLICATION_RESTORATION_ACTIVE ] )
+then
+        /bin/rm ${HOME}/runtime/APPLICATION_RESTORATION_ACTIVE
+fi
+
 if ( [ ! -d ${HOME}/logs/assets_preparation ] )
 then
         /bin/mkdir -p ${HOME}/logs/assets_preparation
