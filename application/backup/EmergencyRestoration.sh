@@ -10,6 +10,13 @@ then
         /bin/mkdir -p ${HOME}/runtime/restoration_archives/${archive_id}
 fi
 
+mounts=`/usr/bin/mount | /bin/grep -o "/var/www/html/.*" | /usr/bin/awk '{print $1}'`
+
+for mount in ${mounts}
+do
+        /usr/bin/umount ${mount}
+done
+
 /bin/mv /var/www/html ${HOME}/runtime/restoration_archives/${archive_id}
 
 DB_N="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBNAME' | /bin/sed 's/_archive.*//g'`"
