@@ -25,8 +25,9 @@ archive_id="${1}"
 
 if ( [ "${archive_id}" != "" ] )
 then
-	archive_id=".${archive_id}"
+        archive_id="`/bin/echo .${archive_id} | /bin/sed -e 's/_/-/g' -e 's/ARCHIVE-/ARCHIVE\./g'`"
 fi
+
 
 HOME="`/bin/cat /home/homedir.dat`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
@@ -50,10 +51,10 @@ fi
 
 if ( [ "${archive_id}" = "" ] )
 then
-	#First make sure that the php modules required for the current application are installed to satisfy any checks that are issued during installation
-	${HOME}/installation/InstallApplicationLanguageLibraries.sh ${BUILDOS}
-	${HOME}/application/configuration/ConfigureApplicationLanguageSettings.sh
-	${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart 2>/dev/null
+        #First make sure that the php modules required for the current application are installed to satisfy any checks that are issued during installation
+        ${HOME}/installation/InstallApplicationLanguageLibraries.sh ${BUILDOS}
+        ${HOME}/application/configuration/ConfigureApplicationLanguageSettings.sh
+        ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart 2>/dev/null
 fi
 
 cd /var/www/html
@@ -74,7 +75,7 @@ then
         then
                 /bin/mkdir ${HOME}/application_sourcecode
         fi
-        /bin/tar xvfz ${HOME}/applicationsourcecode.tar.gz -C ${HOME}/application_sourcecode
+        /bin/tar xvfz ${HOME}/applicationsourcecode.tar.gz${archive_id} -C ${HOME}/application_sourcecode
         /bin/rm ${HOME}/applicationsourcecode.tar.gz
         /bin/rm -r /var/www/html/* 2>/dev/null
         /bin/mv ${HOME}/application_sourcecode/* /var/www/html
