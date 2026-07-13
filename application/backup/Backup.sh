@@ -25,6 +25,8 @@
 #######################################################################################################
 #set -x
 
+export HOME="`/bin/cat /home/homedir.dat`"
+
 if ( [ "$1" = "" ] )
 then
         /bin/echo "This script needs to be run with the <build periodicity> parameter"
