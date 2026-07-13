@@ -25,6 +25,7 @@ archive_id="${1}"
 
 if ( [ "${archive_id}" != "" ] )
 then
+        archive_id="`/bin/echo ${archive_id} | /bin/sed 's/archive/ARCHIVE/g'`"
         archive_id="`/bin/echo .${archive_id} | /bin/sed -e 's/_/-/g' -e 's/ARCHIVE-/ARCHIVE\./g'`"
 fi
 
@@ -76,7 +77,7 @@ then
                 /bin/mkdir ${HOME}/application_sourcecode
         fi
         /bin/tar xvfz ${HOME}/applicationsourcecode.tar.gz${archive_id} -C ${HOME}/application_sourcecode
-        /bin/rm ${HOME}/applicationsourcecode.tar.gz
+        /bin/rm ${HOME}/applicationsourcecode.tar.gz${archive_id}
         /bin/rm -r /var/www/html/* 2>/dev/null
         /bin/mv ${HOME}/application_sourcecode/* /var/www/html
         /bin/mv ${HOME}/application_sourcecode/.* /var/www/html
