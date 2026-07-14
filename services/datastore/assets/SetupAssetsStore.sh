@@ -117,7 +117,13 @@ do
                         fi
                 fi
         else
-                ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
+                if ( [ -d ${absolute_application_assets_directory} ] )
+                then
+                        if ( [ "`/usr/bin/find  ${absolute_application_assets_directory} -empty -type f -exec command {} \;`" = "" ] )
+                        then
+                                /bin/rm -r ${absolute_application_assets_directory}/*
+                        fi
+                fi
         fi
 
         if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] && [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
