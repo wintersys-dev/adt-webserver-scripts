@@ -47,7 +47,12 @@ elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" 
 then
 	manager="${HOME}/installation/nala_wrapper.sh"
 	tail_options="-y"
+elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "aptitude" ] )
+then
+        manager="${HOME}/installation/aptitude_wrapper.sh"
+        options="-y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'"
 fi
+
 export DEBIAN_FRONTEND=noninteractive
 install_command="${manager} ${options} install "
 
