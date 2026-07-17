@@ -178,35 +178,6 @@ fi
 #Make absoultely certain that we are tied down
 ${HOME}/services/security/firewall/KnickersUp.sh
 
-authenticator_ip="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorip/*" | /usr/bin/tr '\n' ' '`"
-authenticator_public_ip="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorpublicip/*" | /usr/bin/tr '\n' ' '`"
-
-if ( [ "${authenticator_ip}" != "" ] )
-then
-	if ( [ "${firewall}" = "ufw" ] )
-	then
-		/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S /usr/sbin/ufw deny from ${authenticator_ip}
-	fi
-
-	if ( [ "${firewall}" = "iptables" ] )
-	then
-		/usr/sbin/iptables -I INPUT -s ${authenticator_ip} -j DROP
-	fi
-fi
-
-if ( [ "${authenticator_public_ip}" != "" ] )
-then
-	if ( [ "${firewall}" = "ufw" ] )
-	then
-		/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S /usr/sbin/ufw deny from ${authenticator_public_ip}
-	fi
-
-	if ( [ "${firewall}" = "iptables" ] )
-	then
-		/usr/sbin/iptables -I INPUT -s ${authenticator_public_ip} -j DROP
-	fi
-fi
-
 updated_ssh="0"
 if ( [ "`/bin/grep ${VPC_IP_RANGE} /etc/ssh/sshd_config`" = "" ] )
 then
@@ -232,6 +203,38 @@ then
 fi
 
 updated="0"
+
+if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" = "" ] )
+then
+	authenticator_ip="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorip/*" | /usr/bin/tr '\n' ' '`"
+	authenticator_public_ip="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorpublicip/*" | /usr/bin/tr '\n' ' '`"
+
+	if ( [ "${authenticator_ip}" != "" ] )
+	then
+		if ( [ "${firewall}" = "ufw" ] )
+		then
+			/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S /usr/sbin/ufw deny from ${authenticator_ip}
+		fi
+
+		if ( [ "${firewall}" = "iptables" ] )
+		then
+			/usr/sbin/iptables -I INPUT -s ${authenticator_ip} -j DROP
+		fi
+	fi
+
+	if ( [ "${authenticator_public_ip}" != "" ] )
+	then
+		if ( [ "${firewall}" = "ufw" ] )
+		then
+			/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S /usr/sbin/ufw deny from ${authenticator_public_ip}
+		fi
+
+		if ( [ "${firewall}" = "iptables" ] )
+		then
+			/usr/sbin/iptables -I INPUT -s ${authenticator_public_ip} -j DROP
+		fi
+	fi
+fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDMACHINEVPC:0`" = "1" ] )
 then
