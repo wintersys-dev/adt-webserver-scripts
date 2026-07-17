@@ -183,12 +183,28 @@ authenticator_public_ip="`${HOME}/services/datastore/config/wrapper/ListFromData
 
 if ( [ "${authenticator_ip}" != "" ] )
 then
+	if ( [ "${firewall}" = "ufw" ] )
+	then
+		/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S /usr/sbin/ufw deny from ${authenticator_ip}
+	fi
 
+	if ( [ "${firewall}" = "iptables" ] )
+	then
+		/usr/sbin/iptables -I INPUT -s ${authenticator_ip} -j DROP
+	fi
 fi
 
 if ( [ "${authenticator_public_ip}" != "" ] )
 then
+	if ( [ "${firewall}" = "ufw" ] )
+	then
+		/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S /usr/sbin/ufw deny from ${authenticator_public_ip}
+	fi
 
+	if ( [ "${firewall}" = "iptables" ] )
+	then
+		/usr/sbin/iptables -I INPUT -s ${authenticator_public_ip} -j DROP
+	fi
 fi
 
 updated_ssh="0"
