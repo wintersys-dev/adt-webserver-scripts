@@ -178,6 +178,19 @@ fi
 #Make absoultely certain that we are tied down
 ${HOME}/services/security/firewall/KnickersUp.sh
 
+authenticator_ip="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorip/*" | /usr/bin/tr '\n' ' '`"
+authenticator_public_ip="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorpublicip/*" | /usr/bin/tr '\n' ' '`"
+
+if ( [ "${authenticator_ip}" != "" ] )
+then
+
+fi
+
+if ( [ "${authenticator_public_ip}" != "" ] )
+then
+
+fi
+
 updated_ssh="0"
 if ( [ "`/bin/grep ${VPC_IP_RANGE} /etc/ssh/sshd_config`" = "" ] )
 then
