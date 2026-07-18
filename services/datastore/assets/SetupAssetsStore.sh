@@ -98,14 +98,13 @@ do
                 absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
         fi
 
+        if ( [ ! -d ${absolute_application_assets_directory} ] )
+        then
+                /bin/mkdir -p ${absolute_application_assets_directory}
+        fi
+
         if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] && [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
         then
-                if ( [ ! -d ${absolute_application_assets_directory} ] )
-                then
-                        /bin/mkdir -p ${absolute_application_assets_directory}
-                fi
-
-
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
                 then
                         ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
