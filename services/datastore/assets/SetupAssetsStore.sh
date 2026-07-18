@@ -98,39 +98,39 @@ do
                 absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
         fi
 
-
-        if ( [ ! -d ${absolute_application_assets_directory} ] )
+        if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] && [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
         then
-                /bin/mkdir -p ${absolute_application_assets_directory}
-        fi
-
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
-        then
-                ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
-                ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
-                if ( [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
+                if ( [ ! -d ${absolute_application_assets_directory} ] )
                 then
-                        if ( [ -d ${absolute_application_assets_directory} ] )
-                        then
-                                /bin/rm -r ${absolute_application_assets_directory}/*
-                        fi
+                        /bin/mkdir -p ${absolute_application_assets_directory}
                 fi
-        else
-                if ( [ -d ${absolute_application_assets_directory} ] )
+
+
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
                 then
-                        if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
+                        ${HOME}/services/datastore/operations/MountDatastore.sh "asset" "distributed" "${application_assets_directory}"
+                        ${HOME}/services/datastore/operations/SyncToDatastore.sh "asset" "${absolute_application_assets_directory}" "distributed" "${application_assets_directory}"
+                
+                        if ( [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
                         then
-                                if ( [ "`/usr/bin/find  ${absolute_application_assets_directory} -empty -type f -exec command {} \;`" = "" ] )
+                                if ( [ -d ${absolute_application_assets_directory} ] )
                                 then
                                         /bin/rm -r ${absolute_application_assets_directory}/*
                                 fi
                         fi
+                else
+                        if ( [ -d ${absolute_application_assets_directory} ] )
+                        then
+                                if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] )
+                                then
+                                        if ( [ "`/usr/bin/find  ${absolute_application_assets_directory} -empty -type f -exec command {} \;`" = "" ] )
+                                        then
+                                                /bin/rm -r ${absolute_application_assets_directory}/*
+                                        fi
+                                fi
+                        fi
                 fi
-        fi
 
-        if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is not a mountpoint'`" != "" ] && [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" = "" ] && [ ! -f ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE ] )
-        then
                 asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
