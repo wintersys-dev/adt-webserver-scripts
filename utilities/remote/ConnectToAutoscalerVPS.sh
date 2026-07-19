@@ -38,7 +38,7 @@ if ( [ "${ips}" != "" ] )
 then
 	for ip in ${ips}
 	do
-		/bin/echo "Do you want to connect to webserver with ip address ${ip} (Y|N)"
+		/bin/echo "Do you want to connect to autoscaler with ip address ${ip} (Y|N)"
 		read response
 		if ( [ "`/bin/echo 'Y y' | /bin/grep ${response}`" != "" ] )
 		then
