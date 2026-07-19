@@ -23,7 +23,8 @@
 
 if ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] || [ "`/usr/bin/hostname | /bin/grep "\-auth-"`" != "" ] )
 then
-        /bin/echo "Can't connect to dstabase from this machine type"
+        /bin/echo "Can't connect to database from this machine type"
+        exit
 fi
 
 num_args="$#"
