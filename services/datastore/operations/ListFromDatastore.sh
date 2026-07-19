@@ -27,23 +27,8 @@ additional_specifier="${3}"
 
 if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 then
-        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
-        
-        if ( [ "`/bin/echo ${file_to_list} | /bin/grep 'autoscalerip'`" != "" ] )
-        then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
-        fi
-        if ( [ "`/bin/echo ${file_to_list} | /bin/grep 'webserverip'`" != "" ] )
-        then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
-        fi
-        if ( [ "`/bin/echo ${file_to_list} | /bin/grep 'databaseip'`" != "" ] )
-        then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
-        fi
-        
+        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"     
         DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHDNSCHOICE'`"
-
 else
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'DNSCHOICE'`"
