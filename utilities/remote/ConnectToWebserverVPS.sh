@@ -34,6 +34,12 @@ BUILD_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDIDENTIFI
 
 ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "webserverips/*"`"
 
+if ( [ ! -f ${HOME}/.ssh/id_${ALGORITHM}_AGILE_DEPLOYMENT_BUILD_KEY_${BUILD_IDENTIFIER} ] )
+then
+	/bin/echo "Not authorised to connect, private key not present"
+	exit
+fi
+
 if ( [ "${ips}" != "" ] )
 then
 	for ip in ${ips}
