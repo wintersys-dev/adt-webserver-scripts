@@ -227,6 +227,7 @@ fi
 /bin/echo "35 3 * * * export HOME="${HOME}" && ${HOME}/services/security/ssl/RenewSSLCertificate.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "30 3 * * *  export HOME="${HOME}" && ${HOME}/utilities/housekeeping/RemoveExpiredLogs.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "22 4 * * *  export HOME="${HOME}" && ${HOME}/utilities/software/UpdateSoftware.sh" >> /var/spool/cron/crontabs/root
+/bin/echo "44 4 * * *  export HOME="${HOME}" && ${HOME}/installation/UpdateAndUpgrade.sh" >> /var/spool/cron/crontabs/root
 
 #These scripts run at every predefined interval
 /bin/echo "@hourly export HOME="${HOME}" && ${HOME}/utilities/status/LoadMonitoring.sh" >> /var/spool/cron/crontabs/root
