@@ -88,7 +88,7 @@ then
 		
         if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
         then
-				/bin/echo "error_page 404 /custom_404.html;" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+				/bin/echo "error_page 404 please_visit_|https://${AUTH_SERVER_URL}|_to_gain_access;" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 				/bin/echo "" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "allow ${VPC_IP_RANGE};" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "allow ip 127.0.0.1;" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
