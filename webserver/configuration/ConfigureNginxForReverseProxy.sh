@@ -88,7 +88,15 @@ then
 		
         if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
         then
-				/bin/echo "error_page 404 please_visit_|https://${AUTH_SERVER_URL}|_to_gain_access;" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+				/bin/echo "Please visit https://${AUTH_SERVER_URL} to gain access" > /var/www/html/e403.html
+				/bin/chmod 644 /var/www/html/e403.html
+				/bin/chown www-data:www-data /var/www/html/e403.html
+				/bin/echo "error_page 403 /e403.html;
+location = /e403.html 
+{
+	root   /var/www/html;
+	allow all;
+}" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat	
 				/bin/echo "" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "allow ${VPC_IP_RANGE};" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "allow 127.0.0.1;" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
