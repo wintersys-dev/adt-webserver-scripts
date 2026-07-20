@@ -266,7 +266,7 @@ fi
 
 if ( [ "${firewall}" = "ufw" ] )
 then
-        if ( [ "`/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S /usr/sbin/ufw status | /bin/grep "${SSH_PORT}.*ALLOW.*${VPC_IP_RANGE}"`" = "" ] )
+        if ( [ "`/usr/sbin/ufw status | /bin/grep "${SSH_PORT}.*ALLOW.*${VPC_IP_RANGE}"`" = "" ] )
         then
                 /usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port ${SSH_PORT}
                 /usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port 443
