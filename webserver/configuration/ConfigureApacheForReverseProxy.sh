@@ -102,7 +102,7 @@ then
 
         if ( [ ! -f ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] )
         then
-                /bin/echo "ErrorDocument 403 please_visit_|https://${AUTH_SERVER_URL}|_to_gain_access" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+                /bin/echo "ErrorDocument 403 'Please visit https://'${AUTH_SERVER_URL}' to gain access'" > ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "Require ip ${VPC_IP_RANGE}" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
                 /bin/echo "Require ip 127.0.0.1" >> ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
