@@ -43,7 +43,7 @@ then
         ip_addresses="`/bin/echo ${ip_addresses} | /bin/sed 's/ /|/g'`"
         vpc="`/bin/echo ${VPC_IP_RANGE} | /usr/bin/cut -d. -f-3`\\."
         ip_addresses="${ip_addresses}|${vpc}|127.0.0.1"
-        /bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$
+        /bin/cp ${HOME}/webserver/configuration/reverseproxy/lighttpd/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$
         /bin/sed -i "s;XXXXIP_ADDRESSESXXXX;${ip_addresses};" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$
 
         if ( [ ! -f  ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat ] || [ "`/usr/bin/diff ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat.$$ ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat`" != "" ] )
