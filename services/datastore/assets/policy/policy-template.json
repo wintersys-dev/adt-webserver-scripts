@@ -2,7 +2,7 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Effect": "Deny",
+            "Effect": "Allow",
             "Principal": "*",
             "Action": "s3:*",
             "Resource": [
@@ -10,7 +10,7 @@
                 "arn:aws:s3:::XXXXBUCKET_NAMEXXXX/*"
             ],
       "Condition": {
-        "StringNotLike": {
+        "StringLike": {
           "aws:Referer": [
             "https://XXXXWEBSITE_URLXXXX"
           ]
