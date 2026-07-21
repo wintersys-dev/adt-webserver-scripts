@@ -80,6 +80,7 @@ export HOME="`/bin/cat /home/homedir.dat`"
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
 then
         /bin/sed -i "s/#XXXXBASIC-AUTHXXXX//g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
+        /bin/sed -i "/#XXXXBASIC-AUTH1XXXX/d" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
         /bin/sed -i "s/XXXXAUTH-SERVER-URLXXXX/${AUTH_SERVER_URL}/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
         /bin/sed -i "s/Require all granted/#Require all granted/g" ${HOME}/webserver/configuration/reverseproxy/apache/site-available.conf
         
