@@ -66,6 +66,7 @@ fi
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
 then
 	/bin/sed -i "s/#XXXXBASIC-AUTHXXXX//g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
+	/bin/sed -i "s;XXXXBUILD_MACHINE_IPXXXX;${BUILD_MACHINE_IP};g" ${HOME}/webserver/configuration/reverseproxy/nginx/site-available.conf
 	/bin/touch /etc/nginx/.htpasswd
 
 	if ( [ "${LOAD_BALANCER}" = "1" ] )
