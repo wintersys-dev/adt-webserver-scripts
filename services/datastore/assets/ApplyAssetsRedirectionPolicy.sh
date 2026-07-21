@@ -38,7 +38,7 @@ do
         asset_bucket="`/bin/echo "${WEBSITE_URL}-assets-${application_assets_directory}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g' -e 's/_/-/g'`"
 
         #s3cmd is the only tool I use (I think) that can set bucket policies so we cludge it to make it so
-        if ( [ "${asset_bucket}" != "" ] && [ -f /usr/bin/s3cmd ] && [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
+        if ( [ "${asset_bucket}" != "" ] && [ -f /usr/bin/s3cmd ] && [ "`/usr/bin/hostname | /bin/grep "ws\-"`" != "" ] )
         then
                # reverse_proxy_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "reverseproxypublicips/*"`"
                 /bin/cp ${HOME}/services/datastore/assets/policy/policy-template.json ${HOME}/runtime/datastore_workarea/policy-${asset_bucket}.json
