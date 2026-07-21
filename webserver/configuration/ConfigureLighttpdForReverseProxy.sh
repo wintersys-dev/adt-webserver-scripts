@@ -80,6 +80,9 @@ then
 		/bin/mkdir -p /var/www/html
 	fi
 	/bin/echo "ErrorDocument 403 'Please visit https://"${AUTH_SERVER_URL}" to gain access'" > /var/www/html/status-403.html
+	/bin/chown -R www-data:www-data /var/www/html
+	/bin/chmod 755 /var/www/html
+	/bin/chmod 644 /var/www/html/status-403.html
 	/bin/sed -i 's/#XXXXWHITE-LISTXXXX//g' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
    # /bin/sed -i -e "/#XXXXWHITE-LISTXXXX/{r ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
    	/bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
