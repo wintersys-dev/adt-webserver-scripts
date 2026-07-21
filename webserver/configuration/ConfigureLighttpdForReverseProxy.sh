@@ -68,6 +68,7 @@ fi
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
 then
 	/bin/sed -i "s/#XXXXBASIC-AUTHXXXX//g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
+	/bin/sed -i "s/XXXXAUTHSERVERURLXXXX/${AUTH_SERVER_URL}/g" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
 	/bin/touch /etc/nginx/.htpasswd
 else
 	/bin/sed -i "/#XXXXBASIC-AUTHXXXX/d" ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
