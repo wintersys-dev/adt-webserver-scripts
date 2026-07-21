@@ -74,6 +74,11 @@ fi
 
 if ( [ "${NO_AUTHENTICATORS}" != "0" ] && [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
 then
+	if ( [ ! -d /var/www/html ] )
+	then
+		/bin/mkdir -p /var/www/html
+	fi
+	/bin/echo "" > /var/www/html/status-403.html
 	/bin/sed -i 's/#XXXXWHITE-LISTXXXX//g' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
    # /bin/sed -i -e "/#XXXXWHITE-LISTXXXX/{r ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
    	/bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
