@@ -1,3 +1,5 @@
+server.errorfile-prefix = "/var/www/html/status-"
+
 $HTTP["remoteip"] !~ "XXXXIP_ADDRESSESXXXX" {   
        url.access-deny = ( "" )                 
   } 
