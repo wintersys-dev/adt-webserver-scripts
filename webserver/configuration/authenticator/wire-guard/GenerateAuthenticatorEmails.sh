@@ -7,6 +7,8 @@ then
         /bin/mkdir -p ${HOME}/runtime/wire-guard/configs
 fi
 
+HOME="`/bin/cat /home/homedir.dat`"
+
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
