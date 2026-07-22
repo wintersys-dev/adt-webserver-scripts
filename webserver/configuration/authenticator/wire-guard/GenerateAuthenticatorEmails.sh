@@ -122,14 +122,16 @@ do
                                 /bin/chmod 600 ${full_file_name_html}
                                 /bin/chown www-data:www-data /var/www/html/*
 
+                                date_since_epoch="`/usr/bin/date +%s`"
+
                                 if ( [ "${count}" = "0" ] )
                                 then
-                                        qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
-                                        client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
+                                        qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}-${date_since_epoch}.png"
+                                        client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}-${date_since_epoch}.html"
                                         count="`/usr/bin/expr ${count} + 1`"
                                 else
-                                        backup_qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
-                                        backup_client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
+                                        backup_qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}-${date_since_epoch}.png"
+                                        backup_client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}-${date_since_epoch}.html"
                                 fi
 
                                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "distributed"
