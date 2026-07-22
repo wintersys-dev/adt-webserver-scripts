@@ -17,7 +17,17 @@ NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICA
 links="`/usr/bin/find /var/www/html -mmin +30 -name "*qrcode*" -type f`"
 links1="`/usr/bin/find /var/www/html -mmin +30 -name "*client*" -type f`"
 
-all_links="${links} ${links1}"
+dates="`/usr/bin/find /var/www/html | /bin/egrep "(client|qrcode)" | /usr/bin/awk -F'-' '{print $5}' | /bin/sed 's/\..*$//g' | /bin/sed '/^$/d'`"
+links=""
+current_date="`/usr/bin/date +%s`"
+for date in ${dates}
+do
+        if ( [ "`/bin/expr ${currrent_date} - ${date}`" -gt "1800" ] )
+        then
+                links="`/usr/bin/find /var/www/html -name "*${date}*" -type f`"
+        fi
+        all_links="${all_links} ${links}"
+done
 
 if ( [ "${all_links}" != "" ] )
 then
