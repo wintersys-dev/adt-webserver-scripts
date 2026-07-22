@@ -14,15 +14,12 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
-links="`/usr/bin/find /var/www/html -mmin +30 -name "*qrcode*" -type f`"
-links1="`/usr/bin/find /var/www/html -mmin +30 -name "*client*" -type f`"
-
 dates="`/usr/bin/find /var/www/html | /bin/egrep "(client|qrcode)" | /usr/bin/awk -F'-' '{print $5}' | /bin/sed 's/\..*$//g' | /bin/sed '/^$/d'`"
 links=""
 current_date="`/usr/bin/date +%s`"
 for date in ${dates}
 do
-        if ( [ "`/bin/expr ${currrent_date} - ${date}`" -gt "1800" ] )
+        if ( [ "`/bin/expr ${current_date} - ${date}`" -gt "1800" ] )
         then
                 links="`/usr/bin/find /var/www/html -name "*${date}*" -type f`"
         fi
@@ -128,10 +125,11 @@ do
                 do
                         if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
                         then
+                                current_epoch_date="`/usr/bin/date +%s`"
                                 file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-                                full_file_name="/var/www/html/qrcode-${file_name}-${ip}-${email_address}.png"
+                                full_file_name="/var/www/html/qrcode-${file_name}-${ip}-${email_address}-${current_epoch_date}.png"
                                 /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
-                                full_file_name_html="/var/www/html/client-${file_name}-${ip}-${email_address}.html"
+                                full_file_name_html="/var/www/html/client-${file_name}-${ip}-${email_address}-${current_epoch_date}.html"
                                 /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
                                 /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf" -e 'd}' ${full_file_name_html}
 
