@@ -77,7 +77,7 @@ reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
 for email_address in ${email_addresses}
 do
-        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ "`/bin/cat ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" != "" ] )
+        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
         then
                 primed="1"
                 for ip in ${reverse_proxy_ips}
@@ -117,7 +117,7 @@ done
 
 for email_address in ${email_addresses}
 do
-        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ "`/bin/cat ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" != "" ] )
+        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
         then
                 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
                 ip="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
