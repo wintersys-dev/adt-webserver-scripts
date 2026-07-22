@@ -34,6 +34,8 @@ then
         done
 fi
 
+/bin/sleep 30
+
 email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
