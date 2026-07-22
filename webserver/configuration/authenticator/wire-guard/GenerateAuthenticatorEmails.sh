@@ -12,6 +12,7 @@ HOME="`/bin/cat /home/homedir.dat`"
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
+NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
 links="`/usr/bin/find /var/www/html -mmin +30 -name "*qrcode*" -type f`"
 links1="`/usr/bin/find /var/www/html -mmin +30 -name "*client*" -type f`"
@@ -34,6 +35,19 @@ sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
+
+period="`/usr/bin/expr 60 / ${NO_AUTHENTICATORS}`"
+authenticator_no_1="`/usr/bin/expr ${authenticator_no} - 1`"
+active_period_high="`/usr/bin/expr ${period} \* ${authenticator_no}`"
+active_period_low="`/usr/bin/expr ${period} \* ${authenticator_no_1}`"
+
+seconds="`/usr/bin/date +%S`"
+email_authorised="no"
+
+if ( [ "${seconds}" -ge "${active_period_high}" ] && [ "${seconds}" -le "${active_period_low}" ] )
+then
+        email_authorised="yes"
+fi
 
 
 email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
@@ -129,8 +143,16 @@ do
                                 #/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE" -path "*${email_address}*" -delete
                         fi
                 done
-                ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
-                /bin/echo ${email_address} >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
+                if ( [ "${email_authorised}" = "yes" ] )
+                then
+                        ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
+                        /bin/echo ${email_address} >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
+                else
+                        if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/NEEDS_PROCESSING ] )
+                        then
+                                /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/NEEDS_PROCESSING
+                        fi
+                fi
         fi
 done
 
