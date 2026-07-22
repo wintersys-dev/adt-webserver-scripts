@@ -34,7 +34,12 @@ then
         done
 fi
 
-/bin/sleep 30
+machine_no="`/usr/bin/hostname | /bin/sed 's/^NO-//g' | /usr/bin/awk -F'-' '{print $1}'`"
+sleep_period="`/usr/bin/expr ${machine_no} * 10`"
+/bin/sleep ${sleep_period}
+
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
+
 
 email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
@@ -114,7 +119,6 @@ do
                         fi
 
                         ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "distributed"
-                        ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
 
                         if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
                         then
