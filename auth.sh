@@ -211,6 +211,7 @@ then
         NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
         ${HOME}/installation/InstallWireguard.sh
         ${HOME}/installation/InstallQREncode.sh 
+        ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard" "distributed"
         ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed"
 
         #Send email to each email in the wire-guard-emails datastore to say that the servers have changed and then delete the emails as below
