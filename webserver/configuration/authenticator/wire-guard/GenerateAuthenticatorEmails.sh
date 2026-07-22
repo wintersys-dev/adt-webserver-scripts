@@ -114,6 +114,7 @@ do
                         fi
 
                         ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "distributed"
+                        ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
 
                         if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
                         then
