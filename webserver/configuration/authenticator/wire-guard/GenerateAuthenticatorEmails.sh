@@ -13,12 +13,6 @@ WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEUR
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
-authenticator_no="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
-sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
-/usr/bin/sleep ${sleep}
-
-${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
-
 links="`/usr/bin/find /var/www/html -mmin +30 -name "*qrcode*" -type f`"
 links1="`/usr/bin/find /var/www/html -mmin +30 -name "*client*" -type f`"
 
@@ -34,10 +28,11 @@ then
         done
 fi
 
-machine_no="`/usr/bin/hostname | /bin/sed 's/^NO-//g' | /usr/bin/awk -F'-' '{print $1}'`"
-sleep_period="`/usr/bin/expr ${machine_no} * 10`"
-/bin/sleep ${sleep_period}
+authenticator_no="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
+sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
+/usr/bin/sleep ${sleep}
 
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
 
 
