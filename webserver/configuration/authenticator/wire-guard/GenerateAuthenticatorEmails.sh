@@ -96,6 +96,8 @@ do
                                 backup_client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
                         fi
 
+                        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "distributed"
+
                         if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
                         then
                                 message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a> <br> <br><a href='"${backup_qrcode_url}"'>View Your Backup Wireguard QR Code</a> <br> <a href='"${backup_client_url}"'>View Your Backup Wireguard QR Client File</a> <br> <br> For future resiliance, install your primary AND your backup QR codes now into your wireguard app. The QR codes will be valid for half an hour. </body> </html>"
