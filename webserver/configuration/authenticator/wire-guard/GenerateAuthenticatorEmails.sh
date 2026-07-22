@@ -19,6 +19,21 @@ sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
 
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 
+links="`/usr/bin/find /var/www/html -mmin +30 -name "*qrcode*" -type f`"
+links1="`/usr/bin/find /var/www/html -mmin +30 -name "*client*" -type f`"
+
+all_links="${links} ${links1}"
+
+if ( [ "${all_links}" != "" ] )
+then
+        for link in ${all_links}        
+        do
+                file="`/bin/echo ${link} | /usr/bin/awk -F'/' '{print $NF}'`"
+                ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emailed-links"  "${file}" "distributed"
+                /bin/rm ${link}
+        done
+fi
+
 email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
