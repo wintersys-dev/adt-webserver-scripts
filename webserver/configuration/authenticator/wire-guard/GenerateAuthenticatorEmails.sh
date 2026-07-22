@@ -46,15 +46,25 @@ sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
 
-period="`/usr/bin/expr 60 / ${NO_AUTHENTICATORS}`"
-authenticator_no_1="`/usr/bin/expr ${authenticator_no} - 1`"
-active_period_high="`/usr/bin/expr ${period} \* ${authenticator_no}`"
-active_period_low="`/usr/bin/expr ${period} \* ${authenticator_no_1}`"
+every_minute="`/usr/bin/seq 0 1 60`"
+count="1"
+allocate_authenticator=""
+for minute in ${every_minute}
+do
+        allocate_authenticator="${allocate_authenticator} ${count}"
+        if ( [ "${count}" = "${NO_AUTHENTICATOR}" ] )
+        then
+                count="0"
+        fi
+        count="`/usr/bin/expr ${count} + 1`"
+done
+current_minute="`/usr/bin/date +%M | /bin/sed 's/^0//'`"
+index="`/bin/echo ${every_minute} | /bin/sed "s/${current_minute} .*//g" | /usr/bin/wc -w`"
+authorised_authenticator="`/bin/echo ${allocate_authenticator} | /usr/bin/cut -d " " -f $index`"
 
-seconds="`/usr/bin/date +%S`"
 email_authorised="no"
 
-if ( [ "${seconds}" -ge "${active_period_high}" ] && [ "${seconds}" -le "${active_period_low}" ] )
+if ( [ "${authorised_authenticator}" -ge "${authenticator_no}" ] )
 then
         email_authorised="yes"
 fi
