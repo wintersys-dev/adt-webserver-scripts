@@ -112,7 +112,10 @@ do
         then
                 email_addresses="${email_addresses} ${email_address}"
         else
-                /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
+                if ( [ "`/bin/grep "^${email_address}$" ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
+                then
+                        /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
+                fi
         fi
 done
 
