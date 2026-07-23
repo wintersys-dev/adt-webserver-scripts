@@ -108,7 +108,7 @@ for to_process in ${needs_processing}
 do
         current_epoch_date="`/usr/bin/date +%s`"
         to_process_epoch_date="`/bin/cat ${to_process}`"
-        if ( [ "`/usr/bin/expr ${current_epoch_date} - ${to_process_epoch_date}`" - gt "60" ] )
+        if ( [ "`/usr/bin/expr ${current_epoch_date} - ${to_process_epoch_date}`" -gt "60" ] )
         then
                 email_address="`/bin/echo ${to_process} | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
                 email_addresses="${email_addresses} ${email_address}"
