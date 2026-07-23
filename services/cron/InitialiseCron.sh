@@ -44,12 +44,12 @@ then
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
+		#/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
+		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep `/usr/bin/shuf -i 1-60 -n 1` && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
+		#/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
+		#/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
+		#/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
+		#/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
 		/bin/echo "*/1 * * * * /usr/bin/find /var/www/html/ip-address* -mmin +30 -type f -exec rm -fv {} \;" >> /var/spool/cron/crontabs/root
 	elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 	then
