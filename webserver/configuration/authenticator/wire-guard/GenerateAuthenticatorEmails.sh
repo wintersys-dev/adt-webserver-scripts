@@ -64,7 +64,7 @@ then
 
         if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "60" ] )
         then
-                /usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -exec rm {} \;
+              #  /usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -exec rm {} \;
                 exit
         fi
 fi
