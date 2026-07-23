@@ -14,6 +14,9 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
+#/usr/bin/find /var/www/html/qrcode* -mmin +30 -type f -exec rm -fv {} \;
+#/usr/bin/find /var/www/html/client* -mmin +30 -type f -exec rm -fv {} \;
+
 dates="`/usr/bin/find /var/www/html | /bin/egrep "(client|qrcode)" | /usr/bin/awk -F'-' '{print $5}' | /bin/sed 's/\..*$//g' | /bin/sed '/^$/d'`"
 links=""
 current_date="`/usr/bin/date +%s`"
