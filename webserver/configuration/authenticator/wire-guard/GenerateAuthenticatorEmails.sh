@@ -75,31 +75,47 @@ ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emailed-link
 
 #########################
 
-every_minute="`/usr/bin/seq 0 1 60`"
-count="1"
-allocate_authenticator=""
-for minute in ${every_minute}
+#every_minute="`/usr/bin/seq 0 1 60`"
+#count="1"
+#allocate_authenticator=""
+#for minute in ${every_minute}
+#do
+#        allocate_authenticator="${allocate_authenticator} ${count}"
+#        if ( [ "${count}" = "${NO_AUTHENTICATOR}" ] )
+#        then
+#                count="0"
+#        fi
+#        count="`/usr/bin/expr ${count} + 1`"
+#done
+#current_minute="`/usr/bin/date +%M | /bin/sed 's/^0//'`"
+#index="`/bin/echo ${every_minute} | /bin/sed "s/${current_minute} .*//g" | /usr/bin/wc -w`"
+#authorised_authenticator="`/bin/echo ${allocate_authenticator} | /usr/bin/cut -d " " -f $index`"
+
+#email_authorised="no"
+
+#if ( [ "${authorised_authenticator}" -ge "${authenticator_no}" ] )
+#then
+#        email_authorised="yes"
+#fi
+
+
+#email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
+
+###################
+needs_processing="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print`"
+email_addresses=""
+for to_process in ${needs_processing}
 do
-        allocate_authenticator="${allocate_authenticator} ${count}"
-        if ( [ "${count}" = "${NO_AUTHENTICATOR}" ] )
+        current_epoch_date="`/usr/bin/date +%s`"
+        to_process_epoch_date="`/bin/cat ${to_process}`"
+        if ( [ "`/usr/bin/expr ${current_epoch_date} - ${to_process_epoch_date}`" - gt "60" ] )
         then
-                count="0"
+                email_address="`/bin/echo ${to_process} | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
+                email_addresses="${email_addresses} ${email_address}"
         fi
-        count="`/usr/bin/expr ${count} + 1`"
 done
-current_minute="`/usr/bin/date +%M | /bin/sed 's/^0//'`"
-index="`/bin/echo ${every_minute} | /bin/sed "s/${current_minute} .*//g" | /usr/bin/wc -w`"
-authorised_authenticator="`/bin/echo ${allocate_authenticator} | /usr/bin/cut -d " " -f $index`"
+#####################                
 
-email_authorised="no"
-
-if ( [ "${authorised_authenticator}" -ge "${authenticator_no}" ] )
-then
-        email_authorised="yes"
-fi
-
-
-email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
 /bin/touch ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
@@ -197,16 +213,16 @@ do
                                 #/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE" -path "*${email_address}*" -delete
                         fi
                 done
-                if ( [ "${email_authorised}" = "yes" ] )
-                then
+              #  if ( [ "${email_authorised}" = "yes" ] )
+              #  then
                         ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
                         /bin/echo ${email_address} >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
-                else
-                        if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/NEEDS_PROCESSING ] )
-                        then
-                                /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/NEEDS_PROCESSING
-                        fi
-                fi
+              #  else
+               #         if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/NEEDS_PROCESSING ] )
+               #         then
+               #                 /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/NEEDS_PROCESSING
+               #         fi
+               # fi
         fi
 done
 
