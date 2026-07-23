@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#set -x
+set -x
 
 if ( [ ! -d ${HOME}/runtime/wire-guard/configs ] )
 then
@@ -104,22 +104,23 @@ needs_processing="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "GENER
 email_addresses=""
 for to_process in ${needs_processing}
 do
-        current_epoch_date="`/usr/bin/date +%s`"
-        to_process_epoch_date="`/bin/cat ${to_process}`"
+   #     current_epoch_date="`/usr/bin/date +%s`"
+    #    to_process_epoch_date="`/bin/cat ${to_process}`"
         email_address="`/bin/echo ${to_process} | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 
-        if ( [ "`/usr/bin/expr ${current_epoch_date} - ${to_process_epoch_date}`" -gt "60" ] )
-        then
-                email_addresses="${email_addresses} ${email_address}"
-        else
+      #  if ( [ "`/usr/bin/expr ${current_epoch_date} - ${to_process_epoch_date}`" -gt "60" ] )
+       # then
+       #         email_addresses="${email_addresses} ${email_address}"
+       # else
                 if ( [ "`/bin/grep "^${email_address}$" ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
                 then
+                        email_addresses="${email_addresses} ${email_address}"
                         /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
                 fi
-        fi
+       # fi
 done
 
-email_addresses="`/bin/echo ${email_addresses} | /usr/bin/tr -s "[:space:]" "\n"  | /usr/bin/sort -u | /usr/bin/uniq`"
+#email_addresses="`/bin/echo ${email_addresses} | /usr/bin/tr -s "[:space:]" "\n"  | /usr/bin/sort -u | /usr/bin/uniq`"
 #####################                
 
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
@@ -128,7 +129,7 @@ reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
 for email_address in ${email_addresses}
 do
-        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
+        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
         then
                 primed="1"
                 for ip in ${reverse_proxy_ips}
@@ -168,7 +169,7 @@ done
 
 for email_address in ${email_addresses}
 do
-        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
+        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
         then
                 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
                 ip="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
@@ -216,6 +217,7 @@ do
                                 else
                                         message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  <br>  The QR code will be valid for half an hour. </body> </html>"
                                 fi
+                                /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED
                                 #/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CANDIDATE_QR_CODE" -path "*${email_address}*" -delete
                         fi
                 done
