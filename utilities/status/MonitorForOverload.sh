@@ -25,7 +25,7 @@ then
         exit
 fi
 
-if ( [ ! -f ${HOME}/runtime/WEBSERVER_READY ] && [ ! -f ${HOME}/runtime/WEBSERVER_READY ] && [ ! -f ${HOME}/runtime/WEBSERVER_READY ] )
+if ( [ ! -f ${HOME}/runtime/WEBSERVER_READY ] && [ ! -f ${HOME}/runtime/AUTHENTICATOR_READY ] && [ ! -f ${HOME}/runtime/REVERSEPROXY_READY ] )
 then
         exit
 fi
