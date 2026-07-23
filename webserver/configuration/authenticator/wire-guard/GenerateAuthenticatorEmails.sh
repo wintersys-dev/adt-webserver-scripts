@@ -43,6 +43,37 @@ sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
 
+
+########################
+
+if ( [ -f ${HOME}/runtime/wire-guard/time_email_sent ] )
+then
+        /bin/rm ${HOME}/runtime/wire-guard/time_email_sent
+fi
+
+
+if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emailed-links" "time_email_sent"`" != "" ] )
+then 
+        ${HOME}/services/datastore/operations/GetFromDatastore.sh "wire-guard-emailed-links" "time_email_sent" "${HOME}/runtime/wire-guard" 
+fi
+
+if ( [ -f ${HOME}/runtime/wire-guard/time_email_sent ] )
+then
+        current_time="`/usr/bin/date +%s`"
+        backup_time="`/bin/cat ${HOME}/runtime/wire-guard/time_email_sent`"
+
+        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "300" ] )
+        then
+                exit
+        fi
+fi
+
+time_email_sent="`/usr/bin/date +%s`"
+/bin/echo "${time_email_sent}" > ${HOME}/runtime/wire-guard/time_email_sent
+${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emailed-links" "${HOME}/runtime/wire-guard/time_email_sent" "root" "distributed" "no"
+
+#########################
+
 every_minute="`/usr/bin/seq 0 1 60`"
 count="1"
 allocate_authenticator=""
