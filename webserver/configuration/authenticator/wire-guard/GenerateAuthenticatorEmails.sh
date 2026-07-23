@@ -97,10 +97,10 @@ ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emailed-link
 #fi
 
 
-#email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
+#email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "GENERATION_TIMESTAMP" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 
 ###################
-needs_processing="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -print`"
+needs_processing="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "GENERATION_TIMESTAMP" -print`"
 email_addresses=""
 for to_process in ${needs_processing}
 do
@@ -155,10 +155,10 @@ do
                                         /bin/cat ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf >> ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf
                                         /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf
 
-                                        if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
-                                        then
-                                                /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/NEEDS_PROCESSING
-                                        fi
+                                     #   if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
+                                     #   then
+                                     #           /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/GENERATION_TIMESTAMP
+                                     #   fi
                                 fi
                         fi
                         /bin/rm ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf
