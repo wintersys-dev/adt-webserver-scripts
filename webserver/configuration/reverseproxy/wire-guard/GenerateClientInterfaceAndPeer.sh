@@ -105,7 +105,7 @@ then
                         PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
 
                         current_epoch_date="`/usr/bin/date +%s`"
-                        /bin/echo "${current_epoch_date} > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/NEEDS_PROCESSING
+                        /bin/echo "${current_epoch_date}" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/NEEDS_PROCESSING
                         /bin/sed -i "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
                         #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
                 fi
