@@ -30,6 +30,21 @@ then
         exit
 fi
 
+if ( [ -f ${HOME}/runtime/WEBSERVER_READY ] && [ "`/usr/bin/find ${HOME}/runtime/WEBSERVER_READY -type f  -mmin -10`" != "" ] )
+then
+        exit
+fi
+
+if ( [ -f ${HOME}/runtime/AUTHENTICATOR_READY ] && [ "`/usr/bin/find ${HOME}/runtime/AUTHENTICATOR_READY -type f  -mmin -10`" != "" ] )
+then
+        exit
+fi
+
+if ( [ -f ${HOME}/runtime/REVERSEPROXY_READY  ] && [ "`/usr/bin/find ${HOME}/runtime/REVERSEPROXY_READY -type f  -mmin -10`" != "" ] )
+then
+        exit
+fi
+
 if ( [ -f ${HOME}/runtime/CPU_OVERLOAD_ACKNOWLEDGED ] )
 then
         if test "`/usr/bin/find ${HOME}/runtime/CPU_OVERLOAD_ACKNOWLEDGED -mmin +1440`"
