@@ -62,8 +62,9 @@ then
         current_time="`/usr/bin/date +%s`"
         backup_time="`/bin/cat ${HOME}/runtime/wire-guard/time_email_sent`"
 
-        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "300" ] )
+        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "60" ] )
         then
+                /usr/bin/find ${HOME}/runtime/wire-guard/configs -name "NEEDS_PROCESSING" -exec rm {} \;
                 exit
         fi
 fi
