@@ -69,7 +69,7 @@ time_email_sent="`/usr/bin/date +%s`"
 /bin/echo "${time_email_sent}" > ${HOME}/runtime/wire-guard/time_email_sent
 ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emailed-links" "${HOME}/runtime/wire-guard/time_email_sent" "root" "distributed" "no"
 
-email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "GENERATION_TIMESTAMP" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
+email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CLIENT_INTERFACE_GENERATED" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
