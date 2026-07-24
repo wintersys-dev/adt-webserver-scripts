@@ -113,5 +113,23 @@ then
         cd ${HOME}
         /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
+
+elif ( [ "`/bin/grep "^APPLICATION_TYPE:backdrop" ${HOME}/runtime/application.dat`" != "" ] )
+then
+        cd ${HOME}
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        /bin/rm -r /var/www/*
+        /bin/chown www-data:www-data /var/www
+        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project backdrop/backdrop-composer /var/www/html --no-interaction --no-install
+        cd /var/www/html
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
+        /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+        cd ${HOME}
+        /bin/echo "BACKDROP" > /var/www/html/dbt.dat
+        /bin/echo "success"
 fi
 
