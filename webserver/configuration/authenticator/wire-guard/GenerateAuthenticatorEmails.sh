@@ -162,7 +162,6 @@ do
 
                                 if ( [ "`/bin/grep "^${email_address}$" ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
                                 then
-                                        email_addresses="${email_addresses} ${email_address}"
                                         /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
                                 fi
                         fi
