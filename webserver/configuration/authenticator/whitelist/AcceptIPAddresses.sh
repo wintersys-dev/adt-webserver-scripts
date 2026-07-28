@@ -36,40 +36,27 @@ then
 	/bin/mv /var/www/whitelist/ipaddresses.dat ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$
 fi
 
-#if ( [ -f ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ ] )
-#then
-#	for ip_address in `/bin/cat ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ | /usr/bin/awk -F':' '{print $NF}'`
-#	do
-#		if ( [ "`/usr/bin/ipcalc ${ip_address} | /bin/grep "INVALID"`"  = "" ] )
-#		then
-#			if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/ipaddresses.dat`" = "" ] )
-#			then
-#				/bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
-#				if ( [ "${MULTI_REGION}" = "1" ] )
-#				then
-#					multi_region_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-multi-region"
-#					${HOME}/services/datastore/PutToDatastore.sh "multi-region" "${ip_address}" "multi-region-auth-laptop-ips" "distributed" "yes"
-#				fi
-#			fi
-#		fi
-#	done
-#fi
-
 
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 
 if ( [ -f ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ ] )
 then
-        for ip_address in `/bin/cat ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ | /usr/bin/awk -F':' '{print $NF}'`
-        do
-                if ( [ "`/usr/bin/ipcalc ${ip_address} | /bin/grep "INVALID"`"  = "" ] )
-                then                        
-						if ( [ ! -d ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} ] || [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip}`" = "" ] )
-                        then
-                                /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip}
-                                ${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "distributed" 
-                                ${HOME}/services/datastore/operations/PutToDatastore.sh "whitelist-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "whitelist-laptop-ips" "distributed" "no"
-                        fi      
-                fi              
-        done
+	ip_address_accepted="0"
+	for ip_address in `/bin/cat ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ | /usr/bin/awk -F':' '{print $NF}'`
+	do
+		if ( [ "`/usr/bin/ipcalc ${ip_address} | /bin/grep "INVALID"`"  = "" ] )
+		then                        
+			if ( [ ! -d ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} ] || [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip}`" = "" ] )
+			then
+    			/bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip}
+				ip_address_accepted="1"
+ 			fi      
+		fi              
+	done
+	
+	if ( [ "${ip_address_accepted}" = "1" ] )
+	then
+		${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "distributed" 
+		${HOME}/services/datastore/operations/PutToDatastore.sh "whitelist-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "whitelist-laptop-ips" "distributed" "no"
+	fi
 fi
