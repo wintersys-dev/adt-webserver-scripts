@@ -11,7 +11,7 @@ then
         /bin/mkdir -p ${HOME}/runtime/authenticator 
 fi
 
-basic_auth_file="${HOME}/runtime/authenticator/basic-auth.dat"
+basic_auth_file="${HOME}/runtime/authenticator/basic-auth.dat.${machine_ip}"
 basic_auth_previous_credentials="${HOME}/runtime/authenticator/previous-basic-auth-credentials.dat"
 
 /bin/touch ${basic_auth_previous_credentials}
@@ -41,13 +41,17 @@ do
                 /bin/sed -i "s/^${username}:/NEW:${username}:/g" ${basic_auth_file}
                 message="<!DOCTYPE html> <html> <body> <h1>The basic auth password you requested for ${WEBSITE_URL} is: ${password} </body> </html>"
                 ${HOME}/services/email/SendEmail.sh "Basic Auth password request" "${message}" MANDATORY ${username} "HTML" "AUTHENTICATION"
-                /bin/cat ${basic_auth_file} >> ${basic_auth_file}.${machine_ip}
                 basic_auth_updated="1"
         fi
 done
 
+if ( [ -f ${basic_auth_file}.$$ ] )
+then
+        /bin/rm ${basic_auth_file}.$$
+fi
+
 if ( [ "${basic_auth_updated}" = "1" ] )
 then
         ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
-        ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
+        ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file} "basic-auth-credentials" "distributed" "no"
 fi
