@@ -43,10 +43,13 @@ fi
 
 /bin/sleep "`/usr/bin/shuf -i1-30 -n1`"
 
-if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "BACKUP_RUNNING"`" = "" ] )
+if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "BACKUP_RUNNING" "root" "yes"
-fi 
+	if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "BACKUP_RUNNING"`" = "" ] )
+	then
+		${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "BACKUP_RUNNING" "root" "yes"
+	fi
+fi
 
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
@@ -62,9 +65,8 @@ if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
 	/bin/echo "Please wait whilst I perform a backup of your application"
 	${HOME}/application/backup/Backup.sh "shutdown"
+	${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "BACKUP_RUNNING"
 fi
-
-${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "BACKUP_RUNNING"
 
 
 # Put any shutdown processing that you need here
