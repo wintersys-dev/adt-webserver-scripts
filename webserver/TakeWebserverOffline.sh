@@ -21,6 +21,8 @@
 #######################################################################################
 #set -x
 
+HOME="`/bin/cat /home/homedir.dat`"
+
 if ( [ "`/usr/bin/hostname | /bin/grep "\-auth-"`" != "" ] )
 then
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
