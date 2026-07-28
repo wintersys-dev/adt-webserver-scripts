@@ -29,7 +29,7 @@ HOME="`/bin/cat /home/homedir.dat`"
 
 /bin/echo ""
 /bin/echo "###########################################################################################"
-/bin/echo "Shutting down a webserver with `${HOME}/utilities/processing/GetPublicIP.sh`, please wait whilst I clean the place up first"
+/bin/echo "Shutting down a machine with IP ADDRESS: `${HOME}/utilities/processing/GetPublicIP.sh`, please wait whilst I clean the place up first"
 /bin/echo "###########################################################################################"
 /bin/echo ""
 
@@ -58,7 +58,7 @@ then
 	${HOME}/services/datastore/operations/DeleteFromDatastore.sh "multi-region" "dbaas_ips/${public_ip}" "distributed"
 fi
 
-${HOME}/application/backupscripts/Backup.sh "shutdown"
+${HOME}/application/backup/Backup.sh "shutdown"
 
 ${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "BACKUP_RUNNING"
 
