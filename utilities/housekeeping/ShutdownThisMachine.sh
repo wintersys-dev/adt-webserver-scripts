@@ -29,7 +29,7 @@ HOME="`/bin/cat /home/homedir.dat`"
 
 /bin/echo ""
 /bin/echo "###########################################################################################"
-/bin/echo "Shutting down a machine with IP ADDRESS: `${HOME}/utilities/processing/GetPublicIP.sh`, please wait whilst I clean the place up first"
+/bin/echo "Shutting down a machine with IP ADDRESS: `${HOME}/utilities/processing/GetPublicIP.sh`" 
 /bin/echo "###########################################################################################"
 /bin/echo ""
 
@@ -60,6 +60,7 @@ fi
 
 if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
+	/bin/echo "Please wait whilst I perform a backup of your application"
 	${HOME}/application/backup/Backup.sh "shutdown"
 fi
 
