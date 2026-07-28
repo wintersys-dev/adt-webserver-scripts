@@ -36,26 +36,6 @@ then
 	/bin/mv /var/www/firewall/ipaddresses.dat ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$
 fi
 
-#if ( [ -f ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ ] )
-#then
-#	for ip_address in `/bin/cat ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ | /usr/bin/awk -F':' '{print $NF}'`
-#	do
-#		if ( [ "`/usr/bin/ipcalc ${ip_address} | /bin/grep "INVALID"`"  = "" ] )
-#		then
-#			if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/ipaddresses.dat`" = "" ] )
-#			then
-#				/bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/ipaddresses.dat
-#				if ( [ "${MULTI_REGION}" = "1" ] )
-#				then
-#					multi_region_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-multi-region"
-#					${HOME}/services/datastore/PutToDatastore.sh "multi-region" "${ip_address}" "multi-region-auth-laptop-ips" "distributed" "yes"
-#				fi
-#			fi
-#		fi
-#	done
-#fi
-
-
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 
 if ( [ -f ${HOME}/runtime/authenticator/ipaddresses.dat.incoming.$$ ] )
