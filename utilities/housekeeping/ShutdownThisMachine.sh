@@ -58,7 +58,10 @@ then
 	${HOME}/services/datastore/operations/DeleteFromDatastore.sh "multi-region" "dbaas_ips/${public_ip}" "distributed"
 fi
 
-${HOME}/application/backup/Backup.sh "shutdown"
+if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
+then
+	${HOME}/application/backup/Backup.sh "shutdown"
+fi
 
 ${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "BACKUP_RUNNING"
 
