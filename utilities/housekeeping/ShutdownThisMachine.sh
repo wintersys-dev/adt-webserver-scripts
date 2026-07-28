@@ -41,10 +41,11 @@ then
 	fi
 fi
 
-/bin/sleep "`/usr/bin/shuf -i1-30 -n1`"
 
 if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
+	/bin/sleep "`/usr/bin/shuf -i1-30 -n1`"
+
 	if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "BACKUP_RUNNING"`" = "" ] )
 	then
 		${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "BACKUP_RUNNING" "root" "yes"
