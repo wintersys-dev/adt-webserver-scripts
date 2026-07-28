@@ -22,7 +22,7 @@ then
 else
         exit
 fi
-
+basic_auth_updated="0"
 for data in `/bin/cat ${basic_auth_file}.$$`
 do
         username="`/bin/echo ${data} | /usr/bin/awk -F':' '{print $1}'`"
@@ -41,9 +41,13 @@ do
                 /bin/sed -i "s/^${username}:/NEW:${username}:/g" ${basic_auth_file}
                 message="<!DOCTYPE html> <html> <body> <h1>The basic auth password you requested for ${WEBSITE_URL} is: ${password} </body> </html>"
                 ${HOME}/services/email/SendEmail.sh "Basic Auth password request" "${message}" MANDATORY ${username} "HTML" "AUTHENTICATION"
-                /bin/cp ${basic_auth_file} ${basic_auth_file}.${machine_ip}
-                ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
-                ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
-                /bin/rm ${basic_auth_file}.${machine_ip}
+                /bin/cat ${basic_auth_file} >> ${basic_auth_file}.${machine_ip}
+                basic_auth_updated="1"
         fi
 done
+
+if ( [ "${basic_auth_updated}" = "1" ] )
+then
+        ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
+        ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file}.${machine_ip} "basic-auth-credentials" "distributed" "no"
+fi
