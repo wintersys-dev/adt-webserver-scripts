@@ -21,6 +21,14 @@
 #######################################################################################################
 #set -x
 
+MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
+
+datastore_scope="local"
+if ( [ "${MULTI_REGION}" = "1" ] )
+then
+        datastore_scope="distributed"
+fi
+
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
 	/bin/mkdir ${HOME}/runtime/authenticator
@@ -49,5 +57,4 @@ do
 	${HOME}/services/email/SendEmail.sh "Authenticated IP claim request for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
 	/bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/authentication-emails.dat
     ${HOME}/services/datastore/operations/SyncToDatastore.sh "firewall-emailed-links" "/var/www/html" "${datastore_scope}"
-
 done
