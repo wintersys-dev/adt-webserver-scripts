@@ -167,6 +167,8 @@ then
 	/bin/chmod 644 /var/www/html/*
 	/bin/sed -i "s/XXXXUSEREMAILDOMAINXXXX/${USER_EMAIL_DOMAIN}/g" /var/www/html/index.html
 	/bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" /var/www/html/index.html
+	reverseproxy_ips="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "reverseproxyips/*"`"
+	/bin/sed -i "s/XXXXREVERSE_PROXY_IPSXXXX/${reverseproxy_ips}/g" /var/www/html/index.html
 
 	if ( [ ! -d /var/www/${AUTHENTICATOR_TYPE} ] )
 	then
