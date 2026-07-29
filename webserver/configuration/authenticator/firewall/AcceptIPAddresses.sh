@@ -21,7 +21,7 @@
 #######################################################################################################
 #set -x
 
-MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
+#MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
