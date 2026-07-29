@@ -1,8 +1,9 @@
 #!/bin/sh
 ###########################################################################################################
-# Description: This will accept candidate email addresses from the HTML form running on an authenticator
-# server and will store the email address(es) in the datastore where the reverse proxies can access them
-# to see who they need to open up to. 
+# Description: This will remove any expired unique link QRcodes or client configs. Generate new QR codes based
+# on the client config that the reverse proxy has supplied to us and email the QRCodes and client config
+# to the user's email address. The processed config files are then written to the datastore so that they
+# can be copied to any other authenticators so that they are available on their filesystems also.
 # Author : Peter Winter
 # Date: 17/05/2017
 ######################################################################################################
