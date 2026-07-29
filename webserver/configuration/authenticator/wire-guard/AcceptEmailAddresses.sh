@@ -22,6 +22,7 @@
 #######################################################################################################
 #set -x
 
+MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 
 if ( [ -f /var/www/wire-guard/authentication-emails.dat ] )
@@ -34,6 +35,13 @@ then
     fi
     
     /bin/cat /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip}
-    ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip} "" "distributed" "no"
+    
+    if ( [ "${MULTI_REGION}" = "0" ] )
+    then
+      ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip} "" "local" "no"
+    elif ( [ "${MULTI_REGION}" = "1" ] )
+    then
+      ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip} "" "distributed" "no"
+    fi
   fi
 fi
