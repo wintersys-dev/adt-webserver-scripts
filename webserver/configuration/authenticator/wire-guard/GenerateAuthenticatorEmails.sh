@@ -59,7 +59,7 @@ then
         for link in ${all_links}        
         do
                 file="`/bin/echo ${link} | /usr/bin/awk -F'/' '{print $NF}'`"
-                ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emailed-links"  "${file}" "distributed"
+                ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard-emailed-links"  "${file}" "${datastore_scope}"
                 /bin/rm ${link}
         done
 fi
