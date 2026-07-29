@@ -48,4 +48,6 @@ do
 	message="<!DOCTYPE html> <html> <body> <h1>IP address authorisation form for ${WEBSITE_URL_ORIGINAL}</h1> <p>From the SAME browser as you want to connect from (your phone broswer might have a different ip address to your laptop if one is on WIFI and one is on 5G go to www.whatsmyip.com and enter the IPV4 IP address in the form that appears when you click the link below. Cheers. This link will be valid for 30 minutes before being deleted. </p> <a href='"${website_url}"'>Enable Your IP Address</a> </body> </html>"
 	${HOME}/services/email/SendEmail.sh "Authenticated IP claim request for ${WEBSITE_URL_ORIGINAL}" "${message}" MANDATORY ${email_address} "HTML" "AUTHENTICATION"
 	/bin/sed -i "/${email_address}$/d" ${HOME}/runtime/authenticator/authentication-emails.dat
+    ${HOME}/services/datastore/operations/SyncToDatastore.sh "firewall-emailed-links" "/var/www/html" "${datastore_scope}"
+
 done
