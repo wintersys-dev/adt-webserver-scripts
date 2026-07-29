@@ -1,6 +1,7 @@
 #!/bin/sh
 ###########################################################################################################
-# Description: This will generate a one time link to a file allowing the user to input their IP address
+# Description: This will generate a limited access link that a user can access to input their ip address.
+# This limited access link is emailed to them and it will be valid or available for half an hour
 # Author : Peter Winter
 # Date: 17/05/2017
 ######################################################################################################
