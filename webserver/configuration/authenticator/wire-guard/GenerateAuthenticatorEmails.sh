@@ -32,6 +32,7 @@ HOME="`/bin/cat /home/homedir.dat`"
 
 WEBSITE_URL_ORIGINAL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
@@ -68,6 +69,9 @@ email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CLIENT
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
 /bin/touch ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
+
+/usr/bin/sort ${HOME}/runtime/wire-guard/PROCESSED_EMAILS | /usr/bin/uniq > ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$
+/bin/mv ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$ ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
 
 for email_address in ${email_addresses}
 do
@@ -165,4 +169,10 @@ do
         fi
 done
 
-${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs/" "distributed"
+if ( [ "${MULTI_REGION}" = "0" ] )
+then
+        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs/" "local"
+elif ( [ "${MULTI_REGION}" = "1" ] )
+then
+        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs/" "distributed"
+fi
