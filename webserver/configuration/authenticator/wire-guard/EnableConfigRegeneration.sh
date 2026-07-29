@@ -2,7 +2,8 @@
 ###########################################################################################################
 # Description: If a user has lost their wireguard configuration and QR code for some reason you might want
 # to allow them to regenerate a new QRCode and client config and that is done simply by running
-# ${BUILD_HOME}/helpers/server/ExecuteOnRemoteMachine.sh which will call this script which does the work for us
+# ${BUILD_HOME}/helpers/server/ExecuteOnRemoteMachine.sh "enable-wireguard-regeneration" 
+#which will call this script which does the work for us
 # Once the email address is removed from the PROCESSED_EMAILS file it means that the QRCode and Client Config
 # can be regenrated and installed into the wireguard client. 
 # This needs to be run on all authenticator machines so if you have multiple authenticators you will need to run
