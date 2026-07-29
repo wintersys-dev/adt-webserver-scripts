@@ -29,6 +29,35 @@ then
         datastore_scope="distributed"
 fi
 
+dates="`/usr/bin/find /var/www/html | /bin/egrep "(client|qrcode)" | /usr/bin/awk -F'-' '{print $5}' | /bin/sed 's/\..*$//g' | /bin/sed '/^$/d'`"
+links=""
+current_date="`/usr/bin/date +%s`"
+for date in ${dates}
+do
+        if ( [ "`/bin/expr ${current_date} - ${date}`" -gt "1800" ] )
+        then
+                links="`/usr/bin/find /var/www/html -name "*${date}*" -type f`"
+        fi
+        all_links="${all_links} ${links}"
+done
+
+if ( [ "${all_links}" != "" ] )
+then
+        for link in ${all_links}        
+        do
+                file="`/bin/echo ${link} | /usr/bin/awk -F'/' '{print $NF}'`"
+                ${HOME}/services/datastore/operations/DeleteFromDatastore.sh "firewall-emailed-links"  "${file}" "${datastore_scope}"
+                /bin/rm ${link}
+        done
+fi
+
+authenticator_no="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
+sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
+/usr/bin/sleep ${sleep}
+
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
+
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
 	/bin/mkdir ${HOME}/runtime/authenticator
