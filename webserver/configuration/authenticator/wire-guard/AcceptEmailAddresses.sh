@@ -23,27 +23,26 @@
 #set -x
 
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
+USER_EMAIL_DOMAIN="`${HOME}/utilities/config/ExtractConfigValue.sh 'USEREMAILDOMAIN'`"
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 
 if ( [ -f /var/www/wire-guard/authentication-emails.dat ] )
 then
-	if ( [ "`/bin/grep '@' /var/www/wire-guard/authentication-emails.dat`" != "" ] )
-	then    
-		if ( [ ! -d ${HOME}/runtime/wire-guard/emails ] )
-		then
-			/bin/mkdir -p ${HOME}/runtime/wire-guard/emails
-		fi
+	/bin/sed -i "/${USER_EMAIL_DOMAIN}/!d" /var/www/wire-guard/authentication-emails.da
+    if ( [ ! -d ${HOME}/runtime/wire-guard/emails ] )
+	then
+		/bin/mkdir -p ${HOME}/runtime/wire-guard/emails
+	fi
     
-		/bin/cat /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip}
+	/bin/cat /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip}
     
-		if ( [ "${MULTI_REGION}" = "0" ] )
-		then
-			${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "local" 
-			${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip} "" "local" "no"
-		elif ( [ "${MULTI_REGION}" = "1" ] )
-		then
-			${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed" 
-			${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip} "" "distributed" "no"
-		fi
+	if ( [ "${MULTI_REGION}" = "0" ] )
+	then
+		${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "local" 
+		${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip} "" "local" "no"
+	elif ( [ "${MULTI_REGION}" = "1" ] )
+	then
+		${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed" 
+		${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip} "" "distributed" "no"
 	fi
 fi
