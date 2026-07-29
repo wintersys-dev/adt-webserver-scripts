@@ -76,26 +76,12 @@ then
                         sixteen="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
                         iteration2="`/usr/bin/expr ${sixteen1} \* 255`"
                         twenty_four="`/usr/bin/expr ${twenty_four} - ${iteration2}`"
-
-                        # Create client config
-                  #      /bin/echo "[Interface]
-                  #      PrivateKey = ${client_private_key}
-                  #      Address = 10.${sixteen}.${twenty_four}.${thirty_two}/32
-                  #      MTU = 1380
-                  #      DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf
                   
                         /bin/echo "[Interface]
                         PrivateKey = ${client_private_key}
                         Address = 10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.${client_no}/32
                         MTU = 1380
                         DNS = 1.1.1.1, 1.0.0.1" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_interface.conf
-
-                    # This is the original   /bin/echo "[Peer]
-                    #    PublicKey = ${server_public_key}
-                    #    PresharedKey = ${preshared_key}
-                    #    Endpoint = ${endpoint}:${wireguard_port}
-                    #    AllowedIPs =  10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.${client_no}/32,10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.0/8
-                    #    PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
                         
                         /bin/echo "[Peer]
                         PublicKey = ${server_public_key}
@@ -105,10 +91,8 @@ then
                         PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
 
                         current_epoch_date="`/usr/bin/date +%s`"
-                      #  /bin/echo "${current_epoch_date}" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/GENERATION_TIMESTAMP
                         /bin/touch ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/CLIENT_INTERFACE_GENERATED
                         /bin/sed -i "/^${email_address}$/d" ${HOME}/runtime/wire-guard/emails/processing/to_process_authentication_emails.dat.client
-                        #                       /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/client/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/client/${email_address}/client.conf
                 fi
                 #Write the QR code to the wireguard datastore and download it to the webroot of the authenticator and then send an email from this machine
                 #with a link to the QR code on the webroot of the authenticator
