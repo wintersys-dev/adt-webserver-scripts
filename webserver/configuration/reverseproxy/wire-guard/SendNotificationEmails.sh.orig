@@ -2,7 +2,7 @@
 ###########################################################################################################
 # Description: If the infrastructure has been taken offline and redeployed then this will send an email
 # to the users to inform them that they need to regenerate their wireguard configs and recallibrate their
-# wireguard client
+# wireguard client because the IP addresses of their 
 # Author : Peter Winter
 # Date: 17/05/2026
 ######################################################################################################
