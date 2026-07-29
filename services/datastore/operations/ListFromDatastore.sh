@@ -78,6 +78,33 @@ elif ( [ "${bucket_type}" = "snap" ] )
 then
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
         active_bucket="${active_bucket}-${DNS_CHOICE}-snap"
+elif ( [ "${bucket_type}" = "firewall-auth-laptop-ips" ] )
+then
+        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        then
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+        else
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+        fi
+        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-firewall-auth-laptop-ips"
+elif ( [ "${bucket_type}" = "whitelist-auth-laptop-ips" ] )
+then
+        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        then
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+        else
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+        fi
+        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-whitelist-auth-laptop-ips"
+elif ( [ "${bucket_type}" = "basic-auth-credentials" ] )
+then
+        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        then
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+        else
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+        fi
+        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-basic-auth-credentials" 
 elif ( [ "${bucket_type}" = "wire-guard" ] )
 then
         if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
@@ -98,6 +125,16 @@ then
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
         active_bucket="${active_bucket}-wireguardemails"
+elif ( [ "${bucket_type}" = "wire-guard-emailed-links" ] )
+then
+        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        then
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+        else
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+        fi
+        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="${active_bucket}-wireguardemailedlinks"
 fi
 
 datastore_tool=""
