@@ -56,7 +56,14 @@ then
 	
 	if ( [ "${ip_address_accepted}" = "1" ] )
 	then
-		${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "distributed" 
-		${HOME}/services/datastore/operations/PutToDatastore.sh "whitelist-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "whitelist-laptop-ips" "distributed" "no"
+		if ( [ "${MULTI_REGION}" = "0" ] )
+		then
+			${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "local" 
+			${HOME}/services/datastore/operations/PutToDatastore.sh "whitelist-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "whitelist-laptop-ips" "local" "no"
+		elif ( [ "${MULTI_REGION}" = "1" ] )
+		then		
+			${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "distributed" 
+			${HOME}/services/datastore/operations/PutToDatastore.sh "whitelist-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "whitelist-laptop-ips" "distributed" "no"
+		fi
 	fi
 fi
