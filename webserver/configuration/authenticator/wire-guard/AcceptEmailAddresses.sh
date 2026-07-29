@@ -1,14 +1,26 @@
-
-
-#copy #add authenticator.dat to authenticator.dat.machineip
-#do a unique on authenticator.dat.macineid
-# on the reverse proxy machines get the authenticator.dat.machineid onto each machine
-# aggregate authenticator.dat.* into authenticator.dat
-# make it unique
-#if the directory exists for the email address skip it
-#othwrwise create dirdctory for enail address and generate config file
-#write newly generated client config file to s3
-#on the authenticator generate QR codes and email it to email addresses
+#!/bin/sh
+###########################################################################################################
+# Description: This will accept candidate email addresses from the HTML form running on an authenticator
+# server and will store the email address(es) in the datastore where the reverse proxies can access them
+# to see who they need to open up to. 
+# Author : Peter Winter
+# Date: 17/05/2017
+######################################################################################################
+# License Agreement:
+# This file is part of The Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+#######################################################################################################
+#######################################################################################################
+#set -x
 
 
 if ( [ -f /var/www/wire-guard/authentication-emails.dat ] )
@@ -23,7 +35,6 @@ then
     fi
     
     /bin/mv /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${rnd}
-  #  ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "distributed"
     ${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${rnd} "" "distributed" "no"
   fi
 fi
