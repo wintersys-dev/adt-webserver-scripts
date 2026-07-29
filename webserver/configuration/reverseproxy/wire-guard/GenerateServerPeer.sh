@@ -2,7 +2,7 @@
 ###########################################################################################################
 # Description: This will generate the wireguard server peer and reload it for this reverse proxy machine. 
 # Author : Peter Winter
-# Date: 17/05/2017
+# Date: 17/05/2026
 ######################################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
