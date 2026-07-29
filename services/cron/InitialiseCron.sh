@@ -89,7 +89,7 @@ then
        # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
        # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
 		
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/wire-guard/AddReverseProxyIPs.sh" >> /var/spool/cron/crontabs/root
+	#	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/wire-guard/AddReverseProxyIPs.sh" >> /var/spool/cron/crontabs/root
     fi
 	
 	/bin/echo "22 4 * * * export HOME="${HOME}" && ${HOME}/utilities/software/UpdateSoftware.sh" >> /var/spool/cron/crontabs/root
