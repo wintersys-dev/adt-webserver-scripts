@@ -36,6 +36,12 @@ MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
+datastore_scope="local"
+if ( [ "${MULTI_REGION}" = "0" ] )
+then
+        datastore_scope="distributed"
+fi
+
 dates="`/usr/bin/find /var/www/html | /bin/egrep "(client|qrcode)" | /usr/bin/awk -F'-' '{print $5}' | /bin/sed 's/\..*$//g' | /bin/sed '/^$/d'`"
 links=""
 current_date="`/usr/bin/date +%s`"
@@ -148,7 +154,12 @@ do
                                         backup_client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
                                 fi
 
-                                ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "distributed"
+                                if ( [ "${MULTI_REGION}" = "0" ] )
+                                then
+                                        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "local"
+                                else
+                                        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "distributed"
+                                fi
 
                                 if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
                                 then
