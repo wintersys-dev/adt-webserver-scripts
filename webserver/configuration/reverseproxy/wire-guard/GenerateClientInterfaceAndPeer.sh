@@ -3,7 +3,7 @@
 # Description: This will generate the client interface and peer which can be used to connect to the current
 # reverse proxy machine using a wireguard client
 # Author : Peter Winter
-# Date: 17/05/2017
+# Date: 17/05/2026
 ######################################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
