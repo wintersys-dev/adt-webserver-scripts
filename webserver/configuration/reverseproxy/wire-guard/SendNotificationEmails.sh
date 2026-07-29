@@ -1,3 +1,27 @@
+#!/bin/sh
+###########################################################################################################
+# Description: If the infrastructure has been taken offline and redeployed then this will send an email
+# to the users to inform them that they need to regenerate their wireguard configs and recallibrate their
+# wireguard client
+# Author : Peter Winter
+# Date: 17/05/2026
+######################################################################################################
+# License Agreement:
+# This file is part of The Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+#######################################################################################################
+#######################################################################################################
+#set -x
+
 /bin/sleep `/usr/bin/shuf -i 1-60 -n 1`
 
 if ( [ -f ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL ] || [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" != "" ] )
