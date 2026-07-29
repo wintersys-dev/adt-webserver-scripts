@@ -21,7 +21,7 @@
 #######################################################################################################
 #set -x
 
-#MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
+MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
 
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
@@ -55,7 +55,15 @@ then
 	
 	if ( [ "${ip_address_accepted}" = "1" ] )
 	then
-		${HOME}/services/datastore/operations/MountDatastore.sh "firewall-auth-laptop-ips" "distributed" 
-		${HOME}/services/datastore/operations/PutToDatastore.sh "firewall-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "firewall-laptop-ips" "distributed" "no"
+		if ( [ "${MULTI_REGION}" = "0" ] )
+		then
+			${HOME}/services/datastore/operations/MountDatastore.sh "firewall-auth-laptop-ips" "local" 
+			${HOME}/services/datastore/operations/PutToDatastore.sh "firewall-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "firewall-laptop-ips" "local" "no"
+
+		elif ( [ "${MULTI_REGION}" = "1" ] )
+		then
+			${HOME}/services/datastore/operations/MountDatastore.sh "firewall-auth-laptop-ips" "distributed" 
+			${HOME}/services/datastore/operations/PutToDatastore.sh "firewall-auth-laptop-ips" ${HOME}/runtime/authenticator/ipaddresses.dat.${machine_ip} "firewall-laptop-ips" "distributed" "no"
+		fi
 	fi
 fi
