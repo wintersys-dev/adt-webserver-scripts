@@ -37,7 +37,7 @@ NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPR
 NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
 
 datastore_scope="local"
-if ( [ "${MULTI_REGION}" = "0" ] )
+if ( [ "${MULTI_REGION}" = "1" ] )
 then
         datastore_scope="distributed"
 fi
