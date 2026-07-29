@@ -154,12 +154,7 @@ do
                                         backup_client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
                                 fi
 
-                                if ( [ "${MULTI_REGION}" = "0" ] )
-                                then
-                                        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "local"
-                                else
-                                        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "distributed"
-                                fi
+                                ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "${datastore_scope}"
 
                                 if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
                                 then
@@ -180,10 +175,5 @@ do
         fi
 done
 
-if ( [ "${MULTI_REGION}" = "0" ] )
-then
-        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs/" "local"
-elif ( [ "${MULTI_REGION}" = "1" ] )
-then
-        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs/" "distributed"
-fi
+${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs/" "${datastore_scope}"
+
