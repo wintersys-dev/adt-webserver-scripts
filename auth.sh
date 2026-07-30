@@ -204,9 +204,11 @@ then
 elif ( [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] )
 then
         ${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-auth-laptop-ips" "distributed"
+        ${HOME}/services/datastore/operations/MountDatastore.sh "whitelist-emailed-links" "distributed"
 elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
 then
         ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed"
+        ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-emailed-links" "distributed"
 elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         NO_AUTHENTICATORS="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOAUTHENTICATORS'`"
