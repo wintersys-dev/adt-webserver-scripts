@@ -29,7 +29,7 @@ then
         datastore_scope="distributed"
 fi
 
-dates="`/usr/bin/find /var/www/html | /bin/egrep "(client|qrcode)" | /usr/bin/awk -F'-' '{print $5}' | /bin/sed 's/\..*$//g' | /bin/sed '/^$/d'`"
+dates="`/usr/bin/find /var/www/html | /bin/grep "ip-address" | /usr/bin/awk -F'-' '{print $4}' | /bin/sed 's/\..*$//g' | /bin/sed '/^$/d'`"
 links=""
 current_date="`/usr/bin/date +%s`"
 for date in ${dates}
