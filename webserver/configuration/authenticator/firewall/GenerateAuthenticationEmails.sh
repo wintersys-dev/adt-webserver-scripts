@@ -55,8 +55,7 @@ authenticator_no="`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`"
 sleep="`/usr/bin/expr ${authenticator_no} \* 10`"
 /usr/bin/sleep ${sleep}
 
-${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs"
-${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
+${HOME}/services/datastore/operations/SyncFromDatastore.sh "firewall-emailed-links" "/var/www/html"
 
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
