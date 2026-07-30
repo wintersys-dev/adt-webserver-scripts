@@ -27,6 +27,12 @@ USER_EMAIL_DOMAIN="`${HOME}/utilities/config/ExtractConfigValue.sh 'USEREMAILDOM
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 
+datastore_scope="local"
+if ( [ "${MULTI_REGION}" = "1" ] )
+then
+        datastore_scope="distributed"
+fi
+
 if ( [ ! -d ${HOME}/runtime/authenticator ] )
 then
         /bin/mkdir -p ${HOME}/runtime/authenticator 
@@ -73,12 +79,6 @@ fi
 
 if ( [ "${basic_auth_updated}" = "1" ] )
 then
-        if ( [ "${MULTI_REGION}" = "0" ] )
-        then
-                ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "local" 
-                ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file} "basic-auth-credentials" "local" "no"
-        elif ( [ "${MULTI_REGION}" = "1" ] )
-                ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "distributed" 
-                ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file} "basic-auth-credentials" "distributed" "no"
-        fi
+        ${HOME}/services/datastore/operations/MountDatastore.sh "basic-auth-credentials" "${datastore_scope}" 
+        ${HOME}/services/datastore/operations/PutToDatastore.sh "basic-auth-credentials" ${basic_auth_file} "basic-auth-credentials" "${datastore_scope}" "no"
 fi        
