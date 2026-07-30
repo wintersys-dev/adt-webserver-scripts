@@ -87,7 +87,7 @@ then
 	/bin/chmod 644 /var/www/html/status-403.html
 	/bin/sed -i 's/#XXXXWHITE-LISTXXXX//g' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
    # /bin/sed -i -e "/#XXXXWHITE-LISTXXXX/{r ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl" -e 'd}' ${HOME}/webserver/configuration/reverseproxy/lighttpd/lighttpd.conf
-   	/bin/cp ${HOME}/webserver/configuration/reverseproxy/whitelist/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
+   	/bin/cp ${HOME}/webserver/configuration/reverseproxy/lighttpd/allowed-ips.tmpl ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 	/bin/sed -i "s;XXXXIP_ADDRESSESXXXX;${vpc}|127.0.0.1;g" ${HOME}/runtime/authenticator/webserver_ip_whitelist.dat
 fi
 
