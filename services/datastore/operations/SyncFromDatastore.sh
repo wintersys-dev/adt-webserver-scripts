@@ -103,7 +103,7 @@ then
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
-        active_bucket="${active_bucket}-firewallemailedlinks"
+        active_bucket="${active_bucket}-firewall-emailed-links"
 elif ( [ "${bucket_type}" = "whitelist-auth-laptop-ips" ] )
 then
         if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
@@ -141,7 +141,7 @@ then
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
-        active_bucket="${active_bucket}-wireguardemails"
+        active_bucket="${active_bucket}-wireguard-emails"
 elif ( [ "${bucket_type}" = "wire-guard-emailed-links" ] )
 then
         if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
@@ -151,7 +151,7 @@ then
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
-        active_bucket="${active_bucket}-wireguardemailedlinks"
+        active_bucket="${active_bucket}-wireguard-emailed-links"
 fi
 
 if ( [ "${place_to_sync}" = "root" ] )
