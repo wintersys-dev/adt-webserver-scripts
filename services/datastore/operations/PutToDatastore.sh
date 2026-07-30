@@ -97,6 +97,16 @@ then
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         fi
         active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-firewall-auth-laptop-ips"
+elif ( [ "${bucket_type}" = "firewall-emailed-links" ] )
+then
+        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        then
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+        else
+                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+        fi
+        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="${active_bucket}-firewall-emailed-links"
 elif ( [ "${bucket_type}" = "whitelist-auth-laptop-ips" ] )
 then
         if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
