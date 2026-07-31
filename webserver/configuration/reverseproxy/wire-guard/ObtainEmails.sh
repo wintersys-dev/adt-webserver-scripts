@@ -21,15 +21,15 @@
 #######################################################################################################
 #set -x
 
-if ( [ ! -f ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL ] )
-then
-        if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" = "" ] )
-        then
-                exit
-        else
-                /bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
-        fi
-fi
+#if ( [ ! -f ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL ] )
+#then
+#        if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "wire-guard-emails" "SENT_NOTIFICATION_EMAIL"`" = "" ] )
+#        then
+#                exit
+#        else
+#                /bin/touch ${HOME}/runtime/wire-guard/SENT_NOTIFICATION_EMAIL
+#        fi
+#fi
 
 if ( [ ! -d ${HOME}/runtime/wire-guard/emails/incoming ] )
 then
