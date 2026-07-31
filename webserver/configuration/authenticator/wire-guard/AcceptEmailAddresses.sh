@@ -40,7 +40,7 @@ then
 		/bin/mkdir -p ${HOME}/runtime/wire-guard/emails
 	fi
     
-	/bin/cat /var/www/wire-guard/authentication-emails.dat ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip}
+	/bin/cat /var/www/wire-guard/authentication-emails.dat > ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip}
     ${HOME}/services/datastore/operations/MountDatastore.sh "wire-guard-emails" "${datastore_scope}" 
 	${HOME}/services/datastore/operations/PutToDatastore.sh "wire-guard-emails" ${HOME}/runtime/wire-guard/emails/authentication-emails.dat.${machine_ip} "" "${datastore_scope}" "no"
 
