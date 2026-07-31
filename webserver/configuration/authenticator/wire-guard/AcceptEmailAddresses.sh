@@ -23,7 +23,7 @@
 #set -x
 
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
-USER_EMAIL_DOMAIN="`${HOME}/utilities/config/ExtractConfigValue.sh 'USEREMAILDOMAIN'`"
+USER_EMAIL_DOMAIN="`${HOME}/utilities/config/ExtractConfigValue.sh 'USEREMAILDOMAIN' | /usr/bin/awk -F'@' '{print $NF}'`"
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 
 datastore_scope="local"
