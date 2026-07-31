@@ -23,7 +23,7 @@
 #set -x
 
 MULTI_REGION="`${HOME}/utilities/config/ExtractConfigValue.sh 'MULTIREGION'`"
-USER_EMAIL_DOMAIN="`${HOME}/utilities/config/ExtractConfigValue.sh 'USEREMAILDOMAIN' | /usr/bin/awk -F'@' '{print $NF}'`"
+USER_EMAIL_DOMAIN="`${HOME}/utilities/config/ExtractConfigValue.sh 'USEREMAILDOMAIN'`"
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 
 datastore_scope="local"
@@ -34,7 +34,7 @@ fi
 
 if ( [ -f /var/www/wire-guard/authentication-emails.dat ] )
 then
-	/bin/sed -i "/${USER_EMAIL_DOMAIN}/!d" /var/www/wire-guard/authentication-emails.da
+	/bin/sed -i "/${USER_EMAIL_DOMAIN}/!d" /var/www/wire-guard/authentication-emails.dat
     if ( [ ! -d ${HOME}/runtime/wire-guard/emails ] )
 	then
 		/bin/mkdir -p ${HOME}/runtime/wire-guard/emails
