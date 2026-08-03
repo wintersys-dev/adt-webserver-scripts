@@ -122,6 +122,8 @@ exec 1>>${HOME}/logs/${out_file}
 err_file="initialbuild/webserver-build-err-`/bin/date | /bin/sed 's/ //g'`"
 exec 2>>${HOME}/logs/${err_file}
 
+/usr/sbin/sshd -T >  ${HOME}/logs/initialbuild/sshd-initial-settings.log
+
 /bin/echo "${0} `/bin/date`: Building a new reverse proxy server" 
 
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
