@@ -1,4 +1,4 @@
-#u/bin/sh
+#!/bin/sh
 ######################################################################################################
 # Description: This script will install mysql-client
 # Author: Peter Winter
