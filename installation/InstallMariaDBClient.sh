@@ -24,14 +24,14 @@
 
 if ( [ "${1}" != "" ] )
 then
-	buildos="${1}"
+        buildos="${1}"
 fi
 
 if ( [ "${buildos}" = "" ] )
 then
-	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 else 
-	BUILDOS="${buildos}"
+        BUILDOS="${buildos}"
 fi
 
 manager=""
@@ -39,16 +39,16 @@ options=""
 tail_options=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
-	manager="/usr/bin/apt"
-	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+        manager="/usr/bin/apt"
+        options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
 then
-	manager="/usr/bin/apt-get"
-	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+        manager="/usr/bin/apt-get"
+        options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
 then
-	manager="${HOME}/installation/nala_wrapper.sh"
-	tail_options="-y"
+        manager="${HOME}/installation/nala_wrapper.sh"
+        tail_options="-y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "aptitude" ] )
 then
         manager="${HOME}/installation/aptitude_wrapper.sh"
@@ -62,73 +62,64 @@ auto_remove_command="${manager} ${options} autoremove "
 auto_clean_command="${manager} ${options}  autoclean " 
 
 count="0"
-while ( [ ! -f /usr/bin/mariadbd ] && [ "${count}" -lt "5" ] )
+while ( [ ! -f /usr/bin/mariadb ] && [ "${count}" -lt "5" ] )
 do
-	if ( [ "${manager}" != "" ] )
-	then
-        if ( [ "${BUILDOS}" = "ubuntu" ] )
+        if ( [ "${manager}" != "" ] )
         then
-        	if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MARIADB" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
-        	then
-    			mariadb_version="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MARIADB" | /usr/bin/awk -F':' '{print $NF}'`"
-    			if ( [ "${mariadb_version}" = "default" ] )
-        		then
-					${install_command} mariadb-client ${tail_options}
-				else
-    				if ( [ "${BUILDOS_VERSION}" = "24.04" ] )
-    				then
-    					os_type="ubuntu" 
-						os_version="noble"
-					fi
-					if ( [ "${BUILDOS_VERSION}" = "26.04" ] )
-					then
-						os_type="ubuntu" 
-						os_version="resolute"
-					fi
-					#At the time of writing this script doesn't support Ubuntu 26.04 so the default for the OS will have to be used
-					#until such time as the script supports it and then you should be all set to use non default versions on 26.04
-					/usr/bin/curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-${mariadb_version}" --os-type="${os_type}" --os-version="${os_version}" --arch='amd64' --skip-maxscale
-					${install_command} mariadb-client ${tail_options}
-				fi  
-            fi
+                if ( [ "${BUILDOS}" = "ubuntu" ] )
+                then
+                        if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MARIADB" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
+                        then
+                                mariadb_version="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MARIADB" | /usr/bin/awk -F':' '{print $NF}'`"
+                                if ( [ "${mariadb_version}" = "default" ] )
+                                then
+                                        ${install_command} mariadb-client ${tail_options}
+                                else
+                                        if ( [ "${BUILDOS_VERSION}" = "24.04" ] )
+                                        then
+                                                os_type="ubuntu" 
+                                                os_version="noble"
+                                        fi
+                                        if ( [ "${BUILDOS_VERSION}" = "26.04" ] )
+                                        then
+                                                os_type="ubuntu" 
+                                                os_version="resolute"
+                                        fi
+                                        #At the time of writing this script doesn't support Ubuntu 26.04 so the default for the OS will have to be used
+                                        #until such time as the script supports it and then you should be all set to use non default versions on 26.04
+                                        /usr/bin/curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-${mariadb_version}" --os-type="${os_type}" --os-version="${os_version}" --arch='amd64' --skip-maxscale
+                                        ${install_command} mariadb-client ${tail_options}
+                                fi  
+                        fi
+                fi
+
+                if ( [ "${BUILDOS}" = "debian" ] )
+                then
+                        if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MARIADB" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
+                        then
+                                mariadb_version="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MARIADB" | /usr/bin/awk -F':' '{print $NF}'`"
+                                if ( [ "${mariadb_version}" = "default" ] )
+                                then
+                                        ${install_command} mariadb-client ${tail_options}
+                                else
+                                        if ( [ "${BUILDOS_VERSION}" = "13" ] )
+                                        then
+                                                os_type="debian"
+                                                os_version="trixie"
+                                        fi
+                                        /usr/bin/curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-${mariadb_version}" --os-type="${os_type}" --os-version="${os_version}" --arch='amd64' --skip-maxscale
+                                        ${install_command} mariadb-client ${tail_options}
+                                fi
+                        fi
+                fi
         fi
 
-        if ( [ "${BUILDOS}" = "debian" ] )
-        then
-    		if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MARIADB" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
-        	then
-            	mariadb_version="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "MARIADB" | /usr/bin/awk -F':' '{print $NF}'`"
-				if ( [ "${mariadb_version}" = "default" ] )
-				then
-					${install_command} mariadb-client ${tail_options}
-				else
-					if ( [ "${BUILDOS_VERSION}" = "26.04" ] )
-					then
-						os_type="debian"
-						os_version="trixie"
-					fi
-					/usr/bin/curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-${mariadb_version}" --os-type="${os)type}" --os-version="${os_version}" --arch='amd64' --skip-maxscale
-					${install_command} mariadb-client ${tail_options}
-				fi
-            fi
-        fi
-	fi
-	
-	if ( [ ! -d /var/log/mysql ] )
-	then
-		/bin/mkdir /var/log/mysql
-		/bin/chown mysql:mysql /var/log/mysql                         
-	fi
-	
-	${HOME}/utilities/processing/RunServiceCommand.sh mariadb enable
-	${HOME}/utilities/processing/RunServiceCommand.sh mariadb restart
-	
-	count="`/usr/bin/expr ${count} + 1`"
+        count="`/usr/bin/expr ${count} + 1`"
 done
 
 if ( [ ! -x /usr/bin/mariadb ] && [ "${count}" = "5" ] )
 then
-	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR MARIADB" "I believe that mariadb-client hasn't installed correctly, please investigate" "ERROR"
+        ${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR MARIADB" "I believe that mariadb-client hasn't installed correctly, please investigate" "ERROR"
 else
-	/bin/touch ${HOME}/runtime/installedsoftware/InstallMariaDBClient.sh					
+        /bin/touch ${HOME}/runtime/installedsoftware/InstallMariaDBClient.sh
 fi
