@@ -34,8 +34,10 @@ SUDO="/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S "
 if ( [ -f /usr/bin/mariadb ] )
 then
         mysql="/usr/bin/mariadb"
+        verify_cert=""
 else
         mysql="/usr/bin/mysql"
+        verify_cert=" --ssl-verify-server-cert=false "
 fi
 
 num_args="$#"
@@ -91,8 +93,8 @@ credentials_file=${HOME}/.mysql-credentials.cnf
 
 if ( [ "${sql_command}" != "" ]  )
 then
-        ${mysql} --defaults-extra-file=${credentials_file} --silent --raw --ssl-verify-server-cert=false  ${DB_N} -e "${sql_command}"
+        ${mysql} --defaults-extra-file=${credentials_file} --silent --raw ${verify_cert} ${DB_N} -e "${sql_command}"
 else
-        ${mysql} --defaults-extra-file=${credentials_file} --ssl-verify-server-cert=false ${DB_N}
+        ${mysql} --defaults-extra-file=${credentials_file} ${verify_cert} ${DB_N}
 fi
 
