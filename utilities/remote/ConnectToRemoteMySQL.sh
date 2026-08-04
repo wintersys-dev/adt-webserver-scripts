@@ -82,10 +82,17 @@ fi
 
 DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
 
+credentials_file=${HOME}/.mysql-credentials.cnf
+/bin/echo "[client]" > ${credentials_file}
+/bin/echo "user=${DB_U}" >> ${credentials_file}
+/bin/echo "password=${DB_P}" >> ${credentials_file}
+/bin/echo "port=${DB_PORT}" >> ${credentials_file}
+/bin/echo "host=${HOST}" >> ${credentials_file}
+
 if ( [ "${sql_command}" != "" ]  )
 then
-        ${mysql} --silent --raw -u ${DB_U} -p${DB_P} ${DB_N} --host="${HOST}" --port="${DB_PORT}" -e "${sql_command}"
+        ${mysql} --defaults-extra-file=${credentials_file} -silent --raw --ssl-verify-server-cert=false  ${DB_N} -e "${sql_command}"
 else
-        ${mysql} -u ${DB_U} -p${DB_P} ${DB_N} --host="${HOST}" --port="${DB_PORT}"
+        ${mysql} --defaults-extra-file=${credentials_file} --ssl-verify-server-cert=false ${DB_N}
 fi
 
