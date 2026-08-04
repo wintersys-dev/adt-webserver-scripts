@@ -91,7 +91,7 @@ credentials_file=${HOME}/.mysql-credentials.cnf
 
 if ( [ "${sql_command}" != "" ]  )
 then
-        ${mysql} --defaults-extra-file=${credentials_file} -silent --raw --ssl-verify-server-cert=false  ${DB_N} -e "${sql_command}"
+        ${mysql} --defaults-extra-file=${credentials_file} --silent --raw --ssl-verify-server-cert=false  ${DB_N} -e "${sql_command}"
 else
         ${mysql} --defaults-extra-file=${credentials_file} --ssl-verify-server-cert=false ${DB_N}
 fi
