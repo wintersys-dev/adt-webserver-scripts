@@ -20,13 +20,19 @@
 ######################################################################################################
 set -x
 
-if ( [ ! -d ${HOME}/logs/application_configuration ] )
+if ( [ ! -d ${HOME}/logs/drupal_configuration ] )
 then
-        /bin/mkdir -p ${HOME}/logs/application_configuration
+        /bin/mkdir -p ${HOME}/logs/drupal_configuration
 fi
 
-exec 1>>${HOME}/logs/application_configuration/drupal_out.log
-exec 2>>${HOME}/logs/application_configuration/drupal_err.log
+log_file="drupal_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="drupal_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/drupal_configuration/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/drupal_configuration/${err_file}"
+
+exec 1>>${HOME}/logs/drupal_configuration/${log_file}
+exec 2>>${HOME}/logs/drupal_configuration/${err_file}
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
