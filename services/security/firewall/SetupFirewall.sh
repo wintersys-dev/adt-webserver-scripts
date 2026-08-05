@@ -219,7 +219,7 @@ updated="0"
 #Because authenticator machines are more public facing that the other machines in our architecture we want to block ssh requests 
 #to our infrastructure that originate from authenticator machines as they are slightly more vulnerable than our core infratructure machines.
 
-if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" = "" ] )
+if ( [ "`/usr/bin/hostname | /bin/grep '\-auth\-'`" = "" ] )
 then
 	authenticator_ip="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorip/*" | /usr/bin/tr '\n' ' '`"
 	authenticator_public_ip="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorpublicip/*" | /usr/bin/tr '\n' ' '`"
@@ -250,6 +250,29 @@ then
 		fi
 	fi
 fi
+
+if ( [ "`/usr/bin/hostname | /bin/grep 'rp\-'`" = "" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
+then
+	wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
+	if ( [ "`/usr/sbin/ufw status | /bin/grep  "${wireguard_port}.*ALLOW.*0.0.0.0/0"`" = "" ] )
+		then
+			/usr/sbin/ufw allow from 0.0.0.0/0 to any port ${wireguard_port}
+			/bin/sleep 2
+			updated="1"
+		fi
+	elif ( [ "${firewall}" = "iptables" ] )
+	then
+		if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "0.0.0.0/0.*${wireguard_port}.*ACCEPT"`" = "" ] )
+		then
+        	/usr/sbin/iptables -A INPUT -s 0.0.0.0/0 -p tcp --dport ${wireguard_port} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+			/usr/sbin/iptables -A OUTPUT -s 0.0.0.0/0 -p tcp --sport ${wireguard_port} -m conntrack --ctstate ESTABLISHED -j ACCEPT
+        	/usr/sbin/iptables -A INPUT -s 0.0.0.0/0 -p udp --dport ${wireguard_port} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+			/usr/sbin/iptables -A OUTPUT -s 0.0.0.0/0 -p udp --sport ${wireguard_port} -m conntrack --ctstate ESTABLISHED -j ACCEPT
+			updated="1"
+		fi
+	fi
+fi
+
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDMACHINEVPC:0`" = "1" ] )
 then
