@@ -29,6 +29,14 @@ then
         archive_id="`/bin/echo .${archive_id} | /bin/sed -e 's/_/-/g' -e 's/ARCHIVE-/ARCHIVE\./g'`"
 fi
 
+if ( [ ! -d ${HOME}/logs/install_application ] )
+then
+        /bin/mkdir -p ${HOME}/logs/install_application
+fi
+
+exec 1>>${HOME}/logs/install_application/application_out.log
+exec 2>>${HOME}/logs/install_application/application_err.log
+
 
 HOME="`/bin/cat /home/homedir.dat`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
