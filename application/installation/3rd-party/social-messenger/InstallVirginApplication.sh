@@ -1,10 +1,16 @@
-if ( [ ! -d ${HOME}/logs/application_installation ] )
+if ( [ ! -d ${HOME}/logs/social_messenger_installation ] )
 then
-        /bin/mkdir -p ${HOME}/logs/application_installation
+        /bin/mkdir -p ${HOME}/logs/social_messenger_installation
 fi
 
-exec 1>>${HOME}/logs/application_installation/social-messenger_out.log
-exec 2>>${HOME}/logs/application_installation/social-messenger_err.log
+log_file="social_messenger_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="social_messenger_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/social_messenger_installation/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/social_messenger_installation/${err_file}"
+
+exec 1>>${HOME}/logs/social_messenger_installation/${log_file}
+exec 2>>${HOME}/logs/social_messenger_installation/${err_file}
 
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
