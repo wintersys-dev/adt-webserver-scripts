@@ -20,6 +20,20 @@
 ####################################################################################
 set -x
 
+if ( [ ! -d ${HOME}/logs/configure_lighttpd ] )
+then
+        /bin/mkdir -p ${HOME}/logs/configure_lighttpd
+fi
+
+log_file="lighttpd_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="lighttpd_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/configure_lighttpd/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/configure_lighttpd/${err_file}"
+
+exec 1>>${HOME}/logs/configure_lighttpd/${log_file}
+exec 2>>${HOME}/logs/configure_lighttpd/${err_file}
+
 HOME="`/bin/cat /home/homedir.dat`"
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
