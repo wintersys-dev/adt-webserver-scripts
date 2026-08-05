@@ -34,8 +34,14 @@ then
         /bin/mkdir -p ${HOME}/logs/install_application
 fi
 
-exec 1>>${HOME}/logs/install_application/application_out.log
-exec 2>>${HOME}/logs/install_application/application_err.log
+log_file="application_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="application_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/install_application/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/install_application/${err_file}"
+
+exec 1>>${HOME}/logs/install_application/${log_file}
+exec 2>>${HOME}/logs/install_application/${err_file}
 
 
 HOME="`/bin/cat /home/homedir.dat`"
