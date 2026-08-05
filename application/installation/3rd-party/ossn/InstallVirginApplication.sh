@@ -31,13 +31,19 @@
 ######################################################################################
 set -x
 
-if ( [ ! -d ${HOME}/logs/application_installation ] )
+if ( [ ! -d ${HOME}/logs/ossn_installation ] )
 then
-        /bin/mkdir -p ${HOME}/logs/application_installation
+        /bin/mkdir -p ${HOME}/logs/ossn_installation
 fi
 
-exec 1>>${HOME}/logs/application_installation/ossn_out.log
-exec 2>>${HOME}/logs/application_installation/ossn_err.log
+log_file="ossn_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="ossn_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/ossn_installation/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/ossn_installation/${err_file}"
+
+exec 1>>${HOME}/logs/ossn_installation/${log_file}
+exec 2>>${HOME}/logs/ossn_installation/${err_file}
 
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
