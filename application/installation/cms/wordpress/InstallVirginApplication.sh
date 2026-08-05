@@ -21,13 +21,19 @@
 ######################################################################################
 set -x
 
-if ( [ ! -d ${HOME}/logs/application_installation ] )
+if ( [ ! -d ${HOME}/logs/wordpress_installation ] )
 then
-        /bin/mkdir -p ${HOME}/logs/application_installation
+        /bin/mkdir -p ${HOME}/logs/wordpress_installation
 fi
 
-exec 1>>${HOME}/logs/application_installation/wordpress_out.log
-exec 2>>${HOME}/logs/application_installation/wordpress_err.log
+log_file="wordpress_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="wordpress_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/wordpress_installation/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/wordpress_installation/${err_file}"
+
+exec 1>>${HOME}/logs/wordpress_installation/${log_file}
+exec 2>>${HOME}/logs/wordpress_installation/${err_file}
 
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 ${HOME}/installation/InstallWPCLI.sh ${BUILDOS}
