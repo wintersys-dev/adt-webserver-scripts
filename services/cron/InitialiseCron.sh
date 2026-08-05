@@ -232,6 +232,9 @@ fi
 #These scripts run at every predefined interval
 /bin/echo "@hourly export HOME="${HOME}" && ${HOME}/utilities/status/LoadMonitoring.sh" >> /var/spool/cron/crontabs/root
 
+/bin/echo "@daily  export HOME="${HOME}" && ${HOME}/utilities/housekeeping/ArchiveErrorLogs.sh" >> /var/spool/cron/crontabs/root
+
+
 /bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/status/CheckNetworkManagerStatus.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "@reboot export HOME="${HOME}" && ${HOME}/webserver/RestartWebserver.sh" >> /var/spool/cron/crontabs/root
 #/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/application/configuration/InstallConfigurationByApplication.sh" >> /var/spool/cron/crontabs/root
