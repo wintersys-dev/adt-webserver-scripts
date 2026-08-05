@@ -43,13 +43,18 @@ then
         exit
 fi
 
+if ( [ ! -d ${HOME}/logs/baseline ] )
+then
+        /bin/mkdir -p ${HOME}/logs/baseline
+fi
+
+log_file="baseline_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="baseline_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/baseline/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/baseline/${err_file}"
 
 /bin/echo "Creating baseline of your webroot"
-
-if ( [ ! -d ${HOME}/logs/backups ] )
-then
-        /bin/mkdir -p ${HOME}/logs/backups
-fi
 
 /bin/rm -r ${HOME}/backups/* 2>/dev/null
 
