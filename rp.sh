@@ -182,7 +182,6 @@ if ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
 	${HOME}/installation/InstallWireguard.sh
 	${HOME}/services/datastore/operations/DeleteFromDatastore.sh "wire-guard"  "delete-all" "local"
-#	${HOME}/webserver/configuration/reverseproxy/wire-guard/SendNotificationEmails.sh &
 	${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerInterface.sh
 fi
 
