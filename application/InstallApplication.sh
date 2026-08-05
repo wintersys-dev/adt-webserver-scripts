@@ -29,21 +29,6 @@ then
         archive_id="`/bin/echo .${archive_id} | /bin/sed -e 's/_/-/g' -e 's/ARCHIVE-/ARCHIVE\./g'`"
 fi
 
-if ( [ ! -d ${HOME}/logs/install_application ] )
-then
-        /bin/mkdir -p ${HOME}/logs/install_application
-fi
-
-log_file="application_out_`/bin/date | /bin/sed 's/ //g'`"
-err_file="application_err_`/bin/date | /bin/sed 's/ //g'`"
-
-/bin/echo "Log file is at: ${HOME}/logs/install_application/${log_file}"
-/bin/echo "Error file is at: ${HOME}/logs/install_application/${err_file}"
-
-exec 1>>${HOME}/logs/install_application/${log_file}
-exec 2>>${HOME}/logs/install_application/${err_file}
-
-
 HOME="`/bin/cat /home/homedir.dat`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 BUILD_ARCHIVE_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDARCHIVECHOICE'`"
