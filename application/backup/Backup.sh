@@ -43,6 +43,14 @@ then
         exit
 fi
 
+if ( [ ! -d ${HOME}/logs/backup ] )
+then
+        /bin/mkdir -p ${HOME}/logs/backup
+fi
+
+exec 1>>${HOME}/logs/backup/backup_out.log
+exec 2>>${HOME}/logs/backup/backup_err.log
+
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 WEBSITE_NAME="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{print $2}'`"
 WEBSITE_SUBDOMAIN="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{print $1}'`"
