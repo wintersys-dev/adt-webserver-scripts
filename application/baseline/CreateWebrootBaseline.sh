@@ -54,6 +54,9 @@ err_file="baseline_err_`/bin/date | /bin/sed 's/ //g'`"
 /bin/echo "Log file is at: ${HOME}/logs/baseline/${log_file}"
 /bin/echo "Error file is at: ${HOME}/logs/baseline/${err_file}"
 
+exec 1>>${HOME}/logs/baseline/${log_file}
+exec 2>>${HOME}/logs/baseline/${err_file}
+
 /bin/echo "Creating baseline of your webroot"
 
 /bin/rm -r ${HOME}/backups/* 2>/dev/null
@@ -61,20 +64,6 @@ err_file="baseline_err_`/bin/date | /bin/sed 's/ //g'`"
 if ( [ -d ${HOME}/.git ] )
 then
         /bin/rm -r ${HOME}/.git
-fi
-
-if ( [ "${1}" != "" ] )
-then
-        /bin/echo "the following logs available on your webserver"
-        #The log files for the server build are written here...
-        log_file="baseline_out_`/bin/date | /bin/sed 's/ //g'`"
-        err_file="baseline_err_`/bin/date | /bin/sed 's/ //g'`"
-
-        /bin/echo "Log file is at: ${HOME}/logs/backups/${log_file}"
-        /bin/echo "Error file is at: ${HOME}/logs/backups/${err_file}"
-
-        exec 1>>${HOME}/logs/backups/${log_file}
-        exec 2>>${HOME}/logs/backups/${err_file}
 fi
 
 APPLICATION_REPOSITORY_USERNAME="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME'`"
