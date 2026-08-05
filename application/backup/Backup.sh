@@ -45,7 +45,7 @@ fi
 
 if ( [ ! -d ${HOME}/logs/backup ] )
 then
-        /bin/mkdir -p ${HOME}/logs/baseline
+        /bin/mkdir -p ${HOME}/logs/backup
 fi
 
 log_file="backup_out_`/bin/date | /bin/sed 's/ //g'`"
@@ -53,6 +53,9 @@ err_file="backup_err_`/bin/date | /bin/sed 's/ //g'`"
 
 /bin/echo "Log file is at: ${HOME}/logs/backup/${log_file}"
 /bin/echo "Error file is at: ${HOME}/logs/backup/${err_file}"
+
+exec 1>>${HOME}/logs/backup/${log_file}
+exec 2>>${HOME}/logs/backup/${err_file}
 
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 WEBSITE_NAME="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{print $2}'`"
