@@ -79,40 +79,7 @@ reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 /usr/bin/sort ${HOME}/runtime/wire-guard/PROCESSED_EMAILS | /usr/bin/uniq > ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$
 /bin/mv ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$ ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
 
-for email_address in ${email_addresses}
-do
-        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
-        then
-                primed="1"
-                for ip in ${reverse_proxy_ips}
-                do
-                        if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client_interface.conf ] || [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client_peer.conf ] )
-                        then
-                                primed="0"
-                        fi
-
-                        if ( [ "${primed}" = "1" ] )
-                        then
-                                if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
-                                then
-                                        if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf ] )
-                                        then
-                                                /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client_interface.conf ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf
-                                        fi
-                                        /bin/echo "" >> ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf   
-                                        /bin/cat ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client_peer.conf >> ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf
-                                fi
-
-                                if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
-                                then
-                                        /bin/cat ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf >> ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf
-                                        /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf
-                                fi
-                        fi
-                        /bin/rm ${HOME}/runtime/wire-guard/configs/${email_address}-client.conf
-                done
-        fi
-done
+##############
 
 client_configs="`/usr/bin/find ${HOME}/runtime/wire-guard -name "client.conf" -print`"
 
@@ -163,6 +130,23 @@ done
 
 /bin/rm ${HOME}/runtime/wire-guard/client_configs/${email_address}/*
 
+##################
+
+for email_address in ${email_addresses}
+do
+        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
+        then
+                primed="1"
+                for ip in ${reverse_proxy_ips}
+                do
+                        if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master ] )
+                        then
+                                /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master
+                        fi
+                done
+        fi
+done
+
 for email_address in ${email_addresses}
 do
         if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
@@ -171,7 +155,7 @@ do
                 ip="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
                 reverse_proxy_ips="`/bin/echo ${reverse_proxy_ips} | /bin/sed "s/${ip}//g"`"
                 ips="${ip} `/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e | /bin/sed 's/  / /g'`"
-                count="0"
+
                 for ip in ${ips}
                 do
                         if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
@@ -182,7 +166,7 @@ do
                                 /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
                                 full_file_name_html="/var/www/html/client-${file_name}-${ip}-${email_address}-${current_epoch_date}.html"
                                 /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
-                                /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf" -e 'd}' ${full_file_name_html}
+                                /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master" -e 'd}' ${full_file_name_html}
 
                                 if ( [ ! -f /var/www/html/txtstyle.css ] )
                                 then
@@ -193,15 +177,9 @@ do
                                 /bin/chmod 600 ${full_file_name_html}
                                 /bin/chown www-data:www-data /var/www/html/*
 
-                                if ( [ "${count}" = "0" ] )
-                                then
-                                        qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
-                                        client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
-                                        count="`/usr/bin/expr ${count} + 1`"
-                                else
-                                        backup_qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
-                                        backup_client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
-                                fi
+                                qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
+                                client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
+                                count="`/usr/bin/expr ${count} + 1`"
 
                                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "${datastore_scope}"
 
