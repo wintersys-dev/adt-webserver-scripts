@@ -196,18 +196,14 @@ do
                                 /bin/chmod 600 ${full_file_name_html}
                                 /bin/chown www-data:www-data /var/www/html/*
 
-                                qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${ip}-${email_address}.png"
-                                client_url="https://${WEBSITE_URL}/client-${file_name}-${ip}-${email_address}.html"
+                                qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${email_address}.png"
+                                client_url="https://${WEBSITE_URL}/client-${file_name}-${email_address}.html"
                                 count="`/usr/bin/expr ${count} + 1`"
 
                                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "${datastore_scope}"
-
-                                if ( [ "${NO_REVERSE_PROXIES}" -gt "1" ] )
-                                then
-                                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a> <br> <br><a href='"${backup_qrcode_url}"'>View Your Backup Wireguard QR Code</a> <br> <a href='"${backup_client_url}"'>View Your Backup Wireguard QR Client File</a> <br> <br> For future resiliance, install your primary AND your backup QR codes now into your wireguard app. The QR codes will be valid for half an hour. </body> </html>"
-                                else
-                                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  <br>  The QR code will be valid for half an hour. </body> </html>"
-                                fi
+                                
+                                message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  <br>  The QR code will be valid for half an hour. </body> </html>"
+                                
                                 /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED
 
                                 if ( [ "`/bin/grep "^${email_address}$" ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
