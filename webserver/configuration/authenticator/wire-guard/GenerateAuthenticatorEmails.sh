@@ -193,9 +193,11 @@ do
                         then
                                 current_epoch_date="`/usr/bin/date +%s`"
                                 file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-                                full_file_name="/var/www/html/qrcode-${file_name}-${email_address}-${current_epoch_date}.png"
+                                file_name="qrcode-${file_name}-${email_address}-${current_epoch_date}.png"
+                                full_file_name="/var/www/html/${file_name}"
                                 /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
-                                full_file_name_html="/var/www/html/client-${file_name}-${email_address}-${current_epoch_date}.html"
+                                file_name_html="client-${file_name}-${email_address}-${current_epoch_date}.html"
+                                full_file_name_html="/var/www/html/${file_name_html}"
                                 /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
                                 /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master" -e 'd}' ${full_file_name_html}
 
@@ -208,14 +210,14 @@ do
                                 /bin/chmod 600 ${full_file_name_html}
                                 /bin/chown www-data:www-data /var/www/html/*
 
-                                qrcode_url="https://${WEBSITE_URL}/qrcode-${file_name}-${email_address}.png"
-                                client_url="https://${WEBSITE_URL}/client-${file_name}-${email_address}.html"
+                                qrcode_url="https://${WEBSITE_URL}/${file_name}"
+                                client_url="https://${WEBSITE_URL}/${file_name_html}"
                                 count="`/usr/bin/expr ${count} + 1`"
 
                                 ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "${datastore_scope}"
-                                
+
                                 message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard QR Client File</a>  <br>  The QR code will be valid for half an hour. </body> </html>"
-                                
+
                                 /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED
 
                                 if ( [ "`/bin/grep "^${email_address}$" ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
