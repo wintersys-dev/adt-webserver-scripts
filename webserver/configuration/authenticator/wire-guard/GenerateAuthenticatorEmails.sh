@@ -135,6 +135,11 @@ do
         /bin/cp ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ${directory}
 done
 
+if ( [ -f ${HOME}/runtime/wire-guard/configs/client.conf-master ] )
+then
+        /bin/rm ${HOME}/runtime/wire-guard/configs/client.conf-master
+fi
+
 /bin/rm ${HOME}/runtime/wire-guard/client_configs/${email_address}/*
 
 ##################
