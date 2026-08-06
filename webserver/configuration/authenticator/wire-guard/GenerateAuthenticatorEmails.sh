@@ -137,6 +137,18 @@ done
 
 /bin/sed -i 's/10x/10/g' ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
 
+
+full_ips=`/bin/grep "Address =" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master | /bin/sed -e 's/.*=//g' -e 's/,//g'`
+short_ips=`/bin/grep AllowedIPs ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master | /usr/bin/awk '{print $NF}' | /usr/bin/cut -d '.' -f -2`
+
+count="1"
+for ip in ${short_ips}
+do
+        machine_ip="`/bin/echo ${full_ips} | /usr/bin/cut -d' ' -f${count}`"
+        /bin/sed -i "/AllowedIPs.*${ip}/s;$;, ${machine_ip};" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
+        count="`/usr/bin/expr ${count} + 1`"
+done
+
 reverse_proxy_directories="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print | /bin/sed 's;/CLIENT_INTERFACE_GENERATED;;g'`"
 
 for directory in ${reverse_proxy_directories}
