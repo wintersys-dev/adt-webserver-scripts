@@ -108,7 +108,7 @@ then
                         PublicKey = ${server_public_key}
                         PresharedKey = ${preshared_key}
                         Endpoint = ${endpoint}:${wireguard_port}
-                        AllowedIPs =  10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.0/24
+                        AllowedIPs =  10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.0/16, 10.`/usr/bin/hostname | /usr/bin/awk -F'-' '{print $2}'`.0.${client_no}/32
                         PersistentKeepalive = 25" > ${HOME}/runtime/wire-guard/client/${endpoint}/${email_address}/client_peer.conf
 
                         current_epoch_date="`/usr/bin/date +%s`"
