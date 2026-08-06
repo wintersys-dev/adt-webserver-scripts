@@ -81,7 +81,7 @@ reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
 
 ##############
 
-client_configs="`/usr/bin/find ${HOME}/runtime/wire-guard -name "client.conf" -print`"
+client_configs="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print`"
 
 if ( [ "${NO_REVERSE_PROXIES}" -ne "`/bin/echo "${client_configs}" | /usr/bin/wc -l`" ] )
 then
@@ -97,6 +97,13 @@ do
         then
                 /bin/mkdir -p ${HOME}/runtime/wire-guard/client_configs/${email_address}
         fi
+
+        client_config="`/bin/echo ${client_config} | /bin/sed 's/CLIENT_INTERFACE_GENERATED/client.conf/'`"
+        client_interface="`/bin/echo ${client_config} | /bin/sed 's/client.conf/client_interface.conf/'`"
+        client_peer="`/bin/echo ${client_config} | /bin/sed 's/client.conf/client_peer.conf/'`"
+
+        /bin/cat ${client_interface} > ${client_config}
+        /bin/cat ${client_peer} >> ${client_config}
 
         /bin/cp ${client_config} ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf.${ip_address} 
 
@@ -121,7 +128,7 @@ fi
 
 /bin/cp ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ${HOME}/runtime/wire-guard/configs
 
-reverse_proxy_directories="`/usr/bin/find ${HOME}/runtime/wire-guard -name "client.conf" -print | /bin/sed 's;/client.conf;;g'`"
+reverse_proxy_directories="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print | /bin/sed 's;/CLIENT_INTERFACE_GENERATED;;g'`"
 
 for directory in ${reverse_proxy_directories}
 do
