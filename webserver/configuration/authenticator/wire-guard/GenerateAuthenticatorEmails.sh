@@ -121,7 +121,7 @@ addresses="`/bin/cat ${HOME}/runtime/wire-guard/client_configs/${email_address}/
 
 if ( [ -f ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ] )
 then
-        addresses="`/bin/echo ${addresses} | /bin/sed 's/[0-9] [0-9]/, /g'`"
+        addresses="`/bin/echo ${addresses} | /bin/sed -e 's/ /, /g' -e 's/ $//g' -e 's/,$//g'`"
         /bin/sed -i "s;.*Address.*;                        Address = ${addresses};g" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
 fi
 
