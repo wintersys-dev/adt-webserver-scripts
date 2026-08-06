@@ -125,6 +125,18 @@ then
         /bin/sed -i "s;.*Address.*;                        Address = ${addresses};g" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
 fi
 
+
+ordered_ips=`/bin/grep AllowedIPs ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master | /usr/bin/awk '{print $NF}' | /usr/bin/cut -d '.' -f -2 | /bin/sed 's/10./10x./g'`
+
+count="1"
+for ip in ${ordered_ips}
+do
+        /bin/sed -i "0,/10.${count}/ s/10.${count}/${ip}/" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
+        count="`/usr/bin/expr ${count} + 1`"
+done
+
+/bin/sed -i 's/10x/10/g' ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
+
 reverse_proxy_directories="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print | /bin/sed 's;/CLIENT_INTERFACE_GENERATED;;g'`"
 
 for directory in ${reverse_proxy_directories}
