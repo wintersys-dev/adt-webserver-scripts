@@ -72,14 +72,12 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard" "${HOME}
 ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-links" "/var/www/html"
 
 email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CLIENT_INTERFACE_GENERATED" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
-reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
+reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs | /bin/grep  ".*\..*\..*\..*"`"
 
 /bin/touch ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
 
 /usr/bin/sort ${HOME}/runtime/wire-guard/PROCESSED_EMAILS | /usr/bin/uniq > ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$
 /bin/mv ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$ ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
-
-##############
 
 client_configs="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print`"
 
@@ -123,10 +121,9 @@ addresses="`/bin/cat ${HOME}/runtime/wire-guard/client_configs/${email_address}/
 
 if ( [ -f ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ] )
 then
-        /bin/sed -i "s;.*Address.*;                        Adddress ${addresses};g" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
+        addresses="`/bin/echo ${addresses} | /bin/sed 's/[0-9] [0-9]/, /g'`"
+        /bin/sed -i "s;.*Address.*;                        Address = ${addresses};g" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
 fi
-
-/bin/cp ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ${HOME}/runtime/wire-guard/configs
 
 reverse_proxy_directories="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print | /bin/sed 's;/CLIENT_INTERFACE_GENERATED;;g'`"
 
@@ -142,8 +139,6 @@ fi
 
 /bin/rm ${HOME}/runtime/wire-guard/client_configs/${email_address}/*
 
-##################
-
 for email_address in ${email_addresses}
 do
         if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
@@ -151,7 +146,7 @@ do
                 primed="1"
                 for ip in ${reverse_proxy_ips}
                 do
-                        if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master ] )
+                        if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master ] )
                         then
                                 /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master
                         fi
@@ -174,9 +169,9 @@ do
                         then
                                 current_epoch_date="`/usr/bin/date +%s`"
                                 file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-                                full_file_name="/var/www/html/qrcode-${file_name}-${ip}-${email_address}-${current_epoch_date}.png"
+                                full_file_name="/var/www/html/qrcode-${file_name}-${email_address}-${current_epoch_date}.png"
                                 /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
-                                full_file_name_html="/var/www/html/client-${file_name}-${ip}-${email_address}-${current_epoch_date}.html"
+                                full_file_name_html="/var/www/html/client-${file_name}-${email_address}-${current_epoch_date}.html"
                                 /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
                                 /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master" -e 'd}' ${full_file_name_html}
 
