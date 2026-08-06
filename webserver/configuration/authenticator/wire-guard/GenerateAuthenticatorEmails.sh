@@ -114,6 +114,55 @@ do
         fi
 done
 
+client_configs="`/usr/bin/find ${HOME}/runtime/wire-guard -name "client.conf" -print`"
+
+if ( [ "${NO_REVERSE_PROXIES}" -ne "`/bin/echo "${client_configs}" | /usr/bin/wc -l`" ] )
+then
+        exit
+fi
+
+for client_config in ${client_configs}
+do
+        email_address="`/bin/echo ${client_config} | /usr/bin/awk -F'/' '{print $8}'`"
+        ip_address="`/bin/echo ${client_config} | /usr/bin/awk -F'/' '{print $7}'`"
+
+        if ( [ ! -d ${HOME}/runtime/wire-guard/client_configs/${email_address} ] )
+        then
+                /bin/mkdir -p ${HOME}/runtime/wire-guard/client_configs/${email_address}
+        fi
+
+        /bin/cp ${client_config} ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf.${ip_address} 
+
+        /bin/grep " Address " ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf.${ip_address} | /usr/bin/awk '{print $NF}' >> ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-addresses
+
+        if ( [ ! -f ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ] )
+        then
+                /bin/cp ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf.${ip_address} ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master 
+                /bin/sed -i '/\[Peer\]/,$d' ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
+        fi
+
+        /bin/sed -i '/\[Peer\]/,$!d' ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf.${ip_address}
+        /bin/cat ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf.${ip_address} >> ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
+done
+
+addresses="`/bin/cat ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-addresses | /usr/bin/sort | /usr/bin/uniq | /usr/bin/tr '\n' ' '`"
+
+if ( [ -f ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ] )
+then
+        /bin/sed -i "s;.*Address.*;                        Adddress ${addresses};g" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
+fi
+
+/bin/cp ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ${HOME}/runtime/wire-guard/configs
+
+reverse_proxy_directories="`/usr/bin/find ${HOME}/runtime/wire-guard -name "client.conf" -print | /bin/sed 's;/client.conf;;g'`"
+
+for directory in ${reverse_proxy_directories}
+do
+        /bin/cp ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master ${directory}
+done
+
+/bin/rm ${HOME}/runtime/wire-guard/client_configs/${email_address}/*
+
 for email_address in ${email_addresses}
 do
         if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
