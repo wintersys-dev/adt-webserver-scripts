@@ -21,7 +21,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-#set -x
+set -x
 
 if ( [ ! -d ${HOME}/runtime/wire-guard/configs ] )
 then
@@ -80,8 +80,12 @@ reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs | /bin/grep  ".*\
 /bin/mv ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$ ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
 
 client_configs="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print`"
+no_client_configs="`/bin/echo ${client_configs} | /usr/bin/wc -w`"
+reverse_proxy_ip="`/bin/ls ${HOME}/runtime/wire-guard/configs | /bin/grep  ".*\..*\..*\..*" | /usr/bin/head -1`"
+no_emails="`/bin/ls ${HOME}/runtime/wire-guard/configs/${reverse_proxy_ip} | /usr/bin/wc -l`"
 
-if ( [ "${NO_REVERSE_PROXIES}" -ne "`/bin/echo "${client_configs}" | /usr/bin/wc -l`" ] )
+
+if ( [ "${NO_REVERSE_PROXIES}" -ne "`/usr/bin/expr ${no_client_configs} / ${no_emails}`" ] )
 then
         exit
 fi
@@ -136,18 +140,6 @@ do
 done
 
 /bin/sed -i 's/10x/10/g' ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
-
-
-#full_ips=`/bin/grep "Address =" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master | /bin/sed -e 's/.*=//g' -e 's/,//g'`
-#short_ips=`/bin/grep AllowedIPs ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master | /usr/bin/awk '{print $NF}' | /usr/bin/cut -d '.' -f -2`
-
-#count="1"
-#for ip in ${short_ips}
-#do
-#        machine_ip="`/bin/echo ${full_ips} | /usr/bin/cut -d' ' -f${count}`"
-#        /bin/sed -i "/AllowedIPs.*${ip}/s;$;, ${machine_ip};" ${HOME}/runtime/wire-guard/client_configs/${email_address}/client.conf-master
-#        count="`/usr/bin/expr ${count} + 1`"
-#done
 
 reverse_proxy_directories="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print | /bin/sed 's;/CLIENT_INTERFACE_GENERATED;;g'`"
 
