@@ -203,8 +203,8 @@ do
                 then
                         current_epoch_date="`/usr/bin/date +%s`"
                         file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-                        file_name="qrcode-${file_name}-${email_address}-${current_epoch_date}.png"
-                        full_file_name="/var/www/html/${file_name}"
+                        file_name_qrcode="qrcode-${file_name}-${email_address}-${current_epoch_date}.png"
+                        full_file_name="/var/www/html/${file_name_qrcode}"
                         /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
                         file_name_html="client-${file_name}-${email_address}-${current_epoch_date}.html"
                         full_file_name_html="/var/www/html/${file_name_html}"
