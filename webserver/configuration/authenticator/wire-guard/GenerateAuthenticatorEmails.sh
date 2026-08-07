@@ -85,6 +85,23 @@ then
         exit
 fi
 
+for email_address in ${email_addresses}
+do
+        for ip in ${reverse_proxy_ips}
+        do                
+                if ( [ -f ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION ] )
+                then
+                        /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
+                        /bin/rm ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION 
+                fi
+
+                if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT ] )
+                then
+                        exit
+                fi
+        done
+done
+
 for client_config in ${client_configs}
 do
         email_address="`/bin/echo ${client_config} | /usr/bin/awk -F'/' '{print $8}'`"
@@ -149,23 +166,6 @@ then
 fi
 
 /bin/rm ${HOME}/runtime/wire-guard/client_configs/${email_address}/*
-
-for email_address in ${email_addresses}
-do
-        for ip in ${reverse_proxy_ips}
-        do                
-                if ( [ -f ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION ] )
-                then
-                        /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
-                        /bin/rm ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION 
-                fi
-
-                if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT ] )
-                then
-                        exit
-                fi
-        done
-done
 
 for email_address in ${email_addresses}
 do
