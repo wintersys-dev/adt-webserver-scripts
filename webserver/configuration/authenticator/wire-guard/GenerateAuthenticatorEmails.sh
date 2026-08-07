@@ -87,20 +87,25 @@ fi
 
 for email_address in ${email_addresses}
 do
+        notification_sent="0"
         for ip in ${reverse_proxy_ips}
-        do                
-                if ( [ -f ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION ] )
-                then
-                        /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
-                        /bin/rm ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION
-                fi
-
-                if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT ] )
-                then
-                        email_addresses="`/bin/echo ${email_addresses} | /bin/sed "s/${email_address}//g"`"
-                        if ( [ "`/bin/echo ${email_addresses} | /bin/sed 's/ //g'`" = "" ] )
+        do              
+                if ( [ "${notification_sent}" = "0" ] )
+                then            
+                        if ( [ -f ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION ] )
                         then
-                                exit
+                                /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
+                                /bin/rm ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION 
+                        fi
+
+                        if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT ] )
+                        then
+                                notification_sent="1"
+                                email_addresses="`/bin/echo ${email_addresses} | /bin/sed "s/${email_address}//g"`"
+                                if ( [ "`/bin/echo ${email_addresses} | /bin/sed 's/ //g'`" = "" ] )
+                                then
+                                        exit
+                                fi
                         fi
                 fi
         done
