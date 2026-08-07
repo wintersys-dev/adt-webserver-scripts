@@ -220,8 +220,8 @@ do
         ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
 
         if ( [ "$?" = "0" ] )
-        then
-                for ip in ${reverse_proxy_ips}
+        then                
+                for ip in `/bin/ls ${HOME}/runtime/wire-guard/configs | /bin/grep  ".*\..*\..*\..*"`
                 do                
                         /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
                 done
