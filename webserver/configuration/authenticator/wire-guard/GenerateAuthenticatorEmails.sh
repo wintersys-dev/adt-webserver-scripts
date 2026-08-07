@@ -21,7 +21,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-set -x
+#set -x
 
 if ( [ ! -d ${HOME}/runtime/wire-guard/configs ] )
 then
@@ -73,11 +73,6 @@ ${HOME}/services/datastore/operations/SyncFromDatastore.sh "wire-guard-emailed-l
 
 email_addresses="`/usr/bin/find ${HOME}/runtime/wire-guard/configs -name "CLIENT_INTERFACE_GENERATED" -print | /usr/bin/awk -F'/' '{print $8}' | /usr/bin/xargs -n1 | /usr/bin/sort -u | /usr/bin/xargs`"
 reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs | /bin/grep  ".*\..*\..*\..*"`"
-
-/bin/touch ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
-
-/usr/bin/sort ${HOME}/runtime/wire-guard/PROCESSED_EMAILS | /usr/bin/uniq > ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$
-/bin/mv ${HOME}/runtime/wire-guard/PROCESSED_EMAILS.$$ ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
 
 client_configs="`/usr/bin/find ${HOME}/runtime/wire-guard -name "CLIENT_INTERFACE_GENERATED" -print`"
 no_client_configs="`/bin/echo ${client_configs} | /usr/bin/wc -w`"
@@ -155,72 +150,87 @@ fi
 
 /bin/rm ${HOME}/runtime/wire-guard/client_configs/${email_address}/*
 
+notification_email_limit="5"
 for email_address in ${email_addresses}
 do
-        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
-        then
-                primed="1"
-                for ip in ${reverse_proxy_ips}
-                do
-                        if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master ] )
+        for ip in ${reverse_proxy_ips}
+        do
+                if ( [ -f ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATIONS ] )
+                then
+                        /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT
+                else
+                        /usr/bin/find ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT -mtime +1 -exec rm -rv * {} +
+                fi
+
+                if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT  ] )
+                then
+                        /bin/echo "1" > ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT
+                else
+                        no_notifications="`/bin/cat ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT`"
+                        if ( [ "${no_notifications}" -ge "${notification_email_limit}" ] )
                         then
-                                /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master
+                                message="You can only request wireguard credentials for email address ${email_address} ${notification_email_limit} times every 24 hrs. Please contact your administrator if you need to make more requests than this"
+                                ${HOME}/services/email/SendEmail.sh "Wireguard Authorisation Request Limit Reached" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
+                                exit
                         fi
-                done
-        fi
+                        no_notifications="`/usr/bin/expr ${no_notifications} + 1`"
+                        /bin/echo "${no_notifications}" > ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT
+                fi
+        done
 done
 
 for email_address in ${email_addresses}
 do
-        if ( [ "`/bin/grep ${email_address} ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] && [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED ] )
-        then
-                reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
-                ip="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
-                reverse_proxy_ips="`/bin/echo ${reverse_proxy_ips} | /bin/sed "s/${ip}//g"`"
-                ips="${ip} `/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e | /bin/sed 's/  / /g'`"
+        for ip in ${reverse_proxy_ips}
+        do
+                if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master ] )
+                then
+                        /usr/bin/qrencode -t png -o ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png -r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master
+                fi
+        done
+done
 
-                for ip in ${ips}
-                do
-                        if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
+for email_address in ${email_addresses}
+do
+        reverse_proxy_ips="`/bin/ls ${HOME}/runtime/wire-guard/configs`"
+        ip="`/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e`"
+        reverse_proxy_ips="`/bin/echo ${reverse_proxy_ips} | /bin/sed "s/${ip}//g"`"
+        ips="${ip} `/bin/echo ${reverse_proxy_ips} | /usr/bin/xargs shuf -n1 -e | /bin/sed 's/  / /g'`"
+
+        for ip in ${ips}
+        do
+                if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ] )
+                then
+                        current_epoch_date="`/usr/bin/date +%s`"
+                        file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
+                        file_name="qrcode-${file_name}-${email_address}-${current_epoch_date}.png"
+                        full_file_name="/var/www/html/${file_name}"
+                        /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
+                        file_name_html="client-${file_name}-${email_address}-${current_epoch_date}.html"
+                        full_file_name_html="/var/www/html/${file_name_html}"
+                        /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
+                        /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master" -e 'd}' ${full_file_name_html}
+
+                        if ( [ ! -f /var/www/html/txtstyle.css ] )
                         then
-                                current_epoch_date="`/usr/bin/date +%s`"
-                                file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-                                file_name="qrcode-${file_name}-${email_address}-${current_epoch_date}.png"
-                                full_file_name="/var/www/html/${file_name}"
-                                /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
-                                file_name_html="client-${file_name}-${email_address}-${current_epoch_date}.html"
-                                full_file_name_html="/var/www/html/${file_name_html}"
-                                /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
-                                /bin/sed -i -e "/XXXXCLIENT_PEERXXXX/{r ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/client.conf-master" -e 'd}' ${full_file_name_html}
-
-                                if ( [ ! -f /var/www/html/txtstyle.css ] )
-                                then
-                                        /bin/echo "html, body {font-family:Helvetica, Arial, sans-serif}" > /var/www/html/txtstyle.css
-                                fi
-
-                                /bin/chmod 600 ${full_file_name}
-                                /bin/chmod 600 ${full_file_name_html}
-                                /bin/chown www-data:www-data /var/www/html/*
-
-                                qrcode_url="https://${WEBSITE_URL}/${file_name}"
-                                client_url="https://${WEBSITE_URL}/${file_name_html}"
-                                count="`/usr/bin/expr ${count} + 1`"
-
-                                ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "${datastore_scope}"
-
-                                message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard Client Configuration File</a>  <br>  These links will be accessible for half an hour. </body> </html>"
-
-                                /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_PROCESSED
-
-                                if ( [ "`/bin/grep "^${email_address}$" ${HOME}/runtime/wire-guard/PROCESSED_EMAILS`" = "" ] )
-                                then
-                                        /bin/echo "${email_address}" >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
-                                fi
+                                /bin/echo "html, body {font-family:Helvetica, Arial, sans-serif}" > /var/www/html/txtstyle.css
                         fi
-                done
-                ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
-                /bin/echo ${email_address} >> ${HOME}/runtime/wire-guard/PROCESSED_EMAILS
-        fi
+
+                        /bin/chmod 600 ${full_file_name}
+                        /bin/chmod 600 ${full_file_name_html}
+                        /bin/chown www-data:www-data /var/www/html/*
+
+                        qrcode_url="https://${WEBSITE_URL}/${file_name}"
+                        client_url="https://${WEBSITE_URL}/${file_name_html}"
+                        count="`/usr/bin/expr ${count} + 1`"
+
+                        ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "${datastore_scope}"
+
+                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard Client Configuration File</a>  <br>  These links will be accessible for half an hour. </body> </html>"
+                fi
+        done
+        ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
+
 done
 
 ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs/" "${datastore_scope}"
