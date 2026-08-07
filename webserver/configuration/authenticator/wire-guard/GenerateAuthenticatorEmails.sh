@@ -92,12 +92,16 @@ do
                 if ( [ -f ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION ] )
                 then
                         /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
-                        /bin/rm ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION 
+                        /bin/rm ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION
                 fi
 
                 if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT ] )
                 then
-                        exit
+                        email_addresses="`/bin/echo ${email_addresses} | /bin/sed "s/${email_address}//g"`"
+                        if ( [ "`/bin/echo ${email_addresses} | /bin/sed 's/ //g'`" = "" ] )
+                        then
+                                exit
+                        fi
                 fi
         done
 done
