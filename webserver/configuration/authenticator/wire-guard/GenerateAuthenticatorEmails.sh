@@ -154,27 +154,18 @@ notification_email_limit="5"
 for email_address in ${email_addresses}
 do
         for ip in ${reverse_proxy_ips}
-        do
-                if ( [ -f ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATIONS ] )
+        do                
+                if ( [ -f ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION ] )
                 then
-                        /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT
+                        /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
+                        /bin/rm ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION 
                 else
-                        /usr/bin/find ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT -mtime +1 -exec rm -rv * {} +
+                        /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
                 fi
 
-                if ( [ ! -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT  ] )
+                if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT ] )
                 then
-                        /bin/echo "1" > ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT
-                else
-                        no_notifications="`/bin/cat ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT`"
-                        if ( [ "${no_notifications}" -ge "${notification_email_limit}" ] )
-                        then
-                                message="You can only request wireguard credentials for email address ${email_address} ${notification_email_limit} times every 24 hrs. Please contact your administrator if you need to make more requests than this"
-                                ${HOME}/services/email/SendEmail.sh "Wireguard Authorisation Request Limit Reached" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
-                                exit
-                        fi
-                        no_notifications="`/usr/bin/expr ${no_notifications} + 1`"
-                        /bin/echo "${no_notifications}" > ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATIONS_SENT
+                        exit
                 fi
         done
 done
@@ -226,7 +217,7 @@ do
 
                         ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard-emailed-links" "/var/www/html" "${datastore_scope}"
 
-                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard Client Configuration File</a>  <br>  These links will be accessible for half an hour. </body> </html>"
+                        message="<!DOCTYPE html> <html> <body> <h1>Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}</h1> <p>Click the below link in order to authorise your wireguard access for ${WEBSITE_URL_ORIGINAL} </p> <a href='"${qrcode_url}"'>View Your Wireguard QR Code</a> <br> <a href='"${client_url}"'>View Your Wireguard Client Configuration File</a>  <br><br>  These links will be accessible for half an hour and can only be issued once. If you require your wireguard configuration to be reissued please contact your administrator.</body> </html>"
                 fi
         done
         ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
