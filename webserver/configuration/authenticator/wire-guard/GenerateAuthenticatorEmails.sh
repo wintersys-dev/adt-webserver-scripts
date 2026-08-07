@@ -150,7 +150,6 @@ fi
 
 /bin/rm ${HOME}/runtime/wire-guard/client_configs/${email_address}/*
 
-notification_email_limit="5"
 for email_address in ${email_addresses}
 do
         for ip in ${reverse_proxy_ips}
@@ -159,8 +158,6 @@ do
                 then
                         /bin/rm ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
                         /bin/rm ${HOME}/runtime/wire-guard/RESET_EMAIL_NOTIFICATION 
-                else
-                        /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
                 fi
 
                 if ( [ -f ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT ] )
@@ -222,6 +219,16 @@ do
         done
         ${HOME}/services/email/SendEmail.sh "Wireguard authorisation for ${WEBSITE_URL_ORIGINAL}" "${message}" "MANDATORY" "${email_address}" "HTML" "AUTHENTICATION"
 
+        if ( [ "$?" = "0" ] )
+        then
+                for email_address in ${email_addresses}
+                do
+                        for ip in ${reverse_proxy_ips}
+                        do                
+                                /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
+                        done
+                done
+        fi
 done
 
 ${HOME}/services/datastore/operations/SyncToDatastore.sh "wire-guard" "${HOME}/runtime/wire-guard/configs/" "${datastore_scope}"
