@@ -221,12 +221,9 @@ do
 
         if ( [ "$?" = "0" ] )
         then
-                for email_address in ${email_addresses}
-                do
-                        for ip in ${reverse_proxy_ips}
-                        do                
-                                /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
-                        done
+                for ip in ${reverse_proxy_ips}
+                do                
+                        /bin/touch ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/EMAIL_NOTIFICATION_SENT
                 done
         fi
 done
