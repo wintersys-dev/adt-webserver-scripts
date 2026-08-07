@@ -192,8 +192,8 @@ do
                         current_epoch_date="`/usr/bin/date +%s`"
                         file_name="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
                         file_name_qrcode="qrcode-${file_name}-${email_address}-${current_epoch_date}.png"
-                        full_file_name="/var/www/html/${file_name_qrcode}"
-                        /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name}
+                        full_file_name_qrcode="/var/www/html/${file_name_qrcode}"
+                        /bin/cp ${HOME}/runtime/wire-guard/configs/${ip}/${email_address}/qrcode.png ${full_file_name_qrcode}
                         file_name_html="client-${file_name}-${email_address}-${current_epoch_date}.html"
                         full_file_name_html="/var/www/html/${file_name_html}"
                         /bin/cp ${HOME}/webserver/configuration/authenticator/wire-guard/client_peer_template.html ${full_file_name_html}
@@ -204,11 +204,11 @@ do
                                 /bin/echo "html, body {font-family:Helvetica, Arial, sans-serif}" > /var/www/html/txtstyle.css
                         fi
 
-                        /bin/chmod 600 ${full_file_name}
+                        /bin/chmod 600 ${full_file_name_qrcode}
                         /bin/chmod 600 ${full_file_name_html}
                         /bin/chown www-data:www-data /var/www/html/*
 
-                        qrcode_url="https://${WEBSITE_URL}/${file_name}"
+                        qrcode_url="https://${WEBSITE_URL}/${file_name_qrcode}"
                         client_url="https://${WEBSITE_URL}/${file_name_html}"
                         count="`/usr/bin/expr ${count} + 1`"
 
