@@ -284,7 +284,9 @@ fi
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
-then                
+then      
+        db_user_live="`/bin/echo ${db_user} | /bin/sed 's/_install//g'`"
+        /bin/sed -i "s/${db_user}/${db_user_live}/g" ${config_file}
         /bin/chmod 600 ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
