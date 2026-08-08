@@ -252,6 +252,16 @@ do
         fi
 done
 
+for setting in `/bin/grep "^INDIVIDUAL_SETTING_UNQUOTED:" ${HOME}/runtime/application.dat | /bin/sed 's/^INDIVIDUAL_SETTING://g' | /usr/bin/awk -F'::' '{print $NF}' | /bin/sed 's/^://g'`
+do
+        label="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
+        value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $NF}'`"
+        if ( [ "${label}" != "" ] && [ "${value}" != "" ] )
+        then
+                /usr/bin/sudo -u www-data wp config set "${label}" "${value}" -- raw --config-file="${config_file}"
+        fi
+done
+
 if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
 then
         dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
