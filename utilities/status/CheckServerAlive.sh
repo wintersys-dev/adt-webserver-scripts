@@ -60,6 +60,12 @@ else
 		if ( [ -f /usr/bin/php ] && ( [ "`/usr/bin/php ${HOME}/utilities/remote/mysqlalive.php ${SERVER_NAME} ${DB_U} ${DB_P} ${DB_N} ${DB_PORT} | /bin/sed 's/ //g'`" = "ALIVE" ] ) )
 		then
 			/bin/echo "ALIVE"
+		else
+			DB_U="${DB_U}_install"
+			if ( [ -f /usr/bin/php ] && ( [ "`/usr/bin/php ${HOME}/utilities/remote/mysqlalive.php ${SERVER_NAME} ${DB_U} ${DB_P} ${DB_N} ${DB_PORT} | /bin/sed 's/ //g'`" = "ALIVE" ] ) )
+			then
+				/bin/echo "ALIVE"
+			fi
 		fi
 	fi
 
