@@ -32,7 +32,7 @@ then
 	then
         ${HOME}/application/monitoring/3rd-party/${APPLICATION}/CheckIfApplicationIsInstalled.sh
 	fi
-	/bin/echo "APPLICATION_INSTALLED:${installed}"
+#	/bin/echo "APPLICATION_INSTALLED:${installed}"
 else
 	/bin/echo "APPLICATION_INSTALLED:1"
 fi
