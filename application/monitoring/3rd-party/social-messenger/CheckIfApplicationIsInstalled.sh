@@ -50,4 +50,8 @@ then
                 fi
         done
 fi
-/bin/echo "APPLICATION_INSTALLED:${installed}"
+
+if ( [ "${installed}" = "1" ] )
+then
+        /bin/echo "APPLICATION_INSTALLED:${installed}"
+fi
