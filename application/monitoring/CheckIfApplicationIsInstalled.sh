@@ -27,7 +27,7 @@ if ( [ "${APPLICATION}" != "none" ] )
 then
 	if ( [ -d ${HOME}/application/monitoring/cms/${APPLICATION} ] )
 	then
-        . ${HOME}/application/monitoring/cms/${APPLICATION}/CheckIfApplicationIsInstalled.sh
+        ${HOME}/application/monitoring/cms/${APPLICATION}/CheckIfApplicationIsInstalled.sh
 	elif ( [ -d ${HOME}/application/monitoring/3rd-party/${APPLICATION} ] )
 	then
         ${HOME}/application/monitoring/3rd-party/${APPLICATION}/CheckIfApplicationIsInstalled.sh
