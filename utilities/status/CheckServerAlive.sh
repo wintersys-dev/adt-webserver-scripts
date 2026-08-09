@@ -61,7 +61,7 @@ else
 		then
 			/bin/echo "ALIVE"
 		else
-			DB_U="${DB_U}_install"
+			DB_U="${DB_U}_nossl"
 			if ( [ -f /usr/bin/php ] && ( [ "`/usr/bin/php ${HOME}/utilities/remote/mysqlalive.php ${SERVER_NAME} ${DB_U} ${DB_P} ${DB_N} ${DB_PORT} 2>/dev/null | /bin/sed 's/ //g'`" = "ALIVE" ] ) )
 			then
 				/bin/echo "ALIVE"
