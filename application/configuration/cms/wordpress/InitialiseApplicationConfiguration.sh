@@ -164,7 +164,7 @@ else
                 db_user_live="`/bin/echo ${db_user} | /bin/sed 's/_install//g'`"
                 /bin/sed -i "s/${db_user}/${db_user_live}/g" ${config_file}
 
-                /usr/bin/sudo -u www-data wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" -- raw --config-file="${config_file}"
+                /usr/bin/sudo -u www-data wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
 
                 /usr/bin/sudo -u www-data /usr/local/bin/wp core install --url="${WEBSITE_URL}" --title="${website_name}" --admin_user="${website_username}" --admin_password="${website_password}" --admin_email="${webmaster_email}" --path="${webroot_directory}"
                
@@ -187,7 +187,7 @@ else
                 db_user_live="`/bin/echo ${db_user} | /bin/sed 's/_install//g'`"
                 /bin/sed -i "s/${db_user}/${db_user_live}/g" ${config_file}
 
-                /usr/bin/sudo -u www-data wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" -- raw --config-file="${config_file}"
+                /usr/bin/sudo -u www-data wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
         fi
 fi
 
@@ -267,7 +267,7 @@ do
         value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $NF}'`"
         if ( [ "${label}" != "" ] && [ "${value}" != "" ] )
         then
-                /usr/bin/sudo -u www-data wp config set "${label}" "${value}" -- raw --config-file="${config_file}"
+                /usr/bin/sudo -u www-data wp config set "${label}" "${value}" --raw --config-file="${config_file}"
         fi
 done
 
