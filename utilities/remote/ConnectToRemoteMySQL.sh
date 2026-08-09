@@ -19,7 +19,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################
 #######################################################################################
-#set -x
+set -x
 
 if ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] || [ "`/usr/bin/hostname | /bin/grep "\-auth-"`" != "" ] )
 then
@@ -96,8 +96,8 @@ credentials_file=${HOME}/.mysql-credentials.cnf
 
 if ( [ "${sql_command}" != "" ]  )
 then
-        ${mysql} --defaults-extra-file=${credentials_file} --ssl=TRUE --silent --raw ${verify_cert} -A ${DB_N} -e "${sql_command}"
+        ${mysql} --defaults-extra-file=${credentials_file} --ssl --silent --raw ${verify_cert} -A ${DB_N} -e "${sql_command}"
 else
-        ${mysql} --defaults-extra-file=${credentials_file} --ssl=TRUE ${verify_cert} -A ${DB_N}
+        ${mysql} --defaults-extra-file=${credentials_file} --ssl ${verify_cert} -A ${DB_N}
 fi
 
