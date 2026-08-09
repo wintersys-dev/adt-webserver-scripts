@@ -70,7 +70,7 @@ export PGPASSWORD=${DB_P}
 
 if ( [ "${sql_command}" != "" ]  )
 then
-        /usr/bin/psql "sslmode=require"-t -U ${DB_U} -h ${HOST} -p ${DB_PORT} ${DB_N} -c "${sql_command}"
+        /usr/bin/psql "sslmode=require" -t -U ${DB_U} -h ${HOST} -p ${DB_PORT} ${DB_N} -c "${sql_command}"
 else
         /usr/bin/psql "sslmode=require" -U ${DB_U} -h ${HOST} -p ${DB_PORT} ${DB_N}
 fi
