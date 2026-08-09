@@ -21,6 +21,8 @@
 ############################################################################
 #set -x
 
+export HOME="`/bin/cat /home/homedir.dat`"
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:None`" = "1" ] )
 then
 	/bin/echo "ALIVE"
