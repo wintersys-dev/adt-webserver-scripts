@@ -27,8 +27,8 @@ then
 
 	if ( [ "${delimiters}" -gt "1" ] )
 	then
-		/bin/grep -a "^${1}:" ${HOME}/runtime/webserver_configuration_settings.dat | /usr/bin/cut -d ":" -f2-
+		/bin/grep -a "^${1}:" ${HOME}/runtime/webserver_configuration_settings.dat | /usr/bin/cut -d ":" -f2- | /usr/bin/head -1
 	else
-		/bin/grep -a "^${1}:" ${HOME}/runtime/webserver_configuration_settings.dat | /usr/bin/awk -F':' '{print $NF}'
+		/bin/grep -a "^${1}:" ${HOME}/runtime/webserver_configuration_settings.dat | /usr/bin/awk -F':' '{print $NF}'  | /usr/bin/head -1
 	fi
 fi
