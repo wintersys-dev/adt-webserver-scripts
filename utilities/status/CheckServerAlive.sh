@@ -57,12 +57,12 @@ else
 
 	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASE_DBaaS_INSTALLATION_TYPE:Maria`" = "1" ] ||  [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASE_DBaaS_INSTALLATION_TYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] )
 	then
-		if ( [ -f /usr/bin/php ] && ( [ "`/usr/bin/php ${HOME}/utilities/remote/mysqlalive.php ${SERVER_NAME} ${DB_U} ${DB_P} ${DB_N} ${DB_PORT} | /bin/sed 's/ //g'`" = "ALIVE" ] ) )
+		if ( [ -f /usr/bin/php ] && ( [ "`/usr/bin/php ${HOME}/utilities/remote/mysqlalive.php ${SERVER_NAME} ${DB_U} ${DB_P} ${DB_N} ${DB_PORT} 2>/dev/null | /bin/sed 's/ //g'`" = "ALIVE" ] ) )
 		then
 			/bin/echo "ALIVE"
 		else
 			DB_U="${DB_U}_install"
-			if ( [ -f /usr/bin/php ] && ( [ "`/usr/bin/php ${HOME}/utilities/remote/mysqlalive.php ${SERVER_NAME} ${DB_U} ${DB_P} ${DB_N} ${DB_PORT} | /bin/sed 's/ //g'`" = "ALIVE" ] ) )
+			if ( [ -f /usr/bin/php ] && ( [ "`/usr/bin/php ${HOME}/utilities/remote/mysqlalive.php ${SERVER_NAME} ${DB_U} ${DB_P} ${DB_N} ${DB_PORT} 2>/dev/null | /bin/sed 's/ //g'`" = "ALIVE" ] ) )
 			then
 				/bin/echo "ALIVE"
 			fi
