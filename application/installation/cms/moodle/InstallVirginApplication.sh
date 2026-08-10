@@ -66,8 +66,6 @@ then
         ${HOME}/services/git/GitClone.sh "github" "" "moodle" "moodle" "" "${moodle_git_branch}" "${webroot_directory}"
         /bin/chown -R www-data:www-data /var/www/html     
 
-        ls -l /var/www/html/moodle
-
         if ( [ ! -d ${webroot_directory}/vendor ] )
         then
                 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
@@ -75,7 +73,6 @@ then
                 cd ${webroot_directory}
                 /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
         fi
-        ls -l /var/www/html/moodle
 else
         SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
         SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
