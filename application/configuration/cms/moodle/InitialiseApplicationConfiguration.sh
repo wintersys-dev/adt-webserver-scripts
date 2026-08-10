@@ -255,10 +255,10 @@ then
         /bin/sed -i '/.*require_once.*/d' ${config_file}
         #Ugly cludge for apache because I couldn't get moodle to display properly without switching off slash arguments
         #if anyone knows how to sort this please let me know and I will make the fix and remove this cludge
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:APACHE`" = "1" ] )
-        then
-                /bin/echo '$CFG->slasharguments = false;' >> ${config_file}
-        fi
+     #   if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh WEBSERVERCHOICE:APACHE`" = "1" ] )
+     #   then
+     #           /bin/echo '$CFG->slasharguments = false;' >> ${config_file}
+     #   fi
         /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
 fi
 
