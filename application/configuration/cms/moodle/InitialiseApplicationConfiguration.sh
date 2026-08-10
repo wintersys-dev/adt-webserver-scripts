@@ -40,7 +40,7 @@ fi
 log_file="moodle_configuration_out"
 err_file="moodle_configuration_err"
 
-if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+if ( [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
 then
         /bin/echo "Log file is at: ${HOME}/logs/moodle_configuration/${log_file}"
         /bin/echo "Error file is at: ${HOME}/logs/moodle_configuration/${err_file}"
