@@ -184,14 +184,10 @@ ${HOME}/services/security/firewall/SetupFirewall.sh
 cd ${HOME}
 
 /bin/echo "${0} Installing the bespoke application"
-count="0"
-while ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] && [ "${count}" -lt "5" ] )
-do
-	${HOME}/application/InstallApplication.sh
-	count="`/usr/bin/expr ${count} + 1`"
-done
 
-if ( [ "${count}" -eq "5" ] )
+${HOME}/application/InstallApplication.sh
+
+if ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
 then
 	${HOME}/services/email/SendEmail.sh "I BELIEVE AN APPLICATION HAS COMPLETELY FAILED TO INSTALL" "The application you are installing has failed to install after exceeding the allowed 5 attempts at installation. I don't expect your website to come online." "ERROR"
 fi
