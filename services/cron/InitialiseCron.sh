@@ -116,7 +116,6 @@ then
 
 	#These scripts run every minute
 	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/CheckWebserverIsUp.sh ${WEBSERVER_CHOICE}" >> /var/spool/cron/crontabs/root
-	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/application/configuration/UpdateApplicationConfiguration.sh" >> /var/spool/cron/crontabs/root
 	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/MonitorForOverload.sh" >> /var/spool/cron/crontabs/root
 
 	#We have a flag to tell us if one of the webservers has updated the SSL certificate. If so, other webservers don't try.
