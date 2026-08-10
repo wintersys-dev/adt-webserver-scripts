@@ -20,11 +20,16 @@
 #####################################################################################
 #set -x
 
-SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
-SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
-ALGORITHM="`${HOME}/utilities/config/ExtractConfigValue.sh 'ALGORITHM'`"
-BUILD_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILD_IDENTIFIER'`"
-
-HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-
-/usr/bin/ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p ${SSH_PORT} -i ${HOME}/.ssh/id_${ALGORITHM}_AGILE_DEPLOYMENT_BUILD_KEY_${BUILD_IDENTIFIER} ${SERVER_USER}@${HOST} '${HOME}/utilities/IsDatabaseUp.sh'
+${HOME}/utilities/remote/ConnectToRemoteMySQL.sh "exit"
+if ( [ "$?" = "0" ] )
+then
+        /bin/echo "1"
+else
+        ${HOME}/utilities/remote/ConnectToRemotePostgres.sh "\q"
+        if ( [ "$?" = "0" ] )
+        then
+                /bin/echo "1"
+        else
+                /bin/echo "9"
+        fi
+fi
