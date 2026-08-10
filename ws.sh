@@ -197,6 +197,8 @@ then
 	${HOME}/services/email/SendEmail.sh "I BELIEVE AN APPLICATION HAS COMPLETELY FAILED TO INSTALL" "The application you are installing has failed to install after exceeding the allowed 5 attempts at installation. I don't expect your website to come online." "ERROR"
 fi
 
+ls -l /var/www/html/moodle
+
 /bin/echo "${0} Storing database engine type"
 webroot_database_engine="`/bin/cat /var/www/html/dbe.dat`"
 
@@ -228,6 +230,9 @@ cd ${HOME}
 #	/bin/echo "${0} Setup Assets Store"
 #	${HOME}/services/datastore/assets/SetupAssetsStore.sh
 #fi
+
+ls -l /var/www/html/moodle
+
 
 /bin/echo "${0} Initialising crontab"
 ${HOME}/services/cron/InitialiseCron.sh
@@ -266,6 +271,9 @@ then
 	${HOME}/services/email/SendEmail.sh "SSL CERFICICATES NOT SUCCESSFULLY INSTALLED" "The ssl certificates for a webserver have not been successfully installed" "ERROR"
 fi
 
+ls -l /var/www/html/moodle
+
+
 /bin/echo "${0} Sending 'successful build' notification email"
 ${HOME}/services/email/SendEmail.sh "A WEBSERVER HAS BEEN SUCCESSFULLY BUILT" "A Webserver has been successfully built and primed as is rebooting ready for use" "INFO"
 
@@ -280,9 +288,15 @@ fi
 /usr/bin/touch ${HOME}/runtime/INITIAL_BUILD_WEBSERVER_ONLINE
 /usr/bin/touch ${HOME}/runtime/WEBSERVER_READY
 
+ls -l /var/www/html/moodle
+
+
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
 
 /bin/echo "${0} Enforcing Permissions"
 /usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh &
+
+ls -l /var/www/html/moodle
+
 
