@@ -65,14 +65,7 @@ if ( [ "${moodle_git_branch}" != "" ] )
 then
         ${HOME}/services/git/GitClone.sh "github" "" "moodle" "moodle" "" "${moodle_git_branch}" "${webroot_directory}"
         /bin/chown -R www-data:www-data /var/www/html     
-
-        if ( [ ! -d ${webroot_directory}/vendor ] )
-        then
-                BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-                ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-                cd ${webroot_directory}
-                /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
-        fi
+        
 else
         SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
         SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
@@ -111,6 +104,14 @@ else
                 /bin/mv ${HOME}/runtime/downloads_work_area/moodle/* ${webroot_directory}
                 /bin/chown -R www-data:www-data /var/www/html/*
         fi
+fi
+
+if ( [ ! -d ${webroot_directory}/vendor ] )
+then
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        cd ${webroot_directory}
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
 fi
 
 cd ${HOME}
