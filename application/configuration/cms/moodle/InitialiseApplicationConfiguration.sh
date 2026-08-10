@@ -31,21 +31,20 @@
 #######################################################################################################
 set -x 
 
-if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
-then
-        exit
-fi
 
 if ( [ ! -d ${HOME}/logs/moodle_configuration ] )
 then
         /bin/mkdir -p ${HOME}/logs/moodle_configuration
 fi
 
-log_file="moodle_out_`/bin/date | /bin/sed 's/ //g'`"
-err_file="moodle_err_`/bin/date | /bin/sed 's/ //g'`"
+log_file="moodle_configuration_out"
+err_file="moodle_configuration_err"
 
-/bin/echo "Log file is at: ${HOME}/logs/moodle_configuration/${log_file}"
-/bin/echo "Error file is at: ${HOME}/logs/moodle_configuration/${err_file}"
+if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+then
+        /bin/echo "Log file is at: ${HOME}/logs/moodle_configuration/${log_file}"
+        /bin/echo "Error file is at: ${HOME}/logs/moodle_configuration/${err_file}"
+fi
 
 exec 1>>${HOME}/logs/moodle_configuration/${log_file}
 exec 2>>${HOME}/logs/moodle_configuration/${err_file}
@@ -341,6 +340,11 @@ then
         /bin/chmod 600 ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+        
+        if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+        then
+                /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+        fi
 else
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
 fi
