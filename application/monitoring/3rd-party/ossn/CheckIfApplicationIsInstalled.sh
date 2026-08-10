@@ -51,7 +51,4 @@ then
         done
 fi
 
-if ( [ "${installed}" = "1" ] )
-then
-        /bin/echo "APPLICATION_INSTALLED:${installed}"
-fi
+/bin/echo "APPLICATION_INSTALLED:${installed}"
