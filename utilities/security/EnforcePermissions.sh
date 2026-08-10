@@ -23,6 +23,7 @@
 
 HOME="`/bin/cat /home/homedir.dat`"
 SERVER_USER="`/bin/ls -d /home/X*X | /usr/bin/awk -F'/' '{print $NF}'`"
+APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
 /bin/chmod 755 /var/www/html
 
@@ -30,7 +31,7 @@ webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/wordpress"
+        webroot_directory="/var/www/html/${APPLICATION}"
 fi
 
 if ( [ -f ${webroot_directory}/.htaccess ] )
