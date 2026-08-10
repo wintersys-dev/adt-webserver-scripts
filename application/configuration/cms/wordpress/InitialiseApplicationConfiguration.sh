@@ -31,6 +31,11 @@
 #######################################################################################################
 #set -x 
 
+if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+then
+        exit
+fi
+
 if ( [ ! -d ${HOME}/logs/wordpress_configuration ] )
 then
         /bin/mkdir -p ${HOME}/logs/wordpress_configuration
@@ -304,11 +309,11 @@ fi
 
 if ( [ "$?" = "0" ] )
 then      
-    #    db_user_live="`/bin/echo ${db_user} | /bin/sed 's/_install//g'`"
-    #    /bin/sed -i "s/${db_user}/${db_user_live}/g" ${config_file}
         /bin/chmod 600 ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+else
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
 fi
 
 if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
