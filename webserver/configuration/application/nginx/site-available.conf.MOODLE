@@ -96,6 +96,10 @@ server
     	expires    7d;
 	}
 
+location / {
+    try_files $uri /r.php;
+}
+
 #Moodle specific setting
 
 rewrite ^/(.*\.php)(/)(.*)$ /$1?file=/$3 last;
