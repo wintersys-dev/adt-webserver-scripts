@@ -35,6 +35,7 @@ BUILD_ARCHIVE_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDARCH
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 WEBSITE_SUBDOMAIN="`/bin/echo ${WEBSITE_URL} | /usr/bin/awk -F'.' '{print $1}'`"
+APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 APPLICATION_REPOSITORY_PROVIDER="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER'`"
 APPLICATION_REPOSITORY_OWNER="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYOWNER'`"
 APPLICATION_REPOSITORY_USERNAME="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME'`"
@@ -88,7 +89,12 @@ then
         ${HOME}/services/email/SendEmail.sh "I BELIEVE STRONGLY AN APPLICATION HAS BEEN INSTALLED" "The application sourcecode from the datastore: ${BUILD_ARCHIVE_CHOICE} has been installed" "INFO"
         /bin/touch ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED
 else
-        ${HOME}/services/email/SendEmail.sh "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "The application sourcecode from the datastore: ${BUILD_ARCHIVE_CHOICE} has been not been installed or is not online for some reason" "ERROR"
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
+        then
+               ${HOME}/services/email/SendEmail.sh  "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "As this is an an installation of a virgin ${APPLICATION} application please check APPLICATION_INTEGRITY_DIRECTORIES APPLICATION_INTEGRITY_FILES is correct in the descriptor.dat file for the version of ${APPLICATION} you are trying to install"
+        else
+                ${HOME}/services/email/SendEmail.sh "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "The application sourcecode from the datastore: ${BUILD_ARCHIVE_CHOICE} has been not been installed or is not online for some reason" "ERROR"
+        fi
 fi
 
 ${HOME}/utilities/security/EnforcePermissions.sh &
