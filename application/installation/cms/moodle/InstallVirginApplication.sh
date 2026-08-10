@@ -91,6 +91,11 @@ else
         fi
 fi
 
+if ( [ ! -d /var/www/html/moodle/vendor ] )
+then
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
+fi
+
 cd ${HOME}
 /bin/echo "success"
 
