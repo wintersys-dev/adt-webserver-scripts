@@ -57,23 +57,21 @@ moodle_git_branch="`/bin/grep "^MOODLE:git-branch:" ${HOME}/runtime/application.
 if ( [ "${moodle_git_branch}" != "" ] )
 then
         ${HOME}/services/git/GitClone.sh "github" "" "moodle" "moodle" "" "${moodle_git_branch}" "/var/www/html/moodle"
-        /bin/chown -R www-data:www-data /var/www/html
-if ( [ ! -d /var/www/html/moodle/vendor ] )
-then
-        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+        /bin/chown -R www-data:www-data /var/www/html        
 
-        if ( [ "${webroot_directory}" = "" ] )
+        if ( [ ! -d /var/www/html/moodle/vendor ] )
         then
-                webroot_directory="/var/www/html/moodle"
-        fi
-        
-        cd ${webroot_directory}
-        
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
-fi
+                BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+                ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+                webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
+                if ( [ "${webroot_directory}" = "" ] )
+                then
+                        webroot_directory="/var/www/html/moodle"
+                fi
+                cd ${webroot_directory}
+                /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
+        fi
 else
         SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
         SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
