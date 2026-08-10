@@ -42,11 +42,14 @@ then
         /bin/mkdir -p ${HOME}/logs/ossn_configuration
 fi
 
-log_file="ossn_out_`/bin/date | /bin/sed 's/ //g'`"
-err_file="ossn_err_`/bin/date | /bin/sed 's/ //g'`"
+log_file="ossn_configuration_out"
+err_file="ossn_configuration_err"
 
-/bin/echo "Log file is at: ${HOME}/logs/ossn_configuration/${log_file}"
-/bin/echo "Error file is at: ${HOME}/logs/ossn_configuration/${err_file}"
+if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+then
+        /bin/echo "Log file is at: ${HOME}/logs/ossn_configuration/${log_file}"
+        /bin/echo "Error file is at: ${HOME}/logs/ossn_configuration/${err_file}"
+fi
 
 exec 1>>${HOME}/logs/ossn_configuration/${log_file}
 exec 2>>${HOME}/logs/ossn_configuration/${err_file}
