@@ -95,7 +95,15 @@ if ( [ ! -d /var/www/html/moodle/vendor ] )
 then
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        cd /var/www/html/moodle
+        webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+        if ( [ "${webroot_directory}" = "" ] )
+        then
+                webroot_directory="/var/www/html/moodle"
+        fi
+        
+        cd ${webroot_directory}
+        
         /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
 fi
 
