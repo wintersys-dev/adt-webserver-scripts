@@ -52,23 +52,24 @@ fi
 
 cd ${HOME}/runtime/downloads_work_area
 
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+if ( [ "${webroot_directory}" = "" ] )
+then
+        webroot_directory="/var/www/html/moodle"
+fi
+
 moodle_git_branch="`/bin/grep "^MOODLE:git-branch:" ${HOME}/runtime/application.dat | /bin/sed 's/MOODLE:git-branch://g'`"
 
 if ( [ "${moodle_git_branch}" != "" ] )
 then
-        ${HOME}/services/git/GitClone.sh "github" "" "moodle" "moodle" "" "${moodle_git_branch}" "/var/www/html/moodle"
+        ${HOME}/services/git/GitClone.sh "github" "" "moodle" "moodle" "" "${moodle_git_branch}" "${webroot_directory}"
         /bin/chown -R www-data:www-data /var/www/html        
 
-        if ( [ ! -d /var/www/html/moodle/vendor ] )
+        if ( [ ! -d ${webroot_directory}/vendor ] )
         then
                 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
                 ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-                webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-                if ( [ "${webroot_directory}" = "" ] )
-                then
-                        webroot_directory="/var/www/html/moodle"
-                fi
                 cd ${webroot_directory}
                 /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
         fi
@@ -95,12 +96,13 @@ else
         then
                 if ( [ "${verified_archive_type}" = "zip" ] )
                 then
-                        /usr/bin/python3 -m zipfile -e moodle-*.${verified_archive_type} /var/www/html/ 
+                        /usr/bin/python3 -m zipfile -e moodle-*.${verified_archive_type} ${HOME}/runtime/downloads_work_area
                 elif ( [ "${verified_archive_type}" = "tgz" ] )
                 then
-                        /bin/tar xvfz moodle-*.${verified_archive_type} -C /var/www/html/
+                        /bin/tar xvfz moodle-*.${verified_archive_type} -C ${HOME}/runtime/downloads_work_area
                 fi
                 /bin/rm moodle-*.${verified_archive_type}
+                /bin/mv ${HOME}/runtime/downloads_work_area/moodle/* ${webroot_directory}
                 /bin/chown -R www-data:www-data /var/www/html/*
         fi
 fi
