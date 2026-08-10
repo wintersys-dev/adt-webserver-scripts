@@ -102,6 +102,12 @@ else
                         /bin/tar xvfz moodle-*.${verified_archive_type} -C ${HOME}/runtime/downloads_work_area
                 fi
                 /bin/rm moodle-*.${verified_archive_type}
+                
+                if ( [ ! -d ${webroot_directory} ] )
+                then
+                        /bin/mkdir -p ${webroot_directory}
+                fi 
+                
                 /bin/mv ${HOME}/runtime/downloads_work_area/moodle/* ${webroot_directory}
                 /bin/chown -R www-data:www-data /var/www/html/*
         fi
