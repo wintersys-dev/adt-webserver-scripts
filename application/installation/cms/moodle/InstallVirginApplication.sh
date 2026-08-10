@@ -95,6 +95,7 @@ if ( [ ! -d /var/www/html/moodle/vendor ] )
 then
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        cd /var/www/html/moodle
         /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
 fi
 
