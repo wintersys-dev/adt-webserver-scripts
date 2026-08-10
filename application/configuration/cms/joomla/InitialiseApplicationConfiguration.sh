@@ -31,6 +31,11 @@
 #######################################################################################################
 set -x 
 
+if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+then
+        exit
+fi
+
 if ( [ ! -d ${HOME}/logs/joomla_configuration ] )
 then
         /bin/mkdir -p ${HOME}/logs/joomla_configuration
@@ -337,6 +342,8 @@ then
         /bin/chmod 600 ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+else
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
 fi
 
 if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
