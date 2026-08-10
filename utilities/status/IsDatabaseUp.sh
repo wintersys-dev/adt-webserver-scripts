@@ -20,6 +20,11 @@
 #####################################################################################
 #set -x
 
+if ( [ ! -f ${HOME}/runtime/INSTALLED_SUCCESSFULLY ] )
+then
+	exit
+fi
+
 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh "exit"
 if ( [ "$?" = "0" ] )
 then
