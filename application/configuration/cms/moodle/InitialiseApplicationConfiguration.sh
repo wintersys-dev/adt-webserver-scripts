@@ -266,6 +266,7 @@ if ( [ -f ${config_file} ] )
 then
         /bin/sed -i '/.*require_once.*/d' ${config_file}
         /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
+        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${config_file}
 fi
 
 
