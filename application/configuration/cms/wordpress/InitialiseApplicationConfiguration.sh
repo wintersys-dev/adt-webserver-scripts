@@ -39,7 +39,7 @@ fi
 log_file="wordpress_configuration_out"
 err_file="wordpress_configuration_err"
 
-if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+if ( [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
 then
         /bin/echo "Log file is at: ${HOME}/logs/wordpress_configuration/${log_file}"
         /bin/echo "Error file is at: ${HOME}/logs/wordpress_configuration/${err_file}"
