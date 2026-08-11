@@ -77,7 +77,8 @@ then
         provider_id="-${CLOUDHOST}"
 fi
 
-period="`/bin/echo $1 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
+period="`/bin/echo ${1} | /usr/bin/tr '[:upper:]' '[:lower:]'`"
+build_machine="${2}"
 
 allowed_periods="hourly daily weekly monthly bimonthly shutdown"
 
