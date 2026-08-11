@@ -164,7 +164,7 @@ fi
 
 cd ${HOME}
 
-#/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh
+${HOME}/utilities/security/EnforcePermissions.sh "skip-webroot-perms"
 
 /bin/echo "${0} Installing Datastore tools"
 ${HOME}/services/datastore/InitialiseDatastoreSettings.sh
