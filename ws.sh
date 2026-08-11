@@ -164,12 +164,6 @@ fi
 
 cd ${HOME}
 
-#For application webservers, webroot permissions are enforced by the application configuration process
-#For example in joomla the permissions are enforced at about line 350 of ${HOME}/application/configuration/cms/joomla/InitialiseApplicationConfiguration.sh
-#Anyone integrating an application will need to enforce their permissions here. Here all we do is enforce infrastructure permissions so that we can make
-#sure we are tied down. 
-${HOME}/utilities/security/EnforcePermissions.sh "skip-webroot-perms"
-
 /bin/echo "${0} Installing Datastore tools"
 ${HOME}/services/datastore/InitialiseDatastoreSettings.sh
 
@@ -282,8 +276,8 @@ fi
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
 
-#/bin/echo "${0} Enforcing Permissions"
-#/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh &
+/bin/echo "${0} Enforcing Permissions"
+/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh
 
 
 
