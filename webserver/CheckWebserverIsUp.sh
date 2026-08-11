@@ -22,6 +22,11 @@
 
 export HOME="`/bin/cat /home/homedir.dat`"
 
+if ( [ ! -f ${HOME}/runtime/INSTALLED_SUCCESSFULLY ] )
+then
+        exit
+fi
+
 if ( [ "`/usr/bin/hostname | /bin/grep "\-auth-"`" != "" ] )
 then
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
