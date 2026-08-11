@@ -80,7 +80,7 @@ fi
 period="`/bin/echo ${1} | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 build_machine="${2}"
 
-allowed_periods="hourly daily weekly monthly bimonthly shutdown"
+allowed_periods="hourly daily weekly monthly bimonthly shutdown manual"
 
 if ( [ "`/bin/echo ${allowed_periods} | /bin/grep ${period}`" = "" ] )
 then
