@@ -103,7 +103,8 @@ then
 
 	if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] && [ "${APPLICATION}" = "moodle" ] )
 	then
-		/bin/echo "*/1 * * * * /usr/bin/php /var/www/html/admin/cli/cron.php >/dev/null" >> /var/spool/cron/crontabs/root
+		webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+		/bin/echo "*/1 * * * * /usr/bin/php ${webroot_directory}/admin/cli/cron.php >/dev/null" >> /var/spool/cron/crontabs/root
 	fi
 
 	if ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
