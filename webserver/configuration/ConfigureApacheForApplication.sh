@@ -121,14 +121,14 @@ fi
 /bin/echo "/etc/apache2/sites-available/${WEBSITE_NAME}" > ${HOME}/runtime/WEBSERVER_CONFIG_LOCATION.dat
 
 
-if ( [ -f ${HOME}/webserver/configuration/application/apache/htaccess/htaccess-${APPLICATION}.conf ] )
-then
-	if ( [ ! -d ${HOME}/runtime/overridehtaccess ] )
-	then
-		/bin/mkdir -p ${HOME}/runtime/overridehtaccess
-	fi
-	/bin/cp ${HOME}/webserver/configuration/application/apache/htaccess/htaccess-${APPLICATION}.conf ${HOME}/runtime/overridehtaccess/htaccess.conf
-fi
+#if ( [ -f ${HOME}/webserver/configuration/application/apache/htaccess/htaccess-${APPLICATION}.conf ] )
+#then#
+#	if ( [ ! -d ${HOME}/runtime/overridehtaccess ] )
+#	then
+#		/bin/mkdir -p ${HOME}/runtime/overridehtaccess
+#	fi
+#	/bin/cp ${HOME}/webserver/configuration/application/apache/htaccess/htaccess-${APPLICATION}.conf ${HOME}/runtime/overridehtaccess/htaccess.conf
+#fi
 
 config_settings="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:settings" "stripped" | /bin/sed 's/|.*//g'`"
 
