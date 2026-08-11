@@ -43,8 +43,8 @@ fi
 
 /usr/bin/find ${HOME} -type d -exec chmod 755 {} \;
 /usr/bin/find ${HOME} -type f -exec chmod 750 {} \;
-/usr/bin/find ${HOME} -type d -exec chown ${SERVER_USER}:root {} \;
-/usr/bin/find ${HOME} -type f -exec chown ${SERVER_USER}:root {} \;
+/usr/bin/find ${HOME} -type d -exec chown root:root {} \;
+/usr/bin/find ${HOME} -type f -exec chown root:root {} \;
 
 if ( [ -f ${HOME}/.bashrc ] )
 then
