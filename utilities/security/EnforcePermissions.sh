@@ -24,22 +24,8 @@
 HOME="`/bin/cat /home/homedir.dat`"
 SERVER_USER="`/bin/ls -d /home/X*X | /usr/bin/awk -F'/' '{print $NF}'`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+mode="${1}"
 
-/bin/chmod 755 /var/www/html
-
-webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-if ( [ "${webroot_directory}" = "" ] )
-then
-        webroot_directory="/var/www/html/${APPLICATION}"
-fi
-
-if ( [ -f ${webroot_directory}/.htaccess ] )
-then
-        /bin/chmod 400 ${webroot_directory}/.htaccess
-fi
-
-/bin/chown www-data:www-data /var/www/html
 
 /usr/bin/find ${HOME} -type d -exec chmod 755 {} \;
 /usr/bin/find ${HOME} -type f -exec chmod 750 {} \;
@@ -96,62 +82,78 @@ fi
 /bin/chmod 600 ${HOME}/.ssh/id_*
 /bin/chmod 644 ${HOME}/.ssh/id_*pub
 
-webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-if ( [ -d ${webroot_directory} ] )
+if ( [ "${mode}" != "skip-webroot-perms" ] )
 then
-        command="/usr/bin/find ${webroot_directory} "
 
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+        /bin/chmod 755 /var/www/html
+
+        webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+        if ( [ "${webroot_directory}" = "" ] )
         then
-                for dir in `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' '`
-                do
-                        command="${command} -path '"${dir}"' -prune -o "
-                done
+                webroot_directory="/var/www/html/${APPLICATION}"
         fi
 
-        command="${command} -print "
+        if ( [ -f ${webroot_directory}/.htaccess ] )
+        then
+                /bin/chmod 400 ${webroot_directory}/.htaccess
+        fi
 
-        eval ${command} | /bin/sed -e 's; /var/www/html;:::/var/www/html;g' -e 's/ /\*/g' -e 's/:::/ /g' > ${HOME}/runtime/permissions_set.dat
+        if ( [ -d ${webroot_directory} ] )
+        then
+                command="/usr/bin/find ${webroot_directory} "
+
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+                then
+                        for dir in `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' '`
+                        do
+                                command="${command} -path '"${dir}"' -prune -o "
+                        done
+                fi
+
+                command="${command} -print "
+
+                eval ${command} | /bin/sed -e 's; /var/www/html;:::/var/www/html;g' -e 's/ /\*/g' -e 's/:::/ /g' > ${HOME}/runtime/permissions_set.dat
 
 
-        while IFS= read -r node
+                while IFS= read -r node
+                do
+                        /bin/chown root:www-data ${node}
+                        if ( [ -d ${node} ] )
+                        then
+                                /bin/chmod 750 ${node}
+                        fi
+                        if ( [ -f ${node} ] )
+                        then
+                                /bin/chmod 640 ${node}
+                        fi
+                done <  ${HOME}/runtime/permissions_set.dat
+
+                /bin/rm ${HOME}/runtime/permissions_set.dat
+
+        fi
+
+        for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
         do
-                /bin/chown root:www-data ${node}
-                if ( [ -d ${node} ] )
-                then
-                        /bin/chmod 750 ${node}
-                fi
-                if ( [ -f ${node} ] )
-                then
-                        /bin/chmod 640 ${node}
-                fi
-        done <  ${HOME}/runtime/permissions_set.dat
+                command="/usr/bin/find /var/www/html/${directory} "
 
-        /bin/rm ${HOME}/runtime/permissions_set.dat
+                command="${command} -print "
 
+                eval ${command} | /bin/sed -e 's; /var/www/html;:::/var/www/html;g' -e 's/ /\*/g' -e 's/:::/ /g' > ${HOME}/runtime/permissions_set.dat
+
+                while IFS= read -r node
+                do
+                        /bin/chown www-data:www-data ${node}
+                        if ( [ -d ${node} ] )
+                        then
+                                /bin/chmod 700 ${node}
+                        fi
+                        if ( [ -f ${node} ] )
+                        then
+                                /bin/chmod 600 ${node}
+                        fi
+                done <  ${HOME}/runtime/permissions_set.dat
+
+                /bin/rm ${HOME}/runtime/permissions_set.dat
+        done
 fi
-
-for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-do
-        command="/usr/bin/find /var/www/html/${directory} "
-
-        command="${command} -print "
-
-        eval ${command} | /bin/sed -e 's; /var/www/html;:::/var/www/html;g' -e 's/ /\*/g' -e 's/:::/ /g' > ${HOME}/runtime/permissions_set.dat
-
-        while IFS= read -r node
-        do
-                /bin/chown www-data:www-data ${node}
-                if ( [ -d ${node} ] )
-                then
-                        /bin/chmod 700 ${node}
-                fi
-                if ( [ -f ${node} ] )
-                then
-                        /bin/chmod 600 ${node}
-                fi
-        done <  ${HOME}/runtime/permissions_set.dat
-
-        /bin/rm ${HOME}/runtime/permissions_set.dat
-done
