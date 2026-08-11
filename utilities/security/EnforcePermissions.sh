@@ -98,28 +98,34 @@ fi
 
 if ( [ -d /var/www/html ] )
 then
-	command="/usr/bin/find /var/www/html "
-	
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
-	then
-		for dir in `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' '`
-		do
-        	command="${command} -path '"${dir}"' -prune -o "
-		done
-	fi
-	
-	command="${command} -print"
+        command="/usr/bin/find /var/www/html "
 
-	for node in `eval ${command}` 
-	do
-		/bin/chown www-data:www-data ${node}
-		if ( [ -d ${node} ] )
-		then
-			/bin/chmod 755 ${node} 
-		fi
-		if ( [ -f ${node} ] )
-		then
-			/bin/chmod 644 ${node}
-		fi
-	done
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+        then
+                for dir in `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' '`
+                do
+                        command="${command} -path '"${dir}"' -prune -o "
+                done
+        fi
+
+        command="${command} -print "
+
+        eval ${command} | /bin/sed -e 's; /var/www/html;:::/var/www/html;g' -e 's/ /\*/g' -e 's/:::/ /g' > ${HOME}/runtime/permissions_set.dat
+
+
+        while IFS= read -r node
+        do
+                /bin/chown www-data:www-data ${node}
+                if ( [ -d ${node} ] )
+                then
+                        /bin/chmod 750 ${node}
+                fi
+                if ( [ -f ${node} ] )
+                then
+                        /bin/chmod 640 ${node}
+                fi
+        done <  ${HOME}/runtime/permissions_set.dat
+
+        /bin/rm ${HOME}/runtime/permissions_set.dat
+
 fi
