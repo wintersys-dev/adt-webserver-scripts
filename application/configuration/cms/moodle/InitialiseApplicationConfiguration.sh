@@ -300,6 +300,12 @@ then
         fi
 fi
 
+if ( [ -f ${HOME}/application/configuration/cms/moodle/htaccess.txt ] )
+then
+        /bin/cp ${HOME}/application/configuration/cms/moodle/htaccess.txt /var/www/html/moodle/.htaccess
+        /bin/chown root:www-data /var/www/html/moodle/.htaccess
+fi
+
 if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
 then
         dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
