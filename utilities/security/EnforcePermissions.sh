@@ -36,7 +36,7 @@ fi
 
 if ( [ -f ${webroot_directory}/.htaccess ] )
 then
-	/bin/chmod 400 ${webroot_directory}/.htaccess
+        /bin/chmod 400 ${webroot_directory}/.htaccess
 fi
 
 /bin/chown www-data:www-data /var/www/html
@@ -96,9 +96,11 @@ fi
 /bin/chmod 600 ${HOME}/.ssh/id_*
 /bin/chmod 644 ${HOME}/.ssh/id_*pub
 
-if ( [ -d /var/www/html ] )
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+if ( [ -d ${webroot_directory} ] )
 then
-        command="/usr/bin/find /var/www/html "
+        command="/usr/bin/find ${webroot_directory} "
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
         then
@@ -115,7 +117,7 @@ then
 
         while IFS= read -r node
         do
-                /bin/chown www-data:www-data ${node}
+                /bin/chown root:www-data ${node}
                 if ( [ -d ${node} ] )
                 then
                         /bin/chmod 750 ${node}
@@ -129,3 +131,27 @@ then
         /bin/rm ${HOME}/runtime/permissions_set.dat
 
 fi
+
+for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
+do
+        command="/usr/bin/find /var/www/html/${directory} "
+
+        command="${command} -print "
+
+        eval ${command} | /bin/sed -e 's; /var/www/html;:::/var/www/html;g' -e 's/ /\*/g' -e 's/:::/ /g' > ${HOME}/runtime/permissions_set.dat
+
+        while IFS= read -r node
+        do
+                /bin/chown www-data:www-data ${node}
+                if ( [ -d ${node} ] )
+                then
+                        /bin/chmod 700 ${node}
+                fi
+                if ( [ -f ${node} ] )
+                then
+                        /bin/chmod 600 ${node}
+                fi
+        done <  ${HOME}/runtime/permissions_set.dat
+
+        /bin/rm ${HOME}/runtime/permissions_set.dat
+done
