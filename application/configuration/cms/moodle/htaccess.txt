@@ -1,0 +1,26 @@
+# BEGIN Handling 40x errors
+ErrorDocument 404 /error/index.php
+# This sends any 403 from apache through to the same page, but also
+# overrides the http status with 404 instead for better security.
+ErrorDocument 403 /error/index.php?code=404
+# END Handling 40x errors
+
+# BEGIN Hiding internal paths
+RewriteEngine On
+RewriteRule "(\/vendor\/)" - [F]
+RewriteRule "(\/node_modules\/)" - [F]
+RewriteRule "(^|/)\.(?!well-known\/)" - [F]
+RewriteRule "(composer\.json)" - [F]
+RewriteRule "(\.lock)" - [F]
+RewriteRule "(\/environment.xml)" - [F]
+RewriteRule "(\/install.xml)" - [F]
+RewriteRule "(\/README)" - [F]
+RewriteRule "(\/readme)" - [F]
+RewriteRule "(\/moodle_readme)" - [F]
+RewriteRule "(\/upgrade\.txt)" - [F]
+RewriteRule "(\/UPGRADING\.md)" - [F]
+RewriteRule "(phpunit\.xml\.dist)" - [F]
+RewriteRule "(\/tests\/behat\/)" - [F]
+RewriteRule "(\/fixtures\/)" - [F]
+Options -Indexes
+# END Hiding internal paths
