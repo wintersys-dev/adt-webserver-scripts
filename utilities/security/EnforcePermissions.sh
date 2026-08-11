@@ -19,12 +19,11 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ########################################################################################
 ########################################################################################
-#set -x
+set -x
 
 HOME="`/bin/cat /home/homedir.dat`"
 SERVER_USER="`/bin/ls -d /home/X*X | /usr/bin/awk -F'/' '{print $NF}'`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
-mode="${1}"
 
 
 /usr/bin/find ${HOME} -type d -exec chmod 755 {} \;
@@ -110,7 +109,6 @@ then
 
         command="${command} -print "
         eval ${command} | /bin/sed -e 's; /var/www/html;:::/var/www/html;g' -e 's/ /\*/g' -e 's/:::/ /g' > ${HOME}/runtime/permissions_set.dat
-
 
         while IFS= read -r node
         do
