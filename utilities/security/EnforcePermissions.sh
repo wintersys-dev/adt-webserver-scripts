@@ -112,14 +112,14 @@ then
 
         while IFS= read -r node
         do
-                /bin/chown root:www-data ${node}
-                if ( [ -d ${node} ] )
+                /bin/chown root:www-data "${node}"
+                if ( [ -d "${node}" ] )
                 then
-                        /bin/chmod 750 ${node}
+                        /bin/chmod 750 "${node}"
                 fi
-                if ( [ -f ${node} ] )
+                if ( [ -f "${node}" ] )
                 then
-                        /bin/chmod 640 ${node}
+                        /bin/chmod 640 "${node}"
                 fi
         done <  ${HOME}/runtime/permissions_set.dat
 
@@ -135,14 +135,14 @@ do
 
         while IFS= read -r node
         do
-                /bin/chown www-data:www-data ${node}
-                if ( [ -d ${node} ] )
+                /bin/chown www-data:www-data "${node}"
+                if ( [ -d "${node}" ] )
                 then
-                        /bin/chmod 700 ${node}
+                        /bin/chmod 700 "${node}"
                 fi
-                if ( [ -f ${node} ] )
+                if ( [ -f "${node}" ] )
                 then
-                        /bin/chmod 600 ${node}
+                        /bin/chmod 600 "${node}"
                 fi
         done <  ${HOME}/runtime/permissions_set.dat
 
