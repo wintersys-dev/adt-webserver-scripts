@@ -120,36 +120,36 @@ else
                 HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
         fi
 
-        if ( [ -f ${HOME}/runtime/application.dat ] )
-        then
-                if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
-                then
-                        /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
-                fi
-
-                if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
-                then
-                        /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                fi
-
-                for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-                do
-                        directory="/var/www/html/${directory}"
-
-                        if ( [ ! -d ${directory} ] )
-                        then
-                                /bin/mkdir -p ${directory}
-                                /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                        fi
-
-                        while ( [ "${directory}" != "/var/www/html" ] )
-                        do
-                                /bin/chmod 755 ${directory}
-                                /bin/chown www-data:www-data ${directory}
-                                directory=`/usr/bin/dirname "${directory}"`
-                        done
-                done
-        fi
+   #     if ( [ -f ${HOME}/runtime/application.dat ] )
+   #     then
+   #             if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
+   #             then
+   #                     /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
+   #             fi
+#
+ #               if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
+  #              then
+   #                     /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
+    #            fi
+#
+ #               for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
+  #              do
+   #                     directory="/var/www/html/${directory}"
+#
+ #                       if ( [ ! -d ${directory} ] )
+  #                      then
+   #                             /bin/mkdir -p ${directory}
+    #                            /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
+     #                   fi
+#
+ #                       while ( [ "${directory}" != "/var/www/html" ] )
+  #                      do
+   #                             /bin/chmod 755 ${directory}
+    #                            /bin/chown www-data:www-data ${directory}
+     #                           directory=`/usr/bin/dirname "${directory}"`
+      #                  done
+       #         done
+        #fi
 
         user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
         password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
