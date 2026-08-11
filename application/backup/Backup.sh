@@ -105,8 +105,14 @@ if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
 then
         current_time="`/usr/bin/date +%s`"
         backup_time="`/bin/cat ${HOME}/runtime/datastore_workarea/time_backup_written`"
-        
-        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "300" ] )
+
+        time_buffer="300"
+        if ( [ "${build_machine}" = "build-machine" ] )
+        then
+                time_buffer="0"
+        fi
+
+        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "${time_buffer}" ] )
         then
                 exit
         fi
