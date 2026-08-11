@@ -277,6 +277,11 @@ fi
 ${HOME}/webserver/RestartWebserver.sh
 
 /bin/echo "${0} Enforcing Permissions"
+
+while ( [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET ] )
+do
+	/bin/sleep 1
+done
 /usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh
 
 
