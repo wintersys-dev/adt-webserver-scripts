@@ -43,11 +43,14 @@ then
         exit
 fi
 
-headfile="`${HOME}/application/configuration/SelectHeadFile.sh`"
-
-if ( [ "`/usr/bin/curl -s -I --max-time 60 --insecure https://localhost:443/${headfile} | /bin/grep -E 'HTTP.*200|HTTP.*301|HTTP.*302|HTTP.*303|200 OK|302 Found|301 Moved Permanently' 2>/dev/null`" = "" ] )
+if ( [ -f ${HOME}/runtime/HTTP_PROBES_ON ] )
 then
-        ${HOME}/webserver/RestartWebserver.sh
+        headfile="`${HOME}/application/configuration/SelectHeadFile.sh`"
+
+        if ( [ "`/usr/bin/curl -s -I --max-time 60 --insecure https://localhost:443/${headfile} | /bin/grep -E 'HTTP.*200|HTTP.*301|HTTP.*302|HTTP.*303|200 OK|302 Found|301 Moved Permanently' 2>/dev/null`" = "" ] )
+        then
+                ${HOME}/webserver/RestartWebserver.sh
+        fi
 fi
 
 php_online="0"
@@ -88,11 +91,13 @@ then
                 fi
         fi
 
-        if ( [ "${http_online}" = "1" ] && [ "`/usr/bin/curl -m 5 --insecure -I "https://localhost:443/${headfile}" 2>&1 | /bin/grep "HTTP" | /bin/grep -vw "200|301|302|303"`" = "" ] )
+        if ( [ -f ${HOME}/runtime/HTTP_PROBES_ON ] )
         then
-                echo "online"
-                sleep 10
-                http_online="0"
+                if ( [ "${http_online}" = "1" ] && [ "`/usr/bin/curl -m 5 --insecure -I "https://localhost:443/${headfile}" 2>&1 | /bin/grep "HTTP" | /bin/grep -vw "200|301|302|303"`" = "" ] )
+                then
+                        sleep 10
+                        http_online="0"
+                fi
         fi
 
         if ( [ "${http_online}" = "0" ] && [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "INSTALLED_SUCCESSFULLY"`" = "INSTALLED_SUCCESSFULLY" ] )
@@ -109,9 +114,12 @@ then
                         ${HOME}/utilities/processing/RunServiceCommand.sh lighttpd restart 
                 fi
 
-                if ( [ "`/usr/bin/curl -m 5 --insecure -I "https://localhost:443/${headfile}" 2>&1 | /bin/grep "HTTP" | /bin/grep -vw "200|301|302|303"`" != "" ] )
+                if ( [ -f ${HOME}/runtime/HTTP_PROBES_ON ] )
                 then
-                        http_online="1"
+                        if ( [ "`/usr/bin/curl -m 5 --insecure -I "https://localhost:443/${headfile}" 2>&1 | /bin/grep "HTTP" | /bin/grep -vw "200|301|302|303"`" != "" ] )
+                        then
+                                http_online="1"
+                        fi
                 fi
         fi
 
