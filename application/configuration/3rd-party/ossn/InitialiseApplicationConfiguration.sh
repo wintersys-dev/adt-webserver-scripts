@@ -296,14 +296,30 @@ then
         /bin/chown www-data:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
         ${HOME}/utilities/security/EnforcePermissions.sh &
-
+       
+        if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+        then
+                /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+        fi
+else
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
 fi
 
 /usr/bin/php -ln ${config_file_site}
 
-if ( [ "$?" != "0" ] )
+if ( [ "$?" = "0" ] && [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
 then
-        /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET
+        /bin/chmod 600 ${config_file_site}
+        /bin/chown www-data:www-data ${config_file_site}
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+        ${HOME}/utilities/security/EnforcePermissions.sh &
+       
+        if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+        then
+                /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+        fi
+else
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
 fi
 
 if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
