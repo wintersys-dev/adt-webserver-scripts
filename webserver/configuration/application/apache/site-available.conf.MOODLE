@@ -60,6 +60,10 @@ ServerName XXXXWEBSITEURLXXXX
 
  DirectoryIndex index.php index.html
 
+ <Directory XXXXWEBROOT_DIRECTORYXXXX>
+	AllowOverride All
+  </Directory>
+
  <Directory XXXXWEBROOT_DIRECTORYXXXX/public>
 	DirectoryIndex index.php
 	LimitRequestBody 512000
