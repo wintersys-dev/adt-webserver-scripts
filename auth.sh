@@ -183,7 +183,7 @@ fi
 
 cd ${HOME}
 
-/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh
+#/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh
 
 /bin/echo "${0} Installing Datastore tools"
 ${HOME}/services/datastore/InitialiseDatastoreSettings.sh
@@ -278,5 +278,5 @@ ${HOME}/utilities/housekeeping/CleanupAfterBuild.sh
 /bin/echo "${0} Restarting Authenticator machine Webserver"
 ${HOME}/webserver/RestartWebserver.sh 
 
-/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh &
+#/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh &
 
