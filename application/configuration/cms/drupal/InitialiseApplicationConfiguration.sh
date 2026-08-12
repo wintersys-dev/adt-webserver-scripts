@@ -235,7 +235,7 @@ if ( [ -f ${webroot_directory}/sites/default/settings.php ] )
 then
         /bin/mv ${webroot_directory}/sites/default/settings.php ${config_file}
         /bin/chown www-data:www-data ${config_file}
-        /bin/chown 740 ${config_file}
+        /bin/chmod 740 ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/sites/default/settings.php
