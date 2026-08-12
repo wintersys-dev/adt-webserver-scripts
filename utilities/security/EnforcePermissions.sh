@@ -132,4 +132,6 @@ then
         /bin/chown www-data:www-data /var/www/html/*
         /bin/chown root:www-data /var/www/html
         /bin/chmod 750 /var/www/html
+        /bin/chown root:www-dats ${webroot_directory}
+        /bin/chown 770 ${webroot_directory}
 fi
