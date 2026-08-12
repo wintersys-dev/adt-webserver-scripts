@@ -186,6 +186,8 @@ fi
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
 ${HOME}/services/security/firewall/SetupFirewall.sh
 
+${HOME}/utilities/security/EnforcePermissions.sh
+
 cd ${HOME}
 
 /bin/echo "${0} Initialising crontab"
@@ -235,6 +237,5 @@ ${HOME}/utilities/housekeeping/CleanupAfterBuild.sh
 
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
-
-/usr/bin/run ${HOME}/utilities/security/EnforcePermissions.sh 
+ 
 
