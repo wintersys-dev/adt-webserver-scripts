@@ -81,48 +81,50 @@ fi
 /bin/chmod 600 ${HOME}/.ssh/id_*
 /bin/chmod 644 ${HOME}/.ssh/id_*pub
 
-
-/bin/chmod 755 /var/www/html
-webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-if ( [ "${webroot_directory}" = "" ] )
+if ( [ "${mode}" != "core-only" ] )
 then
-        webroot_directory="/var/www/html/${APPLICATION}"
-fi
+        /bin/chmod 755 /var/www/html
+        webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
-if ( [  -d ${webroot_directory} ] )
-then
-        /bin/chown -R root:www-data ${webroot_directory}
-        command="/usr/bin/find ${webroot_directory} "
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+        if ( [ "${webroot_directory}" = "" ] )
         then
-                for dir in `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' '`
-                do
-                        command="${command} -path '"${dir}"' -prune -o "
-                done
+                webroot_directory="/var/www/html/${APPLICATION}"
         fi
 
-        command1="${command} -type d -exec chmod 0750 {} \;"
-        command2="${command} -type f -exec chmod 0640 {} \;"
-
-        eval ${command1} &
-        eval ${command2}
-
-fi
-
-for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-do
-        if ( [ -d /var/www/html/${directory} ] )
+        if ( [  -d ${webroot_directory} ] )
         then
-                /bin/chown -R www-data:www-data /var/www/html/${directory}
+                /bin/chown -R root:www-data ${webroot_directory}
+                command="/usr/bin/find ${webroot_directory} "
+
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+                then
+                        for dir in `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' '`
+                        do
+                                command="${command} -path '"${dir}"' -prune -o "
+                        done
+                fi
+
+                command1="${command} -type d -exec chmod 0750 {} \;"
+                command2="${command} -type f -exec chmod 0640 {} \;"
+
+                eval ${command1} &
+                eval ${command2}
+
         fi
-        command="/usr/bin/find /var/www/html/${directory} "
 
-        command1="${command} -type d -exec chmod 0700 {} \;"
-        command2="${command} -type f -exec chmod 0600 {} \;"
+        for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
+        do
+                if ( [ -d /var/www/html/${directory} ] )
+                then
+                        /bin/chown -R www-data:www-data /var/www/html/${directory}
+                fi
+                command="/usr/bin/find /var/www/html/${directory} "
 
-        eval ${command1} &
-        eval ${command2}
+                command1="${command} -type d -exec chmod 0700 {} \;"
+                command2="${command} -type f -exec chmod 0600 {} \;"
 
-done
+                eval ${command1} &
+                eval ${command2}
+
+        done
+fi
