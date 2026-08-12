@@ -129,4 +129,6 @@ then
         done
 
         /bin/chown www-data:www-data /var/www/html/*
+        /bin/chown root:www-data /var/www/html
+        /bin/chmod 750 /var/www/html
 fi
