@@ -338,7 +338,7 @@ fi
 if ( [ "$?" = "0" ] )
 then
         /bin/chmod 600 ${config_file}
-        /bin/chown www-data:www-data ${config_file}
+        /bin/chown root:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
         ${HOME}/utilities/security/EnforcePermissions.sh 
 
