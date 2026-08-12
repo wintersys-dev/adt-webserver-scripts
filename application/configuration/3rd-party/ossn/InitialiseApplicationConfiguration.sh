@@ -245,8 +245,8 @@ fi
 if ( [ -f ${webroot_directory}/ossn.config.db.php ] )
 then
         /bin/mv ${webroot_directory}/ossn.config.db.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chown 740 ${config_file}
+        /bin/chown root:www-data ${config_file}
+        /bin/chmod 740 ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configurations/ossn.config.db.php
@@ -256,8 +256,8 @@ fi
 if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
 then
         /bin/mv ${webroot_directory}/ossn.config.site.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chown 740 ${config_file}
+        /bin/chown root:www-data ${config_file}
+        /bin/chmod 740 ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/configurations/ossn.config.site.php
