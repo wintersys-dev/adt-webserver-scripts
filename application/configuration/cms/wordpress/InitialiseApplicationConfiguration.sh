@@ -163,22 +163,33 @@ else
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
-                /usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${table_prefix}" --config-file="${webroot_directory}/wp-config.php" --path="${webroot_directory}"
-                db_user_live="`/bin/echo ${db_user} | /bin/sed 's/_notls//g'`"
-                /bin/sed -i "s/${db_user}/${db_user_live}/g" ${config_file}
+                #/usr/bin/sudo -u www-data 
+                /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${table_prefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
+               # db_user_live="`/bin/echo ${db_user} | /bin/sed 's/_notls//g'`"
+               # /bin/sed -i "s/${db_user}/${db_user_live}/g" ${config_file}
 
-                /usr/bin/sudo -u www-data wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
+                #/usr/bin/sudo -u www-data 
+                /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
 
-                /usr/bin/sudo -u www-data /usr/local/bin/wp core install --url="${WEBSITE_URL}" --title="${website_name}" --admin_user="${website_username}" --admin_password="${website_password}" --admin_email="${webmaster_email}" --path="${webroot_directory}"
+               if ( [ "`/usr/local/bin/wp db check | /bin/grep 'Success:'`" != "" ] )
+               then
+
+                       # /usr/bin/sudo -u www-data 
+                        /usr/local/bin/wp core install --url="${WEBSITE_URL}" --title="${website_name}" --admin_user="${website_username}" --admin_password="${website_password}" --admin_email="${webmaster_email}" --path="${webroot_directory}"
                
-                plugins_to_install="`/bin/grep "^PLUGINS_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/PLUGINS_TO_INSTALL//g' | /bin/sed 's/:/ /g'`"
+                        plugins_to_install="`/bin/grep "^PLUGINS_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/PLUGINS_TO_INSTALL//g' | /bin/sed 's/:/ /g'`"
 
-                for plugin in ${plugins_to_install}
-                do
-                        /usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
-                done
+                        for plugin in ${plugins_to_install}
+                        do
+                                #/usr/bin/sudo -u www-data 
+                                /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
+                        done
                 
-                /bin/mv ${webroot_directory}/wp-config.php ${config_file}
+                        /bin/mv ${webroot_directory}/wp-config.php ${config_file}
+                else
+                        ${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
+                        exit
+                fi
         else
                 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
                 if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
@@ -186,11 +197,19 @@ else
                         ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
                         exit
                 fi
-                /usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${table_prefix}" --config-file="${config_file}" --path="${webroot_directory}"
-                db_user_live="`/bin/echo ${db_user} | /bin/sed 's/_notls//g'`"
-                /bin/sed -i "s/${db_user}/${db_user_live}/g" ${config_file}
+              #  /usr/bin/sudo -u www-data 
+                /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${table_prefix}" --config-file="${config_file}" --skip-check --path="${webroot_directory}"
+               # db_user_live="`/bin/echo ${db_user} | /bin/sed 's/_notls//g'`"
+               # /bin/sed -i "s/${db_user}/${db_user_live}/g" ${config_file}
 
-                /usr/bin/sudo -u www-data wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
+
+               # /usr/bin/sudo -u www-data 
+                /usr/local/bin/wp  config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
+                if ( [ "`/usr/local/bin/wp db check | /bin/grep 'Success:'`" = "" ] )
+                then
+                        ${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
+                        exit
+                fi
         fi
 fi
 
