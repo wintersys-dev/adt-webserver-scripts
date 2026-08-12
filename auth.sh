@@ -198,6 +198,8 @@ fi
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
 ${HOME}/services/security/firewall/SetupFirewall.sh
 
+${HOME}/utilities/security/EnforcePermissions.sh
+
 AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
 
 if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] )
@@ -276,5 +278,4 @@ ${HOME}/utilities/housekeeping/CleanupAfterBuild.sh
 /bin/echo "${0} Restarting Authenticator machine Webserver"
 ${HOME}/webserver/RestartWebserver.sh 
 
-${HOME}/utilities/security/EnforcePermissions.sh 
 
