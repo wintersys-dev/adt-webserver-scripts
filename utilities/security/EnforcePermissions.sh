@@ -24,6 +24,7 @@ set -x
 HOME="`/bin/cat /home/homedir.dat`"
 SERVER_USER="`/bin/ls -d /home/X*X | /usr/bin/awk -F'/' '{print $NF}'`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+mode="${1}"
 
 
 /usr/bin/find ${HOME} -type d -exec chmod 755 {} \;
