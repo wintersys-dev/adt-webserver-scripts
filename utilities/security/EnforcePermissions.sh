@@ -127,4 +127,6 @@ then
                 eval ${command2}
 
         done
+
+        /bin/chown www-data:www-data /var/www/html/*
 fi
