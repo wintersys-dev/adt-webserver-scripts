@@ -234,7 +234,7 @@ fi
 if ( [ -f ${webroot_directory}/sites/default/settings.php ] )
 then
         /bin/mv ${webroot_directory}/sites/default/settings.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
+        /bin/chown root:www-data ${config_file}
         /bin/chmod 740 ${config_file}
 fi
 
