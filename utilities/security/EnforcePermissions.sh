@@ -105,7 +105,7 @@ then
                         done
                 fi
 
-                command1="${command} -type d -exec chmod 0750 {} \;"
+                command1="${command} -type d -exec chmod 0770 {} \;"
                 command2="${command} -type f -exec chmod 0640 {} \;"
 
                 eval ${command1} &
