@@ -169,7 +169,7 @@ else
 
                 /usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
 
-               if ( [ "`/usr/local/bin/wp db check | /bin/grep 'Success:'`" != "" ] )
+               if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp db check | /bin/grep 'Success:'`" != "" ] )
                then
 
                         /usr/bin/sudo -u www-data /usr/local/bin/wp core install --url="${WEBSITE_URL}" --title="${website_name}" --admin_user="${website_username}" --admin_password="${website_password}" --admin_email="${webmaster_email}" --path="${webroot_directory}"
@@ -202,7 +202,7 @@ else
 
                 /usr/bin/sudo -u www-data /usr/local/bin/wp  config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
                 
-                if ( [ "`/usr/local/bin/wp db check | /bin/grep 'Success:'`" = "" ] )
+                if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp db check | /bin/grep 'Success:'`" = "" ] )
                 then
                         ${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
                         exit
