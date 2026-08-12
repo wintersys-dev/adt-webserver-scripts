@@ -310,7 +310,7 @@ fi
 if ( [ "$?" = "0" ] && [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
 then
         /bin/chmod 600 ${config_file_site}
-        /bin/chown www-data:www-data ${config_file_site}
+        /bin/chown root:www-data ${config_file_site}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
         ${HOME}/utilities/security/EnforcePermissions.sh 
        
