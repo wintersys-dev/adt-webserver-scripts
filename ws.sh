@@ -179,6 +179,9 @@ fi
 /bin/echo "${0} `/bin/date`: Setting up the Firewall" 
 ${HOME}/services/security/firewall/SetupFirewall.sh
 
+/bin/echo "${0} Enforcing Permissions"
+${HOME}/utilities/security/EnforcePermissions.sh "core-only"
+
 cd ${HOME}
 
 /bin/echo "${0} Installing the bespoke application"
@@ -276,13 +279,8 @@ fi
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
 
-/bin/echo "${0} Enforcing Permissions"
 
-#while ( [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET ] )
-#do
-#	/bin/sleep 1
-#done
-${HOME}/utilities/security/EnforcePermissions.sh "core-only"
+
 
 
 
