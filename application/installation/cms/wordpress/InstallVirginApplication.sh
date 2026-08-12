@@ -61,13 +61,13 @@ fi
 
 wordpress_locale="`/bin/grep "^WORDPRESS_LOCALE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
-if ( [ "${wordpress_locale}" = "" ] )
+if ( [ "${wordpress_locale}" != "" ] )
 then
-        wordpress_locale="en_GB" 
+        wordpress_locale=" --locale=${wordpress_locale} " 
 fi
 
 /bin/chmod 777 /var/www
 /bin/chown -R www-data:www-data /var/www
-/usr/bin/sudo -u www-data /usr/local/bin/wp core download --version=${wordpress_version} --path=${webroot_directory} --locale=${wordpress_locale} --force
+/usr/bin/sudo -u www-data /usr/local/bin/wp core download --version=${wordpress_version} --path=${webroot_directory} ${wordpress_locale} --force
 /bin/chmod 755 /var/www
 /bin/chmod 755 /var/www/html
