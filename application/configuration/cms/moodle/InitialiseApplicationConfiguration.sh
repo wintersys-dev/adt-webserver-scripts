@@ -255,8 +255,8 @@ fi
 if ( [ -f ${webroot_directory}/config.php ] )
 then
         /bin/mv ${webroot_directory}/config.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chown 740 ${config_file}
+        /bin/chown root:www-data ${config_file}
+        /bin/chmod 740 ${config_file}
         /bin/sed -i '/.*require_once.*/d' ${config_file}
         /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
         /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
