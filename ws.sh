@@ -283,9 +283,9 @@ webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.
 
 if ( [ -f ${HOME}/webserver/adt-probe.php ] && [ ! -f ${webroot_directory}/adt-probe.php ] )
 then
-	/bin/cp ${webroot_directory}/adt-probe.php
-	/bin/chown www-data:www-data  ${webroot_directory}/adt-probe.php
-	/bin/chmod 440  ${webroot_directory}/adt-probe.php
+        /bin/cp ${HOME}/webserver/adt-probe.php ${webroot_directory}/adt-probe.php 
+        /bin/chown www-data:www-data  ${webroot_directory}/adt-probe.php
+        /bin/chmod 440  ${webroot_directory}/adt-probe.php
 fi
 
 
