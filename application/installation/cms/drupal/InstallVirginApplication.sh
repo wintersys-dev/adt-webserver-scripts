@@ -120,3 +120,10 @@ then
         /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
 fi
+
+if ( [ -f /var/www/html/vendor/bin/drush.php ] )
+then
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/bin/drush.php' > /usr/sbin/drush
+        /bin/echo '/bin/chmod 755 /var/www/html/vendor/drush/drush/drush' >> /usr/sbin/drush
+        /bin/echo '/usr/bin/php /var/www/html/vendor/bin/drush.php $@' >> /usr/sbin/drush
+fi
