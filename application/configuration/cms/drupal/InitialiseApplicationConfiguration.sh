@@ -88,3 +88,5 @@ then
         /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
         /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/files
 fi
+
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
