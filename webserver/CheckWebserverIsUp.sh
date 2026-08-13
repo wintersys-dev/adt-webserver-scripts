@@ -24,14 +24,14 @@ export HOME="`/bin/cat /home/homedir.dat`"
 
 if ( [ ! -f ${HOME}/runtime/INSTALLED_SUCCESSFULLY ] )
 then
-	 exit
+        exit
 fi
 
 if ( [ "`/usr/bin/hostname | /bin/grep "\-auth-"`" != "" ] )
 then
-	WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
+        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
 else
-	WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 fi
 
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
@@ -43,30 +43,46 @@ then
 fi
 
 online="1"
-if ( [ "`/usr/bin/curl -s -I --max-time 60 --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] )
+if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] )
 then
-	${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
-elif ( [ "`/usr/bin/curl -s -I --max-time 60 --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] )
+        echo "restarting php"
+        ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
+        if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
+        then
+                online="0"
+        fi
+fi
+if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] && [ "${online}" = "0" ] )
 then
-	${HOME}/webserver/RestartWebserver.sh
-elif  ( [ "`/usr/bin/curl -s -I --max-time 60 --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] )
+        echo "restarting apache"
+        ${HOME}/webserver/RestartWebserver.sh
+        if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
+        then
+                online="0"
+        fi
+fi
+
+if  ( [ "${online}" = "0" ] )
 then
-	if ( [ ! -d ${HOME}/runtime/webserver_status_audit ] )
-	then
-		/bin/mkdir -p ${HOME}/runtime/webserver_status_audit
-	fi
-	/bin/echo "`/usr/bin/hostname` is offline at `/usr/bin/date`"
-	online="0"
+        if ( [ ! -d ${HOME}/runtime/webserver_status_audit ] )
+        then
+                /bin/mkdir -p ${HOME}/runtime/webserver_status_audit
+        fi
+        /bin/echo "`/usr/bin/hostname` is offline at `/usr/bin/date`" >> ${HOME}/runtime/webserver_status_audit/webserver_status.log
+        online="0"
 fi
 
 if ( [ "${online}" = "1" ] && [ ! -f ${HOME}/runtime/BEEN_ONLINE ] )
 then
-	if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "INSTALLED_SUCCESSFULLY"`" = "INSTALLED_SUCCESSFULLY" ] )
-	then
-		private_ip="`${HOME}/utilities/processing/GetIP.sh`"
-		${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${private_ip}" "beenonline" "no"
-		/bin/touch ${HOME}/runtime/BEEN_ONLINE
-	fi
+        if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "INSTALLED_SUCCESSFULLY"`" = "INSTALLED_SUCCESSFULLY" ] )
+        then
+                private_ip="`${HOME}/utilities/processing/GetIP.sh`"
+                ${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${private_ip}" "beenonline" "no"
+                if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "beenonline/*" | /bin/grep ${private_ip}`" != "" ] )
+                then
+                        /bin/touch ${HOME}/runtime/BEEN_ONLINE
+                fi
+        fi
 fi
 
 
