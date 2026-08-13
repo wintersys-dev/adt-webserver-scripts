@@ -77,7 +77,7 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
         website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-        /var/www/html/vendor/bin/drush si --no-interaction --db-url=mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=mysql#${dbprefix}
+        /var/www/html/vendor/bin/drush si --no-interaction --db-url=mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=mysql&sslMode=required#${dbprefix}
         /usr/sbin/drush cr
         /usr/sbin/drush user:create ${website_username} --password="${website_password}"
         /usr/sbin/drush user:role:add "administrator" "${website_username}"
