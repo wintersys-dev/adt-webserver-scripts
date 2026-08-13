@@ -134,4 +134,9 @@ then
         /bin/chmod 750 /var/www/html
         /bin/chown root:www-dats ${webroot_directory}
         /bin/chmod 770 ${webroot_directory}
+
+        if ( [ -f ${webroot_directory}/adt-probe.php ] )
+        then
+	        /bin/chmod 440  ${webroot_directory}/adt-probe.php
+        fi
 fi
