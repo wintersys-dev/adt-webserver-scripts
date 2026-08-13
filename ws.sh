@@ -279,6 +279,15 @@ fi
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
 
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+if ( [ -f ${HOME}/webserver/adt-probe.php ] && [ ! -f ${webroot_directory}/adt-probe.php ] )
+then
+	/bin/cp ${webroot_directory}/adt-probe.php
+	/bin/chown www-data:www-data  ${webroot_directory}/adt-probe.php
+	/bin/chmod 440  ${webroot_directory}/adt-probe.php
+fi
+
 
 
 
