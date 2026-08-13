@@ -50,6 +50,8 @@ then
         if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
         then
                 online="0"
+        else
+                online="2"
         fi
 fi
 if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] && [ "${online}" = "0" ] )
@@ -59,17 +61,24 @@ then
         if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
         then
                 online="0"
+        else
+                online="2"
         fi
+fi
+
+if ( [ ! -d ${HOME}/runtime/webserver_status_audit ] )
+then
+        /bin/mkdir -p ${HOME}/runtime/webserver_status_audit
 fi
 
 if  ( [ "${online}" = "0" ] )
 then
-        if ( [ ! -d ${HOME}/runtime/webserver_status_audit ] )
-        then
-                /bin/mkdir -p ${HOME}/runtime/webserver_status_audit
-        fi
         /bin/echo "`/usr/bin/hostname` is offline at `/usr/bin/date`" >> ${HOME}/runtime/webserver_status_audit/webserver_status.log
-        online="0"
+fi
+
+if  ( [ "${online}" = "2" ] )
+then
+        /bin/echo "`/usr/bin/hostname` is online at `/usr/bin/date`" >> ${HOME}/runtime/webserver_status_audit/webserver_status.log
 fi
 
 if ( [ "${online}" = "1" ] && [ ! -f ${HOME}/runtime/BEEN_ONLINE ] )
