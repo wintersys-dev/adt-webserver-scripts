@@ -81,10 +81,10 @@ then
         website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
         /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
         /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/settings.php
-        ${webroot_directory}/vendor/bin/drush si --no-interaction --db-url="mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=mysql#${dbprefix} --sites-subdir=${webroot_directory}/web"
-        ${webroot_directory}/vendor/bin/drush cr
-        ${webroot_directory}/vendor/bin/drush user:create ${website_username} --password="${website_password}"
-        ${webroot_directory}/vendor/bin/drush user:role:add "administrator" "${website_username}"
+        /usr/sbin/drush si --no-interaction --db-url="mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=mysql#${dbprefix} --sites-subdir=${webroot_directory}/web"
+        /usr/sbin/drush cr
+        /usr/sbin/drush user:create ${website_username} --password="${website_password}"
+        /usr/sbin/drush user:role:add "administrator" "${website_username}"
         /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
         /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/files
 fi
