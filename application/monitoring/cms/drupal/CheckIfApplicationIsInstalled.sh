@@ -56,7 +56,7 @@ then
 	then
 		cd /var/www/html
 		/usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush
-		/bin/ln -s /var/www/html/vendor/bin/drush /usr/sbin/drush
+	#	/bin/ln -s /var/www/html/vendor/bin/drush /usr/sbin/drush
 		/bin/chown www-data:www-data /usr/sbin/drush
 		/bin/chmod 644 /usr/sbin/drush
 	fi
