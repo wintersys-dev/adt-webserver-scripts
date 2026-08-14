@@ -111,6 +111,8 @@ else
         database="'${database}'"
         collation="'${collation}'"
         driver="'${driver}'"
+        cd ${webroot_directory}
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction
         /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
         /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/web/sites/default/settings.php
 
