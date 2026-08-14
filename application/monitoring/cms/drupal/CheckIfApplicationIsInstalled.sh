@@ -31,7 +31,7 @@ then
 	directories="`/bin/grep "^APPLICATION_INTEGRITY_DIRECTORIES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
 	for directory in ${directories}
 	do
-		if ( [ ! -d ${webroot_directory}/${directory}  ] )
+		if ( [ ! -d ${webroot_directory}/web/${directory}  ] )
 		then
 			installed="0"
 		fi
@@ -40,7 +40,7 @@ then
 	files="`/bin/grep "^APPLICATION_INTEGRITY_FILES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_FILES://g' | /bin/sed 's/:/ /g'`"
 	for file in ${files}
 	do
-		if ( [ ! -f ${webroot_directory}/${file}  ] )
+		if ( [ ! -f ${webroot_directory}/web/${file}  ] )
 		then
 			installed="0"
 		fi
