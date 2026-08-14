@@ -70,6 +70,21 @@ else
         HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
 fi
 
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+then
+        driver="'mysql'"       
+fi
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+then
+        driver="'mysql'"
+fi
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
+then
+        driver="'pgsql'"
+fi
+
 username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`_notls"
 password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
@@ -81,17 +96,171 @@ then
         website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
         /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
         /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/settings.php
-        /usr/sbin/drush si --no-interaction --db-url="mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=mysql#${dbprefix} --sites-subdir=${webroot_directory}/web"
+        /usr/sbin/drush si --no-interaction --db-url="mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=${driver}#${dbprefix} --sites-subdir=${webroot_directory}/web"
         /usr/sbin/drush cr
         /usr/sbin/drush user:create ${website_username} --password="${website_password}"
         /usr/sbin/drush user:role:add "administrator" "${website_username}"
         /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
         /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/files
 
-# wlse and then use set methods to populate 
+else
+        /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
+        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/sites/default/settings.php
 
-# ? drush site:install standard
-
+        /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '`/usr/sbin/drush eval "echo Drupal\Component\Utility\Crypt::randomBytesBase64(55) . PHP_EOL"`';%" ${webroot_directory}/sites/default/settings.php
+        /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
+        APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+        if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
+        then
+                ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
+        fi
 fi
 
+if ( [ -f ${HOME}/runtime/application.dat ] )
+then
+        if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
+        then
+                /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
+        fi
+
+        if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
+        then
+                /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
+        fi
+
+        for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
+        do
+                directory="/var/www/html/${directory}"
+
+                if ( [ ! -d ${directory} ] )
+                then
+                        /bin/mkdir -p ${directory}
+                        /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
+                fi
+
+                while ( [ "${directory}" != "/var/www/html" ] )
+                do
+                        /bin/chmod 755 ${directory}
+                        /bin/chown www-data:www-data ${directory}
+                        directory=`/usr/bin/dirname "${directory}"`
+                done
+        done
+fi
+
+public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
+private_ip="`${HOME}/utilities/processing/GetIP.sh`"
+/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${webroot_directory}/sites/default/settings.php
+/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${webroot_directory}/sites/default/settings.php
+
+website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
+
+if ( [ "${website_name}" != "" ] )
+then
+        /usr/sbin/drush config:set system.site name "${website_name}" -y
+fi
+
+#This is how we tell ourselves this is a drupal application
+/bin/echo "DRUPAL" > /var/www/html/dba.dat
+/bin/chown www-data:www-data /var/www/html/dba.dat
+
+if ( [ -f ${webroot_directory}/sites/default/settings.php ] )
+then
+        /bin/mv ${webroot_directory}/sites/default/settings.php ${config_file}
+        /bin/chown root:www-data ${config_file}
+        /bin/chmod 740 ${config_file}
+fi
+
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/sites/default/settings.php
+
+/bin/chown www-data:www-data ${webroot_directory}/sites/default/settings.php
+/bin/chmod 400 ${webroot_directory}/sites/default/settings.php
+
+#For ease of use we tell ourselves what database engine this webroot is associated with
+if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
+then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires Maria DB as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires Postgres as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ -f /var/www/html/dbe.dat ] )
+        then
+                /bin/chown www-data:www-data /var/www/html/dbe.dat
+                /bin/chmod 600 /var/www/html/dbe.dat
+        fi
+fi
+
+# Had this problem https://www.drupal.org/project/sitemap/issues/3145126 if anyone knows a cleaner way I would be grateful
+if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess.txt ] )
+then
+        /bin/sed -i "/RewriteEngine on/ {
+                r ${HOME}/application/configuration/cms/drupal/htaccess.txt
+                d }" /var/www/html/drupal/.htaccess
+fi
+
+if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ] )
+then
+        /bin/cp ${HOME}/application/configuration/cms/drupal/htaccess-private.txt /var/www/html/private/.htaccess
+        /bin/chown www-data:www-data /var/www/html/private/.htaccess
+        /bin/chmod 400 /var/www/html/private/.htaccess
+fi
+
+if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
+then
+        dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+
+        for asset_directory in `/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`
+        do
+                if ( [ ! -d /var/www/html/${asset_directory} ] )
+                then
+                        /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
+                fi
+
+                if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
+                then
+                        outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
+                else
+                        outside_asset_directory="${asset_directory}"
+                fi
+
+                if ( [ "`/bin/echo ${dirs_to_link} | /bin/grep ${asset_directory}`" != "" ] )
+                then
+                        /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
+                        /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
+                        /bin/chmod 777 ${webroot_directory}/${asset_directory}
+                fi
+        done
+fi
+
+/bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
+/usr/bin/php -ln ${config_file}
+
+if ( [ "$?" = "0" ] )
+then
+        /bin/chmod 600 ${config_file}
+        /bin/chown root:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+        ${HOME}/utilities/security/EnforcePermissions.sh 
+
+        if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+        then
+                /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+        fi
+else
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+fi
+
+if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
+then
+        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
+fi
