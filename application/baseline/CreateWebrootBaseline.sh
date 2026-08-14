@@ -21,6 +21,8 @@
 #######################################################################################################
 #set -x
 
+HOME="`/bin/cat /home/homedir.dat`"
+
 if ( [ "${1}" = "" ] )
 then
         /bin/echo "Your application type is set to: `${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
