@@ -16,8 +16,8 @@ then
         /bin/echo "Error file is at: ${HOME}/logs/drupal_configuration/${err_file}"
 fi
 
-exec 1>>${HOME}/logs/drupal_configuration/${log_file}
-exec 2>>${HOME}/logs/drupal_configuration/${err_file}
+#exec 1>>${HOME}/logs/drupal_configuration/${log_file}
+#exec 2>>${HOME}/logs/drupal_configuration/${err_file}
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -101,13 +101,12 @@ then
         /usr/sbin/drush user:create ${website_username} --password="${website_password}"
         /usr/sbin/drush user:role:add "administrator" "${website_username}"
         /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
-        /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/files
 
 else
         /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
-        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/sites/default/settings.php
+        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/web/sites/default/settings.php
 
-        /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '`/usr/sbin/drush eval "echo Drupal\Component\Utility\Crypt::randomBytesBase64(55) . PHP_EOL"`';%" ${webroot_directory}/sites/default/settings.php
+        /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '`/usr/sbin/drush eval "echo Drupal\Component\Utility\Crypt::randomBytesBase64(55) . PHP_EOL"`';%" ${webroot_directory}/web/sites/default/settings.php
         /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
@@ -149,8 +148,8 @@ fi
 
 public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
 private_ip="`${HOME}/utilities/processing/GetIP.sh`"
-/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${webroot_directory}/sites/default/settings.php
-/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${webroot_directory}/sites/default/settings.php
+/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${webroot_directory}/web/sites/default/settings.php
+/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${webroot_directory}/web/sites/default/settings.php
 
 website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
 
@@ -163,17 +162,17 @@ fi
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
-if ( [ -f ${webroot_directory}/sites/default/settings.php ] && [ "`/bin/grep "php require" ${webroot_directory}/sites/default/settings.php`" = "" ] )
+if ( [ -f ${webroot_directory}/web/sites/default/settings.php ] && [ "`/bin/grep "php require" ${webroot_directory}/web/sites/default/settings.php`" = "" ] )
 then
-        /bin/mv ${webroot_directory}/sites/default/settings.php ${config_file}
+        /bin/mv ${webroot_directory}/web/sites/default/settings.php ${config_file}
         /bin/chown root:www-data ${config_file}
         /bin/chmod 740 ${config_file}
 fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/sites/default/settings.php
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/web/sites/default/settings.php
 
-/bin/chown www-data:www-data ${webroot_directory}/sites/default/settings.php
-/bin/chmod 400 ${webroot_directory}/sites/default/settings.php
+/bin/chown www-data:www-data ${webroot_directory}/web/sites/default/settings.php
+/bin/chmod 400 ${webroot_directory}/web/sites/default/settings.php
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
