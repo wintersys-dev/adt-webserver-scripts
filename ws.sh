@@ -127,6 +127,7 @@ exec 2>>${HOME}/logs/${err_file}
 
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'DNSCHOICE'`"
+APPLICATION_LANGUAGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONLANGUAGE'`"
 SSL_GENERATION_SERVICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSLGENERATIONSERVICE'`"
 GIT_EMAIL_ADDRESS="`${HOME}/utilities/config/ExtractConfigValue.sh 'GITEMAILADDRESS'`"
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
@@ -279,13 +280,22 @@ fi
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
 
+
+if ( [ "${APPLICATION_LANGUAGE}" = "HTML" ] )
+then
+	probe_file="adt-probe.html"
+elif ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
+then
+	probe_file="adt-probe.php"
+fi
+
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
-if ( [ -f ${HOME}/webserver/adt-probe.php ] && [ ! -f ${webroot_directory}/adt-probe.php ] )
+if ( [ -f ${HOME}/webserver/${probe_file} ] && [ ! -f ${webroot_directory}/${probe_file}  ] )
 then
-        /bin/cp ${HOME}/webserver/adt-probe.php ${webroot_directory}/adt-probe.php 
-        /bin/chown www-data:www-data  ${webroot_directory}/adt-probe.php
-        /bin/chmod 440  ${webroot_directory}/adt-probe.php
+    /bin/cp ${HOME}/webserver/${probe_file}  ${webroot_directory}/${probe_file}  
+    /bin/chown www-data:www-data  ${webroot_directory}/${probe_file} 
+	/bin/chmod 440  ${webroot_directory}/${probe_file} 
 fi
 
 
