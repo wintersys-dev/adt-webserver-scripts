@@ -72,17 +72,17 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
 then
-        driver="'mysql'"       
+        driver="mysql"       
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
 then
-        driver="'mysql'"
+        driver="mysql"
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
 then
-        driver="'pgsql'"
+        driver="pgsql"
 fi
 
 username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`_notls"
@@ -104,7 +104,7 @@ then
 
 else
         /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
-        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/web/sites/default/settings.php
+        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '\'${driver}\'', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/web/sites/default/settings.php
 
         /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '`/usr/sbin/drush eval "echo Drupal\Component\Utility\Crypt::randomBytesBase64(55) . PHP_EOL"`';%" ${webroot_directory}/web/sites/default/settings.php
         /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
