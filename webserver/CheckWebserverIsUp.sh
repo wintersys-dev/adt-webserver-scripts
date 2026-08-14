@@ -37,14 +37,14 @@ fi
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 APPLICATION_LANGUAGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONLANGUAGE'`"
 
+online="1"
+probe_file="adt-probe.html"
+
 # We don't want to be up if we are not secure 
 if ( [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ] || [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem ] )
 then
-        exit
+        online="0"
 fi
-
-online="1"
-probe_file="adt-probe.html"
 
 if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
