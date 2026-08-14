@@ -280,7 +280,6 @@ fi
 /bin/echo "${0} Restarting Webserver"
 ${HOME}/webserver/RestartWebserver.sh
 
-
 if ( [ "${APPLICATION_LANGUAGE}" = "HTML" ] )
 then
 	probe_file="adt-probe.html"
