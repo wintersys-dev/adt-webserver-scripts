@@ -35,6 +35,7 @@ else
 fi
 
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
+APPLICATION_LANGUAGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONLANGUAGE'`"
 
 # We don't want to be up if we are not secure 
 if ( [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ] || [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem ] )
@@ -43,22 +44,27 @@ then
 fi
 
 online="1"
-if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] )
+probe_file="adt-probe.html"
+
+if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
-        echo "restarting php"
-        ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
-        if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
+        probe_file="adt-probe.php"
+        if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] )
         then
-                online="0"
-        else
-                online="2"
+                ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
+                if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
+                then
+                        online="0"
+                else
+                        online="2"
+                fi
         fi
 fi
-if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] && [ "${online}" = "0" ] )
+
+if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] && [ "${online}" = "0" ] )
 then
-        echo "restarting apache"
         ${HOME}/webserver/RestartWebserver.sh
-        if ( [ "`/usr/bin/curl --insecure https://localhost:443/adt-probe.php | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
+        if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
         then
                 online="0"
         else
