@@ -163,7 +163,7 @@ fi
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
-if ( [ -f ${webroot_directory}/sites/default/settings.php ] )
+if ( [ -f ${webroot_directory}/sites/default/settings.php ] && [ "`/bin/grep "php require" ${webroot_directory}/sites/default/settings.php`" = "" ] )
 then
         /bin/mv ${webroot_directory}/sites/default/settings.php ${config_file}
         /bin/chown root:www-data ${config_file}
