@@ -58,7 +58,7 @@ then
         ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart 2>/dev/null
 fi
 
-${HOME}/installation/InstallApplicationTooling.sh "pre"
+${HOME}/installation/InstallApplicationTooling.sh "${BUILDOS}" "pre"
 
 cd /var/www/html
 
@@ -99,6 +99,6 @@ else
         fi
 fi
 
-${HOME}/installation/InstallApplicationTooling.sh "post"
+${HOME}/installation/InstallApplicationTooling.sh "${BUILDOS}" "post"
 #${HOME}/utilities/security/EnforcePermissions.sh &
 /bin/rm -rf /var/www/html/.git
