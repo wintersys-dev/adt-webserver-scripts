@@ -18,36 +18,38 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ###################################################################################
 ###################################################################################
-#set -x
+set -x
+
+HOME="`/bin/cat /home/homedir.dat`"
 
 if ( [ "${1}" != "" ] )
 then
-	buildos="${1}"
+        buildos="${1}"
 fi
 
 if ( [ "${buildos}" = "" ] )
 then
-	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 else 
-	BUILDOS="${buildos}"
+        BUILDOS="${buildos}"
 fi
 
-if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APPLICATION:joomla`" = "1" ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:joomla`" = "1" ] )
 then
-	:
+        :
 fi
 
-if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APPLICATION:wordpress'`" = "1" ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:wordpress`" = "1" ] )
 then
-	${BUILD_HOME}/installation/InstallWPCLI.sh ${BUILDOS}
+        ${HOME}/installation/InstallWPCLI.sh ${BUILDOS}
 fi
 
-if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APPLICATION:drupal'`" = "1" ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:drupal`" = "1" ] )
 then
-	${BUILD_HOME}/installation/InstallDrush.sh ${BUILDOS}
+        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 fi
 
-if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APPLICATION:moodle'`" = "1" ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:moodle`" = "1" ] )
 then
-	:
+        :
 fi
