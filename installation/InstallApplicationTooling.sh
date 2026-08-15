@@ -34,17 +34,19 @@ else
         BUILDOS="${buildos}"
 fi
 
+pre_or_post="${1}"
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:joomla`" = "1" ] )
 then
         :
 fi
 
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:wordpress`" = "1" ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:wordpress`" = "1" ] && [ "${pre_or_post}" = "pre" ] )
 then
         ${HOME}/installation/InstallWPCLI.sh ${BUILDOS}
 fi
 
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:drupal`" = "1" ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:drupal`" = "1" ] && [ "${pre_or_post}" = "post" ] )
 then
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 fi
