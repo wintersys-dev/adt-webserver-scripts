@@ -1,7 +1,6 @@
 #!/bin/sh
 ###################################################################################
-# Description: This script installs the CLI database client for our database. This
-# enables scripts to connect to the database from the command line as they need to.
+# Description: This script installs the application specific toolling
 # Author: Peter Winter
 # Date: 08/01/2017
 ###################################################################################
@@ -19,16 +18,12 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ###################################################################################
 ###################################################################################
-set -x
+#set -x
 
 if ( [ "${1}" != "" ] )
 then
 	buildos="${1}"
 fi
-
-#S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY'`"
-#no_tokens="`/bin/echo "${S3_ACCESS_KEY}" | /usr/bin/fgrep -o '|' | /usr/bin/wc -l`"
-#no_tokens="`/usr/bin/expr ${no_tokens} + 1`"
 
 if ( [ "${buildos}" = "" ] )
 then
@@ -39,19 +34,20 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APPLICATION:joomla`" = "1" ] )
 then
- :
+	:
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APPLICATION:wordpress'`" = "1" ] )
 then
+	${BUILD_HOME}/installation/InstallWPCLI.sh ${BUILDOS}
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APPLICATION:drupal'`" = "1" ] )
 then
-
+	${BUILD_HOME}/installation/InstallDrush.sh ${BUILDOS}
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APPLICATION:moodle'`" = "1" ] )
 then
-
+	:
 fi
