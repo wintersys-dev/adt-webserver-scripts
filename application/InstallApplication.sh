@@ -58,6 +58,8 @@ then
         ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart 2>/dev/null
 fi
 
+${HOME}/installation/InstallApplicationTooling.sh
+
 cd /var/www/html
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "${BUILD_ARCHIVE_CHOICE}" = "virgin" ] && [ "${APPLICATION}" != "none" ] )
