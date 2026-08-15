@@ -45,26 +45,6 @@ then
 			installed="0"
 		fi
 	done
-	
-	if ( [ ! -f /usr/local/bin/composer ] )
-	then
-		BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-		${HOME}/installation/InstallComposer.sh ${BUILDOS}
-	fi
-	
-	if ( [ ! -f /usr/sbin/drush ] )
-	then
-		cd /var/www/html
-		/usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush
-	#	/bin/ln -s /var/www/html/vendor/bin/drush /usr/sbin/drush
-		/bin/chown www-data:www-data /usr/sbin/drush
-		/bin/chmod 644 /usr/sbin/drush
-	fi
-	
-	if ( [ ! -f /usr/sbin/drush ] )
-	then
-			installed="0"
-	fi
 fi
 
 /bin/echo "APPLICATION_INSTALLED:${installed}"
