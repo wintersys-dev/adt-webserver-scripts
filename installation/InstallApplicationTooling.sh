@@ -18,7 +18,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ###################################################################################
 ###################################################################################
-set -x
+#set -x
 
 HOME="`/bin/cat /home/homedir.dat`"
 
@@ -34,7 +34,7 @@ else
         BUILDOS="${buildos}"
 fi
 
-pre_or_post="${1}"
+pre_or_post="${2}"
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:joomla`" = "1" ] )
 then
