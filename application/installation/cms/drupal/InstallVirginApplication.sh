@@ -55,15 +55,15 @@ then
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} ${webroot_directory} --no-interaction --no-install
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
-        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
+#        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
 
-        if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
-        then
-                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
-                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
-                /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
-                /bin/chmod 750 /usr/sbin/drush
-        fi
+ #       if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
+ #       then
+ #               /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
+ #               /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
+ #               /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
+ #               /bin/chmod 750 /usr/sbin/drush
+ #       fi
         
         module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
@@ -103,15 +103,15 @@ then
         #     /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
-        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
-
-        if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
-        then
-                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
-                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
-                /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
-                /bin/chmod 750 /usr/sbin/drush
-        fi
+   #     /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
+#
+ #       if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
+  #      then
+   #             /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
+   #             /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
+   #             /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
+   #             /bin/chmod 750 /usr/sbin/drush
+   #     fi
 
         module_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
