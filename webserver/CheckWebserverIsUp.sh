@@ -22,7 +22,7 @@
 
 export HOME="`/bin/cat /home/homedir.dat`"
 
-if ( [ ! -f ${HOME}/runtime/INSTALLED_SUCCESSFULLY ] )
+if ( [ ! -f ${HOME}/runtime/WEBSERVER_READY ] )
 then
         exit
 fi
