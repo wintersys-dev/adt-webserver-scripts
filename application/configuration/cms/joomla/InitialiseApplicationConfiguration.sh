@@ -360,7 +360,8 @@ do
 	/bin/ln -s ${directory} ${link}
 	/bin/chown root:www-data ${link}
 	/bin/chmod 750 ${link}
-fi
+done
+
 /bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
 
 /usr/bin/php -ln ${config_file}
