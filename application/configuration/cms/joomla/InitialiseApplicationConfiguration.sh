@@ -29,7 +29,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-set -x 
+#set -x 
 
 if ( [ ! -d ${HOME}/logs/joomla_configuration ] )
 then
@@ -45,8 +45,6 @@ then
         /bin/echo "Error file is at: ${HOME}/logs/joomla_configuration/${err_file}"
 fi
 
-exec 1>>${HOME}/logs/joomla_configuration/${log_file}
-exec 2>>${HOME}/logs/joomla_configuration/${err_file}
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -65,12 +63,7 @@ config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/b
 
 if ( [ "${config_file}" = "" ] )
 then
-        config_file="/var/www/html/configuration.php"
-fi
-
-if ( [ -f ${webroot_directory}/configuration.php ] )
-then
-        /bin/rm ${webroot_directory}/configuration.php
+        config_file="/var/www/outside_webroot/configuration.php"
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
@@ -301,87 +294,87 @@ done
 
 #if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
 #then
- #       dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+#       dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
 
   #      for asset_directory in `/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`
-   #     do
-   #             if ( [ ! -d /var/www/html/${asset_directory} ] )
-    #            then
-     #                   /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
-      #          fi
-#
- #               if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
+  #     do
+  #             if ( [ ! -d /var/www/html/${asset_directory} ] )
+  #            then
+  #                   /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
+  #          fi
+  #
+  #               if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
   #              then
-   #                     outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
-    #            else
-     #                   outside_asset_directory="${asset_directory}"
-      #          fi
-#
- #               if ( [ "`/bin/echo ${dirs_to_link} | /bin/grep ${asset_directory}`" != "" ] )
+  #                     outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
+  #            else
+  #                   outside_asset_directory="${asset_directory}"
+  #          fi
+  #
+  #               if ( [ "`/bin/echo ${dirs_to_link} | /bin/grep ${asset_directory}`" != "" ] )
   #              then
-   #                     /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
-    #                    /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
-     #                   /bin/chmod 777 ${webroot_directory}/${asset_directory}
-      #          fi
-   #     done
-#fi
+  #                     /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
+  #                    /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
+  #                   /bin/chmod 777 ${webroot_directory}/${asset_directory}
+  #          fi
+  #     done
+  #fi
 
-directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+  directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
 
-if ( [ ! -d /var/www/outside_webroot ] )
-then
-	/bin/mkdir /var/www/outside_webroot
-	/bin/chown www-data:www-data /var/www/outside_webroot
-	/bin/chmod 750 /var/www/outside_webroot
-fi
+  if ( [ ! -d /var/www/outside_webroot ] )
+  then
+          /bin/mkdir /var/www/outside_webroot
+          /bin/chown www-data:www-data /var/www/outside_webroot
+          /bin/chmod 750 /var/www/outside_webroot
+  fi
 
-for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
-do
-	link="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
-	directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
+  for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
+  do
+          link="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
+          directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
 
-	if ( [ "${directory}" != "" ] )
-	then
-		if ( [ -d ${directory} ] )
-		then
-			/bin/rm -r ${directory}/*
-		fi
-	fi
-	
-	if ( [ -d ${link} ] )
-	then	
-		/bin/mv ${link} ${directory}
-	else
-		/bin/mkdir ${directory}
-	fi
+          if ( [ "${directory}" != "" ] )
+          then
+                  if ( [ -d ${directory} ] )
+                  then
+                          /bin/rm -r ${directory}/*
+                  fi
+          fi
 
-	/bin/chown www-data:www-data ${directory}
-	/bin/chmod 750 /var/www/outside_webroot ${directory}
-	/bin/ln -s ${directory} ${link}
-	/bin/chown root:www-data ${link}
-	/bin/chmod 750 ${link}
-done
+          if ( [ -d ${link} ] )
+          then
+                  /bin/mv ${link} ${directory}
+          else
+                  /bin/mkdir ${directory}
+          fi
 
-/bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
+          /bin/chown www-data:www-data ${directory}
+          /bin/chmod 750 /var/www/outside_webroot ${directory}
+          /bin/ln -s ${directory} ${link}
+          /bin/chown root:www-data ${link}
+          /bin/chmod 750 ${link}
+  done
 
-/usr/bin/php -ln ${config_file}
+  /bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
 
-if ( [ "$?" = "0" ] )
-then
-        /bin/chmod 600 ${config_file}
-        /bin/chown root:www-data ${config_file}
-        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-        ${HOME}/utilities/security/EnforcePermissions.sh 
+  /usr/bin/php -ln ${config_file}
 
-        if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
-        then
-                /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
-        fi
-else
-        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
-fi
+  if ( [ "$?" = "0" ] )
+  then
+          /bin/chmod 600 ${config_file}
+          /bin/chown root:www-data ${config_file}
+          /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+          ${HOME}/utilities/security/EnforcePermissions.sh 
 
-if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
-then
-        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
-fi
+          if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+          then
+                  /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+          fi
+  else
+          /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+  fi
+
+  if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
+  then
+          ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
+  fi
