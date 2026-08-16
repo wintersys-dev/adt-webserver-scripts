@@ -186,17 +186,9 @@ else
                         /bin/chown root:www-data ${config_file}
                         /bin/chmod 660 ${config_file}
                         /bin/rm ${webroot_directory}/configuration.php
-                else
-                        if ( [ ! -f  ${HOME}/runtime/CONFIG_EMAIL_SENT ] )
-                        then
-                                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default joomla configuration file is absent" "ERROR"
-                                /bin/touch ${HOME}/runtime/CONFIG_EMAIL_SENT
-                                exit
-                        fi
                 fi
 
                 secret="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
-
 
                 /bin/sed -i "s%\$host =.*$%\$host = '"${HOST}:${DB_PORT}"';%" ${config_file}
                 /bin/sed -i "s%\$dbprefix =.*$%\$dbprefix = '"${dbprefix}"';%" ${config_file}
@@ -256,12 +248,12 @@ then
         /bin/chmod www-data:www-data ${webroot_directory}/.htaccess      
 fi
 
-if ( [ -f ${webroot_directory}/configuration.php ] )
-then
-        /bin/mv ${webroot_directory}/configuration.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chmod 660 ${config_file}
-fi
+#if ( [ -f ${webroot_directory}/configuration.php ] )
+#then
+#        /bin/mv ${webroot_directory}/configuration.php ${config_file}
+#        /bin/chown www-data:www-data ${config_file}
+#        /bin/chmod 660 ${config_file}
+#fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
 /bin/chown root:www-data ${webroot_directory}/configuration.php
