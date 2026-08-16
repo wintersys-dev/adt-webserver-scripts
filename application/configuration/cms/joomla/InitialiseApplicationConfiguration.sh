@@ -178,6 +178,10 @@ else
 
                 /usr/bin/php ${webroot_directory}/installation/joomla.php install --site-name="${website_name}" --admin-user="${website_user_description}" --admin-email="${webmaster_email}" --admin-username="${website_username}" --admin-password="${website_password}"  --db-type="${type}" --db-host="${HOST}:${DB_PORT}"  --db-user=${user} --db-pass=${password} --db-name=${db}  --db-prefix=${dbprefix} --db-encryption=1 --no-interaction  
 
+                if ( [ -f ${webroot_directory}/configuration.php ] )
+                then
+                        /bin/cp ${webroot_directory}/configuration.php ${config_file}
+                fi
         else
 
                 if ( [ -f /var/www/html/configuration.php.default ] && [ ! -f ${config_file} ] )
@@ -247,13 +251,6 @@ then
         /bin/chmod 400 ${webroot_directory}/.htaccess
         /bin/chmod www-data:www-data ${webroot_directory}/.htaccess      
 fi
-
-#if ( [ -f ${webroot_directory}/configuration.php ] )
-#then
-#        /bin/mv ${webroot_directory}/configuration.php ${config_file}
-#        /bin/chown www-data:www-data ${config_file}
-#        /bin/chmod 660 ${config_file}
-#fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
 /bin/chown root:www-data ${webroot_directory}/configuration.php
