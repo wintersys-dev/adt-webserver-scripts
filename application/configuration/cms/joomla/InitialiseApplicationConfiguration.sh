@@ -61,6 +61,13 @@ then
         /bin/chown www-data:www-data /var/www/html/configuration.php.default
 fi
 
+if ( [ ! -d /var/www/outside_webroot ] )
+then
+        /bin/mkdir /var/www/outside_webroot
+        /bin/chown www-data:www-data /var/www/outside_webroot
+        /bin/chmod 750 /var/www/outside_webroot
+fi
+
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file}" = "" ] )
@@ -176,8 +183,8 @@ else
                 if ( [ -f /var/www/html/configuration.php.default ] && [ ! -f ${config_file} ] )
                 then
                         /bin/cp /var/www/html/configuration.php.default ${config_file}
-                        /bin/chown www-data:www-data ${config_file}
-                        /bin/chmod 400 ${config_file}
+                        /bin/chown root:www-data ${config_file}
+                        /bin/chmod 660 ${config_file}
                 else
                         if ( [ ! -f  ${HOME}/runtime/CONFIG_EMAIL_SENT ] )
                         then
@@ -322,13 +329,6 @@ done
   #fi
 
   directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
-
-  if ( [ ! -d /var/www/outside_webroot ] )
-  then
-          /bin/mkdir /var/www/outside_webroot
-          /bin/chown www-data:www-data /var/www/outside_webroot
-          /bin/chmod 750 /var/www/outside_webroot
-  fi
 
   for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
   do
