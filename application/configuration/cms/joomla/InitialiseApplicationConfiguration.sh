@@ -45,6 +45,8 @@ then
         /bin/echo "Error file is at: ${HOME}/logs/joomla_configuration/${err_file}"
 fi
 
+exec 1>>${HOME}/logs/joomla_configuration/${log_file}
+exec 2>>${HOME}/logs/joomla_configuration/${err_file}
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
