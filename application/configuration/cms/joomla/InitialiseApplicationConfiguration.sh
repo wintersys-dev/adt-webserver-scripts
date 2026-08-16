@@ -61,11 +61,6 @@ then
         /bin/chown www-data:www-data /var/www/html/configuration.php.default
 fi
 
-if ( [ -L ${webroot_directory}/images ] )
-then
-        /bin/unlink ${webroot_directory}/images
-fi
-
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file}" = "" ] )
