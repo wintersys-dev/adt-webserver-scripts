@@ -62,10 +62,12 @@ then
         /bin/chown www-data:www-data /var/www/html/config.php.default
 fi
 
-#if ( [ -L ${webroot_directory}/images ] )
-#then
-#        /bin/unlink ${webroot_directory}/images
-#fi
+if ( [ ! -d /var/www/outside_webroot ] )
+then
+        /bin/mkdir /var/www/outside_webroot
+        /bin/chown www-data:www-data /var/www/outside_webroot
+        /bin/chmod 750 /var/www/outside_webroot
+fi
 
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
