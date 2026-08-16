@@ -52,7 +52,7 @@ then
         if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} 2>/dev/null | /bin/grep 'ALIVE'`" = "" ] )
         then
                 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
-                if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
+                if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} 2>/dev/null  | /bin/grep 'ALIVE'`" != "ALIVE" ] )
                 then
                         online="0"
                 else
