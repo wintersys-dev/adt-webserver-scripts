@@ -304,33 +304,63 @@ do
         fi
 done
 
-if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
+#if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
+#then
+ #       dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+
+  #      for asset_directory in `/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`
+   #     do
+   #             if ( [ ! -d /var/www/html/${asset_directory} ] )
+    #            then
+     #                   /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
+      #          fi
+#
+ #               if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
+  #              then
+   #                     outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
+    #            else
+     #                   outside_asset_directory="${asset_directory}"
+      #          fi
+#
+ #               if ( [ "`/bin/echo ${dirs_to_link} | /bin/grep ${asset_directory}`" != "" ] )
+  #              then
+   #                     /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
+    #                    /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
+     #                   /bin/chmod 777 ${webroot_directory}/${asset_directory}
+      #          fi
+   #     done
+#fi
+
+directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+
+if ( [ ! -d /var/www/outside_webroot ] )
 then
-        dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
-
-        for asset_directory in `/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`
-        do
-                if ( [ ! -d /var/www/html/${asset_directory} ] )
-                then
-                        /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
-                fi
-
-                if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
-                then
-                        outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
-                else
-                        outside_asset_directory="${asset_directory}"
-                fi
-
-                if ( [ "`/bin/echo ${dirs_to_link} | /bin/grep ${asset_directory}`" != "" ] )
-                then
-                        /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
-                        /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
-                        /bin/chmod 777 ${webroot_directory}/${asset_directory}
-                fi
-        done
+	/bin/mkdir /var/www/outside_webroot
+	/bin/chown www-data:www-data /var/www/outside_webroot
+	/bin/chmod 750 /var/www/outside_webroot
 fi
 
+for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
+do
+	directory="`/bin/echo ${directory_and_link} | /usr/bin/awk -F'|' '{print $1}'`"
+	link="`/bin/echo ${directory_and_link} | /usr/bin/awk -F'|' '{print $2}'`"
+
+	if ( [ -d ${directory} ] )
+	then
+		/bin/rm -r ${directory}/*
+	fi
+	
+	if ( [ -d ${link} ] )
+	then	
+		/bin/mv ${link} ${directory}
+		/bin/chown www-data:www-data ${directory}
+		/bin/chmod 750 /var/www/outside_webroot ${directory}
+	fi
+
+	/bin/ln -s ${directory} ${link}
+	/bin/chown root:www-data ${link}
+	/bin/chmod 750 ${link}
+fi
 /bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
 
 /usr/bin/php -ln ${config_file}
