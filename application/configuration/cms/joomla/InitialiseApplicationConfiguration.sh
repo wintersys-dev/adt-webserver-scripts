@@ -345,18 +345,23 @@ do
 	link="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
 	directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
 
-	#if ( [ -d ${directory} ] )
-	#then
-	#	/bin/rm -r ${directory}/*
-	#fi
+	if ( [ "${directory}" != "" ] )
+	then
+		if ( [ -d ${directory} ] )
+		then
+			/bin/rm -r ${directory}/*
+		fi
+	fi
 	
 	if ( [ -d ${link} ] )
 	then	
 		/bin/mv ${link} ${directory}
-		/bin/chown www-data:www-data ${directory}
-		/bin/chmod 750 /var/www/outside_webroot ${directory}
+	else
+		/bin/mkdir ${directory}
 	fi
 
+	/bin/chown www-data:www-data ${directory}
+	/bin/chmod 750 /var/www/outside_webroot ${directory}
 	/bin/ln -s ${directory} ${link}
 	/bin/chown root:www-data ${link}
 	/bin/chmod 750 ${link}
