@@ -55,9 +55,11 @@ then
         webroot_directory="/var/www/html/wordpress"
 fi
 
-if ( [ -L ${webroot_directory}/wp-content ] )
+if ( [ ! -d /var/www/outside_webroot ] )
 then
-        /bin/unlink ${webroot_directory}/wp-content
+        /bin/mkdir /var/www/outside_webroot
+        /bin/chown www-data:www-data /var/www/outside_webroot
+        /bin/chmod 750 /var/www/outside_webroot
 fi
 
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
