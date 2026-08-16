@@ -345,10 +345,10 @@ do
 	directory="`/bin/echo ${directory_and_link} | /usr/bin/awk -F'|' '{print $1}'`"
 	link="`/bin/echo ${directory_and_link} | /usr/bin/awk -F'|' '{print $2}'`"
 
-	if ( [ -d ${directory} ] )
-	then
-		/bin/rm -r ${directory}/*
-	fi
+	#if ( [ -d ${directory} ] )
+	#then
+	#	/bin/rm -r ${directory}/*
+	#fi
 	
 	if ( [ -d ${link} ] )
 	then	
