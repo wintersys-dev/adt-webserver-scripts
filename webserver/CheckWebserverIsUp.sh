@@ -49,7 +49,7 @@ fi
 if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
         probe_file="adt-probe.php"
-        if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] )
+        if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} 2>/dev/null | /bin/grep 'ALIVE'`" = "" ] )
         then
                 ${HOME}/utilities/processing/RunServiceCommand.sh php${PHP_VERSION}-fpm restart
                 if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
@@ -61,10 +61,10 @@ then
         fi
 fi
 
-if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" = "" ] && [ "${online}" = "0" ] )
+if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} 2>/dev/null  | /bin/grep 'ALIVE'`" = "" ] && [ "${online}" = "0" ] )
 then
         ${HOME}/webserver/RestartWebserver.sh
-        if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} | /bin/grep 'ALIVE' 2>/dev/null`" != "ALIVE" ] )
+        if ( [ "`/usr/bin/curl --insecure https://localhost:443/${probe_file} 2>/dev/null  | /bin/grep 'ALIVE'`" != "ALIVE" ] )
         then
                 online="0"
         else
