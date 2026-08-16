@@ -342,8 +342,8 @@ fi
 
 for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
 do
-	directory="`/bin/echo ${directory_and_link} | /usr/bin/awk -F'|' '{print $1}'`"
-	link="`/bin/echo ${directory_and_link} | /usr/bin/awk -F'|' '{print $2}'`"
+	link="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
+	directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
 
 	#if ( [ -d ${directory} ] )
 	#then
