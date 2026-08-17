@@ -292,6 +292,8 @@ do
 done
 
 directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+assets_directtories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
+directories_to_link="${directories_to_link}:${assets_directtories_to_link}"
 
 for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
 do
