@@ -315,7 +315,7 @@ do
 			/bin/mkdir -p ${directory}
 		fi
 		/bin/mv ${link_directory}/* ${directory}
-		/bin/rn -r ${link_directory}
+		/bin/rm -r ${link_directory}
 	else
 		/bin/mkdir -p ${directory}
     fi
