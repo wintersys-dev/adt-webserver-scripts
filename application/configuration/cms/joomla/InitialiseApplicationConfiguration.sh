@@ -222,6 +222,7 @@ else
         fi
 fi
 
+#If you want to set different default values for certain values of your configuration.php file such as SEF you can set them here, as per these examples.
 /bin/sed -i "s%\$tmp_path =.*$%\$tmp_path = ${webroot_directory}/tmp;%" ${config_file}
 /bin/sed -i "s%\$log_path =.*$%\$log_path = ${webroot_directory}/log;%" ${config_file}
 
