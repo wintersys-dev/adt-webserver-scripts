@@ -310,17 +310,20 @@ do
 
 	if ( [ -d ${link_directory} ] )
 	then
-		/bin/mv ${link_directory} ${directory}
+		if ( [ ! -d ${directory} ] )
+		then
+			/bin/mkdir -p ${directory}
+		fi
+		/bin/mv ${link_directory}/* ${directory}
+		/bin/rn -r ${link_directory}
 	else
-		/bin/mkdir ${directory}
-	fi
+		/bin/mkdir -p ${directory}
+    fi
 	
 	link="${link_directory}"
 	/bin/chown www-data:www-data ${directory}
 	/bin/chmod 750 ${directory}
 	/bin/ln -s ${directory} ${link}
-	/bin/chown root:www-data ${link}
-	/bin/chmod 750 ${link}
 done
 
 seesion_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
