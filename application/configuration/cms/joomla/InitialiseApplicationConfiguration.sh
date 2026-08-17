@@ -326,6 +326,8 @@ do
 	/bin/ln -s ${directory} ${link}
 done
 
+/bin/chown -R www-data:www-data  /var/www/outside_webroot
+
 seesion_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
 
 if ( [ ! -d ${session_save_path} ] )
