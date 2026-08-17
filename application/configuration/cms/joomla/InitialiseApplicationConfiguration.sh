@@ -250,9 +250,11 @@ then
         /bin/chown www-data:www-data ${webroot_directory}/.htaccess      
 fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
-/bin/chown root:www-data ${webroot_directory}/configuration.php
-/bin/chmod 660 ${webroot_directory}/configuration.php
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
+#/bin/chown root:www-data ${webroot_directory}/configuration.php
+#/bin/chmod 660 ${webroot_directory}/configuration.php
+
+/bin/ln -s /var/www/outside_webroot/configuration.php ${webroot_directory}/configuration.php
 
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
 then
