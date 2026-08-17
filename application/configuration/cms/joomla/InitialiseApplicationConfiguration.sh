@@ -297,7 +297,7 @@ directories_to_link="`/bin/echo ${directories_to_link}:${assets_directtories_to_
 
 for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
 do
-	link="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
+	link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
 	directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
 
 	if ( [ "${directory}" != "" ] )
@@ -308,13 +308,14 @@ do
 		fi
 	fi
 
-	if ( [ -d ${link} ] )
+	if ( [ -d ${link_directory} ] )
 	then
-		/bin/mv ${link} ${directory}
+		/bin/mv ${link_directory} ${directory}
 	else
 		/bin/mkdir ${directory}
 	fi
-
+	
+	link="${link_directory}"
 	/bin/chown www-data:www-data ${directory}
 	/bin/chmod 750 ${directory}
 	/bin/ln -s ${directory} ${link}
