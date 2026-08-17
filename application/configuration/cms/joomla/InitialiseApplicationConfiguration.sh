@@ -250,7 +250,7 @@ if ( [ -f ${webroot_directory}/.htaccess ] )
 then
         /bin/chown www-data:www-data ${webroot_directory}/.htaccess
         /bin/chmod 400 ${webroot_directory}/.htaccess
-        /bin/chmod www-data:www-data ${webroot_directory}/.htaccess      
+        /bin/chown www-data:www-data ${webroot_directory}/.htaccess      
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
@@ -293,7 +293,7 @@ done
 
 directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
 assets_directtories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
-directories_to_link="`/bin/echo ${directories_to_link}:${assets_directtories_to_link} | /bin/sed 's/:/ /g'"
+directories_to_link="`/bin/echo ${directories_to_link}:${assets_directtories_to_link} | /bin/sed 's/:/ /g'`"
 
 for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
 do
