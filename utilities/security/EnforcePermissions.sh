@@ -105,7 +105,7 @@ then
                         done
                 fi
 
-                command1="${command} -type d -exec chmod 0770 {} \;"
+                command1="${command} -type d -exec chmod 0754 {} \;"
                 command2="${command} -type f -exec chmod 0640 {} \;"
 
                 eval ${command1} &
@@ -113,26 +113,26 @@ then
 
         fi
 
-        for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-        do
-                if ( [ -d /var/www/html/${directory} ] )
-                then
-                        /bin/chown -R www-data:www-data /var/www/html/${directory}
-                fi
-                command="/usr/bin/find /var/www/html/${directory} "
-
-                command1="${command} -type d -exec chmod 0700 {} \;"
-                command2="${command} -type f -exec chmod 0600 {} \;"
-
-                eval ${command1} &
-                eval ${command2}
-
-        done
+  #      for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
+  #      do
+  #              if ( [ -d /var/www/html/${directory} ] )
+  #              then
+  #                      /bin/chown -R www-data:www-data /var/www/html/${directory}
+  #              fi
+  #              command="/usr/bin/find /var/www/html/${directory} "
+#
+ #               command1="${command} -type d -exec chmod 0700 {} \;"
+  #              command2="${command} -type f -exec chmod 0600 {} \;"
+#
+ #               eval ${command1} &
+  #              eval ${command2}
+#
+ #       done
 
         /bin/chown www-data:www-data /var/www/html/*
         /bin/chown root:www-data /var/www/html
         /bin/chmod 750 /var/www/html
-        /bin/chown root:www-dats ${webroot_directory}
+        /bin/chown root:www-data ${webroot_directory}
         /bin/chmod 770 ${webroot_directory}
 
         if ( [ -f ${webroot_directory}/adt-probe.php ] )
