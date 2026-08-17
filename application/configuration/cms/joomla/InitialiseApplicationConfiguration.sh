@@ -293,6 +293,18 @@ do
         fi
 done
 
+directories_outside_webroot="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g'`"
+
+for directory in ${directories_outside_webroot}
+do
+	if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+	then
+		/bin/mkdir -p /var/www/outside_webroot/${directory}
+		/bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+		/bin/chmod 750 /var/www/outside_webroot/${directory}
+	fi
+done
+
 directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
 assets_directtories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
 directories_to_link="`/bin/echo ${directories_to_link}:${assets_directtories_to_link} | /bin/sed 's/:/ /g'`"
