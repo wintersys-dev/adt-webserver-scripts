@@ -202,9 +202,6 @@ else
                 /bin/sed -i "s%\$db =.*$%\$db = '"${db}"';%" ${config_file}
                 /bin/sed -i "s%\$type =.*$%\$type = '"${type}"';%" ${config_file}
                 /bin/sed -i "s%\$dbencryption =.*$%\$dbencryption = 1;%" ${config_file}
-				/bin/sed -i "s%\$tmp_path =.*$%\$tmp_path = ${webroot_directory}/tmp;%" ${config_file}
-				/bin/sed -i "s%\$log_path =.*$%\$log_path = ${webroot_directory}/log;%" ${config_file}
-
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] )
                 then
@@ -224,6 +221,9 @@ else
                 fi
         fi
 fi
+
+/bin/sed -i "s%\$tmp_path =.*$%\$tmp_path = ${webroot_directory}/tmp;%" ${config_file}
+/bin/sed -i "s%\$log_path =.*$%\$log_path = ${webroot_directory}/log;%" ${config_file}
 
 /bin/echo "JOOMLA" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
