@@ -255,9 +255,9 @@ then
 	/bin/rm ${webroot_directory}/configuration.php
 fi
 
-/bin/ln -s /var/www/outside_webroot/configuration.php ${webroot_directory}/configuration.php
-/bin/chmod 500 /var/www/outside_webroot/configuration.php
-/bin/chown www-data:www-data /var/www/outside_webroot/configuration.php
+/bin/ln -s ${config_file} ${webroot_directory}/configuration.php
+/bin/chmod 500 ${config_file}
+/bin/chown www-data:www-data ${config_file}
 
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
 then
