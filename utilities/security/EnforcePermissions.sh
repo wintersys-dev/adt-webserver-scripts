@@ -113,6 +113,12 @@ then
 
         fi
 
+		open_perms_directories="`/bin/grep "^OPEN_PERMS_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed -e 's/OPEN_PERMS_DIRECTORIES://g' -e 's/:/ //g'`"
+		for directory in ${open_perms_directories}
+		do
+			/bin/chown -R www-data:www-data ${directory}
+		done
+
   #      for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
   #      do
   #              if ( [ -d /var/www/html/${directory} ] )
