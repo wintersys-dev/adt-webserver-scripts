@@ -113,7 +113,7 @@ then
 
         fi
 
-		open_perms_directories="`/bin/grep "^OPEN_PERMS_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed -e 's/OPEN_PERMS_DIRECTORIES://g' -e 's/:/ //g'`"
+		open_perms_directories="`/bin/grep "^OPEN_PERMS_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed -e 's/OPEN_PERMS_DIRECTORIES://g' -e 's/:/ /g'`"
 		for directory in ${open_perms_directories}
 		do
 			/bin/chown -R www-data:www-data ${directory}
