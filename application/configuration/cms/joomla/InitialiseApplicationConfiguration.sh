@@ -293,6 +293,9 @@ do
         fi
 done
 
+/bin/cat ${config_file}
+
+
 directories_outside_webroot="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
 
 for directory in ${directories_outside_webroot}
