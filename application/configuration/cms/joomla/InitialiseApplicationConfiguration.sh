@@ -257,6 +257,7 @@ fi
 
 /bin/ln -s /var/www/outside_webroot/configuration.php ${webroot_directory}/configuration.php
 /bin/chmod 500 /var/www/outside_webroot/configuration.php
+/bin/chown www-data:www-data /var/www/outside_webroot/configuration.php
 
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
 then
