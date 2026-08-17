@@ -250,9 +250,10 @@ then
         /bin/chown www-data:www-data ${webroot_directory}/.htaccess      
 fi
 
-#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
-#/bin/chown root:www-data ${webroot_directory}/configuration.php
-#/bin/chmod 660 ${webroot_directory}/configuration.php
+if ( [ -f ${webroot_directory}/configuration.php ] )
+then
+	/bin/rm ${webroot_directory}/configuration.php
+fi
 
 /bin/ln -s /var/www/outside_webroot/configuration.php ${webroot_directory}/configuration.php
 
