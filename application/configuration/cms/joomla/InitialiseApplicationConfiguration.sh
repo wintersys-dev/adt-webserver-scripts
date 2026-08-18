@@ -48,6 +48,11 @@ fi
 exec 1>>${HOME}/logs/joomla_configuration/${log_file}
 exec 2>>${HOME}/logs/joomla_configuration/${err_file}
 
+if ( [ ! -f ${HOME}/runtime/application.dat ] )
+then
+	exit
+fi
+
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -81,39 +86,6 @@ if ( [ "${config_file}" = "" ] )
 then
         config_file="/var/www/outside_webroot/configuration.php"
 fi
-
-###################TEST IF THIS IS NEEDED#########################################
-if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
-then
-	/bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
-fi
-
-if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
-then
-	/bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-fi
-###################TEST IF THIS IS NEEDED#########################################
-
-
-#This will obtain a list of directories to create outside the webroot to be used during the operation of the CMS
-#It is expected that these are dynamic directories such as caching directories and logs and tmp directories and so on
-for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-do
-	directory="/var/www/outside_webroot/${directory}"
-
-	if ( [ ! -d ${directory} ] )
-	then
-		/bin/mkdir -p ${directory}
-	#	/bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-	fi
-
- 	while ( [ "${directory}" != "/var/www/html" ] )
-	do
-		/bin/chmod 755 ${directory}
-		/bin/chown www-data:www-data ${directory}
-		directory=`/usr/bin/dirname "${directory}"`
-	done
-done
 
 #This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
 #using their browser
@@ -164,42 +136,15 @@ else
                 HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
         fi
 
-      #  if ( [ -f ${HOME}/runtime/application.dat ] )
-      #  then
-      #          if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
-      #          then
-      #                  /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
-      #          fi
-#
- #               if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
-  #              then
-   #                     /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-    #            fi
-#
- #               for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-  #              do
-   #                     directory="/var/www/html/${directory}"
-#
- #                       if ( [ ! -d ${directory} ] )
-  #                      then
-   #                             /bin/mkdir -p ${directory}
-    #                            /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-     #                   fi
-#
- #                       while ( [ "${directory}" != "/var/www/html" ] )
-  #                      do
-   #                             /bin/chmod 755 ${directory}
-   #                             /bin/chown www-data:www-data ${directory}
-   #                             directory=`/usr/bin/dirname "${directory}"`
-   #                     done
-   #             done
-   #     fi
+		#Obtain the database credentials from the application descriptor because this is not an interactive installation
 
         user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
         password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
         db="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+        
+		#Work out what database driver we need
+		if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
         then
                 type="mysqli"
         fi
@@ -214,6 +159,8 @@ else
                 type="pgsql"
         fi
 
+		#If this is a virgin build set ourselves up with the credentials we need and install the application using joomla.php in the installation
+		#directory of the webroot
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
                 cd /var/www/html
@@ -225,11 +172,16 @@ else
 
                 /usr/bin/php ${webroot_directory}/installation/joomla.php install --site-name="${website_name}" --admin-user="${website_user_description}" --admin-email="${webmaster_email}" --admin-username="${website_username}" --admin-password="${website_password}"  --db-type="${type}" --db-host="${HOST}:${DB_PORT}"  --db-user=${user} --db-pass=${password} --db-name=${db}  --db-prefix=${dbprefix} --db-encryption=1 --no-interaction  
 
+				#A configuration.php file will have been generated during the installation but we don't want it to be in the webroot because its
+				#considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
+				#of this script
                 if ( [ -f ${webroot_directory}/configuration.php ] )
                 then
                         /bin/cp ${webroot_directory}/configuration.php ${config_file}
                 fi
         else
+				#If we are here then we are not a virgin installation which means we are either a baseline type build or a temporal type build
+				#This means we have to rely on the copy of the default configuration file that we preserved and kept as part of our webroot
 
                 if ( [ -f /var/www/html/configuration.php.default ] && [ ! -f ${config_file} ] )
                 then
@@ -239,6 +191,7 @@ else
                         /bin/rm ${webroot_directory}/configuration.php
                 fi
 
+				#Setup the primary configuration settings in our virgin or default configuration file ready for action
                 secret="`/usr/bin/openssl rand -base64 32 | /usr/bin/tr -cd 'a-zA-Z0-9' | /usr/bin/cut -b 1-16 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 
                 /bin/sed -i "s%\$host =.*$%\$host = '"${HOST}:${DB_PORT}"';%" ${config_file}
@@ -261,6 +214,7 @@ else
                         /bin/sed -i "s%\$dbtype =.*$%\$dbtype = '"pgsql"';%" ${config_file}
                 fi
 
+				#Check that the webroot we have is actually a Joomla application and we haven't somehow got a different archive or baseline
                 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
                 if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
                 then
@@ -269,9 +223,12 @@ else
         fi
 fi
 
+#Remind ourselves at any future time that we are a Joomla application. This will be stored in the backups and the baselines and can be consulted later
 /bin/echo "JOOMLA" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
+#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
+#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
 if ( [ -f ${webroot_directory}/configuration.php ] )
 then
 	/bin/rm ${webroot_directory}/configuration.php
@@ -281,6 +238,8 @@ fi
 /bin/chmod 500 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
+#If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
+#write a little note to ourselved to remind us whether we are expecting mariadb, mysql or postgres to be running
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
 then
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
@@ -299,6 +258,9 @@ then
         fi
 fi
 
+#These are the additional settings for our config_file. These are set in the application descriptor and so we can override any of the default
+#configuration settings directly in the application descriptor meaning that we can install using a default configuration of our choosing. 
+
 for setting in `/bin/grep "^INDIVIDUAL_SETTING:" ${HOME}/runtime/application.dat | /bin/sed 's/^INDIVIDUAL_SETTING://g' | /bin/sed 's/:/ /g'`
 do
         label="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
@@ -308,6 +270,11 @@ do
                 /bin/sed -i "s%\$${label} =.*$%\$${label} = ${value};%" ${config_file}
         fi
 done
+
+# We obtain a list of directories we are expecting to exist outside of the webrooot such as caching, logging and temporary directories
+#and actually create the directories. The application descriptor has to be consistent with the directories it creates here and the
+#configuration values that are set in the configuration.php file. These directories are owned by www-data because we expect them to be 
+#dynamically updated
 
 directories_outside_webroot="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
 
@@ -325,6 +292,8 @@ do
 	fi
 done
 
+# The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
+# code sets up that structure
 directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
 assets_directtories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
 directories_to_link="`/bin/echo ${directories_to_link}:${assets_directtories_to_link} | /bin/sed 's/:/ /g'`"
@@ -360,8 +329,10 @@ do
 	/bin/ln -s ${directory} ${link}
 done
 
+#As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
 /bin/chown -R www-data:www-data  /var/www/outside_webroot
 
+# Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
 seesion_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
 
 if ( [ ! -d ${session_save_path} ] )
@@ -406,6 +377,9 @@ then
         /bin/chmod 400 ${webroot_directory}/.htaccess
 fi
 
+#Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
+#our directories and if the do they won't be accessible
+
 for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
 do
         /bin/echo '<FilesMatch "\.php$">
@@ -416,6 +390,7 @@ do
         /bin/chmod 400 ${directory}/.htaccess
 done
 
+# Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
@@ -430,6 +405,7 @@ else
 	/bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
 fi
 
+#If anything went wrong, fire off an email
 if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
 then
 	${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
