@@ -77,6 +77,10 @@ ServerName XXXXWEBSITEURLXXXX
  <Directory /var/www/html/moodledata>
    Require all denied
  </Directory>
+
+<Directory /var/www/outside_webroot>
+   Require all denied
+</Directory>
  
  # Log
  ErrorLog ${APACHE_LOG_DIR}/error.log
