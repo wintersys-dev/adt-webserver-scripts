@@ -225,6 +225,8 @@ fi
 /bin/echo "JOOMLA" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
+#We just set up .htaccess for regardless of webserver type. If the webserver can use the htaccess file it will if it can't, no harm done
+
 if ( [ ! -f ${webroot_directory}/.htaccess ] && [ -f ${webroot_directory}/htaccess.default ] )
 then
         /bin/cp ${webroot_directory}/htaccess.default ${webroot_directory}/.htaccess
@@ -243,12 +245,31 @@ then
         fi
 fi
 
+/bin/echo '<Files configuration.php>
+Order allow,deny
+Deny from all
+</Files>
+
+<Files .htaccess>
+Order allow,deny
+Deny from all
+</Files>' > ${webroot_directory}/.htaccess
+
 if ( [ -f ${webroot_directory}/.htaccess ] )
 then
         /bin/chown www-data:www-data ${webroot_directory}/.htaccess
         /bin/chmod 400 ${webroot_directory}/.htaccess
-        /bin/chown www-data:www-data ${webroot_directory}/.htaccess      
 fi
+
+for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
+do
+	/bin/echo '<FilesMatch "\.php$">
+Order deny,allow
+Deny from all
+</FilesMatch>' > ${directory}/.htaccess
+	/bin/chown www-data:www-data ${directory}/.htaccess
+	/bin/chmod 400 ${directory}/.htaccess
+done
 
 if ( [ -f ${webroot_directory}/configuration.php ] )
 then
@@ -354,6 +375,8 @@ then
 	/bin/chown www-data:www-data ${session_save_path}
 	/bin/chmod 770 ${session_save_path}
 fi
+
+
 
 /usr/bin/php -ln ${config_file}
 
