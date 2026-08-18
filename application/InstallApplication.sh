@@ -100,5 +100,5 @@ else
 fi
 
 ${HOME}/installation/InstallApplicationTooling.sh "${BUILDOS}" "post"
-#${HOME}/utilities/security/EnforcePermissions.sh &
+/bin/touch ${HOME}/runtime/MUTABLE-WEBROOT
 /bin/rm -rf /var/www/html/.git
