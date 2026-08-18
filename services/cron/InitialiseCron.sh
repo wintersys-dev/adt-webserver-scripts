@@ -211,6 +211,11 @@ then
 	/bin/echo "30 5 1 Jan,Mar,May,Jul,Sep,Nov * export HOME="${HOME}" && ${HOME}/services/cron/BackupFromCron.sh 'BIMONTHLY'" >> /var/spool/cron/crontabs/root
 fi
 
+if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] )
+then
+	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/security/CheckWebrootImmutabilityStatus.sh" >> /var/spool/cron/crontabs/root
+fi
+
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/security/AuditSSHConnections.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/processing/UpdateIPs.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/utilities/processing/UpdateIPs.sh" >> /var/spool/cron/crontabs/root
@@ -218,6 +223,7 @@ fi
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/MarkedForShutdown.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/CheckNetworkManagerStatus.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/cron/PerformEmergencyRestorationFromCron.sh" >> /var/spool/cron/crontabs/root
+
 
 /bin/echo "*/5 * * * * export HOME="${HOME}" &&  /bin/sleep 23 && ${HOME}/services/security/firewall/MonitorFirewall.sh" >> /var/spool/cron/crontabs/root
 
