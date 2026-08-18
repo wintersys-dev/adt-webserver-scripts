@@ -88,10 +88,14 @@ then
 		then
 			dir_perms="550"
 			file_perms="440"
+			config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+			/bin/chmod 400 ${config_file}
 		elif ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT-ON ] )
 		then
 			dir_perms="770"
 			file_perms="660"
+			config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+			/bin/chmod 600 ${config_file}
 		fi
         
         webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -126,4 +130,6 @@ then
         then
 	        /bin/chmod 440  ${webroot_directory}/adt-probe.php
         fi
+
+		
 fi
