@@ -65,6 +65,10 @@ ServerName XXXXWEBSITEURLXXXX
     Require all granted
   </Directory>
 
+<Directory /var/www/outside_webroot>
+   Require all denied
+</Directory>
+
  # Log
  ErrorLog ${APACHE_LOG_DIR}/error.log
  CustomLog ${APACHE_LOG_DIR}/access.log combined
