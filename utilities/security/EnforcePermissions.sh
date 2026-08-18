@@ -84,11 +84,11 @@ fi
 
 if ( [ "${mode}" != "core-only" ] )
 then
-		if ( [ -f ${HOME}/runtime/IMMUTABLE-WEBROOT ] )
+		if ( [ -f ${HOME}/runtime/IMMUTABLE-WEBROOT.on ] )
 		then
 			dir_perms="550"
 			file_perms="440"
-		elif ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT ] )
+		elif ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT.on ] )
 		then
 			dir_perms="770"
 			file_perms="770"
