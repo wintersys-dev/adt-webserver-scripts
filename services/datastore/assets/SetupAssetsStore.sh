@@ -219,6 +219,13 @@ do
                 if ( [ "`/usr/bin/mountpoint ${absolute_application_assets_directory} | /bin/grep 'is a mountpoint'`" != "" ] &&  [ "`/bin/mount | /bin/grep -P "${absolute_application_assets_directory}(?=\s|$)"`" != "" ] )
                 then
                         /bin/touch ${absolute_application_assets_directory}/ASSETS_SUCCESSFULLY_MOUNTED_DO_NOT_REMOVE
+                        #put a htccess file there to restrict access regardless of webserver type the webserver will use it if it can
+                        /bin/echo '<FilesMatch "\.php$">
+Order deny,allow
+Deny from all
+</FilesMatch>' > ${absolute_application_assets_directory}/.htaccess
+	                /bin/chown www-data:www-data ${directory}/.htaccess
+	                /bin/chmod 400 ${directory}/.htaccess
                 fi
         fi
 done
