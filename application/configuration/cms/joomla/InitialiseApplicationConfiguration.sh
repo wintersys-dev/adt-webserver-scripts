@@ -374,7 +374,6 @@ done
 if ( [ "$?" = "0" ] )
 then
 	/bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-#	${HOME}/utilities/security/EnforcePermissions.sh 
 
 	if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
 	then
