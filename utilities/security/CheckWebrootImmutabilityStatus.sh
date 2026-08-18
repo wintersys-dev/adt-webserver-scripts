@@ -3,20 +3,20 @@ then
         if ( [ ! -f ${HOME}/runtime/IMMUTABLE-WEBROOT-ON ] )
         then
                 /bin/touch ${HOME}/runtime/IMMUTABLE-WEBROOT-ON
-                ${HOME}/utilities/security/EnforcePermissions.sh
-                if ( [ -f ${HOME}/runtime/IMMUTABLE-WEBROOT-OFF ] )
+                if ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT-ON ] )
                 then
-                        /bin/rm ${HOME}/runtime/IMMUTABLE-WEBROOT-OFF
+                        /bin/rm ${HOME}/runtime/MUTABLE-WEBROOT-ON
                 fi
+                ${HOME}/utilities/security/EnforcePermissions.sh
         fi
 else
         if ( [ ! -f ${HOME}/runtime/MUTABLE-WEBROOT-ON ] )
         then
                 /bin/touch ${HOME}/runtime/MUTABLE-WEBROOT-ON
-                ${HOME}/utilities/security/EnforcePermissions.sh
-                if ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT-OFF ] )
+                if ( [ -f ${HOME}/runtime/IMMUTABLE-WEBROOT-ON ] )
                 then
-                        /bin/rm ${HOME}/runtime/MUTABLE-WEBROOT-OFF
+                        /bin/rm ${HOME}/runtime/IMMUTABLE-WEBROOT-ON
                 fi
+                ${HOME}/utilities/security/EnforcePermissions.sh
         fi
 fi
