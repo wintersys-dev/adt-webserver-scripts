@@ -48,6 +48,7 @@ fi
 exec 1>>${HOME}/logs/joomla_configuration/${log_file}
 exec 2>>${HOME}/logs/joomla_configuration/${err_file}
 
+#Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${webroot_directory}" = "" ] )
@@ -55,12 +56,16 @@ then
         webroot_directory="/var/www/html/joomla"
 fi
 
+#Take our own copy of the default configuration file which will still be available to work with on subsquent deployments when the
+#installation folder is no longer available to work with
 if ( [ -f ${webroot_directory}/installation/configuration.php-dist ] )
 then
         /bin/cp ${webroot_directory}/installation/configuration.php-dist /var/www/html/configuration.php.default
         /bin/chown www-data:www-data /var/www/html/configuration.php.default
 fi
 
+#Create the standard ourside webroot folder which is used throughout the toolkit as the directory outside of the webroot where
+#parts of the system that require dynamic access by users and admins are separated and secured away from the core system
 if ( [ ! -d /var/www/outside_webroot ] )
 then
         /bin/mkdir /var/www/outside_webroot
@@ -68,6 +73,8 @@ then
         /bin/chmod 750 /var/www/outside_webroot
 fi
 
+#Extract the configuration filename from the application descriptor and if its not available fallback to a default value
+#This will be where the actual configuration.php file is stored and is linked to using a symlink from within the webroot
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file}" = "" ] )
@@ -75,6 +82,41 @@ then
         config_file="/var/www/outside_webroot/configuration.php"
 fi
 
+###################TEST IF THIS IS NEEDED#########################################
+if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
+then
+	/bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
+fi
+
+if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
+then
+	/bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
+fi
+###################TEST IF THIS IS NEEDED#########################################
+
+
+#This will obtain a list of directories to create outside the webroot to be used during the operation of the CMS
+#It is expected that these are dynamic directories such as caching directories and logs and tmp directories and so on
+for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
+do
+	directory="/var/www/outside_webroot/${directory}"
+
+	if ( [ ! -d ${directory} ] )
+	then
+		/bin/mkdir -p ${directory}
+	#	/bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
+	fi
+
+ 	while ( [ "${directory}" != "/var/www/html" ] )
+	do
+		/bin/chmod 755 ${directory}
+		/bin/chown www-data:www-data ${directory}
+		directory=`/usr/bin/dirname "${directory}"`
+	done
+done
+
+#This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
+#using their browser
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
         if ( [ ! -f ${webroot_directory}/configuration.php ] )
@@ -87,11 +129,15 @@ then
         /bin/echo "`/bin/grep "dbprefix" ${webroot_directory}/configuration.php | /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
+	#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
+	#It is expected that this will be the more common case than an interactive installation
         if ( [ -f ${config_file} ] )
         then
                 /bin/rm ${config_file}
         fi
 
+	#In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
+	#in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
         if ( [ -f /var/www/html/dbp.dat ] )
         then
                 dbprefix="`/bin/cat /var/www/html/dbp.dat`"
@@ -102,6 +148,7 @@ else
                 /bin/chmod 600 /var/www/html/dbp.dat
         fi
 
+		#Find out where our database server is
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
         then
                 HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
@@ -117,36 +164,36 @@ else
                 HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
         fi
 
-        if ( [ -f ${HOME}/runtime/application.dat ] )
-        then
-                if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
-                then
-                        /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
-                fi
-
-                if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
-                then
-                        /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                fi
-
-                for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-                do
-                        directory="/var/www/html/${directory}"
-
-                        if ( [ ! -d ${directory} ] )
-                        then
-                                /bin/mkdir -p ${directory}
-                                /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                        fi
-
-                        while ( [ "${directory}" != "/var/www/html" ] )
-                        do
-                                /bin/chmod 755 ${directory}
-                                /bin/chown www-data:www-data ${directory}
-                                directory=`/usr/bin/dirname "${directory}"`
-                        done
-                done
-        fi
+      #  if ( [ -f ${HOME}/runtime/application.dat ] )
+      #  then
+      #          if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
+      #          then
+      #                  /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
+      #          fi
+#
+ #               if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
+  #              then
+   #                     /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
+    #            fi
+#
+ #               for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
+  #              do
+   #                     directory="/var/www/html/${directory}"
+#
+ #                       if ( [ ! -d ${directory} ] )
+  #                      then
+   #                             /bin/mkdir -p ${directory}
+    #                            /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
+     #                   fi
+#
+ #                       while ( [ "${directory}" != "/var/www/html" ] )
+  #                      do
+   #                             /bin/chmod 755 ${directory}
+   #                             /bin/chown www-data:www-data ${directory}
+   #                             directory=`/usr/bin/dirname "${directory}"`
+   #                     done
+   #             done
+   #     fi
 
         user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
         password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
