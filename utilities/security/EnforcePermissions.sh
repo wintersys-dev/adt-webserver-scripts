@@ -84,7 +84,16 @@ fi
 
 if ( [ "${mode}" != "core-only" ] )
 then
-        /bin/chmod 755 /var/www/html
+		if ( [ -f ${HOME}/runtime/IMMUTABLE-WEBROOT ] )
+		then
+			dir_perms="550"
+			file_perms="440"
+		elif ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT ] )
+		then
+			dir_perms="770"
+			file_perms="770"
+		fi
+        
         webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
         if ( [ "${webroot_directory}" = "" ] )
@@ -105,41 +114,13 @@ then
                         done
                 fi
 
-                command1="${command} -type d -exec chmod 0750 {} \;"
-                command2="${command} -type f -exec chmod 0640 {} \;"
+                command1="${command} -type d -exec chmod 0${dir_perms} {} \;"
+                command2="${command} -type f -exec chmod 0${file_perms} {} \;"
 
                 eval ${command1} &
                 eval ${command2}
 
         fi
-
-		open_perms_directories="`/bin/grep "^OPEN_PERMS_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed -e 's/OPEN_PERMS_DIRECTORIES://g' -e 's/:/ /g'`"
-		for directory in ${open_perms_directories}
-		do
-			/bin/chown -R www-data:www-data ${directory}
-		done
-
-  #      for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-  #      do
-  #              if ( [ -d /var/www/html/${directory} ] )
-  #              then
-  #                      /bin/chown -R www-data:www-data /var/www/html/${directory}
-  #              fi
-  #              command="/usr/bin/find /var/www/html/${directory} "
-#
- #               command1="${command} -type d -exec chmod 0700 {} \;"
-  #              command2="${command} -type f -exec chmod 0600 {} \;"
-#
- #               eval ${command1} &
-  #              eval ${command2}
-#
- #       done
-
-        /bin/chown www-data:www-data /var/www/html/*
-        /bin/chown root:www-data /var/www/html
-        /bin/chmod 750 /var/www/html
-        /bin/chown root:www-data ${webroot_directory}
-        /bin/chmod 770 ${webroot_directory}
 
         if ( [ -f ${webroot_directory}/adt-probe.php ] )
         then
