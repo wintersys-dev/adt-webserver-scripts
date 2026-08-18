@@ -253,7 +253,7 @@ Deny from all
 <Files .htaccess>
 Order allow,deny
 Deny from all
-</Files>' > ${webroot_directory}/.htaccess
+</Files>' >> ${webroot_directory}/.htaccess
 
 if ( [ -f ${webroot_directory}/.htaccess ] )
 then
