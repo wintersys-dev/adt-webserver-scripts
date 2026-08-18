@@ -91,7 +91,7 @@ then
 		elif ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT.on ] )
 		then
 			dir_perms="770"
-			file_perms="770"
+			file_perms="660"
 		fi
         
         webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
