@@ -78,6 +78,10 @@ ServerName XXXXWEBSITEURLXXXX
    RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
  </Directory>
 
+<Directory /var/www/outside_webroot>
+   Require all denied
+</Directory>
+
  
  # Log
  ErrorLog ${APACHE_LOG_DIR}/error.log
