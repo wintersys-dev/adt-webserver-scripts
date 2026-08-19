@@ -356,7 +356,8 @@ then
                 if ( [ ! -f ${webroot_directory}/htaccess.default ] )
                 then
                         /bin/cp ${webroot_directory}/htaccess.txt ${webroot_directory}/htaccess.default
-                        /bin/rm ${webroot_directory}/htaccess.txt                fi
+                        /bin/rm ${webroot_directory}/htaccess.txt                
+				fi
                 /bin/cp ${webroot_directory}/htaccess.default ${webroot_directory}/.htaccess
         fi
 fi      
