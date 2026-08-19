@@ -100,6 +100,6 @@ else
 fi
 
 ${HOME}/installation/InstallApplicationTooling.sh "${BUILDOS}" "post"
-/bin/touch ${HOME}/runtime/IMMUTABLE-WEBROOT.off
-/bin/touch ${HOME}/runtime/MUTABLE-WEBROOT.on
+/bin/touch ${HOME}/runtime/IMMUTABLE-WEBROOT-OFF
+/bin/touch ${HOME}/runtime/MUTABLE-WEBROOT-ON
 /bin/rm -rf /var/www/html/.git
