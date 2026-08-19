@@ -62,29 +62,36 @@ then
         SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
         SOURCECODE_MD5="`/bin/grep "^SOURCECODE_MD5" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_MD5://g' | /bin/sed 's/:/ /g'`"
         SOURCECODE_SHA1="`/bin/grep "^SOURCECODE_SHA1" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_SHA1://g' | /bin/sed 's/:/ /g'`"
-else #can use this for installing quickstart packages from various providers which usually don't have checksums available
+elif ( [ "`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/grep 'joomshaper.com'`" != "" ] ) 
+then
         SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
+        archive_type="zip"
+        verified_archive_type="zip"
 fi
 
-archive_type=""
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
+if ( [ "${archive_type}" = "" ] )
 then
-        archive_type="zip"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] )
-then
-        archive_type="tar.gz"
+        if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] )
+        then
+                archive_type="zip"
+        elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] )
+        then
+                archive_type="tar.gz"
+        fi
 fi
 
 /usr/bin/wget -4 https://${SOURCECODE_URL} -O joomla.${archive_type}
 /bin/echo "${0} `/bin/date`: Downloaded joomla from ${SOURCECODE_URL}" 
 
-verified_archive_type=""
-if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
+if ( [ "${verified_archive_type}" = "" ] )
 then
-        verified_archive_type="${archive_type}"
-elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
-then
-        verified_archive_type="${archive_type}"
+        if ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.zip$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.zip | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
+        then
+                verified_archive_type="${archive_type}"
+        elif ( [ "`/bin/echo ${SOURCECODE_URL} | /bin/grep '\.tar.gz$'`" != "" ] && ( [ "${checksum}" = "0" ] || ( [ "`/usr/bin/md5sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_MD5}" ] || [ "`/usr/bin/sha1sum joomla.tar.gz | /usr/bin/awk '{print $1}'`" = "${SOURCECODE_SHA1}" ] ) ) )
+        then
+                verified_archive_type="${archive_type}"
+        fi
 fi
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
