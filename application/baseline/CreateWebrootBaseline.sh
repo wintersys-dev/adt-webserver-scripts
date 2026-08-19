@@ -79,6 +79,7 @@ then
                 then
                         /bin/echo "Creating a new repository"
                         ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_USERNAME} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_TOKEN}
+                        /bin/sleep 10
                         if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_USERNAME}  ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_TOKEN} 2>&1 | /bin/grep 'Repository not found'`" = "" ] )
                         then
                                 /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
@@ -91,6 +92,7 @@ then
                 fi
         else
                 ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_USERNAME} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_TOKEN}
+                /bin/sleep 10
                 if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_USERNAME} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_TOKEN} 2>&1 | /bin/grep 'Repository not found'`" = "" ] )
                 then
                         /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
