@@ -350,12 +350,12 @@ fi
 
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
 then
-        if ( [ -f ${webroot_directory}/htaccess.txt ] )
-        then
-                /bin/cp ${webroot_directory}/htaccess.txt ${webroot_directory}/.htaccess
-        fi
+	if ( [ -f ${webroot_directory}/htaccess.txt ] )
+	then
+		/bin/cp ${webroot_directory}/htaccess.txt ${webroot_directory}/.htaccess
+	fi
 
-		/bin/echo '<Files configuration.php>
+	/bin/echo '<Files configuration.php>
     Order allow,deny
     Deny from all   
 </Files>
@@ -365,26 +365,26 @@ then
      Deny from all
 </Files>' >> ${webroot_directory}/.htaccess
 
-		if ( [ -f ${webroot_directory}/.htaccess ] )
-		then
-        	/bin/chown www-data:www-data ${webroot_directory}/.htaccess
-        	/bin/chmod 400 ${webroot_directory}/.htaccess
-		fi
+	if ( [ -f ${webroot_directory}/.htaccess ] )
+	then
+		/bin/chown www-data:www-data ${webroot_directory}/.htaccess
+		/bin/chmod 400 ${webroot_directory}/.htaccess
+	fi
 
 	#Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
 	#our directories and if the do they won't be accessible
 
-		for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
-		do
-        	/bin/echo '<FilesMatch "\.php$">
+	for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
+	do
+    	/bin/echo '<FilesMatch "\.php$">
         Order deny,allow
         Deny from all
 </FilesMatch>' > ${directory}/.htaccess
         	/bin/chown www-data:www-data ${directory}/.htaccess
         	/bin/chmod 400 ${directory}/.htaccess
-		done
-	fi
+	done
 fi
+
 
 # Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
