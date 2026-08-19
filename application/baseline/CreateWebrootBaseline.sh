@@ -115,7 +115,6 @@ fi
 cd ${HOME}/backups/${baseline_name}
 
 /bin/cp -r /var/www/html/* .
-/bin/cp -r /var/www/html/.* .
 
 if ( [ -d ${HOME}/backups/${baseline_name}/outside_webroot ] )
 then
