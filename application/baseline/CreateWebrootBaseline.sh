@@ -117,6 +117,11 @@ cd ${HOME}/backups/${baseline_name}
 /bin/cp -r /var/www/html/* .
 /bin/cp -r /var/www/html/.* .
 
+if ( [ -d ${HOME}/backups/${baseline_name}/outside_webroot ] )
+then
+        /bin/rm -r ${HOME}/backups/${baseline_name}/outside_webroot
+fi
+
 #${HOME}/application/customise/CustomiseBackupByApplication.sh ${baseline_name}
 
 exclude_list="`/bin/grep "^EXCLUDE_FROM_BACKUP:" ${HOME}/runtime/application.dat | /bin/sed 's/EXCLUDE_FROM_BACKUP://g' | /bin/sed 's/:/ /g'`"
