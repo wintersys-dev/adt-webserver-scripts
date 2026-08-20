@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -x
+
 while ( [ "`/usr/bin/fuser /var/lib/dpkg/lock-frontend`" != "" ] )
 do
         echo "Waiting for another package manager process to complete..."
