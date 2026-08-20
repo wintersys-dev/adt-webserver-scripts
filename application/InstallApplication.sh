@@ -19,7 +19,21 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-#set -x
+set -x
+
+if ( [ ! -d ${HOME}/logs/installation ] )
+then
+        /bin/mkdir -p ${HOME}/logs/installation
+fi
+
+log_file="installation_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="installation_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/installation/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/installation/${err_file}"
+
+exec 1>>${HOME}/logs/installation/${log_file}
+exec 2>>${HOME}/logs/installation/${err_file}
 
 archive_id="${1}"
 
