@@ -60,13 +60,16 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 install_command="${manager} ${options} install " 
 
+cloud_init="0"
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE" | /bin/grep ':cloud-init'`" = "" ] )
 then    
 	${HOME}/installation/PurgeApache.sh
+else
+	cloud_init="1"
 fi
 
 count="0"
-while ( [ ! -f /usr/sbin/apache2 ] && [ "${count}" -lt "5" ] )
+while ( ( [ ! -f /usr/sbin/apache2 ] || [ "${cloud_init}" = "1" ] ) && [ "${count}" -lt "5" ] )
 do
 	if ( [ "${manager}" != "" ] )
 	then
