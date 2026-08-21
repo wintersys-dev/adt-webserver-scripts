@@ -356,13 +356,11 @@ then
 	fi
 
 	/bin/echo '<Files configuration.php>
-    Order allow,deny
-    Deny from all   
+Require all granted 
 </Files>
 
 <Files .htaccess>
-     Order allow,deny
-     Deny from all
+Require all granted
 </Files>' >> ${webroot_directory}/.htaccess
 
 	if ( [ -f ${webroot_directory}/.htaccess ] )
@@ -377,8 +375,7 @@ then
 	for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
 	do
     	/bin/echo '<FilesMatch "\.php$">
-        Order deny,allow
-        Deny from all
+Require all granted
 </FilesMatch>' > ${directory}/.htaccess
         	/bin/chown www-data:www-data ${directory}/.htaccess
         	/bin/chmod 400 ${directory}/.htaccess
