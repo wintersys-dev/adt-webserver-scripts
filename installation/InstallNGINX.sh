@@ -78,8 +78,7 @@ do
                         then
                                 eval ${install_command} apache2-utils ${tail_options}
                         fi
-                        if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
-                        then
+
                                 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:source'`" = "1" ] )
                                 then
                                         if ( [ ! -f /etc/nginx/BUILT_FROM_SOURCE ] )
@@ -128,6 +127,9 @@ do
                                                 exit
                                         fi
                                         ${HOME}/utilities/processing/RunServiceCommand.sh "unmask" "nginx"
+									fi
+									if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:official'`" = "1" ] ||  [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:os'`" = "1" ] || [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /usr/bin/awk -F':' '{print $NF}'`" = "cloud-init" ] )
+									then
 
                                         if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
                                         then
@@ -146,7 +148,7 @@ do
                                         fi
                                         /bin/touch /etc/nginx/BUILT_FROM_REPO
                                 fi
-                        fi
+                    
                 fi
 
                 if ( [ "${BUILDOS}" = "debian" ] )
@@ -155,8 +157,7 @@ do
                         then
                                 eval ${install_command} apache2-utils ${tail_options}
                         fi
-                        if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
-                        then
+
                                 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:source'`" = "1" ] )
                                 then
                                         if ( [ ! -f /etc/nginx/BUILT_FROM_SOURCE ] )
@@ -203,9 +204,9 @@ do
 												/bin/echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | /usr/bin/tee /etc/apt/preferences.d/99nginx
                                                 eval ${update_command} 
                                                 eval ${install_command_confold} nginx ${tail_options}
-                                        else
-                                                exit
                                         fi
+										if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:official'`" = "1" ] ||  [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:os'`" = "1" ] || [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /usr/bin/awk -F':' '{print $NF}'`" = "cloud-init" ] )
+										then
 
                                         if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
                                         then
@@ -224,7 +225,7 @@ do
                                         fi
                                         ${HOME}/utilities/processing/RunServiceCommand.sh "unmask" "nginx"
                                         /bin/touch /etc/nginx/BUILT_FROM_REPO
-                                fi
+                                
                         fi
                 fi
         fi
