@@ -22,14 +22,14 @@ set -x
 
 if ( [ "${1}" != "" ] )
 then
-	buildos="${1}"
+        buildos="${1}"
 fi
 
 if ( [ "${buildos}" = "" ] )
 then
-	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 else 
-	BUILDOS="${buildos}"
+        BUILDOS="${buildos}"
 fi
 
 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
@@ -41,16 +41,16 @@ options=""
 tail_options=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt" ] )
 then
-	manager="/usr/bin/apt"
-	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+        manager="/usr/bin/apt"
+        options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "apt-get" ] )
 then
-	manager="/usr/bin/apt-get"
-	options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+        manager="/usr/bin/apt-get"
+        options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
 then
-	manager="${HOME}/installation/nala_wrapper.sh"
-	tail_options="-y"
+        manager="${HOME}/installation/nala_wrapper.sh"
+        tail_options="-y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "aptitude" ] )
 then
         manager="${HOME}/installation/aptitude_wrapper.sh"
@@ -63,142 +63,142 @@ install_command="${manager} ${options} install "
 cloud_init="0"
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE" | /bin/grep ':cloud-init'`" = "" ] )
 then    
-	${HOME}/installation/PurgeApache.sh
+        ${HOME}/installation/PurgeApache.sh
 else
-	cloud_init="1"
+        cloud_init="1"
 fi
 
 count="0"
 while ( ( [ ! -f /usr/sbin/apache2 ] || [ "${cloud_init}" = "1" ] ) && [ "${count}" -lt "5" ] )
 do
-	if ( [ "${manager}" != "" ] )
-	then
-		if ( [ "${BUILDOS}" = "ubuntu" ] )
-		then
-			if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
-			then
-				eval ${install_command} apache2-utils ${tail_options}
-			fi
-			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:source'`" = "1" ] )
-			then
-				if ( [ ! -f /etc/apache2/BUILT_FROM_SOURCE ] )
-				then    		     		
-					software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:software-packages" "stripped"`"
-					if ( [ "${software_package_list}" != "" ] )
-					then
-						eval ${install_command} ${software_package_list} ${tail_options}
-					fi	
-					${HOME}/installation/apache/BuildApacheFromSource.sh  "Ubuntu" 		
-				fi
-			elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] )
-			then
-				eval ${install_command} apache2 ${tail_options}
-			fi	
-			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:cloud-init'`" = "1" ] )
-			then
-				if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
-				then
-					modules_list="mpm_event ssl headers proxy_fcgi"
-				elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
-				then
-					modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
-				elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
-				then
-					modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:modules-list" "stripped"`"
-				fi
-				if ( [ "${modules_list}" != "" ] )
-				then
-					for module in ${modules_list}
-					do
-						if ( [ "`/bin/echo ${module} | /bin/grep 'mpm_'`" != "" ] )
-						then
-							/usr/sbin/a2dismod mpm_prefork
-						fi
-						/usr/sbin/a2enmod ${module}
-						/usr/sbin/a2enconf ${module}
-					done
-				fi
-				/bin/touch /etc/apache2/BUILT_FROM_REPO
-			fi   
+        if ( [ "${manager}" != "" ] )
+        then
+                if ( [ "${BUILDOS}" = "ubuntu" ] )
+                then
+                        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+                        then
+                                eval ${install_command} apache2-utils ${tail_options}
+                        fi
+                        if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:source'`" = "1" ] )
+                        then
+                                if ( [ ! -f /etc/apache2/BUILT_FROM_SOURCE ] )
+                                then                         
+                                        software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:software-packages" "stripped"`"
+                                        if ( [ "${software_package_list}" != "" ] )
+                                        then
+                                                eval ${install_command} ${software_package_list} ${tail_options}
+                                        fi
+                                        ${HOME}/installation/apache/BuildApacheFromSource.sh  "Ubuntu" 
+                                fi
+                        elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] )
+                        then
+                                eval ${install_command} apache2 ${tail_options}
+                        fi
+                        if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:cloud-init'`" = "1" ] )
+                        then
+                                if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+                                then
+                                        modules_list="mpm_event ssl headers proxy_fcgi"
+                                elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
+                                then
+                                        modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
+                                elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
+                                then
+                                        modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:modules-list" "stripped"`"
+                                fi
+                                if ( [ "${modules_list}" != "" ] )
+                                then
+                                        for module in ${modules_list}
+                                        do
+                                                if ( [ "`/bin/echo ${module} | /bin/grep 'mpm_'`" != "" ] )
+                                                then
+                                                        /usr/sbin/a2dismod mpm_prefork
+                                                fi
+                                                /usr/sbin/a2enmod ${module}
+                                                /usr/sbin/a2enconf ${module}
+                                        done
+                                fi
+                                /bin/touch /etc/apache2/BUILT_FROM_REPO
+                        fi   
 
-			if ( [ "${MOD_SECURITY}" = "1" ] )
-			then
-				if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
-				then
-					${install_command} libapache2-mod-security2 ${tail_options}
-					${HOME}/installation/modsecurity/ConfigureModSecurityForApache.sh
-				fi
-			fi
-		fi
+                        if ( [ "${MOD_SECURITY}" = "1" ] )
+                        then
+                                if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+                                then
+                                        ${install_command} libapache2-mod-security2 ${tail_options}
+                                        ${HOME}/installation/modsecurity/ConfigureModSecurityForApache.sh
+                                fi
+                        fi
+                fi
 
-		if ( [ "${BUILDOS}" = "debian" ] )
-		then
-			if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
-			then
-				eval ${install_command} apache2-utils ${tail_options}
-			fi
-			
-			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:source'`" = "1" ] )
-			then
-				if ( [ ! -f /etc/apache2/BUILT_FROM_SOURCE ] )
-				then
-					${HOME}/installation/PurgeApache.sh
-					software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:software-packages" "stripped"`"
-					if ( [ "${software_package_list}" != "" ] )
-					then
-						eval ${install_command} ${software_package_list} ${tail_options}
-					fi 
-					${HOME}/installation/apache/BuildApacheFromSource.sh  "Debian" 	
-				fi
-			elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] )
-			then
-				eval ${install_command} apache2 ${tail_options}
-			fi
-			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:cloud-init'`" = "1" ] )
-			then
-				if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
-				then
-					modules_list="mpm_event ssl headers proxy_fcgi"
-				elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
-				then
-					modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
-				elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
-				then
-					modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:modules-list" "stripped"`"
-				fi
-				if ( [ "${modules_list}" != "" ] )
-				then
-					for module in ${modules_list}
-					do
-						if ( [ "`/bin/echo ${module} | /bin/grep 'mpm_'`" != "" ] )
-						then
-							/usr/sbin/a2dismod mpm_prefork
-						fi
-						/usr/sbin/a2enmod ${module}
-						/usr/sbin/a2enconf ${module}
-					done
-				fi
-				/bin/touch /etc/apache2/BUILT_FROM_REPO
-			fi
-		
+                if ( [ "${BUILDOS}" = "debian" ] )
+                then
+                        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+                        then
+                                eval ${install_command} apache2-utils ${tail_options}
+                        fi
 
-			if ( [ "${MOD_SECURITY}" = "1" ] )
-			then
-				if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
-				then
-					${install_command} libapache2-mod-security2 ${tail_options}
-					${HOME}/installation/modsecurity/ConfigureModSecurityForApache.sh
-				fi
-			fi
-		fi
-	fi
-	count="`/usr/bin/expr ${count} + 1`"
+                        if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:source'`" = "1" ] )
+                        then
+                                if ( [ ! -f /etc/apache2/BUILT_FROM_SOURCE ] )
+                                then
+                                        ${HOME}/installation/PurgeApache.sh
+                                        software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:software-packages" "stripped"`"
+                                        if ( [ "${software_package_list}" != "" ] )
+                                        then
+                                                eval ${install_command} ${software_package_list} ${tail_options}
+                                        fi 
+                                        ${HOME}/installation/apache/BuildApacheFromSource.sh  "Debian" 
+                                fi
+                        elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] )
+                        then
+                                eval ${install_command} apache2 ${tail_options}
+                        fi
+                        if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:repo'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'APACHE:cloud-init'`" = "1" ] )
+                        then
+                                if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+                                then
+                                        modules_list="mpm_event ssl headers proxy_fcgi"
+                                elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
+                                then
+                                        modules_list="proxy proxy_http headers ssl proxy_balancer lbmethod_byrequests slotmem_shm authz_core rewrite remoteip"
+                                elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
+                                then
+                                        modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACHE:modules-list" "stripped"`"
+                                fi
+                                if ( [ "${modules_list}" != "" ] )
+                                then
+                                        for module in ${modules_list}
+                                        do
+                                                if ( [ "`/bin/echo ${module} | /bin/grep 'mpm_'`" != "" ] )
+                                                then
+                                                        /usr/sbin/a2dismod mpm_prefork
+                                                fi
+                                                /usr/sbin/a2enmod ${module}
+                                                /usr/sbin/a2enconf ${module}
+                                        done
+                                fi
+                                /bin/touch /etc/apache2/BUILT_FROM_REPO
+                        fi
+
+
+                        if ( [ "${MOD_SECURITY}" = "1" ] )
+                        then
+                                if ( ( [ "${NO_REVERSE_PROXIES}" = "0" ] || ( [ "${NO_REVERSE_PROXIES}" != "0" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) ) || [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+                                then
+                                        ${install_command} libapache2-mod-security2 ${tail_options}
+                                        ${HOME}/installation/modsecurity/ConfigureModSecurityForApache.sh
+                                fi
+                        fi
+                fi
+        fi
+        count="`/usr/bin/expr ${count} + 1`"
 done
 
 if ( ( [ ! -x /usr/sbin/apache2 ] && [ ! -x /usr/local/apache2/bin/httpd ] ) && [ "${count}" = "5" ] )
 then
-	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR APACHE" "I believe that apache hasn't installed correctly, please investigate" "ERROR"
+        ${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR APACHE" "I believe that apache hasn't installed correctly, please investigate" "ERROR"
 else
-	/bin/touch ${HOME}/runtime/installedsoftware/InstallApache.sh				
+        /bin/touch ${HOME}/runtime/installedsoftware/InstallApache.sh
 fi
 
