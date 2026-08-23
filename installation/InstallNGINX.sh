@@ -51,11 +51,14 @@ then
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
 then
         manager="${HOME}/installation/nala_wrapper.sh"
+        options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+        options1="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y"
         tail_options="-y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "aptitude" ] )
 then
         manager="${HOME}/installation/aptitude_wrapper.sh"
-        options="-y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'"
+        options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
+        options1="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y"
 fi
 
 ${HOME}/installation/PurgeApache.sh
@@ -111,9 +114,18 @@ do
                                 elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:repo:official'`" = "1" ] )
                                 then
                                         eval ${install_command} curl gnupg2 ca-certificates lsb-release ubuntu-keyring ${tail_options}
+
+                                        if ( [ ! -d ${HOME}/.gnupg ] )
+                                        then
+                                                /bin/mkdir -p ${HOME}/.gnupg
+                                        fi
+                                        /bin/chmod 700 ${HOME}/.gnupg
+
                                         /usr/bin/curl https://nginx.org/keys/nginx_signing.key | /usr/bin/gpg --dearmor | /usr/bin/tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+
                                         if ( [ "`/usr/bin/gpg --dry-run --quiet --no-keyring --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg | /bin/egrep "8540A6F18833A80E9C1653A42FD21310B49F6B46|573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62|9E9BE90EACBCDE69FE9B204CBCDCD8A38D88A2B3" | /usr/bin/wc -l`" = "3" ] )
                                         then
+                                                echo "here3"
                                                 if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:mainline'`" = "1" ] )
                                                 then
                                                         /bin/echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" | /usr/bin/tee /etc/apt/sources.list.d/nginx.list
@@ -123,8 +135,6 @@ do
                                                 /bin/echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | /usr/bin/tee /etc/apt/preferences.d/99nginx
                                                 eval ${update_command}
                                                 eval ${install_command_confold} nginx ${tail_options}
-                                        else
-                                                exit
                                         fi
                                         ${HOME}/utilities/processing/RunServiceCommand.sh "unmask" "nginx"
                         fi
@@ -192,6 +202,13 @@ do
                                 eval ${install_command} curl gnupg2 ca-certificates lsb-release debian-archive-keyring ${tail_options}
                                 /bin/mkdir /root/.gnupg && /bin/chmod 700 /root/.gnupg
                                 /bin/mkdir ${HOME}/.gnupg && /bin/chmod 700 ${HOME}/.gnupg
+
+                                if ( [ ! -d ${HOME}/.gnupg ] )
+                                then
+                                        /bin/mkdir -p ${HOME}/.gnupg
+                                fi
+                                /bin/chmod 700 ${HOME}/.gnup
+
                                 /usr/bin/curl https://nginx.org/keys/nginx_signing.key | /usr/bin/gpg --dearmor | /usr/bin/tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
                                 if ( [ "`/usr/bin/gpg --dry-run --quiet --no-keyring --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg | /bin/egrep "8540A6F18833A80E9C1653A42FD21310B49F6B46|573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62|9E9BE90EACBCDE69FE9B204CBCDCD8A38D88A2B3" | /usr/bin/wc -l`" = "3" ] )
                                 then
