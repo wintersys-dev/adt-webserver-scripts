@@ -125,6 +125,7 @@ location /api/
 #XXXXPHPPORTXXXXlocation ~ \.php$     
 #XXXXPHPPORTXXXX{
 #XXXXPHPPORTXXXXinclude /etc/nginx/fastcgi_params;
+#XXXXPHPPORTXXXXfastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
 #XXXXPHPPORTXXXXfastcgi_intercept_errors on;
 #XXXXPHPPORTXXXXfastcgi_read_timeout 300s;
 #XXXXPHPPORTXXXXfastcgi_pass php;
