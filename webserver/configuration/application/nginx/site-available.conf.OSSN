@@ -107,6 +107,8 @@ location ~ \.php$ {
 #XXXXPHPPORTXXXX        fastcgi_pass php;
 #XXXXPHPSOCKETXXXX      fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
         fastcgi_param   SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+
 
         fastcgi_connect_timeout           60;
         fastcgi_send_timeout             180;
