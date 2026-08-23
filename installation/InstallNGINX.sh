@@ -60,15 +60,20 @@ fi
 
 ${HOME}/installation/PurgeApache.sh
 
+cloud_init="0"
+if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /bin/grep ':cloud-init'`" = "" ] )
+then    
+        cloud_init="1"
+fi
+
 export DEBIAN_FRONTEND=noninteractive
 update_command="${manager} ${options} update " 
 install_command="${manager} ${options} install " 
 install_command_confold="${manager} ${options1} install " 
 
-${HOME}/installation/PurgeApache.sh
 
 count="0"
-while ( [ ! -f /usr/sbin/nginx ] && [ "${count}" -lt "5" ] )
+while ( ( [ ! -f /usr/sbin/nginx ] || [ "${cloud_init}" = "1" ] ) && [ "${count}" -lt "5" ] )
 do
         if ( [ "${manager}" != "" ] )
         then
