@@ -59,8 +59,14 @@ install_command="${manager} ${options} install"
 
 ${HOME}/installation/PurgeApache.sh
 
+cloud_init="0"
+if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD" | /bin/grep ':cloud-init'`" = "" ] )
+then    
+        cloud_init="1"
+fi
+
 count="0"
-while ( [ ! -f /usr/sbin/lighttpd ] && [ "${count}" -lt "5" ] )
+while ( ( [ ! -f /usr/sbin/lighttpd ] || [ "${cloud-init}" = "1" ] )&& [ "${count}" -lt "5" ] )
 do
 	if ( [ "${manager}" != "" ] )
 	then
