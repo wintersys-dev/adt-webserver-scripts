@@ -50,22 +50,43 @@ then
         cd nginx
 elif ( [ "${nginx_sourcecode_url}" != "" ] )
 then
-        cd /usr/local/src
-        /usr/bin/wget ${nginx_sourcecode_url}
-        /usr/bin/wget ${nginx_sourcecode_url}.asc
-        nginx_version="`/bin/echo ${nginx_sourcecode_url} | /bin/sed -e 's/.*\-//g' -e 's/\.tar.*//g'`"
-        /usr/bin/wget https://nginx.org/keys/pluknet.key
-        /usr/bin/gpg --import /usr/local/src/pluknet.key
-        /usr/bin/gpg --verify /usr/local/src/nginx-${nginx_version}.tar.gz.asc /usr/local/src/nginx-${nginx_version}.tar.gz
-
-        if ( [ "`/usr/bin/gpg --verify /usr/local/src/nginx-${nginx_version}.tar.gz.asc /usr/local/src/nginx-${nginx_version}.tar.gz 2>&1 | /bin/grep 'Good signature from'`" = "" ] )
+        if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:fork:f5'`" = "1" ] )
         then
-                exit
-        fi
+                cd /usr/local/src
+                /usr/bin/wget ${nginx_sourcecode_url}
+                /usr/bin/wget ${nginx_sourcecode_url}.asc
+                nginx_version="`/bin/echo ${nginx_sourcecode_url} | /bin/sed -e 's/.*\-//g' -e 's/\.tar.*//g'`"
+                /usr/bin/wget https://nginx.org/keys/pluknet.key
+                /usr/bin/gpg --import /usr/local/src/pluknet.key
+                /usr/bin/gpg --verify /usr/local/src/nginx-${nginx_version}.tar.gz.asc /usr/local/src/nginx-${nginx_version}.tar.gz
 
-        /bin/tar zxvf nginx-${nginx_version}.tar.gz
-        /bin/rm nginx-${nginx_version}.tar.gz
-        cd nginx-${nginx_version}
+                if ( [ "`/usr/bin/gpg --verify /usr/local/src/nginx-${nginx_version}.tar.gz.asc /usr/local/src/nginx-${nginx_version}.tar.gz 2>&1 | /bin/grep 'Good signature from'`" = "" ] )
+                then
+                        exit
+                fi
+
+                /bin/tar zxvf nginx-${nginx_version}.tar.gz
+                /bin/rm nginx-${nginx_version}.tar.gz
+                cd nginx-${nginx_version}
+        elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:fork:free'`" = "1" ] )
+        then
+                cd /usr/local/src
+                /usr/bin/wget ${nginx_sourcecode_url}
+                /usr/bin/wget ${nginx_sourcecode_url}.asc
+                nginx_version="`/bin/echo ${nginx_sourcecode_url} | /bin/sed -e 's/.*\-//g' -e 's/\.tar.*//g'`"
+                /usr/bin/wget https://freenginx.org/keys/mdounin.key
+                /usr/bin/gpg --import /usr/local/src/mdounin.key
+                /usr/bin/gpg --verify /usr/local/src/freenginx-${nginx_version}.tar.gz.asc /usr/local/src/freenginx-${nginx_version}.tar.gz
+
+                if ( [ "`/usr/bin/gpg --verify /usr/local/src/freenginx-${nginx_version}.tar.gz.asc /usr/local/src/freenginx-${nginx_version}.tar.gz 2>&1 | /bin/grep 'Good signature from'`" = "" ] )
+                then
+                        exit
+                fi
+
+                /bin/tar zxvf freenginx-${nginx_version}.tar.gz
+                /bin/rm freenginx-${nginx_version}.tar.gz
+                cd freenginx-${nginx_version}
+        fi
 fi
 
 if ( [ ! -f /etc/nginx/modules.conf ] )
