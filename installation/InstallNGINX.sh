@@ -51,14 +51,11 @@ then
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "nala" ] )
 then
         manager="${HOME}/installation/nala_wrapper.sh"
-        options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
-        options1="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y"
         tail_options="-y"
 elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PACKAGEMANAGER" | /usr/bin/awk -F':' '{print $NF}'`" = "aptitude" ] )
 then
         manager="${HOME}/installation/aptitude_wrapper.sh"
-        options="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -qq -y"
-        options1="-o DPkg::Lock::Timeout=-1 -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold -qq -y"
+        options="-y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'"
 fi
 
 ${HOME}/installation/PurgeApache.sh
