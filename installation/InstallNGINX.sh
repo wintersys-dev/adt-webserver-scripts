@@ -61,7 +61,7 @@ fi
 ${HOME}/installation/PurgeApache.sh
 
 cloud_init="0"
-if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /bin/grep ':cloud-init'`" = "" ] )
+if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "NGINX" | /bin/grep ':cloud-init'`" != "" ] )
 then    
         cloud_init="1"
 fi
