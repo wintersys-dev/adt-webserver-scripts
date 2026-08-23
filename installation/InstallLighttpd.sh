@@ -70,48 +70,48 @@ do
 			then
 				eval ${install_command} apache2-utils ${tail_options}
 			fi
-			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
+			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:source'`" = "1" ] )
 			then
-				if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:source'`" = "1" ] )
+				if ( [ ! -f /etc/lighttpd/BUILT_FROM_SOURCE ] )
 				then
-					if ( [ ! -f /etc/lighttpd/BUILT_FROM_SOURCE ] )
+					eval ${update_command}
+					software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:software-packages" "stripped"`"
+					if ( [ "${software_package_list}" != "" ] )
 					then
-						eval ${update_command}
-						software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:software-packages" "stripped"`"
-						if ( [ "${software_package_list}" != "" ] )
-						then
-							eval ${install_command} ${software_package_list} ${tail_options}
-						fi
-						${HOME}/installation/lighttpd/BuildLighttpdFromSource.sh 		
+						eval ${install_command} ${software_package_list} ${tail_options}
 					fi
-				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
-				then
-					eval ${install_command} lighttpd ${tail_options}
-					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
-					then
-						modules_list="mod_fastcgi"
-					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
-					then
-						modules_list="mod_openssl mod_accesslog mod_deflate mod_setenv mod_access mod_expire mod_compress mod_redirect mod_rewrite mod_proxy mod_auth mod_authn_file"
-					elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
-					then
-						modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:modules-list" "stripped"`"
-					fi
-					if ( [ "${modules_list}" != "" ] )
-					then
-						/bin/echo "server.modules = (" > /etc/lighttpd/modules.conf
-						for module in ${modules_list}
-						do
-							/bin/echo '"'${module}'",' >> /etc/lighttpd/modules.conf
-						done
-						/usr/bin/truncate -s -2 /etc/lighttpd/modules.conf
-						/bin/echo "" >> /etc/lighttpd/modules.conf
-						/bin/echo ")" >> /etc/lighttpd/modules.conf
-					else
-						/bin/echo "" > /etc/lighttpd/modules.conf
-					fi
-					/bin/touch /etc/lighttpd/BUILT_FROM_REPO
+					${HOME}/installation/lighttpd/BuildLighttpdFromSource.sh 		
 				fi
+			elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
+			then
+				eval ${install_command} lighttpd ${tail_options}
+			fi
+			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:cloud-init'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
+			then
+				if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+				then
+					modules_list="mod_fastcgi"
+				elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
+				then
+					modules_list="mod_openssl mod_accesslog mod_deflate mod_setenv mod_access mod_expire mod_compress mod_redirect mod_rewrite mod_proxy mod_auth mod_authn_file"
+				elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
+				then
+					modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:modules-list" "stripped"`"
+				fi
+				if ( [ "${modules_list}" != "" ] )
+				then
+					/bin/echo "server.modules = (" > /etc/lighttpd/modules.conf
+					for module in ${modules_list}
+					do
+						/bin/echo '"'${module}'",' >> /etc/lighttpd/modules.conf
+					done
+					/usr/bin/truncate -s -2 /etc/lighttpd/modules.conf
+					/bin/echo "" >> /etc/lighttpd/modules.conf
+					/bin/echo ")" >> /etc/lighttpd/modules.conf
+				else
+					/bin/echo "" > /etc/lighttpd/modules.conf
+				fi	
+				/bin/touch /etc/lighttpd/BUILT_FROM_REPO
 			fi
 		fi
 
@@ -121,50 +121,50 @@ do
 			then
 				eval ${install_command} apache2-utils ${tail_options}
 			fi
-			if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD" | /usr/bin/awk -F':' '{print $NF}'`" != "cloud-init" ] )
+			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:source'`" = "1" ] )
 			then
-				if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:source'`" = "1" ] )
+				if ( [ ! -f /etc/lighttpd/BUILT_FROM_SOURCE ] )
 				then
-					if ( [ ! -f /etc/lighttpd/BUILT_FROM_SOURCE ] )
+					eval ${update_command}
+					software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:software-packages" "stripped"`"
+					if ( [ "${software_package_list}" != "" ] )
 					then
-						eval ${update_command}
-						software_package_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:software-packages" "stripped"`"
-						if ( [ "${software_package_list}" != "" ] )
-						then
-							eval ${install_command} ${software_package_list} ${tail_options}
-						fi			
-						${HOME}/installation/lighttpd/BuildLighttpdFromSource.sh 		
-					fi
-				elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
-				then
-					eval ${install_command} lighttpd ${tail_options}
-					if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
-					then
-						modules_list="mod_fastcgi"
-					elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
-					then
-						modules_list="mod_openssl mod_accesslog mod_deflate mod_setenv mod_access mod_expire mod_compress mod_redirect mod_rewrite mod_proxy mod_auth mod_authn_file"
-					elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
-					then
-						modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:modules-list" "stripped"`"
-					fi
-					
-					if ( [ "${modules_list}" != "" ] )
-					then
-						/bin/echo "server.modules = (" > /etc/lighttpd/modules.conf
-						for module in ${modules_list}
-						do
-							/bin/echo '"'${module}'",' >> /etc/lighttpd/modules.conf
-						done
-						/usr/bin/truncate -s -2 /etc/lighttpd/modules.conf
-						/bin/echo "" >> /etc/lighttpd/modules.conf
-						/bin/echo ")" >> /etc/lighttpd/modules.conf
-					else
-						/bin/echo "" > /etc/lighttpd/modules.conf
-					fi
-					
-					/bin/touch /etc/lighttpd/BUILT_FROM_REPO
+						eval ${install_command} ${software_package_list} ${tail_options}
+					fi			
+					${HOME}/installation/lighttpd/BuildLighttpdFromSource.sh 		
 				fi
+			elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
+			then
+				eval ${install_command} lighttpd ${tail_options}
+			fi
+			if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:cloud-init'`" = "1" ] || [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'LIGHTTPD:repo'`" = "1" ] )
+			then
+				if (  [ "`/usr/bin/hostname | /bin/grep 'auth-'`" != "" ] )
+				then
+					modules_list="mod_fastcgi"
+				elif ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
+				then
+					modules_list="mod_openssl mod_accesslog mod_deflate mod_setenv mod_access mod_expire mod_compress mod_redirect mod_rewrite mod_proxy mod_auth mod_authn_file"
+				elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
+				then
+					modules_list="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHTTPD:modules-list" "stripped"`"
+				fi
+					
+				if ( [ "${modules_list}" != "" ] )
+				then
+					/bin/echo "server.modules = (" > /etc/lighttpd/modules.conf
+					for module in ${modules_list}
+					do
+						/bin/echo '"'${module}'",' >> /etc/lighttpd/modules.conf
+					done
+
+					/usr/bin/truncate -s -2 /etc/lighttpd/modules.conf
+					/bin/echo "" >> /etc/lighttpd/modules.conf
+					/bin/echo ")" >> /etc/lighttpd/modules.conf
+				else	
+					/bin/echo "" > /etc/lighttpd/modules.conf
+				fi
+				/bin/touch /etc/lighttpd/BUILT_FROM_REPO
 			fi
 		fi
 	fi
