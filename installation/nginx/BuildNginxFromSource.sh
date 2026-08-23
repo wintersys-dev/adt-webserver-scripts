@@ -47,68 +47,26 @@ then
         then
                 ${HOME}/services/git/GitClone.sh "github" "" "freenginx" "nginx" "" "${nginx_git_branch}"
         fi
+        cd nginx
 elif ( [ "${nginx_sourcecode_url}" != "" ] )
 then
-        if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:fork:free'`" = "1" ] )
+        cd /usr/local/src
+        /usr/bin/wget ${nginx_sourcecode_url}
+        /usr/bin/wget ${nginx_sourcecode_url}.asc
+        nginx_version="`/bin/echo ${nginx_sourcecode_url} | /bin/sed -e 's/.*\-//g' -e 's/\.tar.*//g'`"
+        /usr/bin/wget https://nginx.org/keys/pluknet.key
+        /usr/bin/gpg --import /usr/local/src/pluknet.key
+        /usr/bin/gpg --verify /usr/local/src/nginx-${nginx_version}.tar.gz.asc /usr/local/src/nginx-${nginx_version}.tar.gz
+
+        if ( [ "`/usr/bin/gpg --verify /usr/local/src/nginx-${nginx_version}.tar.gz.asc /usr/local/src/nginx-${nginx_version}.tar.gz 2>&1 | /bin/grep 'Good signature from'`" = "" ] )
         then
-                nginx_archive_name="`/bin/echo ${nginx_sourcecode_url} | /usr/bin/awk -F'/' '{print $NF}'`"
-                /usr/bin/wget ${nginx_sourcecode_url}
-                /bin/mkdir /usr/local/src/working
-                /bin/tar zxvf ${nginx_archive_name} -C /usr/local/src/working
-                /bin/rm *nginx*
-                /bin/mv /usr/local/src/working/* /usr/local/src
-                /bin/rm -r /usr/local/src/working
-        else
-                nginx_archive_name="`/bin/echo ${nginx_sourcecode_url} | /usr/bin/awk -F'/' '{print $NF}'`"
-                /usr/bin/wget ${nginx_sourcecode_url}
-                /usr/bin/wget ${nginx_sourcecode_url}.asc
-                public_key="`/usr/bin/gpg ${nginx_archive_name}.asc 2>&1 | /bin/grep 'using RSA key' | /usr/bin/awk '{print $NF}'`"
-                /bin/chown -R `/usr/bin/whoami` ${HOME}/.gnupg/
-                /bin/chmod 600 ${HOME}/.gnupg/*
-                /bin/chmod 700 ${HOME}/.gnupg
-                /usr/bin/wget https://nginx.org/keys/nginx_signing.key
-              #  /usr/bin/gpg --keyserver hkps://keys.openpgp.org --recv-keys ${public_key}
-                signer_email="`/usr/bin/gpg --keyserver hkps://keys.openpgp.org --recv-keys ${public_key} 2>&1 | /bin/grep "gpg: key" | /bin/sed -e 's/.*<//g' -e 's/>.*//g'`"
-               # /usr/bin/wget https://nginx.org/keys/nginx_signing.key
-                /usr/bin/gpg --import nginx_signing.key
-
-                /bin/echo -e "4\ny\n" | /usr/bin/gpg --command-fd 0 --expert --edit-key "${signer_email}" trust
-
-                if ( [ "`/usr/bin/gpg --verify ./${nginx_archive_name}.asc ${nginx_archive_name} 2>&1 | /bin/grep "Good signature" | /bin/grep "r.arutyunyan@f5.com"`" = "" ] )
-                then
-                        exit
-                else
-                        /bin/mkdir /usr/local/src/working
-                        /bin/tar zxvf ${nginx_archive_name} -C /usr/local/src/working
-                        /bin/rm nginx*
-                        /bin/mv /usr/local/src/working/* /usr/local/src
-                        /bin/rm -r /usr/local/src/working
-                fi
+                exit
         fi
 
-        /bin/mv *nginx-* nginx
+        /bin/tar zxvf nginx-${nginx_version}.tar.gz
+        /bin/rm nginx-${nginx_version}.tar.gz
+        cd nginx-${nginx_version}
 fi
-
-cd nginx
-
-##############################################################################################################################################
-#Alternative installation source (comment the two lines above and uncomment the lines here to use the alternative source to github (nginx.org))
-##############################################################################################################################################
-#nginx_latest_version="`/usr/bin/curl 'http://nginx.org/download/' |   /bin/egrep -o 'nginx-[0-9]+\.[0-9]+\.[0-9]+' | /bin/sed 's/nginx-//g' |  /usr/bin/sort --version-sort | /usr/bin/uniq | /usr/bin/tail -1`"
-#/usr/bin/wget https://nginx.org/download/nginx-${nginx_latest_version}.tar.gz 
-#/usr/bin/wget https://nginx.org/download/nginx-${nginx_latest_version}.tar.gz.asc
-#/usr/bin/wget https://nginx.org/keys/pluknet.key
-#/usr/bin/gpg --import /usr/local/src/pluknet.key
-
-#if ( [ "`/usr/bin/gpg --verify /usr/local/src/nginx-${nginx_latest_version}.tar.gz.asc /usr/local/src/nginx-${nginx_latest_version}.tar.gz 2>&1 | /bin/grep 'Good signature from'`" = "" ] )
-#then
-#        exit
-#fi
-
-#/bin/tar zxvf nginx-${nginx_latest_version}.tar.gz
-#/bin/rm nginx-${nginx_latest_version}.tar.gz
-#cd nginx-${nginx_latest_version}
-#############################################################################################################################################
 
 if ( [ ! -f /etc/nginx/modules.conf ] )
 then
@@ -118,7 +76,6 @@ else
 fi
 
 mod_security_module="" 
-
 if ( ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXIES}" = "0" ] && [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] ) || ( [ "${MOD_SECURITY}" = "1" ] && ( [ "${NO_REVERSE_PROXIES}" = "1" ] && [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] ) || ( [ "${MOD_SECURITY}" = "1" ] && [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] ) ) )
 then
         mod_security_module="--add-module=/opt/ModSecurity-nginx"
