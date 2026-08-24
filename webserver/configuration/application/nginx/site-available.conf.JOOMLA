@@ -125,6 +125,10 @@ location /api/
   try_files $uri $uri/ /api/index.php?$args;
 }
 
+location ~ configuration.php$ {
+deny all;
+}
+
 
 #XXXXPHPPORTXXXXlocation ~ \.php$     
 #XXXXPHPPORTXXXX{
