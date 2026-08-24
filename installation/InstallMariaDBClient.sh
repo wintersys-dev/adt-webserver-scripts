@@ -121,5 +121,6 @@ if ( [ ! -x /usr/bin/mariadb ] && [ "${count}" = "5" ] )
 then
         ${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR MARIADB" "I believe that mariadb-client hasn't installed correctly, please investigate" "ERROR"
 else
+        /bin/echo "ssl-verify-server-cert = off" >> /etc/mysql/my.cnf
         /bin/touch ${HOME}/runtime/installedsoftware/InstallMariaDBClient.sh
 fi
