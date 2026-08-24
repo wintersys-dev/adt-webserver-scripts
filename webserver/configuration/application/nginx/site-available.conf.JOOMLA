@@ -96,8 +96,9 @@ server
     	expires    7d;
 	}
 
-location ~ .php$ {
+location ~ /configuration.php$ {
 deny all;
+return 403;
 }
 
 location / 
