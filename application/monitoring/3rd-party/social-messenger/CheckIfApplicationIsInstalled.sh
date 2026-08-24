@@ -27,7 +27,23 @@
 #######################################################################################################
 #set -x 
 
+#Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+if ( [ -f /var/www/html/wr.dat ] )
+then
+        archived_webroot_directory="`/bin/cat /var/www/html/wr.dat`"
+fi
+
+if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] )
+then
+        webroot_directory="${archived_webroot_directory}"
+fi
+
+if ( [ "${webroot_directory}" = "" ] )
+then
+        webroot_directory="/var/www/html/joomla"
+fi
 
 installed="1"
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:social-messenger`" = "1" ] )
