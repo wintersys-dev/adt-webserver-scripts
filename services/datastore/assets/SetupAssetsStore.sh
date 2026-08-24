@@ -86,17 +86,17 @@ s3fs_uid="`/usr/bin/id -u www-data`"
 
 for application_assets_directory in ${application_asset_dirs}
 do
-     #   if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
-     #   then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] )
+        then
+                absolute_application_assets_directory="${webroot_directory}"
+        else
                 absolute_application_assets_directory="/var/www/outside_webroot/${application_assets_directory}"
+        fi
 
-                if ( [ ! -d ${absolute_application_assets_directory} ] && [ -d ${webroot_directory}/${application_assets_directory} ] )
-                then
-                        absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
-                fi
-     #   else
-     #           absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
-     #   fi
+        if ( [ ! -d ${absolute_application_assets_directory} ] && [ -d ${webroot_directory}/${application_assets_directory} ] )
+        then
+        	absolute_application_assets_directory="${webroot_directory}/${application_assets_directory}"
+        fi
 
         if ( [ ! -d ${absolute_application_assets_directory} ] )
         then
