@@ -60,6 +60,14 @@ ServerName XXXXWEBSITEURLXXXX
 
  DirectoryIndex index.php index.html
 
+<Files wp-config.php>
+Require all denied
+</Files>
+
+<Files .htaccess>
+Require all denied
+</Files>
+
    <Directory XXXXWEBROOT_DIRECTORYXXXX>
      Options +FollowSymlinks -Includes -ExecCGI -Indexes
      AllowOverride All
