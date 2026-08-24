@@ -38,7 +38,7 @@ fi
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/joomla"
+        webroot_directory="/var/www/html/moodle"
 fi
 installed="1"
 
