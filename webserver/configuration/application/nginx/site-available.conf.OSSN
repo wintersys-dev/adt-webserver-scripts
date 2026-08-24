@@ -96,12 +96,15 @@ server
     	expires    7d;
 	}
 
-location ~ /wp-config.php$ {
+location ~ /ossn.config.db.php$ {
 deny all;
 return 403;
 }
 
-
+location ~ /ossn.config.site.php$ {
+deny all;
+return 403;
+}
 
 location / 
 {
