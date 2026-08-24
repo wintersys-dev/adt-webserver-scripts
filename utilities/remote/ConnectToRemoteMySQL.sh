@@ -36,11 +36,9 @@ SUDO="/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S "
 if ( [ "${DATABASE_INSTALLATION_TYPE}" = "Maria" ] )
 then
         mysql="/usr/bin/mariadb"
-        verify_cert=""
 elif ( [ "${DATABASE_INSTALLATION_TYPE}" = "MySQL" ] )
 then
         mysql="/usr/bin/mysql"
-        verify_cert=" --ssl-verify-server-cert=false "
 fi
 
 num_args="$#"
@@ -96,8 +94,8 @@ credentials_file=${HOME}/.mysql-credentials.cnf
 
 if ( [ "${sql_command}" != "" ]  )
 then
-        ${mysql} --defaults-extra-file=${credentials_file} --ssl --silent --raw ${verify_cert} -A ${DB_N} -e "${sql_command}"
+        ${mysql} --defaults-extra-file=${credentials_file} --ssl --silent --raw -A ${DB_N} -e "${sql_command}"
 else
-        ${mysql} --defaults-extra-file=${credentials_file} --ssl ${verify_cert} -A ${DB_N}
+        ${mysql} --defaults-extra-file=${credentials_file} --ssl -A ${DB_N}
 fi
 
