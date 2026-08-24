@@ -43,7 +43,7 @@ fi
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/joomla"
+        webroot_directory="/var/www/html/wordpress"
 fi
 installed="1"
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:wordpress`" = "1" ] )
