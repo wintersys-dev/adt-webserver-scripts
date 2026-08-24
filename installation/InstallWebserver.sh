@@ -43,18 +43,30 @@ fi
 if ( [ "${WEBSERVER_TYPE}" = "NGINX" ] )
 then
         ${HOME}/installation/InstallNGINX.sh ${BUILDOS}
+        while ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
+        do
+                /bin/sleep 1
+        done
         ${HOME}/webserver/configuration/ConfigureNginxForApplication.sh
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "APACHE" ] )
 then
         ${HOME}/installation/InstallApache.sh ${BUILDOS}
+        while ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
+        do
+                /bin/sleep 1
+        done
         ${HOME}/webserver/configuration/ConfigureApacheForApplication.sh
 fi
 
 if ( [ "${WEBSERVER_TYPE}" = "LIGHTTPD" ] )
 then
         ${HOME}/installation/InstallLighttpd.sh ${BUILDOS}
+        while ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
+        do
+                /bin/sleep 1
+        done
         ${HOME}/webserver/configuration/ConfigureLighttpdForApplication.sh
 
 fi
