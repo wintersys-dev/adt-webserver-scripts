@@ -96,7 +96,7 @@ server
     	expires    7d;
 	}
 
-location ~ /wp-config.php$ {
+location ~ /config.php$ {
 deny all;
 return 403;
 }
