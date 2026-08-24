@@ -77,5 +77,6 @@ if ( [ ! -x /usr/bin/mysql ] && [ "${count}" = "5" ] )
 then
         ${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR IPCALC" "I believe that mysql client hasn't installed correctly, please investigate" "ERROR"
 else
+        /bin/echo "ssl-verify-server-cert = off" >> /etc/mysql/my.cnf
         /bin/touch ${HOME}/runtime/installedsoftware/InstallMySQLClient.sh
 fi
