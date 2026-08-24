@@ -355,13 +355,13 @@ then
 		/bin/cp ${webroot_directory}/htaccess.txt ${webroot_directory}/.htaccess
 	fi
 
-	/bin/echo '<Files configuration.php>
-Require all granted 
-</Files>
-
-<Files .htaccess>
-Require all granted
-</Files>' >> ${webroot_directory}/.htaccess
+#	/bin/echo '<Files configuration.php>
+#Require all granted 
+#</Files>
+#
+#<Files .htaccess>
+#Require all granted
+#</Files>' >> ${webroot_directory}/.htaccess
 
 	if ( [ -f ${webroot_directory}/.htaccess ] )
 	then
