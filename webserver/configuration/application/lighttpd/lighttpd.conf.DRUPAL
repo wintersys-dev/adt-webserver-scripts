@@ -27,7 +27,7 @@ server.pid-file = "/var/run/lighttpd.pid"
 static-file.exclude-extensions = ( ".php", ".fcgi" )
 
 ## Deny access the file-extensions
-url.access-deny = ( "~", ".inc" )
+url.access-deny = ( "~", ".inc", "settings.php" )
 
 ## Enable/Disable Directory Listings
 dir-listing.encoding = "utf-8"
