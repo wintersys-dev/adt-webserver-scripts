@@ -60,6 +60,14 @@ ServerName XXXXWEBSITEURLXXXX
 
  DirectoryIndex index.php index.html
 
+<Files settings.php>
+Require all denied
+</Files>
+
+<Files .htaccess>
+Require all denied
+</Files>
+
 
  <Directory XXXXWEBROOT_DIRECTORYXXXX/web/sites/default/files>
     Options +FollowSymlinks -Includes -ExecCGI -Indexes
