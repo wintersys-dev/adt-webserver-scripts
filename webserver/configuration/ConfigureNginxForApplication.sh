@@ -44,8 +44,24 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 MOD_SECURITY="`${HOME}/utilities/config/ExtractConfigValue.sh 'MODSECURITY'`"
 port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d' | /bin/sed 's/ //g'`"
+
+#Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
+if ( [ -f /var/www/html/wr.dat ] )
+then
+        archived_webroot_directory="`/bin/cat /var/www/html/wr.dat`"
+fi
+
+if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] )
+then
+        webroot_directory="${archived_webroot_directory}"
+fi
+
+if ( [ "${webroot_directory}" = "" ] )
+then
+        webroot_directory="/var/www/html/${APPLICATION}"
+fi
 
 if ( [ -d /etc/nginx/sites-available ] && [ "`/usr/bin/find /etc/nginx/sites-available -prune -empty 2>/dev/null`" = "" ] )
 then
