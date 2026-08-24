@@ -96,6 +96,11 @@ server
     	expires    7d;
 	}
 
+location ~ /wp-config.php$ {
+deny all;
+return 403;
+}
+
 
 
 location / 
