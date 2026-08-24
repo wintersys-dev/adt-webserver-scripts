@@ -96,6 +96,11 @@ server
     	expires    7d;
 	}
 
+location ~ /settings.php$ {
+deny all;
+return 403;
+}
+
   location / 
   {
     try_files $uri $uri/ /index.php?$args;
