@@ -56,6 +56,16 @@ fi
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
+if ( [ -f /var/www/html/wr.dat ] )
+then
+	archived_webroot_directory="`/bin/cat /var/www/html/wr.dat`"
+fi
+
+if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] )
+then
+	webroot_directory="${archived_webroot_directory}"
+fi
+
 if ( [ "${webroot_directory}" = "" ] )
 then
         webroot_directory="/var/www/html/joomla"
@@ -226,6 +236,9 @@ fi
 #Remind ourselves at any future time that we are a Joomla application. This will be stored in the backups and the baselines and can be consulted later
 /bin/echo "JOOMLA" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
+
+/bin/echo "${webroot_directory}" > /var/www/html/wr.dat
+/bin/chown www-data:www-data /var/www/html/wr.dat
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
