@@ -58,17 +58,17 @@ webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.
 
 if ( [ -f /var/www/html/wr.dat ] )
 then
-	archived_webroot_directory="`/bin/cat /var/www/html/wr.dat`"
+        archived_webroot_directory="`/bin/cat /var/www/html/wr.dat`"
 fi
 
-if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] )
+if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] && [ "${archived_webroot_directory}" != "" ] )
 then
-	webroot_directory="${archived_webroot_directory}"
+        webroot_directory="${archived_webroot_directory}"
 fi
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/joomla"
+        webroot_directory="/var/www/html/joomla`"
 fi
 
 #Take our own copy of the default configuration file which will still be available to work with on subsquent deployments when the
