@@ -305,21 +305,21 @@ done
 #configuration values that are set in the configuration.php file. These directories are owned by www-data because we expect them to be 
 #dynamically updated
 
-directories_outside_webroot="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
-
-for directory in ${directories_outside_webroot}
-do
-	if ( [ ! -d /var/www/outside_webroot/${directory} ] )
-	then
-		/bin/mkdir -p /var/www/outside_webroot/${directory}
-		/bin/chown www-data:www-data /var/www/outside_webroot/${directory}
-		/bin/chmod 750 /var/www/outside_webroot/${directory}
-	fi
-	if ( [ -d ${webroot_directory}/${directory} ] )
-	then
-		/bin/rm -r ${webroot_directory}/${directory}
-	fi
-done
+#directories_outside_webroot="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+#
+#for directory in ${directories_outside_webroot}
+#do
+#	if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+#	then
+#		/bin/mkdir -p /var/www/outside_webroot/${directory}
+#		/bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+#		/bin/chmod 750 /var/www/outside_webroot/${directory}
+#	fi
+#	if ( [ -d ${webroot_directory}/${directory} ] )
+#	then
+#		/bin/rm -r ${webroot_directory}/${directory}
+#	fi
+#done
 
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
 # code sets up that structure
