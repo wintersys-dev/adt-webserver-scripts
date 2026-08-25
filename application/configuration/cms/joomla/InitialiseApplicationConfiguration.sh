@@ -232,7 +232,7 @@ else
 					/bin/chmod 440 /var/www/outside_webroot/DBaaS_CERT
 					/bin/sed -i "s%\$dbsslverifyservercert =.*$%\$dbsslverifyservercert = true;%" ${config_file}
 					/bin/sed -i "s%\$dbsslca =.*$%\$dbsslca = '/var/www/outside_webroot/DBaaS_CERT';%" ${config_file}
-				if 
+				fi 
 
 				#Check that the webroot we have is actually a Joomla application and we haven't somehow got a different archive or baseline
                 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
