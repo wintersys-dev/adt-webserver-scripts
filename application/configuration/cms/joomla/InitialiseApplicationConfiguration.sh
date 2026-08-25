@@ -68,7 +68,7 @@ fi
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/joomla`"
+        webroot_directory="/var/www/html/joomla"
 fi
 
 #Take our own copy of the default configuration file which will still be available to work with on subsquent deployments when the
