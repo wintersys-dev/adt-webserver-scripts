@@ -19,7 +19,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################
 #######################################################################################
-set -x
+#set -x
 
 if ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] || [ "`/usr/bin/hostname | /bin/grep "\-auth-"`" != "" ] )
 then
@@ -32,13 +32,27 @@ SERVER_USER_PASSWORD="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSE
 DATABASE_INSTALLATION_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'DATABASEINSTALLATIONTYPE'`"
 SUDO="/bin/echo ${SERVER_USER_PASSWORD} | /usr/bin/sudo -S "
 
-
+verify_cert=""
+ssl=""
 if ( [ "${DATABASE_INSTALLATION_TYPE}" = "Maria" ] )
 then
         mysql="/usr/bin/mariadb"
+        ssl=" --ssl "
 elif ( [ "${DATABASE_INSTALLATION_TYPE}" = "MySQL" ] )
 then
         mysql="/usr/bin/mysql"
+        ssl=" --ssl "
+elif ( [ "${DATABASE_INSTALLATION_TYPE}" = "DBaaS" ] )
+then
+        if ( [ -f /usr/bin/mariadb ] )
+        then
+                mysql="/usr/bin/mariadb"
+                verify_cert=" --ssl-verify-server-cert=true --ssl-ca ${HOME}/runtime/DBaaS_CERT "
+        elif ( [ -f /usr/bin/mysql ] )
+        then
+                mysql="/usr/bin/mysql"
+                verify_cert=" --ssl-mode=VERIFY_IDENTITY --ssl-ca ${HOME}/runtime/DBaaS_CERT "
+        fi
 fi
 
 num_args="$#"
@@ -94,8 +108,8 @@ credentials_file=${HOME}/.mysql-credentials.cnf
 
 if ( [ "${sql_command}" != "" ]  )
 then
-        ${mysql} --defaults-extra-file=${credentials_file} --ssl --silent --raw -A ${DB_N} -e "${sql_command}"
+        ${mysql} --defaults-extra-file=${credentials_file} ${ssl} ${verify_cert} --silent --raw -A ${DB_N} -e "${sql_command}"
 else
-        ${mysql} --defaults-extra-file=${credentials_file} --ssl -A ${DB_N}
+        ${mysql} --defaults-extra-file=${credentials_file} ${ssl} ${verify_cert} -A ${DB_N}
 fi
 
