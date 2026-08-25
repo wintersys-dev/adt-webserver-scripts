@@ -212,6 +212,7 @@ else
                 /bin/sed -i "s%\$db =.*$%\$db = '"${db}"';%" ${config_file}
                 /bin/sed -i "s%\$type =.*$%\$type = '"${type}"';%" ${config_file}
                 /bin/sed -i "s%\$dbencryption =.*$%\$dbencryption = 1;%" ${config_file}
+                
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] )
                 then
@@ -223,6 +224,15 @@ else
                 then
                         /bin/sed -i "s%\$dbtype =.*$%\$dbtype = '"pgsql"';%" ${config_file}
                 fi
+
+				if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+				then
+					/bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot/DBaaS_CERT
+					/bin/chown www-data:www-data /var/www/outside_webroot/DBaaS_CERT
+					/bin/chmod 440 /var/www/outside_webroot/DBaaS_CERT
+					/bin/sed -i "s%\$dbsslverifyservercert =.*$%\$dbsslverifyservercert = true;%" ${config_file}
+					/bin/sed -i "s%\$dbsslca =.*$%\$dbsslca = '/var/www/outside_webroot/DBaaS_CERT';%" ${config_file}
+				if 
 
 				#Check that the webroot we have is actually a Joomla application and we haven't somehow got a different archive or baseline
                 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
