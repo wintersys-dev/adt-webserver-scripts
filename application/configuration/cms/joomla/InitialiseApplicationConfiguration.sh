@@ -365,6 +365,16 @@ then
 		/bin/chmod 750 ${directory}
 		/bin/ln -s ${directory} ${link}
 	done
+else
+	directories="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+
+	for directory in `/bin/echo ${directories} | /bin/sed 's/:/ /g'`
+	do
+		directory="`/bin/echo ${directory} | /usr/bin/awk -F'|' '{print $1}'`"
+		/bin/mkdir -p ${directory}
+		/bin/chown www-data:www-data ${directory}
+		/bin/chmod 750 ${directory}
+	done
 fi
 
 #As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
