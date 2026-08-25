@@ -337,6 +337,11 @@ then
 			fi
 		fi
 
+		if ( [ -L ${link_directory} ] )
+        then
+        	/usr/bin/unlink ${link_directory}
+        fi
+
 		if ( [ -d ${link_directory} ] )
 		then
 			if ( [ ! -d ${directory} ] )
