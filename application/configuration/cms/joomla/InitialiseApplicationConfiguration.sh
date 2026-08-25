@@ -296,7 +296,7 @@ do
 			/bin/sed -i "s%\$${label} =.*$%\$${label} = ${value};%" ${config_file}
 		fi
 	else
-		/bin/sed -i '$ i\        public $'${label}' = "'${value}'";' ${config_file}
+            /bin/sed -i '$ i\        public $'${label}' = '${value}';' ${config_file}
 	fi
 done
 
