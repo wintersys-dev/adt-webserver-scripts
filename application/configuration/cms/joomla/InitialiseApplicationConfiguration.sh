@@ -286,12 +286,18 @@ fi
 
 for setting in `/bin/grep "^INDIVIDUAL_SETTING:" ${HOME}/runtime/application.dat | /bin/sed 's/^INDIVIDUAL_SETTING://g' | /bin/sed 's/:/ /g'`
 do
-        label="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
-        value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $2}'`"
-        if ( [ "${label}" != "" ] && [ "${value}" != "" ] )
-        then
-                /bin/sed -i "s%\$${label} =.*$%\$${label} = ${value};%" ${config_file}
-        fi
+	label="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
+	value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $2}'`"
+
+	if ( [ "`/bin/grep ${label} ${config_file}`" != "" ] )
+	then
+		if ( [ "${label}" != "" ] && [ "${value}" != "" ] )
+		then
+			/bin/sed -i "s%\$${label} =.*$%\$${label} = ${value};%" ${config_file}
+		fi
+	else
+		/bin/sed -i '$ i\        public $'${label}' = "'${value}'";' ${config_file}
+	fi
 done
 
 # We obtain a list of directories we are expecting to exist outside of the webrooot such as caching, logging and temporary directories
