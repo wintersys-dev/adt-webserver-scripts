@@ -39,6 +39,7 @@ PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION' | /usr/bin/tr '[:lower:]' '[:upper:]'`"
 port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d' | /bin/sed 's/ //g'`"
+
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -47,14 +48,14 @@ then
         archived_webroot_directory="`/bin/cat /var/www/html/wr.dat`"
 fi
 
-if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] )
+if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] && [ "${archived_webroot_directory}" != "" ] )
 then
         webroot_directory="${archived_webroot_directory}"
 fi
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/${APPLICATION}"
+        webroot_directory="/var/www/html/`/bin/echo ${APPLICATION} | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 fi
 
 if ( [ -f /etc/php/${PHP_VERSION}/fpm/php.ini ] )
