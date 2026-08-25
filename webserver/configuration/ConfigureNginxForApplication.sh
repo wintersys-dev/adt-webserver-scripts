@@ -53,14 +53,14 @@ then
         archived_webroot_directory="`/bin/cat /var/www/html/wr.dat`"
 fi
 
-if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] )
+if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] && [ "${archived_webroot_directory}" != "" ] )
 then
         webroot_directory="${archived_webroot_directory}"
 fi
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/${APPLICATION}"
+        webroot_directory="/var/www/html/`/bin/echo ${APPLICATION} | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 fi
 
 if ( [ -d /etc/nginx/sites-available ] && [ "`/usr/bin/find /etc/nginx/sites-available -prune -empty 2>/dev/null`" = "" ] )
