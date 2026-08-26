@@ -71,3 +71,20 @@ if ( [ "${webroot_directory}" = "" ] )
 then
         webroot_directory="/var/www/html/wordpress"
 fi
+
+#Take our own copy of the default configuration file which will still be available to work with on subsquent deployments when the
+#installation folder is no longer available to work with
+if ( [ -f ${webroot_directory}/installation/configuration.php-dist ] )
+then
+        /bin/cp ${webroot_directory}/installation/configuration.php-dist /var/www/html/configuration.php.default
+        /bin/chown www-data:www-data /var/www/html/configuration.php.default
+fi
+
+#Create the standard ourside webroot folder which is used throughout the toolkit as the directory outside of the webroot where
+#parts of the system that require dynamic access by users and admins are separated and secured away from the core system
+if ( [ ! -d /var/www/outside_webroot ] )
+then
+        /bin/mkdir /var/www/outside_webroot
+        /bin/chown www-data:www-data /var/www/outside_webroot
+        /bin/chmod 750 /var/www/outside_webroot
+fi
