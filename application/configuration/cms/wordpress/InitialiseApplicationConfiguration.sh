@@ -88,3 +88,12 @@ then
         /bin/chown www-data:www-data /var/www/outside_webroot
         /bin/chmod 750 /var/www/outside_webroot
 fi
+
+#Extract the configuration filename from the application descriptor and if its not available fallback to a default value
+#This will be where the actual configuration.php file is stored and is linked to using a symlink from within the webroot
+config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+if ( [ "${config_file}" = "" ] )
+then
+        config_file="/var/www/outside_webroot/wp-config.php"
+fi
