@@ -48,10 +48,6 @@ fi
 exec 1>>${HOME}/logs/joomla_configuration/${log_file}
 exec 2>>${HOME}/logs/joomla_configuration/${err_file}
 
-if ( [ ! -f ${HOME}/runtime/application.dat ] )
-then
-	exit
-fi
 
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -313,14 +309,6 @@ then
 	do
 		link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
 		directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
-
-		if ( [ "${directory}" != "" ] )
-		then
-			if ( [ -d ${directory} ] )
-			then
-				/bin/rm -r ${directory}/*
-			fi
-		fi
 
 		if ( [ -L ${link_directory} ] )
         then
