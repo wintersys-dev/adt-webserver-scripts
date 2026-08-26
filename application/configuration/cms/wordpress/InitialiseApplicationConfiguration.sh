@@ -255,6 +255,11 @@ do
         fi
 done
 
+if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+then
+        /usr/bin/sudo -u www-data wp config set "MYSQL_SSL_CA" "${HOME}/runtime/DBaaS_CERT" --config-file="${config_file}"
+fi
+
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
 # code sets up that structure
 
