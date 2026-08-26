@@ -74,9 +74,9 @@ fi
 
 #Take our own copy of the default configuration file which will still be available to work with on subsquent deployments when the
 #installation folder is no longer available to work with
-if ( [ -f ${webroot_directory}/installation/configuration.php-dist ] )
+if ( [ -f ${webroot_directory}/wp-config-sample.php ] )
 then
-        /bin/cp ${webroot_directory}/installation/configuration.php-dist /var/www/html/wp-config.php.default
+        /bin/cp ${webroot_directory}/wp-config-sample.php /var/www/html/wp-config.php.default
         /bin/chown www-data:www-data /var/www/html/wp-config.php.default
 fi
 
