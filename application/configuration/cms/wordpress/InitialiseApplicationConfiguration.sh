@@ -345,4 +345,25 @@ Require all granted
 	done
 fi
 
+# Do a final integrity check on the config_file
+/usr/bin/php -ln ${config_file}
+
+if ( [ "$?" = "0" ] )
+then
+	/bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+
+	if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+	then
+		/bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+	fi
+else
+	/bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+fi
+
+#If anything went wrong, fire off an email
+if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
+then
+	${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy wordpres configuration file to the live location during application initiation" "ERROR"
+fi
+
 
