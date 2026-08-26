@@ -88,12 +88,14 @@ then
 		then
 			dir_perms="550"
 			file_perms="440"
+			owner_perms="root:www-data"
 			config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 			/bin/chmod 400 ${config_file}
 		elif ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT-ON ] )
 		then
 			dir_perms="770"
 			file_perms="660"
+			owner_perms="www-data:www-data"
 			config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 			/bin/chmod 600 ${config_file}
 		fi
@@ -107,7 +109,7 @@ then
 
         if ( [  -d ${webroot_directory} ] )
         then
-                /bin/chown -R root:www-data ${webroot_directory}
+                /bin/chown -R ${owner_perms} ${webroot_directory}
                 command="/usr/bin/find ${webroot_directory} "
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
