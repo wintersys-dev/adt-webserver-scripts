@@ -59,15 +59,17 @@ DB_N="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBNAME' | /usr/bin/tr '[:
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
 then
         HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+        export PGSSLMODE=verify-full
+        export PGSSLROOTCERT="${HOME}/runtime/DBaaS_CERT"
 else
         HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
         HOST2="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databasepublicip/*"`"
+        export PGSSLMODE=require
 fi
 
 DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
 
 export PGPASSWORD=${DB_P}
-export PGSSLMODE=require
 
 if ( [ "${sql_command}" != "" ]  )
 then
