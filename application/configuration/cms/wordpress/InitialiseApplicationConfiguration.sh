@@ -76,8 +76,8 @@ fi
 #installation folder is no longer available to work with
 if ( [ -f ${webroot_directory}/installation/configuration.php-dist ] )
 then
-        /bin/cp ${webroot_directory}/installation/configuration.php-dist /var/www/html/configuration.php.default
-        /bin/chown www-data:www-data /var/www/html/configuration.php.default
+        /bin/cp ${webroot_directory}/installation/configuration.php-dist /var/www/html/wp-config.php.default
+        /bin/chown www-data:www-data /var/www/html/wp-config.php.default
 fi
 
 #Create the standard ourside webroot folder which is used throughout the toolkit as the directory outside of the webroot where
