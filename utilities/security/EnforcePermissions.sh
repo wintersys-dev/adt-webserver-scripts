@@ -112,13 +112,13 @@ then
                 /bin/chown -R ${owner_perms} ${webroot_directory}
                 command="/usr/bin/find ${webroot_directory} "
 
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
-                then
-                        for dir in `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' '`
-                        do
-                                command="${command} -path '"${dir}"' -prune -o "
-                        done
-                fi
+               # if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+               # then
+               #         for dir in `/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' '`
+               #         do
+               #                 command="${command} -path '"${dir}"' -prune -o "
+               #         done
+               # fi
 
                 command1="${command} -type d -exec chmod 0${dir_perms} {} \;"
                 command2="${command} -type f -exec chmod 0${file_perms} {} \;"
