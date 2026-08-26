@@ -205,7 +205,7 @@ else
         fi
 fi
 
-#Remind ourselves at any future time that we are a Joomla application. This will be stored in the backups and the baselines and can be consulted later
+#Remind ourselves at any future time that we are a wordpress application. This will be stored in the backups and the baselines and can be consulted later
 /bin/echo "WORDPRESS" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
