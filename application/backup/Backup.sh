@@ -133,10 +133,10 @@ cd ${HOME}/backuparea
 
 machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
-then
-        exclude_list="`/usr/bin/mount | /bin/grep -Eo "/var/www/html.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' ' | /bin/sed 's;/var/www/html/;;g'`"
-fi
+#if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
+#then
+#        exclude_list="`/usr/bin/mount | /bin/grep -Eo "/var/www/outside_webroot.* " | /usr/bin/awk '{print $1}' | /usr/bin/tr '\n' ' ' | /bin/sed 's;/var/www/outside_webroot/;;g'`"
+#fi
 
 exclude_command=""
 if ( [ "${exclude_list}" != "" ] )
