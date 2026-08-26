@@ -211,7 +211,7 @@ else
                 /bin/sed -i "s%\$password =.*$%\$password = '"${password}"';%" ${config_file}
                 /bin/sed -i "s%\$db =.*$%\$db = '"${db}"';%" ${config_file}
                 /bin/sed -i "s%\$type =.*$%\$type = '"${type}"';%" ${config_file}
-                /bin/sed -i "s%\$dbencryption =.*$%\$dbencryption = 1;%" ${config_file}
+                /bin/sed -i "s%\$dbencryption =.*$%\$dbencryption = 2;%" ${config_file}
                 
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] )
