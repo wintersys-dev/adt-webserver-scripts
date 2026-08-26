@@ -300,27 +300,6 @@ do
 	fi
 done
 
-# We obtain a list of directories we are expecting to exist outside of the webrooot such as caching, logging and temporary directories
-#and actually create the directories. The application descriptor has to be consistent with the directories it creates here and the
-#configuration values that are set in the configuration.php file. These directories are owned by www-data because we expect them to be 
-#dynamically updated
-
-#directories_outside_webroot="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
-#
-#for directory in ${directories_outside_webroot}
-#do
-#	if ( [ ! -d /var/www/outside_webroot/${directory} ] )
-#	then
-#		/bin/mkdir -p /var/www/outside_webroot/${directory}
-#		/bin/chown www-data:www-data /var/www/outside_webroot/${directory}
-#		/bin/chmod 750 /var/www/outside_webroot/${directory}
-#	fi
-#	if ( [ -d ${webroot_directory}/${directory} ] )
-#	then
-#		/bin/rm -r ${webroot_directory}/${directory}
-#	fi
-#done
-
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
 # code sets up that structure
 
@@ -399,14 +378,6 @@ then
 		/bin/cp ${webroot_directory}/htaccess.txt ${webroot_directory}/.htaccess
 	fi
 
-#	/bin/echo '<Files configuration.php>
-#Require all granted 
-#</Files>
-#
-#<Files .htaccess>
-#Require all granted
-#</Files>' >> ${webroot_directory}/.htaccess
-
 	if ( [ -f ${webroot_directory}/.htaccess ] )
 	then
 		/bin/chown www-data:www-data ${webroot_directory}/.htaccess
@@ -425,7 +396,6 @@ Require all granted
         	/bin/chmod 400 ${directory}/.htaccess
 	done
 fi
-
 
 # Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
