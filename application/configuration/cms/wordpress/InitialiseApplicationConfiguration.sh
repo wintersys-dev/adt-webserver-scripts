@@ -48,11 +48,6 @@ fi
 exec 1>>${HOME}/logs/wordpress_configuration/${log_file}
 exec 2>>${HOME}/logs/wordpress_configuration/${err_file}
 
-if ( [ ! -f ${HOME}/runtime/application.dat ] )
-then
-        exit
-fi
-
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
