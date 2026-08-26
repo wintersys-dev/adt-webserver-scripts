@@ -48,7 +48,6 @@ fi
 exec 1>>${HOME}/logs/wordpress_configuration/${log_file}
 exec 2>>${HOME}/logs/wordpress_configuration/${err_file}
 
-
 if ( [ ! -f ${HOME}/runtime/application.dat ] )
 then
         exit
@@ -196,13 +195,14 @@ else
 
                 /usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${config_file}" --skip-check --path="${webroot_directory}"
 
-                /usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
+                /usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
 
-                if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp db check  --path="${webroot_directory}"  | /bin/grep 'Success:'`" = "" ] )
+                if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" != "" ] )
                 then
                         ${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
                         exit
                 fi
+
         fi
 fi
 
@@ -276,14 +276,6 @@ then
         do
                 link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
                 directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
-
-                if ( [ "${directory}" != "" ] )
-                then
-                        if ( [ -d ${directory} ] )
-                        then
-                                /bin/rm -r ${directory}/*
-                        fi
-                fi
 
                 if ( [ -L ${link_directory} ] )
                 then
@@ -365,5 +357,4 @@ if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
 then
         ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy wordpres configuration file to the live location during application initiation" "ERROR"
 fi
-
 
