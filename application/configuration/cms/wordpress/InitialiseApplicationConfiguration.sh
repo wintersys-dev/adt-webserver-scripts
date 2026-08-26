@@ -109,6 +109,40 @@ then
                         /bin/sleep 1
                 done
         fi
-		/bin/echo "`/bin/grep "table_prefix" ${webroot_directory}/wp-config.php | /usr/bin/awk -F"'" '{print $2}'`"  > /var/www/html/dbp.dat
+		/bin/echo "`/bin/grep "table_prefix" ${webroot_directory}/wp-config.php | /usr/bin/awk -F"\'" '{print $2}'`"  > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
+	#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
+	#It is expected that this will be the more common case than an interactive installation
+        if ( [ -f ${config_file} ] )
+        then
+                /bin/rm ${config_file}
+        fi
+
+	#In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
+	#in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
+        if ( [ -f /var/www/html/dbp.dat ] )
+        then
+                dbprefix="`/bin/cat /var/www/html/dbp.dat`"
+        else
+                dbprefix="adt`/usr/bin/tr -dc a-z0-9 </dev/urandom | /usr/bin/head -c 5; /bin/echo`_"
+                /bin/echo ${dbprefix} > /var/www/html/dbp.dat
+                /bin/chown www-data:www-data /var/www/html/dbp.dat
+                /bin/chmod 600 /var/www/html/dbp.dat
+        fi
+
+		#Find out where our database server is
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+        then
+                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+        else
+                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+        fi
+        DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+        then
+                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+        else
+                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+        fi
