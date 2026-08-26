@@ -170,12 +170,15 @@ fi
 
 /usr/bin/git push -u origin main
 
-#${HOME}/application/customise/UnCustomiseBackupByApplication.sh
-
-/bin/echo ""
-/bin/echo "==================================================================================================================================="
-/bin/echo "I consider your baseline to be complete you should verify the repository ${baseline_name}-webroot-sourcecode-baseline with ${REPOSITORY_PROVIDER} for user: ${APPLICATION_REPOSITORY_USERNAME}" 
-/bin/echo "==================================================================================================================================="
+if ( [ "$?" != "0" ] )
+then
+        /bin/echo "Failed to generate baseline...is your application repository authorisation token valid and set correctly?"
+else
+        /bin/echo ""
+        /bin/echo "==================================================================================================================================="
+        /bin/echo "I consider your baseline to be complete you should verify the repository ${baseline_name}-webroot-sourcecode-baseline with ${REPOSITORY_PROVIDER} for user: ${APPLICATION_REPOSITORY_USERNAME}" 
+        /bin/echo "==================================================================================================================================="
+fi
 
 /bin/rm -r ${HOME}/backups/${baseline_name}/*
 
