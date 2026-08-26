@@ -68,7 +68,6 @@ else
 fi
 
 DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
-
 export PGPASSWORD=${DB_P}
 
 if ( [ "${sql_command}" != "" ]  )
