@@ -51,7 +51,7 @@ exec 2>>${HOME}/logs/wordpress_configuration/${err_file}
 
 if ( [ ! -f ${HOME}/runtime/application.dat ] )
 then
-	exit
+        exit
 fi
 
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
@@ -109,18 +109,18 @@ then
                         /bin/sleep 1
                 done
         fi
-		/bin/echo "`/bin/grep "table_prefix" ${webroot_directory}/wp-config.php | /usr/bin/awk -F"\'" '{print $2}'`"  > /var/www/html/dbp.dat
+        /bin/echo "`/bin/grep "table_prefix" ${webroot_directory}/wp-config.php | /usr/bin/awk -F"\'" '{print $2}'`"  > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
-	#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
-	#It is expected that this will be the more common case than an interactive installation
+        #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
+        #It is expected that this will be the more common case than an interactive installation
         if ( [ -f ${config_file} ] )
         then
                 /bin/rm ${config_file}
         fi
 
-	#In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
-	#in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
+        #In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
+        #in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
         if ( [ -f /var/www/html/dbp.dat ] )
         then
                 dbprefix="`/bin/cat /var/www/html/dbp.dat`"
@@ -131,7 +131,7 @@ else
                 /bin/chmod 600 /var/www/html/dbp.dat
         fi
 
-		#Find out where our database server is
+        #Find out where our database server is
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
         then
                 HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
@@ -146,8 +146,8 @@ else
         else
                 HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
         fi
-		
-		WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+
+        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         website_name="`/bin/grep "^WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
         website_username="`/bin/grep "^WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
         website_password="`/bin/grep "^WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -181,6 +181,7 @@ else
                         done
 
                         /bin/mv ${webroot_directory}/wp-config.php ${config_file}
+                        /bin/chmod 660 ${config_file}
                 else
                         ${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
                         exit
@@ -193,7 +194,7 @@ else
                         exit
                 fi
 
-                /usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${config_file}" --skip-check --path="${webroot_directory}"
+                /usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${table_prefix}" --config-file="${config_file}" --skip-check --path="${webroot_directory}"
 
                 /usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
 
@@ -216,11 +217,10 @@ fi
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
 if ( [ -f ${webroot_directory}/wp-config.php ] )
 then
-	/bin/rm ${webroot_directory}/wp-config.php
+        /bin/rm ${webroot_directory}/wp-config.php
 fi
 
 /bin/ln -s ${config_file} ${webroot_directory}/wp-config.php
-/bin/chmod 500 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
 #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
@@ -268,81 +268,81 @@ done
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
 then
-	directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
-	assets_directories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
-	directories_to_link="`/bin/echo ${directories_to_link}:${assets_directories_to_link} | /bin/sed 's/:/ /g'`"
+        directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+        assets_directories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
+        directories_to_link="`/bin/echo ${directories_to_link}:${assets_directories_to_link} | /bin/sed 's/:/ /g'`"
 
-	for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
-	do
-		link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
-		directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
+        for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
+        do
+                link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
 
-		if ( [ "${directory}" != "" ] )
-		then
-			if ( [ -d ${directory} ] )
-			then
-				/bin/rm -r ${directory}/*
-			fi
-		fi
+                if ( [ "${directory}" != "" ] )
+                then
+                        if ( [ -d ${directory} ] )
+                        then
+                                /bin/rm -r ${directory}/*
+                        fi
+                fi
 
-		if ( [ -L ${link_directory} ] )
-        then
-        	/usr/bin/unlink ${link_directory}
-        fi
+                if ( [ -L ${link_directory} ] )
+                then
+                        /usr/bin/unlink ${link_directory}
+                fi
 
-		if ( [ -d ${link_directory} ] )
-		then
-			if ( [ ! -d ${directory} ] )
-			then
-				/bin/mkdir -p ${directory}
-			fi
-			/bin/mv ${link_directory}/* ${directory}
-			/bin/rm -r ${link_directory}
-		else
-			/bin/mkdir -p ${directory}
-    	fi
-	
-		link="${link_directory}"
-		/bin/chown www-data:www-data ${directory}
-		/bin/chmod 750 ${directory}
-		/bin/ln -s ${directory} ${link}
-	done
+                if ( [ -d ${link_directory} ] )
+                then
+                        if ( [ ! -d ${directory} ] )
+                        then
+                                /bin/mkdir -p ${directory}
+                        fi
+                        /bin/mv ${link_directory}/* ${directory}
+                        /bin/rm -r ${link_directory}
+                else
+                        /bin/mkdir -p ${directory}
+                fi
+
+                link="${link_directory}"
+                /bin/chown www-data:www-data ${directory}
+                /bin/chmod 750 ${directory}
+                /bin/ln -s ${directory} ${link}
+        done
 else
-	directories="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+        directories="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
 
-	for directory in `/bin/echo ${directories} | /bin/sed 's/:/ /g'`
-	do
-		directory="`/bin/echo ${directory} | /usr/bin/awk -F'|' '{print $1}'`"
-		/bin/mkdir -p ${directory}
-		/bin/chown www-data:www-data ${directory}
-		/bin/chmod 750 ${directory}
-	done
+        for directory in `/bin/echo ${directories} | /bin/sed 's/:/ /g'`
+        do
+                directory="`/bin/echo ${directory} | /usr/bin/awk -F'|' '{print $1}'`"
+                /bin/mkdir -p ${directory}
+                /bin/chown www-data:www-data ${directory}
+                /bin/chmod 750 ${directory}
+        done
 fi
 
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
 then
-	if ( [ -f ${HOME}/application/configuration/cms/wordpress/htaccess.txt ] )
-	then
-		/bin/cp ${HOME}/application/configuration/cms/wordpress/htaccess.txt ${webroot_directory}/.htaccess
-	fi
+        if ( [ -f ${HOME}/application/configuration/cms/wordpress/htaccess.txt ] )
+        then
+                /bin/cp ${HOME}/application/configuration/cms/wordpress/htaccess.txt ${webroot_directory}/.htaccess
+        fi
 
-	if ( [ -f ${webroot_directory}/.htaccess ] )
-	then
-		/bin/chown www-data:www-data ${webroot_directory}/.htaccess
-		/bin/chmod 400 ${webroot_directory}/.htaccess
-	fi
+        if ( [ -f ${webroot_directory}/.htaccess ] )
+        then
+                /bin/chown www-data:www-data ${webroot_directory}/.htaccess
+                /bin/chmod 400 ${webroot_directory}/.htaccess
+        fi
 
-	#Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
-	#our directories and if the do they won't be accessible
+        #Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
+        #our directories and if the do they won't be accessible
 
-	for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
-	do
-    	/bin/echo '<FilesMatch "\.php$">
-Require all granted
-</FilesMatch>' > ${directory}/.htaccess
-        	/bin/chown www-data:www-data ${directory}/.htaccess
-        	/bin/chmod 400 ${directory}/.htaccess
-	done
+        for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
+        do
+                /bin/echo '<FilesMatch "\.php$">
+                Require all granted
+                </FilesMatch>' > ${directory}/.htaccess
+                /bin/chown www-data:www-data ${directory}/.htaccess
+                /bin/chmod 400 ${directory}/.htaccess
+        done
 fi
 
 # Do a final integrity check on the config_file
@@ -350,20 +350,20 @@ fi
 
 if ( [ "$?" = "0" ] )
 then
-	/bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
 
-	if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
-	then
-		/bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
-	fi
+        if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+        then
+                /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+        fi
 else
-	/bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
 fi
 
 #If anything went wrong, fire off an email
 if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
 then
-	${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy wordpres configuration file to the live location during application initiation" "ERROR"
+        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy wordpres configuration file to the live location during application initiation" "ERROR"
 fi
 
 
