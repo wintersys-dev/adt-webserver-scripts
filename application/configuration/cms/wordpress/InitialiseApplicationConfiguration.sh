@@ -319,7 +319,30 @@ else
 	done
 fi
 
-#As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
-/bin/chown -R www-data:www-data  /var/www/outside_webroot
+if ( [ ! -f ${webroot_directory}/.htaccess ] )
+then
+	if ( [ -f ${HOME}/application/configuration/cms/wordpress/htaccess.txt ] )
+	then
+		/bin/cp ${HOME}/application/configuration/cms/wordpress/htaccess.txt ${webroot_directory}/.htaccess
+	fi
+
+	if ( [ -f ${webroot_directory}/.htaccess ] )
+	then
+		/bin/chown www-data:www-data ${webroot_directory}/.htaccess
+		/bin/chmod 400 ${webroot_directory}/.htaccess
+	fi
+
+	#Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
+	#our directories and if the do they won't be accessible
+
+	for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
+	do
+    	/bin/echo '<FilesMatch "\.php$">
+Require all granted
+</FilesMatch>' > ${directory}/.htaccess
+        	/bin/chown www-data:www-data ${directory}/.htaccess
+        	/bin/chmod 400 ${directory}/.htaccess
+	done
+fi
 
 
