@@ -319,4 +319,7 @@ else
 	done
 fi
 
+#As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
+/bin/chown -R www-data:www-data  /var/www/outside_webroot
+
 
