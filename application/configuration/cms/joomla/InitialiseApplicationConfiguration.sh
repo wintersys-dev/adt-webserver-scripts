@@ -1,12 +1,13 @@
 #!/bin/sh
 ###########################################################################################################
-# Description:This script will generate a /var/www/html/configuration.php using the values that you have set in
+# Description:This script will generate a ${webroot_directory}/configuration.php using the values 
+# that you have set in
 #
 #        ${BUILD_HOME}/application/descriptors/joomla.dat
 #
-# If a virgin copy of joomla is being installed, then, /usr/bin/php /var/www/html/installation/joomla.php is used
-# when making a non-interactive installation this means that the installer doesn't have to do anything once they 
-# have started the build they next thing they will see is a fully configured virgin joomla application. 
+# If a virgin copy of joomla is being installed, then,  /usr/bin/php ${webroot_directory}/installation/joomla.php
+# is used when making a non-interactive  installation this means that the installer doesn't have to do anything 
+# once they  have started the build the next thing they will see is a fully configured virgin joomla application. 
 # If you are deploying a baseline or a temporal backup then the configuration.php file is manually generated
 # based on the values set in 
 #
