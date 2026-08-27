@@ -170,6 +170,25 @@ fi
 /bin/echo "${webroot_directory}" > /var/www/html/wr.dat
 /bin/chown www-data:www-data /var/www/html/wr.dat
 
+public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
+private_ip="`${HOME}/utilities/processing/GetIP.sh`"
+/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${webroot_directory}/web/sites/default/settings.php
+/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${webroot_directory}/web/sites/default/settings.php
+
+website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
+
+if ( [ "${website_name}" != "" ] )
+then
+        /usr/sbin/drush config:set system.site name "${website_name}" -y
+fi
+
+#if ( [ -f ${webroot_directory}/web/sites/default/settings.php ] && [ "`/bin/grep "php require" ${webroot_directory}/web/sites/default/settings.php`" = "" ] )
+#then
+#        /bin/mv ${webroot_directory}/web/sites/default/settings.php ${config_file}
+#        /bin/chown root:www-data ${config_file}
+#        /bin/chmod 740 ${config_file}
+#fi
+
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
 if ( [ -f ${webroot_directory}/web/sites/default/settings.php ] )
@@ -201,90 +220,66 @@ then
         fi
 fi
 
+# The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
+# code sets up that structure
 
-if ( [ -f ${HOME}/runtime/application.dat ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
 then
-        if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
+	directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+	assets_directories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
+	directories_to_link="`/bin/echo ${directories_to_link}:${assets_directories_to_link} | /bin/sed 's/:/ /g'`"
+
+	for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
+	do
+		link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
+		directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
+
+		if ( [ -L ${link_directory} ] )
         then
-                /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
+        	/usr/bin/unlink ${link_directory}
         fi
 
-        if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
-        then
-                /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-        fi
+		if ( [ -d ${link_directory} ] )
+		then
+			if ( [ ! -d ${directory} ] )
+			then
+				/bin/mkdir -p ${directory}
+			fi
+			/bin/mv ${link_directory}/* ${directory}
+			/bin/rm -r ${link_directory}
+		else
+			/bin/mkdir -p ${directory}
+    	fi
+	
+		link="${link_directory}"
+		/bin/chown www-data:www-data ${directory}
+		/bin/chmod 750 ${directory}
+		/bin/ln -s ${directory} ${link}
+	done
+else
+	directories="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
 
-        for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-        do
-                directory="/var/www/html/${directory}"
-
-                if ( [ ! -d ${directory} ] )
-                then
-                        /bin/mkdir -p ${directory}
-                        /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                fi
-
-                while ( [ "${directory}" != "/var/www/html" ] )
-                do
-                        /bin/chmod 755 ${directory}
-                        /bin/chown www-data:www-data ${directory}
-                        directory=`/usr/bin/dirname "${directory}"`
-                done
-        done
+	for directory in `/bin/echo ${directories} | /bin/sed 's/:/ /g'`
+	do
+		directory="`/bin/echo ${directory} | /usr/bin/awk -F'|' '{print $1}'`"
+		/bin/mkdir -p ${directory}
+		/bin/chown www-data:www-data ${directory}
+		/bin/chmod 750 ${directory}
+	done
 fi
 
-public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
-private_ip="`${HOME}/utilities/processing/GetIP.sh`"
-/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${webroot_directory}/web/sites/default/settings.php
-/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${webroot_directory}/web/sites/default/settings.php
+# Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
+seesion_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
 
-website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
-
-if ( [ "${website_name}" != "" ] )
+if ( [ ! -d ${session_save_path} ] )
 then
-        /usr/sbin/drush config:set system.site name "${website_name}" -y
+	/bin/mkdir -p ${session_save_path}
+	/bin/chown www-data:www-data ${session_save_path}
+	/bin/chmod 770 ${session_save_path}
 fi
 
-#This is how we tell ourselves this is a drupal application
-/bin/echo "DRUPAL" > /var/www/html/dba.dat
-/bin/chown www-data:www-data /var/www/html/dba.dat
-
-if ( [ -f ${webroot_directory}/web/sites/default/settings.php ] && [ "`/bin/grep "php require" ${webroot_directory}/web/sites/default/settings.php`" = "" ] )
-then
-        /bin/mv ${webroot_directory}/web/sites/default/settings.php ${config_file}
-        /bin/chown root:www-data ${config_file}
-        /bin/chmod 740 ${config_file}
-fi
-
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/web/sites/default/settings.php
-
-/bin/chown www-data:www-data ${webroot_directory}/web/sites/default/settings.php
-/bin/chmod 400 ${webroot_directory}/web/sites/default/settings.php
-
-#For ease of use we tell ourselves what database engine this webroot is associated with
-if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
-then
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires Maria DB as its database" > /var/www/html/dbe.dat
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires Postgres as its database" > /var/www/html/dbe.dat
-        fi
-
-        if ( [ -f /var/www/html/dbe.dat ] )
-        then
-                /bin/chown www-data:www-data /var/www/html/dbe.dat
-                /bin/chmod 600 /var/www/html/dbe.dat
-        fi
-fi
+#As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
+/bin/chown -R www-data:www-data  /var/www/outside_webroot
 
 # Had this problem https://www.drupal.org/project/sitemap/issues/3145126 if anyone knows a cleaner way I would be grateful
 if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess.txt ] )
@@ -301,52 +296,35 @@ then
         /bin/chmod 400 /var/www/html/private/.htaccess
 fi
 
-if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
-then
-        dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+#Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
+#our directories and if the do they won't be accessible
 
-        for asset_directory in `/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`
-        do
-                if ( [ ! -d /var/www/html/${asset_directory} ] )
-                then
-                        /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
-                fi
+for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
+do
+	/bin/echo '<FilesMatch "\.php$">
+Require all granted
+</FilesMatch>' > ${directory}/.htaccess
+	/bin/chown www-data:www-data ${directory}/.htaccess
+	/bin/chmod 400 ${directory}/.htaccess
+done
 
-                if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
-                then
-                        outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
-                else
-                        outside_asset_directory="${asset_directory}"
-                fi
-
-                if ( [ "`/bin/echo ${dirs_to_link} | /bin/grep ${asset_directory}`" != "" ] )
-                then
-                        /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
-                        /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
-                        /bin/chmod 777 ${webroot_directory}/${asset_directory}
-                fi
-        done
-fi
-
-/bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
+# Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
 then
-        /bin/chmod 600 ${config_file}
-        /bin/chown root:www-data ${config_file}
-        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-     #   ${HOME}/utilities/security/EnforcePermissions.sh 
+	/bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
 
-        if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
-        then
-                /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
-        fi
+	if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
+	then
+		/bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+	fi
 else
-        /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
+	/bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
 fi
 
+#If anything went wrong, fire off an email
 if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
 then
-        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
+	${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
 fi
