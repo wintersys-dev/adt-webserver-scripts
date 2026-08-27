@@ -172,8 +172,8 @@ fi
 
 public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
 private_ip="`${HOME}/utilities/processing/GetIP.sh`"
-/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${webroot_directory}/web/sites/default/settings.php
-/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${webroot_directory}/web/sites/default/settings.php
+/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${config_file}
+/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${config_file}
 
 website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
 
