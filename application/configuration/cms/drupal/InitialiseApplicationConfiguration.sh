@@ -293,14 +293,14 @@ if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess.txt ] )
 then
         /bin/sed -i "/RewriteEngine on/ {
                 r ${HOME}/application/configuration/cms/drupal/htaccess.txt
-                d }" /var/www/html/drupal/.htaccess
+                d }" ${webroot_directory}/.htaccess
 fi
 
 if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ] )
 then
-        /bin/cp ${HOME}/application/configuration/cms/drupal/htaccess-private.txt /var/www/html/private/.htaccess
-        /bin/chown www-data:www-data /var/www/html/private/.htaccess
-        /bin/chmod 400 /var/www/html/private/.htaccess
+        /bin/cp ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ${webroot_directory}/private/.htaccess
+        /bin/chown www-data:www-data ${webroot_directory}/private/.htaccess
+        /bin/chmod 400 ${webroot_directory}/private/.htaccess
 fi
 
 #Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
