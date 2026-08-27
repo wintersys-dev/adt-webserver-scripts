@@ -37,12 +37,16 @@ then
         webroot_directory="/var/www/html/drupal"
 fi
 
+#Take our own copy of the default configuration file which will still be available to work with on subsquent deployments when the
+#installation folder is no longer available to work with
 if ( [ -f ${webroot_directory}/web/sites/default/default.settings.php ] )
 then
         /bin/cp ${webroot_directory}/web/sites/default/default.settings.php /var/www/html/settings.php.default
         /bin/chown www-data:www-data /var/www/html/settings.php.default
 fi
 
+#Create the standard ourside webroot folder which is used throughout the toolkit as the directory outside of the webroot where
+#parts of the system that require dynamic access by users and admins are separated and secured away from the core system
 if ( [ ! -d /var/www/outside_webroot ] )
 then
         /bin/mkdir /var/www/outside_webroot
@@ -50,96 +54,153 @@ then
         /bin/chmod 750 /var/www/outside_webroot
 fi
 
+#Extract the configuration filename from the application descriptor and if its not available fallback to a default value
+#This will be where the actual configuration.php file is stored and is linked to using a symlink from within the webroot
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file}" = "" ] )
 then
-        config_file="/var/www/html/settings.php"
+        config_file="/var/www/outside_webroot/settings.php"
 fi
 
-if ( [ -f ${webroot_directory}/web/sites/default/settings.php ] )
+#This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
+#using their browser
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
-        /bin/rm ${webroot_directory}/web/sites/default/settings.php
-fi
-
-if ( [ -f /var/www/html/dbp.dat ] )
-then
-        dbprefix="`/bin/cat /var/www/html/dbp.dat`"
-else
-        dbprefix="adt`/usr/bin/tr -dc a-z0-9 </dev/urandom | /usr/bin/head -c 5; /bin/echo`_"
-        /bin/echo ${dbprefix} > /var/www/html/dbp.dat
-        /bin/chown www-data:www-data /var/www/html/dbp.dat
-        /bin/chmod 600 /var/www/html/dbp.dat
-fi
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-then
-        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-else
-        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-fi
-
-DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-then
-        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-else
-        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-fi
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-then
-        driver="mysql"       
-fi
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-then
-        driver="mysql"
-fi
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
-then
-        driver="pgsql"
-fi
-
-
-
-username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`_notls"
-password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
-then
-        website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-        website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-        /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
-        /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/settings.php
-        /usr/sbin/drush si --no-interaction --db-url="mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=${driver}#${dbprefix} --db-prefix=${dbprefix}"
-        /usr/sbin/drush cr
-        /usr/sbin/drush user:create ${website_username} --password="${website_password}"
-        /usr/sbin/drush user:role:add "administrator" "${website_username}"
-        /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
-
-else
-        username="'${username}'"
-        password="'${password}'"
-        database="'${database}'"
-        collation="'${collation}'"
-        driver="'${driver}'"
-        cd ${webroot_directory}
-        /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
-        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/web/sites/default/settings.php
-        hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-        /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/web/sites/default/settings.php
-        /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
-        APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
-        if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
+        if ( [ ! -f ${webroot_directory}/web/sites/default/settings.php  ] )
         then
-                ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
+                while ( [ ! -f ${webroot_directory}/web/sites/default/settings.php  ] )
+                do
+                        /bin/sleep 1
+                done
+        fi
+        /bin/echo "`/bin/grep "dbprefix" ${webroot_directory}/web/sites/default/settings.php| /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
+        /bin/chown www-data:www-data /var/www/html/dbp.dat
+else
+	#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
+	#It is expected that this will be the more common case than an interactive installation
+        if ( [ -f ${config_file} ] )
+        then
+                /bin/rm ${config_file}
+        fi
+
+	#In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
+	#in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
+        if ( [ -f /var/www/html/dbp.dat ] )
+        then
+                dbprefix="`/bin/cat /var/www/html/dbp.dat`"
+        else
+                dbprefix="adt`/usr/bin/tr -dc a-z0-9 </dev/urandom | /usr/bin/head -c 5; /bin/echo`_"
+                /bin/echo ${dbprefix} > /var/www/html/dbp.dat
+                /bin/chown www-data:www-data /var/www/html/dbp.dat
+                /bin/chmod 600 /var/www/html/dbp.dat
+        fi
+
+		#Find out where our database server is
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+        then
+                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+        else
+                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+        fi
+        DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+        then
+                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+        else
+                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+        then
+                driver="mysql"       
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+        then
+                driver="mysql"
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
+        then
+                driver="pgsql"
+        fi
+
+        username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`_notls"
+        password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+        database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"        
+        collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
+        then
+                website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
+                website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
+                /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
+                /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/settings.php
+                /usr/sbin/drush si --no-interaction --db-url="mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=${driver}#${dbprefix} --db-prefix=${dbprefix}"
+                /usr/sbin/drush cr
+                /usr/sbin/drush user:create ${website_username} --password="${website_password}"
+                /usr/sbin/drush user:role:add "administrator" "${website_username}"
+                /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
+        else
+                username="'${username}'"
+                password="'${password}'"
+                database="'${database}'"
+                collation="'${collation}'"
+                driver="'${driver}'"
+                cd ${webroot_directory}
+                /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
+                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' ${webroot_directory}/web/sites/default/settings.php
+                hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+                /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/web/sites/default/settings.php
+                /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
+                APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+                if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
+                then
+                        ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
+                fi
         fi
 fi
+
+#Remind ourselves at any future time that we are a Joomla application. This will be stored in the backups and the baselines and can be consulted later
+/bin/echo "DRUPAL" > /var/www/html/dba.dat
+/bin/chown www-data:www-data /var/www/html/dba.dat
+
+/bin/echo "${webroot_directory}" > /var/www/html/wr.dat
+/bin/chown www-data:www-data /var/www/html/wr.dat
+
+#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
+#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
+if ( [ -f ${webroot_directory}/web/sites/default/settings.php ] )
+then
+	/bin/rm ${webroot_directory}/web/sites/default/settings.php 
+fi
+
+/bin/ln -s ${config_file} ${webroot_directory}/web/sites/default/settings.php 
+/bin/chmod 500 ${config_file}
+/bin/chown www-data:www-data ${config_file}
+
+#If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
+#write a little note to ourselved to remind us whether we are expecting mariadb, mysql or postgres to be running
+if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
+then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires Maria DB as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires Postgres as its database" > /var/www/html/dbe.dat
+        fi
+fi
+
 
 if ( [ -f ${HOME}/runtime/application.dat ] )
 then
