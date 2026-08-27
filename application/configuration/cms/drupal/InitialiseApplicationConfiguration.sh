@@ -178,7 +178,7 @@ fi
 private_ip="`${HOME}/utilities/processing/GetIP.sh`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/" ${config_file}
-/bin/sed -i "s;XXXXPRIVATE_IPXXXX;${private_ip};" ${config_file}
+/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${config_file}
 
 website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
 
