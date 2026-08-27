@@ -268,11 +268,11 @@ else
 	done
 fi
 
-if ( [ ! -d /var/www/outside_webroot/private ] )
+if ( [ ! -d ${webroot_directory}/private ] )
 then
-	/bin/mkdir -p /var/www/outside_webroot/private
-	/bin/chown www-data:www-data /var/www/outside_webroot/private
-	/bin/chmod 750 /var/www/outside_webroot/private
+	/bin/mkdir -p ${webroot_directory}/private
+	/bin/chown www-data:www-data ${webroot_directory}/private
+	/bin/chmod 750 ${webroot_directory}/private
 fi
 
 # Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
