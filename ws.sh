@@ -189,11 +189,6 @@ cd ${HOME}
 
 ${HOME}/application/InstallApplication.sh
 
-if ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
-then
-	${HOME}/services/email/SendEmail.sh "I BELIEVE AN APPLICATION HAS COMPLETELY FAILED TO INSTALL" "The application you are installing has failed to install after exceeding the allowed 5 attempts at installation. I don't expect your website to come online." "ERROR"
-fi
-
 /bin/echo "${0} Storing database engine type"
 webroot_database_engine="`/bin/cat /var/www/html/dbe.dat`"
 
