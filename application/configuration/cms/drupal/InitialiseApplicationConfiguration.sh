@@ -170,10 +170,15 @@ fi
 /bin/echo "${webroot_directory}" > /var/www/html/wr.dat
 /bin/chown www-data:www-data /var/www/html/wr.dat
 
-public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
-private_ip="`${HOME}/utilities/processing/GetIP.sh`"
-/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${config_file}
-/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${config_file}
+#public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
+#private_ip="`${HOME}/utilities/processing/GetIP.sh`"
+#/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${config_file}
+#/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${config_file}
+
+VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
+BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
+/bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/" ${config_file}
+/bin/sed -i "s/XXXXVPC_IP_RANGEXXXX/${VPC_IP_RANGE}/" ${config_file}
 
 website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
 
