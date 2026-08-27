@@ -1,13 +1,14 @@
 #!/bin/sh
 ###########################################################################################################
-# Description:This script will generate a /var/www/html/wp-config.php using the values that you have set in
+# Description:This script will generate a ${webroot_directory}/wp-config.php using the values 
+# that you have set in
 #
 #        ${BUILD_HOME}/application/descriptors/wordpress.dat
 #
-# If a virgin copy of wordpress is being installed, then, /usr/local/bin/wp is used
-# when making a non-interactive installation this means that the installer doesn't have to do anything once they 
-# have started the build they next thing they will see is a fully configured virgin wordpress application. 
-# If you are deploying a baseline or a temporal backup then the configuration.php file is manually generated
+# If a virgin copy of wordpress is being installed, then,  /usr/bin/sudo -u www-data /usr/local/bin/wp 
+# is used when making a non-interactive  installation this means that the installer doesn't have to do anything 
+# once they  have started the build the next thing they will see is a fully configured virgin wordpress application. 
+# If you are deploying a baseline or a temporal backup then the wp-config.php file is manually generated
 # based on the values set in 
 #
 #         ${BUILD_HOME}/application/descriptors/wordpress.dat
@@ -29,7 +30,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-#set -x 
+set -x 
 
 if ( [ ! -d ${HOME}/logs/wordpress_configuration ] )
 then
