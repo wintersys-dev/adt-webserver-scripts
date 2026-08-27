@@ -76,8 +76,17 @@ then
                         /bin/sleep 1
                 done
         fi        
+		
 		/bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/web/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
 		/bin/chown www-data:www-data /var/www/html/dbp.dat
+		
+		#A settings.php file will have been generated during the installation but we don't want it to be in the webroot because its
+		#considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
+		#of this script
+        if ( [ -f ${webroot_directory}/web/sites/default/settings.php  ] )
+        then
+        	/bin/cp ${webroot_directory}/web/sites/default/settings.php  ${config_file}
+        fi
 else
 	#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
 	#It is expected that this will be the more common case than an interactive installation
