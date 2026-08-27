@@ -268,6 +268,13 @@ else
 	done
 fi
 
+if ( [ ! -d /var/www/outside_webroot/private ] )
+then
+	/bin/mkdir -p /var/www/outside_webroot/private
+	/bin/chown www-data:www-data /var/www/outside_webroot/private
+	/bin/chmod 750 /var/www/outside_webroot/private
+fi
+
 # Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
 seesion_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
 
