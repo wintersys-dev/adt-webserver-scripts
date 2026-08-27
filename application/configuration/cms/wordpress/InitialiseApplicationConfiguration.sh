@@ -175,8 +175,13 @@ else
                                 /usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
                         done
 
-                        /bin/mv ${webroot_directory}/wp-config.php ${config_file}
-                        /bin/chmod 660 ${config_file}
+                        #A wp-config.php file will have been generated during the installation but we don't want it to be in the webroot because its
+			#considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
+			#of this script
+                        if ( [ -f ${webroot_directory}/wp-config.php ] )
+                        then
+                                /bin/cp ${webroot_directory}/wp-config.php ${config_file}
+                        fi
                 else
                         ${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
                 fi
