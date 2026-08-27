@@ -107,14 +107,6 @@ then
 		
 		/bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/web/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
 		/bin/chown www-data:www-data /var/www/html/dbp.dat
-		
-		#A settings.php file will have been generated during the installation but we don't want it to be in the webroot because its
-		#considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
-		#of this script
-        if ( [ -f ${webroot_directory}/web/sites/default/settings.php  ] )
-        then
-        	/bin/cp ${webroot_directory}/web/sites/default/settings.php  ${config_file}
-        fi
 else
 	#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
 	#It is expected that this will be the more common case than an interactive installation
@@ -182,7 +174,17 @@ else
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
                 /usr/sbin/drush user:role:add "administrator" "${website_username}"
                 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
-        else
+       		
+				#A settings.php file will have been generated during the installation but we don't want it to be in the webroot because its
+				#considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
+				#of this script
+        
+				if ( [ -f ${webroot_directory}/web/sites/default/settings.php  ] )
+        		then
+        			/bin/cp ${webroot_directory}/web/sites/default/settings.php  ${config_file}
+        		fi
+		
+		else
                 username="'${username}'"
                 password="'${password}'"
                 database="'${database}'"
@@ -209,11 +211,6 @@ fi
 /bin/echo "${webroot_directory}" > /var/www/html/wr.dat
 /bin/chown www-data:www-data /var/www/html/wr.dat
 
-#public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
-#private_ip="`${HOME}/utilities/processing/GetIP.sh`"
-#/bin/sed -i "s/XXXXPUBLIC_IPXXXX/${public_ip}/" ${config_file}
-#/bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${config_file}
-
 private_ip="`${HOME}/utilities/processing/GetIP.sh`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/" ${config_file}
@@ -225,13 +222,6 @@ if ( [ "${website_name}" != "" ] )
 then
         /usr/sbin/drush config:set system.site name "${website_name}" -y
 fi
-
-#if ( [ -f ${webroot_directory}/web/sites/default/settings.php ] && [ "`/bin/grep "php require" ${webroot_directory}/web/sites/default/settings.php`" = "" ] )
-#then
-#        /bin/mv ${webroot_directory}/web/sites/default/settings.php ${config_file}
-#        /bin/chown root:www-data ${config_file}
-#        /bin/chmod 740 ${config_file}
-#fi
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
