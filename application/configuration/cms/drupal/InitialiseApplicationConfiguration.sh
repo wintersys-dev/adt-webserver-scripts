@@ -293,7 +293,7 @@ if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess.txt ] )
 then
         /bin/sed -i "/RewriteEngine on/ {
                 r ${HOME}/application/configuration/cms/drupal/htaccess.txt
-                d }" ${webroot_directory}/.htaccess
+                d }" ${webroot_directory}/web/.htaccess
 fi
 
 if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ] )
