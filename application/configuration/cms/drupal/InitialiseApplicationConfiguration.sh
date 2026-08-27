@@ -73,9 +73,9 @@ then
                 do
                         /bin/sleep 1
                 done
-        fi
-        /bin/echo "`/bin/grep "dbprefix" ${webroot_directory}/web/sites/default/settings.php| /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
-        /bin/chown www-data:www-data /var/www/html/dbp.dat
+        fi        
+		/bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/web/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
+		/bin/chown www-data:www-data /var/www/html/dbp.dat
 else
 	#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
 	#It is expected that this will be the more common case than an interactive installation
