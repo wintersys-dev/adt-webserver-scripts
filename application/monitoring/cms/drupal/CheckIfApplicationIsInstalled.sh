@@ -21,7 +21,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-#set -x 
+set -x 
 
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -38,7 +38,7 @@ fi
 
 if ( [ "${webroot_directory}" = "" ] )
 then
-        webroot_directory="/var/www/html/drupal"
+        webroot_directory="/var/www/html/cms"
 fi
 
 installed="1"
