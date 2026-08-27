@@ -136,8 +136,8 @@ else
         then
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-                /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
-                /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/settings.php
+            #    /bin/cp /var/www/html/settings.php.default ${webroot_directory}/web/sites/default/settings.php
+            #    /bin/chown www-data:www-data ${webroot_directory}/web/sites/default/settings.php
                 /usr/sbin/drush si --no-interaction --db-url="mysql://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=${driver}#${dbprefix} --db-prefix=${dbprefix}"
                 /usr/sbin/drush cr
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
