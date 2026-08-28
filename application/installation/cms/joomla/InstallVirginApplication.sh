@@ -29,20 +29,6 @@
 ######################################################################################
 #set -x
 
-if ( [ ! -d ${HOME}/logs/joomla_installation ] )
-then
-        /bin/mkdir -p ${HOME}/logs/joomla_installation
-fi
-
-log_file="joomla_out_`/bin/date | /bin/sed 's/ //g'`"
-err_file="joomla_err_`/bin/date | /bin/sed 's/ //g'`"
-
-/bin/echo "Log file is at: ${HOME}/logs/joomla_installation/${log_file}"
-/bin/echo "Error file is at: ${HOME}/logs/joomla_installation/${err_file}"
-
-exec 1>>${HOME}/logs/joomla_installation/${log_file}
-exec 2>>${HOME}/logs/joomla_installation/${err_file}
-
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
         /bin/mkdir -p ${HOME}/runtime/downloads_work_area
