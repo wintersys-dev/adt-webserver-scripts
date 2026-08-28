@@ -36,7 +36,7 @@ then
         archived_webroot_directory="`/bin/cat /var/www/html/wr.dat`"
 fi
 
-if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] )
+if ( [ "${webroot_directory}" != "${archived_webroot_directory}" ] && [ "${archived_directory}" != "" ] )
 then
         webroot_directory="${archived_webroot_directory}"
 fi
