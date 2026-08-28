@@ -48,7 +48,11 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:drupal`" = "1" ] && [ "${pre_or_post}" = "post" ] )
 then
-        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] )
+        then
+                ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+                ${HOME}/installation/InstallDrush.sh ${BUILDOS}
+        fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:moodle`" = "1" ] )
