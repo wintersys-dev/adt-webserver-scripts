@@ -43,7 +43,10 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:wordpress`" = "1" ] && [ "${pre_or_post}" = "pre" ] )
 then
-        ${HOME}/installation/InstallWPCLI.sh ${BUILDOS}
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] )
+        then
+                ${HOME}/installation/InstallWPCLI.sh ${BUILDOS}
+        fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:drupal`" = "1" ] && [ "${pre_or_post}" = "post" ] )
