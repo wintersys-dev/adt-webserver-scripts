@@ -29,20 +29,6 @@
 ####################################################################################
 set -x
 
-if ( [ ! -d ${HOME}/logs/moodle_installation ] )
-then
-        /bin/mkdir -p ${HOME}/logs/moodle_installation
-fi
-
-log_file="moodle_out_`/bin/date | /bin/sed 's/ //g'`"
-err_file="moodle_err_`/bin/date | /bin/sed 's/ //g'`"
-
-/bin/echo "Log file is at: ${HOME}/logs/moodle_installation/${log_file}"
-/bin/echo "Error file is at: ${HOME}/logs/moodle_installation/${err_file}"
-
-exec 1>>${HOME}/logs/moodle_installation/${log_file}
-exec 2>>${HOME}/logs/moodle_installation/${err_file}
-
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
         /bin/mkdir -p ${HOME}/runtime/downloads_work_area
