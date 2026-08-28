@@ -38,7 +38,8 @@ count="0"
 while ( [ ! -x /usr/sbin/drush ] && [ "${count}" -lt "5" ] )
 do
 	webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
+	cd ${webroot_directory}
+	
 	if ( [ "${BUILDOS}" = "ubuntu" ] )
 	then
                 /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
