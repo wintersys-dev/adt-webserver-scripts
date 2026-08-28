@@ -71,5 +71,5 @@ if ( [ ! -x /usr/sbin/drush ] && [ "${count}" = "5" ] )
 then
 	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR drush" "I believe that drush hasn't installed correctly, please investigate" "ERROR"
 else
-	/bin/touch ${HOME}/runtime/installedsoftware/InstallDrushI.sh				
+	/bin/touch ${HOME}/runtime/installedsoftware/InstallDrush.sh				
 fi
