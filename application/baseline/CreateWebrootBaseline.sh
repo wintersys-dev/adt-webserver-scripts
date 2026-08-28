@@ -164,7 +164,7 @@ fi
 
 /usr/bin/git add .gitattributes
 
-/usr/bin/git add --all
+/usr/bin/git add --all -f
 
 /usr/bin/git commit -m "Baseline Baby"
 
