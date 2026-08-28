@@ -21,20 +21,6 @@
 #################################################################################
 #set -x
 
-if ( [ ! -d ${HOME}/logs/drupal_installation ] )
-then
-        /bin/mkdir -p ${HOME}/logs/drupal_installation
-fi
-
-log_file="drupal_out_`/bin/date | /bin/sed 's/ //g'`"
-err_file="drupal_err_`/bin/date | /bin/sed 's/ //g'`"
-
-/bin/echo "Log file is at: ${HOME}/logs/drupal_installation/${log_file}"
-/bin/echo "Error file is at: ${HOME}/logs/drupal_installation/${err_file}"
-
-#exec 1>>${HOME}/logs/drupal_installation/${log_file}
-#exec 2>>${HOME}/logs/drupal_installation/${err_file}
-
 HOME="`/bin/cat /home/homedir.dat`"
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -49,21 +35,13 @@ then
         cd ${HOME}
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
         drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} ${webroot_directory} --no-interaction --no-install
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
-#        /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
-
- #       if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
- #       then
- #               /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
- #               /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
- #               /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
- #               /bin/chmod 750 /usr/sbin/drush
- #       fi
         
         module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
@@ -96,22 +74,14 @@ then
         cd ${HOME}
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
         cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} ${webroot_directory} --no-interaction --no-install
-        #     /bin/sed -i 's;web/;drupal/;g' /var/www/html/composer.json
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
-   #     /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
-#
- #       if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
-  #      then
-   #             /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
-   #             /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
-   #             /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
-   #             /bin/chmod 750 /usr/sbin/drush
-   #     fi
+
 
         module_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
