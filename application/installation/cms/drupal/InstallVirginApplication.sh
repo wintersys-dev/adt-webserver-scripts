@@ -35,7 +35,6 @@ then
         cd ${HOME}
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
         drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
@@ -65,6 +64,7 @@ then
                 done
         fi
 
+        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
         cd ${HOME}
         /bin/echo "DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
@@ -74,7 +74,7 @@ then
         cd ${HOME}
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
+  
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
         cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
@@ -103,6 +103,7 @@ then
                 done
         fi
 
+        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
         cd ${HOME}
         /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
