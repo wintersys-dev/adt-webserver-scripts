@@ -147,13 +147,13 @@ else
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
                 then
                         driver="mysql"  
-                        user_tls="_notls"
+                      #  user_tls="_notls"
                 fi
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
                 then
                         driver="mysql"
-                        user_tls="_notls"
+                       # user_tls="_notls"
                 fi
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
@@ -170,7 +170,7 @@ else
                 then
                         website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                         website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-                        /usr/sbin/drush si --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=${driver}#${dbprefix} --db-prefix=${dbprefix}"
+                        /usr/sbin/drush si --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}?module=${driver}#${dbprefix} --db-prefix=${dbprefix} --extra=--ssl"
                         /usr/sbin/drush cr
                         /usr/sbin/drush user:create ${website_username} --password="${website_password}"
                         /usr/sbin/drush user:role:add "administrator" "${website_username}"
