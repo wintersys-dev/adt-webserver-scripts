@@ -177,8 +177,8 @@ else
                         website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                         website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                         #/usr/sbin/drush si --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" --extra="--ssl"
-                        /usr/sbin/drush si --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}"                        
-                        /usr/sbin/drush cr
+                        /usr/sbin/drush site-install standard --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}"                        
+                        /usr/sbin/drush cache:rebuild
                         /usr/sbin/drush user:create ${website_username} --password="${website_password}"
                         /usr/sbin/drush user:role:add "administrator" "${website_username}"
                         /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
@@ -264,6 +264,8 @@ if ( [ "${website_name}" != "" ] )
 then
         /usr/sbin/drush config:set system.site name "${website_name}" -y
 fi
+
+/bin/sed 's/_notls//g' ${config_file}
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
