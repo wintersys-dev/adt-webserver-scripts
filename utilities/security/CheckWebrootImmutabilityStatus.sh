@@ -6,8 +6,9 @@ then
                 if ( [ -f ${HOME}/runtime/MUTABLE-WEBROOT-ON ] )
                 then
                         /bin/rm ${HOME}/runtime/MUTABLE-WEBROOT-ON
+                        ${HOME}/utilities/security/EnforcePermissions.sh
                 fi
-                ${HOME}/utilities/security/EnforcePermissions.sh
+               
         fi
 else
         if ( [ ! -f ${HOME}/runtime/MUTABLE-WEBROOT-ON ] )
@@ -16,7 +17,7 @@ else
                 if ( [ -f ${HOME}/runtime/IMMUTABLE-WEBROOT-ON ] )
                 then
                         /bin/rm ${HOME}/runtime/IMMUTABLE-WEBROOT-ON
+                        ${HOME}/utilities/security/EnforcePermissions.sh
                 fi
-                ${HOME}/utilities/security/EnforcePermissions.sh
         fi
 fi
