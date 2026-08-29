@@ -226,20 +226,36 @@ BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEI
 
 if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
 then
-        /bin/echo "'pdo' => array(
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+        then
+                /bin/echo "'pdo' => [
         \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
         \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
-        )," > ${HOME}/runtime/dbaas_config.dat
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
-        then
-                /bin/echo "'pdo' => array(
+        ]," > ${HOME}/runtime/dbaas_config.dat
+        else
+                /bin/echo "'pdo' => [
                 \PDO::PGSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
                 \PDO::PGSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
-                )," > ${HOME}/runtime/dbaas_config.dat
+                ]," > ${HOME}/runtime/dbaas_config.dat
         fi
 
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/dbaas_config.dat" ${config_file}
         /bin/rm ${HOME}/runtime/dbaas_config.dat
+else
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+        then
+                 /bin/echo "'pdo' => [
+        \PDO::MYSQL_ATTR_SSL_CA => '',
+        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
+        ]," > ${HOME}/runtime/self_managed_config.dat
+        else
+                /bin/echo "'pdo' => [
+                \PDO::PGSQL_ATTR_SSL_CA => '',
+                \PDO::PGSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
+                ]," > ${HOME}/runtime/self_managed_config.dat
+        fi
+        /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${config_file}
+        /bin/rm ${HOME}/runtime/self_managed_config.dat
 fi
 
 website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
