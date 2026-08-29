@@ -133,5 +133,10 @@ then
 	        /bin/chmod 440  ${webroot_directory}/adt-probe.php
         fi
 
+		if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+		then
+			/bin/chown www-data:www-data ${HOME}/runtime/DBaaS_CERT 
+		fi
+
 		
 fi
