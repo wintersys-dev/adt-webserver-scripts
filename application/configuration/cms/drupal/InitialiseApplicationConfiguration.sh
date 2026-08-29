@@ -227,14 +227,14 @@ BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEI
 if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
 then
         /bin/echo "'pdo' => array(
-        PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
-        PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
+        \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
+        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
         )," > ${HOME}/runtime/dbaas_config.dat
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
         then
                 /bin/echo "'pdo' => array(
-                PDO::PGSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
-                PDO::PGSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
+                \PDO::PGSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
+                \PDO::PGSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
                 )," > ${HOME}/runtime/dbaas_config.dat
         fi
 
