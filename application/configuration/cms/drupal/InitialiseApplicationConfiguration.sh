@@ -147,13 +147,19 @@ else
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
                 then
                         driver="mysql"  
-                        user_tls="_notls"
+                        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+                        then
+                                user_tls="_notls"
+                        fi
                 fi
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
                 then
                         driver="mysql"
-                        user_tls="_notls"
+                        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+                        then
+                                user_tls="_notls"
+                        fi
                 fi
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
@@ -194,7 +200,7 @@ else
                                 driver="'${driver}'"
                                 cd ${webroot_directory}
                                 /bin/cp /var/www/html/settings.php.default /var/www/outside_webroot/settings.php
-                                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = ['\''username'\'' => '${username}', '\''password'\'' => '${password}', '\''database'\'' => '${database}', '\''host'\'' => '\'${HOST}\'', '\''port'\'' => '${DB_PORT}', '\''driver'\'' => '${driver}', '\''prefix'\'' => '\'${dbprefix}\'',  '\''collation'\'' => '${collation}', '\''isolation_level'\'' => '\''READ COMMITTED'\'', ];/' /var/www/outside_webroot/settings.php
+                                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' ];/' /var/www/outside_webroot/settings.php
                                 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
                                 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" /var/www/outside_webroot/settings.php
                                 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> /var/www/outside_webroot/settings.php
