@@ -200,7 +200,7 @@ else
                                 driver="'${driver}'"
                                 cd ${webroot_directory}
                                 /bin/cp /var/www/html/settings.php.default /var/www/outside_webroot/settings.php
-                                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' ];/' /var/www/outside_webroot/settings.php
+                                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/' /var/www/outside_webroot/settings.php
                                 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
                                 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" /var/www/outside_webroot/settings.php
                                 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> /var/www/outside_webroot/settings.php
@@ -228,13 +228,13 @@ if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
 then
         /bin/echo "'pdo' => array(
         PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
-        PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
+        PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
         )," > ${HOME}/runtime/dbaas_config.dat
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
         then
                 /bin/echo "'pdo' => array(
                 PDO::PGSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
-                PDO::PGSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
+                PDO::PGSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
                 )," > ${HOME}/runtime/dbaas_config.dat
         fi
 
