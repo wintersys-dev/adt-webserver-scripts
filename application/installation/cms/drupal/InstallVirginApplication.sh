@@ -116,7 +116,10 @@ then
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
         opensocial_version="`/bin/grep "^OPENSOCIAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^OPENSOCIAL_VERSION://g'`"
-        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${opensocial_version} ${webroot_directory} --no-interaction --ignore-platform-reqs
+        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${opensocial_version} ${webroot_directory} --no-interaction --no-install
+        cd ${webroot_directory}
+        /usr/bin/sudo -u www-data /usr/local/bin/composer update --ignore-platform-reqs
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install
         /bin/mv ${webroot_directory}/html ${webroot_directory}/web
         cd ${webroot_directory}
         cd ${HOME}
