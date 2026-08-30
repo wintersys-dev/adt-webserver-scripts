@@ -41,7 +41,9 @@ then
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} ${webroot_directory} --no-interaction --no-install
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
-        
+
+        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
+
         module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g'`"
 
         if ( [ "${modules_list}" != "" ] )
@@ -64,7 +66,6 @@ then
                 done
         fi
 
-        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
         cd ${HOME}
         /bin/echo "DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
@@ -82,6 +83,7 @@ then
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
 
+        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
         module_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
 
@@ -90,6 +92,7 @@ then
                 for module in "${modules_list}"
                 do
                         /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${module}
+                        /usr/sbin/drush en ${module} -y
                 done
         fi
 
@@ -100,6 +103,7 @@ then
                 for theme in "${theme_list}"
                 do
                         /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${theme}
+                        /usr/sbin/drush en ${theme} -y
                 done
         fi
 
