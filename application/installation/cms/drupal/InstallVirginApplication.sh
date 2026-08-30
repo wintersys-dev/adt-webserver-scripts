@@ -42,7 +42,7 @@ then
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
         
-        module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g'`"
 
         if ( [ "${modules_list}" != "" ] )
         then
@@ -53,7 +53,7 @@ then
                 done
         fi
 
-        theme_list="`/bin/grep "^DRUPAL_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_THEMES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        theme_list="`/bin/grep "^DRUPAL_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_THEMES_TO_INSTALL://g'`"
 
         if ( [ "${theme_list}" != "" ] )
         then
