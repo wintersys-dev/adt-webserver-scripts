@@ -31,25 +31,40 @@ then
         webroot_directory="/var/www/html/drupal"
 fi
 
-if ( [ -f ${webroot_directory}/composer.json ] && [ "`/bin/grep '"php":' ${webroot_directory}/composer.json | /bin/grep '>='`" != "" ] )
-then
-        application_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.json | /bin/grep '>=' | /usr/bin/cut -d'"' -f4 | /bin/sed -e 's/.*=//g' -e /bin/sed 's/\.//g'`"
-
-        if ( [ "${application_php_version}" -lt "`/bin/echo ${PHP_VERSION} | /bin/sed 's/\.//g'`" ] )
+verify_php_version ()
+{
+        if ( [ -f ${webroot_directory}/composer.lock ] )
         then
-                /bin/echo "Not a valid PHP version configured php version is ${PHP_VERSION} and expected php version is >= ${application_php_version}"
-                exit
-        fi
-elif ( [ -f ${webroot_directory}/composer.json ] && [ "`/bin/grep '"php":' ${webroot_directory}/composer.json`" != "" ] )
-then
-        application_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.json | /usr/bin/cut -d'"' -f4 | /bin/sed 's/^//g'`"
-        if ( [ "${application_php_version}" -ne "`/bin/echo ${PHP_VERSION} | /bin/sed 's/\.//g'`" ] )
-        then
-                /bin/echo "Not a valid PHP version configured php version is ${PHP_VERSION} and expected php version is ${application_php_version}"
-                exit
+                minimum_required_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.lock | /bin/grep '>=' | /usr/bin/cut -d'"' -f4 | /bin/sed 's/.*=//g' | /usr/bin/awk  -F'.' 'BEGIN{OFS="."} {print $
+1,$2}' | /bin/sed 's/\.//g' | /usr/bin/sort -n | /usr/bin/tail -1`"
+
+                if ( [ "${minimum_required_php_version}" != "" ] )
+                then
+                        minimum_required_php_version="`/bin/echo ${minimum_required_php_version} | /usr/bin/cut -c1-1`.`/bin/echo ${minimum_required_php_version} | /usr/bin/cut -c2-2`"
+
+                        if ( [ "`/bin/echo ${PHP_VERSION} | /bin/sed 's/\.//g'`" -lt "`/bin/echo ${minimum_required_php_version} | /bin/sed 's/\.//g'`" ] )
+                        then
+                                /bin/echo "Your PHP_VERSION is ${PHP_VERSION} and the minimum PHP version is set to ${minimum_required_php_version}"
+                                exit
+                        fi
+                fi
+
+                if ( [ "${maximum_required_php_version}" != "" ] )
+                then
+                        maximum_required_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.lock | /bin/grep '<=' | /usr/bin/cut -d'"' -f4 | /bin/sed 's/.*=//g' | /usr/bin/awk  -F'.' 'BEGIN{OFS="."} {print $1,$2}' | /bin/sed 's/\.//g' | /usr/bin/sort -n | /usr/bin/tail -1`"
+
+                        maximum_required_php_version="`/bin/echo ${maximum_required_php_version} | /usr/bin/cut -c1-1`.`/bin/echo ${maximum_required_php_version} | /usr/bin/cut -c2-2`"
+
+
+                        if ( [ "`/bin/echo ${PHP_VERSION} | /bin/sed 's/\.//g'`" -gt "`/bin/echo ${maximum_required_php_version} | /bin/sed 's/\.//g'`" ] )
+                        then
+                                /bin/echo "Your PHP_VERSION is ${PHP_VERSION} and the maximum PHP version is set to ${maximum_required_php_version}"
+                                exit
+                        fi
+                fi
         fi
 
-fi
+}
 
 if ( [ "`/bin/grep "^APPLICATION_TYPE:drupal" ${HOME}/runtime/application.dat`" != "" ] )
 then
@@ -60,6 +75,7 @@ then
         /bin/chown www-data:www-data /var/www
         drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} ${webroot_directory} --no-interaction --no-install
+        verify_php_version
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
 
@@ -101,6 +117,7 @@ then
         /bin/chown www-data:www-data /var/www
         cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} ${webroot_directory} --no-interaction --no-install
+        verify_php_version
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
 
