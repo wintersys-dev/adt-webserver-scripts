@@ -22,12 +22,33 @@
 #set -x
 
 HOME="`/bin/cat /home/homedir.dat`"
+PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
 
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${webroot_directory}" = "" ] )
 then
         webroot_directory="/var/www/html/drupal"
+fi
+
+if ( [ -f ${webroot_directory}/composer.json ] && [ "`/bin/grep '"php":' ${webroot_directory}/composer.json | /bin/grep '>='`" != "" ] )
+then
+        application_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.json | /bin/grep '>=' | /usr/bin/cut -d'"' -f4 | /bin/sed -e 's/.*=//g' -e /bin/sed 's/\.//g'`"
+
+        if ( [ "${application_php_version}" -lt "`/bin/echo ${PHP_VERSION} | /bin/sed 's/\.//g'`" ] )
+        then
+                /bin/echo "Not a valid PHP version configured php version is ${PHP_VERSION} and expected php version is >= ${application_php_version}"
+                exit
+        fi
+elif ( [ -f ${webroot_directory}/composer.json ] && [ "`/bin/grep '"php":' ${webroot_directory}/composer.json`" != "" ] )
+then
+        application_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.json | /usr/bin/cut -d'"' -f4 | /bin/sed 's/^//g'`"
+        if ( [ "${application_php_version}" -ne "`/bin/echo ${PHP_VERSION} | /bin/sed 's/\.//g'`" ] )
+        then
+                /bin/echo "Not a valid PHP version configured php version is ${PHP_VERSION} and expected php version is ${application_php_version}"
+                exit
+        fi
+
 fi
 
 if ( [ "`/bin/grep "^APPLICATION_TYPE:drupal" ${HOME}/runtime/application.dat`" != "" ] )
