@@ -41,8 +41,6 @@ then
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} ${webroot_directory} --no-interaction --no-install
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
-        /usr/bin/sudo -u www-data /usr/local/bin/composer require droptica/droopler --with-all-dependencies
-
 
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
