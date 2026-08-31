@@ -24,6 +24,20 @@
 export HOME="`/bin/cat /home/homedir.dat`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 
+if ( [ ! -d ${HOME}/logs/application_installation/${APPLICATION} ] )
+then
+        /bin/mkdir -p ${HOME}/logs/application_installation/${APPLICATION}
+fi
+
+log_file="/${APPLICATION}_installation_out_`/bin/date | /bin/sed 's/ //g'`"
+err_file="/${APPLICATION}_installation_err_`/bin/date | /bin/sed 's/ //g'`"
+
+/bin/echo "Log file is at: ${HOME}/logs/application_installation//${APPLICATION}/${log_file}"
+/bin/echo "Error file is at: ${HOME}/logs/application_installation//${APPLICATION}/${err_file}"
+
+exec 1>>${HOME}/logs/application_installation/${log_file}
+exec 2>>${HOME}/logs/application_installation/${err_file}
+
 if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
 then
         ${HOME}/application/installation/cms/${APPLICATION}/InstallVirginApplication.sh
