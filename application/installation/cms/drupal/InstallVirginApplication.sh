@@ -109,7 +109,6 @@ then
                 done
         fi
 
-        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
         cd ${HOME}
         /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
