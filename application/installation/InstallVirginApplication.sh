@@ -35,8 +35,8 @@ err_file="/${APPLICATION}_installation_err_`/bin/date | /bin/sed 's/ //g'`"
 /bin/echo "Log file is at: ${HOME}/logs/application_installation//${APPLICATION}/${log_file}"
 /bin/echo "Error file is at: ${HOME}/logs/application_installation//${APPLICATION}/${err_file}"
 
-exec 1>>${HOME}/logs/application_installation/${log_file}
-exec 2>>${HOME}/logs/application_installation/${err_file}
+exec 1>>${HOME}/logs/application_installation/${APPLICATION}/${log_file}
+exec 2>>${HOME}/logs/application_installation/${APPLICATION}/${err_file}
 
 if ( [ -d ${HOME}/application/installation/cms/${APPLICATION} ] )
 then
