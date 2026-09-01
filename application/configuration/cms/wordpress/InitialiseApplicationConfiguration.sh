@@ -271,47 +271,47 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
 then
-        directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
-        assets_directories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
-        directories_to_link="`/bin/echo ${directories_to_link}:${assets_directories_to_link} | /bin/sed 's/:/ /g'`"
+	directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+	assets_directories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
+	directories_to_link="`/bin/echo ${directories_to_link}:${assets_directories_to_link} | /bin/sed 's/:/ /g'`"
 
-        for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
-        do
-                link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
-                directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
+	for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
+	do
+		link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
+		directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
 
-                if ( [ -L ${link_directory} ] )
-                then
-                        /usr/bin/unlink ${link_directory}
-                fi
+		if ( [ -L ${link_directory} ] )
+        then
+        	/usr/bin/unlink ${link_directory}
+        fi
 
-                if ( [ -d ${link_directory} ] )
-                then
-                        if ( [ ! -d ${directory} ] )
-                        then
-                                /bin/mkdir -p ${directory}
-                        fi
-                        /bin/mv ${link_directory}/* ${directory}
-                        /bin/rm -r ${link_directory}
-                else
-                        /bin/mkdir -p ${directory}
-                fi
-
-                link="${link_directory}"
-                /bin/chown www-data:www-data ${directory}
-                /bin/chmod 750 ${directory}
-                /bin/ln -s ${directory} ${link}
-        done
+		if ( [ -d ${link_directory} ] )
+		then
+			if ( [ ! -d ${directory} ] )
+			then
+				/bin/mkdir -p ${directory}
+			fi
+			/bin/mv ${link_directory}/* ${directory}
+			/bin/rm -r ${link_directory}
+		else
+			/bin/mkdir -p ${directory}
+    	fi
+	
+		link="${link_directory}"
+		/bin/chown www-data:www-data ${directory}
+		/bin/chmod 750 ${directory}
+		/bin/ln -s ${directory} ${link}
+	done
 else
-        directories="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+	directories="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
 
-        for directory in `/bin/echo ${directories} | /bin/sed 's/:/ /g'`
-        do
-                directory="`/bin/echo ${directory} | /usr/bin/awk -F'|' '{print $1}'`"
-                /bin/mkdir -p ${directory}
-                /bin/chown www-data:www-data ${directory}
-                /bin/chmod 750 ${directory}
-        done
+	for directory in `/bin/echo ${directories} | /bin/sed 's/:/ /g'`
+	do
+		directory="`/bin/echo ${directory} | /usr/bin/awk -F'|' '{print $1}'`"
+		/bin/mkdir -p ${directory}
+		/bin/chown www-data:www-data ${directory}
+		/bin/chmod 750 ${directory}
+	done
 fi
 
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
