@@ -188,9 +188,9 @@ else
                                 #considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
                                 #of this script
 
-                                if ( [ -f ${webroot_directory}/web/sites/default/settings.php  ] )
+                                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
                                 then
-                                        /bin/cp ${webroot_directory}/web/sites/default/settings.php  ${config_file}
+                                        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
                                 fi
 
                         else
@@ -265,12 +265,12 @@ fi
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
-if ( [ -f ${webroot_directory}/web/sites/default/settings.php ] )
+if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ] )
 then
-        /bin/rm ${webroot_directory}/web/sites/default/settings.php 
+        /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
 fi
 
-/bin/ln -s ${config_file} ${webroot_directory}/web/sites/default/settings.php 
+/bin/ln -s ${config_file} ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
 /bin/chmod 500 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
