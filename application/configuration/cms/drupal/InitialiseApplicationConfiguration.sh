@@ -152,6 +152,7 @@ else
                         driver="mysql"  
                         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
                         then
+                                #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
                                 user_tls="_notls"
                         fi
                 fi
@@ -161,6 +162,7 @@ else
                         driver="mysql"
                         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
                         then
+                                #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
                                 user_tls="_notls"
                         fi
                 fi
@@ -263,7 +265,7 @@ then
         /usr/sbin/drush config:set system.site name "${website_name}" -y
 fi
 
-/bin/sed 's/_notls//g' ${config_file}
+/bin/sed -i 's/_notls//g' ${config_file}
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
