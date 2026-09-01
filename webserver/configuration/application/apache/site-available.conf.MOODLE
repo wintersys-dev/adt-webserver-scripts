@@ -12,7 +12,7 @@ ServerName XXXXWEBSITEURLXXXX
 
 <VirtualHost *:443>
  ServerAdmin webmaster@XXXXROOTDOMAINXXXX
- DocumentRoot XXXXWEBROOT_DIRECTORYXXXX/public
+ DocumentRoot XXXXWEBROOT_DIRECTORYXXXX/XXXXWEBROOT_SUBDIRECTORYXXXX
 
  SSLEngine on
 
@@ -72,7 +72,7 @@ Require all denied
 	AllowOverride All
   </Directory>
 
- <Directory XXXXWEBROOT_DIRECTORYXXXX/public>
+ <Directory XXXXWEBROOT_DIRECTORYXXXX/XXXXWEBROOT_SUBDIRECTORYXXXX>
 	DirectoryIndex index.php
 	LimitRequestBody 512000
 	LimitXMLRequestBody 10485760
