@@ -67,25 +67,27 @@ then
 
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
-        module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g'`"
-
-        if ( [ "${modules_list}" != "" ] )
-        then
-                for module in "${modules_list}"
-                do
-                        /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${module}
-                        /usr/sbin/drush en ${module} -y
-                done
-        fi
-
         theme_list="`/bin/grep "^DRUPAL_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_THEMES_TO_INSTALL://g'`"
 
         if ( [ "${theme_list}" != "" ] )
         then
-                for theme in "${theme_list}"
+                for theme in ${theme_list}
                 do
-                        /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${theme}
-                        /usr/sbin/drush en ${theme} -y
+                        /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${theme}"
+                        /usr/sbin/drush cr -y
+                done
+        fi
+
+        module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g'`"
+
+        if ( [ "${module_list}" != "" ] )
+        then
+                for module in ${module_list}
+                do
+                        /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${module}"
+                        module="`/bin/echo ${module} | /bin/sed 's/:.*//g'`"
+                        /usr/sbin/drush en ${module} -y
+                        /usr/sbin/drush cr -y
                 done
         fi
 
@@ -109,25 +111,27 @@ then
 
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
-        module_list="`/bin/grep "^CMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_MODULES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
-
-        if ( [ "${modules_list}" != "" ] )
-        then
-                for module in "${modules_list}"
-                do
-                        /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${module}
-                        /usr/sbin/drush en ${module} -y
-                done
-        fi
-
-        theme_list="`/bin/grep "^CMS_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/CMS_THEMES_TO_INSTALL://g' | /bin/sed 's/:/ /g'`"
+        theme_list="`/bin/grep "^DRUPAL_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_THEMES_TO_INSTALL://g'`"
 
         if ( [ "${theme_list}" != "" ] )
         then
-                for theme in "${theme_list}"
+                for theme in ${theme_list}
                 do
-                        /usr/bin/sudo -u www-data /usr/local/bin/composer require drupal/${theme}
-                        /usr/sbin/drush en ${theme} -y
+                        /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${theme}"
+                        /usr/sbin/drush cr -y
+                done
+        fi
+
+        module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g'`"
+
+        if ( [ "${module_list}" != "" ] )
+        then
+                for module in ${module_list}
+                do
+                        /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${module}"
+                        module="`/bin/echo ${module} | /bin/sed 's/:.*//g'`"
+                        /usr/sbin/drush en ${module} -y
+                        /usr/sbin/drush cr -y
                 done
         fi
 
