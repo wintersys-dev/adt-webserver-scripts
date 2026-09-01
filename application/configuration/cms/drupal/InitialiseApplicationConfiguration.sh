@@ -1,7 +1,7 @@
 #!/bin/sh
 ###########################################################################################################
-# Description:This script will generate a ${webroot_directory}/web/sites/default/settings.php using the values 
-# that you have set in
+# Description:This script will generate a ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
+# using the values that you have set in
 #
 #        ${BUILD_HOME}/application/descriptors/drupal.dat
 #
