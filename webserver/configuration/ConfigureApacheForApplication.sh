@@ -46,6 +46,8 @@ port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /u
 
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+webroot_subdirectory="`/bin/grep "^WEBROOT_SUBDIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
 
 if ( [ -f /var/www/html/wr.dat ] )
 then
@@ -97,6 +99,7 @@ export HOME="`/bin/cat /home/homedir.dat`"
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 /bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 /bin/sed -i "s;XXXXWEBROOT_DIRECTORYXXXX;${webroot_directory};" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
+/bin/sed -i "s;XXXXWEBROOT_SUBDIRECTORYXXXX;${webroot_subdirectory};" ${HOME}/webserver/configuration/application/apache/site-available.conf.${APPLICATION}
 
 
 if ( [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXIES}" = "0" ] )
