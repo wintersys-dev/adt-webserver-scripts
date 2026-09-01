@@ -67,30 +67,6 @@ then
 
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
-        theme_list="`/bin/grep "^DRUPAL_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_THEMES_TO_INSTALL://g'`"
-
-        if ( [ "${theme_list}" != "" ] )
-        then
-                for theme in ${theme_list}
-                do
-                        /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${theme}"
-                        /usr/sbin/drush cr -y
-                done
-        fi
-
-        module_list="`/bin/grep "^DRUPAL_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g'`"
-
-        if ( [ "${module_list}" != "" ] )
-        then
-                for module in ${module_list}
-                do
-                        /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${module}"
-                        module="`/bin/echo ${module} | /bin/sed 's/:.*//g'`"
-                        /usr/sbin/drush en ${module} -y
-                        /usr/sbin/drush cr -y
-                done
-        fi
-
         cd ${HOME}
         /bin/echo "DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
@@ -109,30 +85,12 @@ then
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
 
-        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
-
-        theme_list="`/bin/grep "^DRUPALCMS_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPALCMS_THEMES_TO_INSTALL://g'`"
-
-        if ( [ "${theme_list}" != "" ] )
+        if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
         then
-                for theme in ${theme_list}
-                do
-                        /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${theme}"
-                        /usr/sbin/drush cr -y
-                done
-        fi
-
-        module_list="`/bin/grep "^DRUPALCMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPALCMS_MODULES_TO_INSTALL://g'`"
-
-        if ( [ "${module_list}" != "" ] )
-        then
-                for module in ${module_list}
-                do
-                        /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${module}"
-                        module="`/bin/echo ${module} | /bin/sed 's/:.*//g'`"
-                        /usr/sbin/drush en ${module} -y
-                        /usr/sbin/drush cr -y
-                done
+                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
+                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
+                /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
+                /bin/chmod 750 /usr/sbin/drush
         fi
 
         cd ${HOME}
