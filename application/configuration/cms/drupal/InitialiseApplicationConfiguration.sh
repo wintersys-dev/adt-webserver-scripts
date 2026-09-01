@@ -94,6 +94,8 @@ then
         config_file="/var/www/outside_webroot/settings.php"
 fi
 
+database_profile="`/bin/grep "^DATABASE_PROFILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
 #This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
 #using their browser
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
@@ -178,7 +180,7 @@ else
                         website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                         website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                         #/usr/sbin/drush si --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" --extra="--ssl"
-                        /usr/sbin/drush site-install standard --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}"                        
+                        /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}"                        
                         /usr/sbin/drush cache:rebuild
                         /usr/sbin/drush user:create ${website_username} --password="${website_password}"
                         /usr/sbin/drush user:role:add "administrator" "${website_username}"
