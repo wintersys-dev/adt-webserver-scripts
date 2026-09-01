@@ -90,6 +90,7 @@ fi
 /bin/sed -i "s/XXXXPHPVERSIONXXXX/${PHP_VERSION}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
 /bin/sed -i "s/XXXXPORTXXXX/${port}/" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
 /bin/sed -i "s;XXXXWEBROOT_DIRECTORYXXXX;${webroot_directory};" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
+/bin/sed -i "s;XXXXWEBROOT_SUBDIRECTORYXXXX;${webroot_subdirectory};" ${HOME}/webserver/configuration/application/nginx/site-available.conf.${APPLICATION}
 
 if ( [ ! -d /var/lib/php/session ] )
 then
