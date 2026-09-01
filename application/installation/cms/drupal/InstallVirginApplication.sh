@@ -48,20 +48,6 @@ verify_php_version ()
                                 exit
                         fi
                 fi
-
-                if ( [ "${maximum_required_php_version}" != "" ] )
-                then
-                        maximum_required_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.lock | /bin/grep '<=' | /usr/bin/cut -d'"' -f4 | /bin/sed 's/.*=//g' | /usr/bin/awk  -F'.' 'BEGIN{OFS="."} {print $1,$2}' | /bin/sed 's/\.//g' | /usr/bin/sort -n | /usr/bin/tail -1`"
-
-                        maximum_required_php_version="`/bin/echo ${maximum_required_php_version} | /usr/bin/cut -c1-1`.`/bin/echo ${maximum_required_php_version} | /usr/bin/cut -c2-2`"
-
-
-                        if ( [ "`/bin/echo ${PHP_VERSION} | /bin/sed 's/\.//g'`" -gt "`/bin/echo ${maximum_required_php_version} | /bin/sed 's/\.//g'`" ] )
-                        then
-                                /bin/echo "Your PHP_VERSION is ${PHP_VERSION} and the maximum PHP version is set to ${maximum_required_php_version}"
-                                exit
-                        fi
-                fi
         fi
 
 }
@@ -82,7 +68,7 @@ then
                 /bin/echo "`/usr/local/bin/composer why-not php ${PHP_VERSION}`"
                 exit
         fi
-        
+        verify_php_version
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
 
@@ -131,7 +117,7 @@ then
                 /bin/echo "`/usr/local/bin/composer why-not php ${PHP_VERSION}`"
                 exit
         fi
-        
+        verify_php_version
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
 
