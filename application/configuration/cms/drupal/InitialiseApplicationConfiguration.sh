@@ -182,7 +182,7 @@ else
                         /usr/sbin/drush cache:rebuild
                         /usr/sbin/drush user:create ${website_username} --password="${website_password}"
                         /usr/sbin/drush user:role:add "administrator" "${website_username}"
-                        /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/web/sites/default/settings.php
+                        /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 
                                 #A settings.php file will have been generated during the installation but we don't want it to be in the webroot because its
                                 #considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
@@ -367,7 +367,7 @@ if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess.txt ] )
 then
         /bin/sed -i "/RewriteEngine on/ {
                 r ${HOME}/application/configuration/cms/drupal/htaccess.txt
-                d }" ${webroot_directory}/web/.htaccess
+                d }" ${webroot_directory}/${webroot_subdirectory}/.htaccess
 fi
 
 if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ] )
