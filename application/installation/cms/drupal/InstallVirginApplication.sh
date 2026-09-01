@@ -35,8 +35,7 @@ verify_php_version ()
 {
         if ( [ -f ${webroot_directory}/composer.lock ] )
         then
-                minimum_required_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.lock | /bin/grep '>=' | /usr/bin/cut -d'"' -f4 | /bin/sed 's/.*=//g' | /usr/bin/awk  -F'.' 'BEGIN{OFS="."} {print $
-1,$2}' | /bin/sed 's/\.//g' | /usr/bin/sort -n | /usr/bin/tail -1`"
+                minimum_required_php_version="`/bin/grep '"php":' ${webroot_directory}/composer.lock | /bin/grep '>=' | /usr/bin/cut -d'"' -f4 | /bin/sed 's/.*=//g' | /usr/bin/awk  -F'.' 'BEGIN{OFS="."} {print $1,$2}' | /bin/sed 's/\.//g' | /usr/bin/sort -n | /usr/bin/tail -1`"
 
                 if ( [ "${minimum_required_php_version}" != "" ] )
                 then
