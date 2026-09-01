@@ -111,7 +111,7 @@ then
 
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
-        theme_list="`/bin/grep "^DRUPALCMS_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_THEMES_TO_INSTALL://g'`"
+        theme_list="`/bin/grep "^DRUPALCMS_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPALCMS_THEMES_TO_INSTALL://g'`"
 
         if ( [ "${theme_list}" != "" ] )
         then
@@ -122,7 +122,7 @@ then
                 done
         fi
 
-        module_list="`/bin/grep "^DRUPALCMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPAL_MODULES_TO_INSTALL://g'`"
+        module_list="`/bin/grep "^DRUPALCMS_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/DRUPALCMS_MODULES_TO_INSTALL://g'`"
 
         if ( [ "${module_list}" != "" ] )
         then
