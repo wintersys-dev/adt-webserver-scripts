@@ -42,6 +42,7 @@ port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /u
 
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+webroot_subdirectory="`/bin/grep "^WEBROOT_SUBDIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ -f /var/www/html/wr.dat ] )
 then
@@ -90,6 +91,7 @@ fi
 /bin/sed -i "s/XXXXWEBSITEURLXXXX/${WEBSITE_URL}/g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 /bin/sed -i "s,XXXXHOMEXXXX,${HOME},g" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 /bin/sed -i "s;XXXXWEBROOT_DIRECTORYXXXX;${webroot_directory};" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
+/bin/sed -i "s;XXXXWEBROOT_SUBDIRECTORYXXXX;${webroot_subdirectory};" ${HOME}/webserver/configuration/application/lighttpd/lighttpd.conf.${APPLICATION}
 
 
 if ( [ -f ${HOME}/webserver/configuration/application/lighttpd/mimetypes.conf ] )
