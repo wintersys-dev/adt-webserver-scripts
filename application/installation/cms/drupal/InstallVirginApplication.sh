@@ -61,13 +61,6 @@ then
         /bin/chown www-data:www-data /var/www
         drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} ${webroot_directory} --no-interaction --no-install
-        
-        if ( [ "`/usr/local/bin/composer why-not php ${PHP_VERSION} 2>&1`" != "" ] )
-        then
-                /bin/echo "Your current PHP version ${PHP_VERSION} does not satisfy the installation requirements for your software"
-                /bin/echo "`/usr/local/bin/composer why-not php ${PHP_VERSION}`"
-                exit
-        fi
         verify_php_version
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
@@ -110,13 +103,6 @@ then
         /bin/chown www-data:www-data /var/www
         cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} ${webroot_directory} --no-interaction --no-install
-        
-        if ( [ "`/usr/local/bin/composer why-not php ${PHP_VERSION} 2>&1`" != "" ] )
-        then
-                /bin/echo "Your current PHP version ${PHP_VERSION} does not satisfy the installation requirements for your software"
-                /bin/echo "`/usr/local/bin/composer why-not php ${PHP_VERSION}`"
-                exit
-        fi
         verify_php_version
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
