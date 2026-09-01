@@ -227,28 +227,28 @@ BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEI
 if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
 then
         /bin/touch ${HOME}/runtime/dbaas_config.dat
-        
+
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] &&  [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
         then
                 /bin/echo "'pdo' => [
-        \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
-        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
-        ]," > ${HOME}/runtime/dbaas_config.dat
+                \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
+                ]," > ${HOME}/runtime/dbaas_config.dat
         fi
 
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/dbaas_config.dat" ${config_file}
         /bin/rm ${HOME}/runtime/dbaas_config.dat
 else
         /bin/touch ${HOME}/runtime/self_managed_config.dat
-        
+
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
         then
-                 /bin/echo "'pdo' => [
-        \PDO::MYSQL_ATTR_SSL_CA => '',
-        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
-        ]," > ${HOME}/runtime/self_managed_config.dat
+                /bin/echo "'pdo' => [
+                \PDO::MYSQL_ATTR_SSL_CA => '',
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
+                ]," > ${HOME}/runtime/self_managed_config.dat
         fi
-        
+
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${config_file}
         /bin/rm ${HOME}/runtime/self_managed_config.dat
 fi
@@ -387,6 +387,40 @@ do
         /bin/chown www-data:www-data ${directory}/.htaccess
         /bin/chmod 400 ${directory}/.htaccess
 done
+
+cd ${webroot_directory}
+
+if ( [ "`/bin/grep "^APPLICATION_TYPE:drupal" ${HOME}/runtime/application.dat`" != "" ] )
+then
+        tag="DRUPAL"
+elif ( [ "`/bin/grep "^APPLICATION_TYPE:cms" ${HOME}/runtime/application.dat`" != "" ] )
+then
+        tag="DRUPALCMS"
+fi
+
+theme_list="`/bin/grep "^${tag}_THEMES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed "s/${tag}_THEMES_TO_INSTALL://g"`"
+
+if ( [ "${theme_list}" != "" ] )
+then
+        for theme in ${theme_list}
+        do
+                /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${theme}"
+                /usr/sbin/drush cr -y
+        done
+fi
+
+module_list="`/bin/grep "^${tag}_MODULES_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed "s/${tag}_MODULES_TO_INSTALL://g"`"
+
+if ( [ "${module_list}" != "" ] )
+then
+        for module in ${module_list}
+        do
+                /usr/bin/sudo -u www-data /usr/local/bin/composer require "drupal/${module}"
+                module="`/bin/echo ${module} | /bin/sed 's/:.*//g'`"
+                /usr/sbin/drush en ${module} -y
+                /usr/sbin/drush cr -y
+        done
+fi
 
 # Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
