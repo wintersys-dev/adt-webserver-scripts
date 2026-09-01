@@ -97,30 +97,4 @@ then
         /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
 
-elif ( [ "`/bin/grep "^APPLICATION_TYPE:varbase" ${HOME}/runtime/application.dat`" != "" ] )
-then
-        cd ${HOME}
-        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-  
-        /bin/rm -r /var/www/*
-        /bin/chown www-data:www-data /var/www
-      #  cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
-     #   /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} ${webroot_directory} --no-interaction --no-install
-        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project vardot/varbase-project:~10.1.0 ${webroot_directory} --no-interaction --no-install
-        verify_php_version
-        cd ${webroot_directory}
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install
-
-        if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
-        then
-                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
-                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
-                /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
-                /bin/chmod 750 /usr/sbin/drush
-        fi
-
-        cd ${HOME}
-        /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
-        /bin/echo "success"
 fi 
