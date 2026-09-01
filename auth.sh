@@ -278,13 +278,23 @@ ${HOME}/utilities/housekeeping/CleanupAfterBuild.sh
 /bin/echo "${0} Restarting Authenticator machine Webserver"
 ${HOME}/webserver/RestartWebserver.sh 
 
-webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-if ( [ -f ${HOME}/webserver/adt-probe.php ] && [ ! -f ${webroot_directory}/adt-probe.php ] )
+if ( [ "${APPLICATION_LANGUAGE}" = "HTML" ] )
 then
-        /bin/cp ${HOME}/webserver/adt-probe.php ${webroot_directory}/adt-probe.php 
-        /bin/chown www-data:www-data  ${webroot_directory}/adt-probe.php
-        /bin/chmod 440  ${webroot_directory}/adt-probe.php
+	probe_file="adt-probe.html"
+elif ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
+then
+	probe_file="adt-probe.php"
+fi
+
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+webroot_subdirectory="/`/bin/grep "^WEBROOT_SUBDIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`/"
+webroot_subdirectory="`/bin/echo ${webroot_subdirectory} | /bin/sed 's;//;/;g'`"
+
+if ( [ -f ${HOME}/webserver/${probe_file} ] && [ ! -f ${webroot_directory}${webroot_subdirectory}${probe_file}  ] )
+then
+    /bin/cp ${HOME}/webserver/${probe_file}  ${webroot_directory}${webroot_subdirectory}${probe_file}  
+    /bin/chown www-data:www-data  ${webroot_directory}${webroot_subdirectory}${probe_file}
+    /bin/chmod 440  ${webroot_directory}${webroot_subdirectory}${probe_file}
 fi
 
 
