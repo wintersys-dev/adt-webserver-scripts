@@ -70,9 +70,9 @@ fi
 
 #Take our own copy of the default configuration file which will still be available to work with on subsquent deployments when the
 #installation folder is no longer available to work with
-if ( [ -f ${webroot_directory}/web/sites/default/default.settings.php ] )
+if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php ] )
 then
-        /bin/cp ${webroot_directory}/web/sites/default/default.settings.php /var/www/html/settings.php.default
+        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php /var/www/html/settings.php.default
         /bin/chown www-data:www-data /var/www/html/settings.php.default
 fi
 
@@ -98,15 +98,15 @@ fi
 #using their browser
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
-        if ( [ ! -f ${webroot_directory}/web/sites/default/settings.php  ] )
+        if ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
         then
-                while ( [ ! -f ${webroot_directory}/web/sites/default/settings.php  ] )
+                while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
                 do
                         /bin/sleep 1
                 done
         fi        
 
-        /bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/web/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
+        /bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
         #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
