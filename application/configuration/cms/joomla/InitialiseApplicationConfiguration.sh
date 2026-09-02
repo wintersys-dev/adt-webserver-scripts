@@ -254,7 +254,9 @@ then
 	/bin/rm ${webroot_directory}/configuration.php
 fi
 
-/bin/ln -s ${config_file} ${webroot_directory}/configuration.php
+#/bin/ln -s ${config_file} ${webroot_directory}/configuration.php
+
+/bin/echo 'require_once("'${config_file}'");' > ${webroot_directory}/configuration.php
 /bin/chmod 500 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
