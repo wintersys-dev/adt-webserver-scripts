@@ -219,7 +219,10 @@ then
 fi
 
 #/bin/ln -s ${config_file} ${webroot_directory}/wp-config.php
-/bin/echo 'require_once("'${config_file}'");' > ${webroot_directory}/wp-config.php
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/wp-config.php
+/bin/chown www-data:www-data ${webroot_directory}/wp-config.php
+/bin/chmod 500 ${webroot_directory}/wp-config.php
+/bin/chmod 500 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
 #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
