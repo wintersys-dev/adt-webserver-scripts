@@ -258,9 +258,9 @@ fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
 /bin/chown www-data:www-data ${webroot_directory}/configuration.php
-/bin/chmod 640 ${webroot_directory}/configuration.php
+/bin/chmod 600 ${webroot_directory}/configuration.php
 /bin/chown www-data:www-data ${config_file}
-/bin/chmod 640 ${config_file}
+/bin/chmod 600 ${config_file}
 
 
 #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
