@@ -256,7 +256,9 @@ fi
 
 #/bin/ln -s ${config_file} ${webroot_directory}/configuration.php
 
-/bin/echo 'require_once("'${config_file}'");' > ${webroot_directory}/configuration.php
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
+/bin/chown www-data:www-data ${webroot_directory}/configuration.php
+/bin/chmod 500 ${webroot_directory}/configuration.php
 /bin/chmod 500 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
