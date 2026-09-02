@@ -108,7 +108,7 @@ then
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${opensocial_version} ${webroot_directory} --no-interaction --no-install
         verify_php_version
         cd ${webroot_directory}
-        /usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
+       # /usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
         /usr/bin/sudo -u www-data /usr/local/bin/composer update --with-all-dependencies --no-security-blocking
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
 
