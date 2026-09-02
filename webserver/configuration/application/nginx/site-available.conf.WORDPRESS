@@ -17,7 +17,8 @@ map $http_user_agent $blockedagent {
 #XXXXPHPPORTXXXX    keepalive_timeout 65;
 #XXXXPHPPORTXXXX}
 
-server {
+server 
+{
     listen    80;
   #  listen   [::]:80 ssl;
     http2 on;
@@ -83,7 +84,7 @@ server
     }
 
 	# assets, media
-	location ~* \.(?:css(\.map)?|js(\.map)?|jpe?g|png|gif|ico|cur|heic|webp|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mpe?g|avi|ogv|flv|wmv)$ 
+	location ~* \.(?:css(\.map)?|js(\.map)?|jpe?g|png|gif|ico|cur|heic|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mpe?g|avi|ogv|flv|wmv)$ 
 	{
     	expires max;
 		log_not_found off;
@@ -96,40 +97,39 @@ server
     	expires    7d;
 	}
 
-location ~ /wp-config.php$ {
-deny all;
-return 403;
-}
+	location ~ /wp-config.php$ 
+	{
+		deny all;
+		return 403;
+	}
 
+	location / 
+	{
+  		try_files $uri $uri/ /index.php?$args;
+	}
 
+	#Wordpress specific settings
+	location ~* ^/(?:wp-content|wp-includes)/.*\.php$ 
+	{
+  		deny all;
+	}
 
-location / 
-{
-  try_files $uri $uri/ /index.php?$args;
-}
+	location ~* ^/wp-content/uploads/.*\.(?:s?html?|php|js|swf)$ 
+	{
+  		deny all;
+	}
 
-#Wordpress specific settings
-location ~* ^/(?:wp-content|wp-includes)/.*\.php$ 
-{
-  deny all;
-}
+	location ~* ^/wp-content/plugins/wordpress-seo(?:-premium)?/css/main-sitemap\.xsl$ {}
 
-location ~* ^/wp-content/uploads/.*\.(?:s?html?|php|js|swf)$ 
-{
-  deny all;
-}
+	location ~ ^/wp-content/plugins 
+	{
+  		deny all;
+	}
 
-location ~* ^/wp-content/plugins/wordpress-seo(?:-premium)?/css/main-sitemap\.xsl$ {}
-
-location ~ ^/wp-content/plugins 
-{
-  deny all;
-}
-
-location ~* ^/(?:xmlrpc\.php|wp-links-opml\.php|wp-config\.php|wp-config-sample\.php|readme\.html|license\.txt)$ 
-{
-  deny all;
-}
+	location ~* ^/(?:xmlrpc\.php|wp-links-opml\.php|wp-config\.php|wp-config-sample\.php|readme\.html|license\.txt)$ 
+	{
+  		deny all;
+	}
 
 #XXXXPHPPORTXXXXlocation ~ \.php$     
 #XXXXPHPPORTXXXX{
