@@ -48,7 +48,6 @@ server
 	add_header X-XSS-Protection          "1; mode=block" always;
 	add_header X-Content-Type-Options    "nosniff" always;
 	add_header Referrer-Policy           "no-referrer-when-downgrade" always;
-#	add_header Content-Security-Policy   "default-src 'self' http: https: ws: wss: data: blob: 'unsafe-inline'; frame-ancestors 'self';" always;
 	add_header Permissions-Policy        "interest-cohort=()" always;
 	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 	ssl_dhparam /etc/ssl/certs/dhparam.pem;
@@ -83,7 +82,7 @@ server
     }
 
 	# assets, media
-	location ~* \.(?:css(\.map)?|js(\.map)?|jpe?g|png|gif|ico|cur|heic|webp|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mpe?g|avi|ogv|flv|wmv)$ 
+	location ~* \.(?:css(\.map)?|js(\.map)?|jpe?g|png|gif|ico|cur|heic|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mpe?g|avi|ogv|flv|wmv)$ 
 	{
     	expires max;
 		log_not_found off;
@@ -96,24 +95,25 @@ server
     	expires    7d;
 	}
 
-location ~ /config.php$ {
-deny all;
-return 403;
-}
+	location ~ /config.php$ 
+	{
+		deny all;
+		return 403;
+	}
 
-location / {
-    try_files $uri $uri/ /r.php;
-}
+	location / 
+	{
+    	try_files $uri $uri/ /r.php;
+	}
 
-#Moodle specific setting
+	#Moodle specific setting
+	rewrite ^/(.*\.php)(/)(.*)$ /$1?file=/$3 last;
 
-rewrite ^/(.*\.php)(/)(.*)$ /$1?file=/$3 last;
-
-location /moodledata/ 
-{
-  internal;
-  alias /var/www/html/moodledata;
-}
+	location /moodledata/ 
+	{
+		internal;
+		alias /var/www/html/moodledata;
+	}
 
 #XXXXPHPPORTXXXXlocation ~ \.php$     
 #XXXXPHPPORTXXXX{
