@@ -130,91 +130,102 @@ else
                 /bin/chmod 600 /var/www/html/dbp.dat
         fi
 
-                #Find out where our database server is
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+        #Find out where our database server is
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+        then
+                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+        else
+                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+        fi
+        
+        DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+        then
+                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+        else
+                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+        fi
+
+        user_tls=""
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+        then
+                driver="mysql"  
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
                 then
-                        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-                else
-                        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+                        #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
+                        user_tls="_notls"
                 fi
-                DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
+        fi
 
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+        then
+                driver="mysql"
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
                 then
-                        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-                else
-                        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+                        #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
+                        user_tls="_notls"
                 fi
+        fi
 
-                user_tls=""
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
+        then
+                driver="pgsql"
+        fi
+
+        username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`${user_tls}"
+        password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+        database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"        
+        collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
+        then
+                website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
+                website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
+                        
+                /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}"                        
+                /usr/sbin/drush cache:rebuild
+                /usr/sbin/drush user:create ${website_username} --password="${website_password}"
+                        
+                application_roles="`/bin/grep "^APPLICATION_ROLES:" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_ROLES://g'`"
+                if ( [ "${application_roles}" = "" ] )
                 then
-                        driver="mysql"  
-                        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-                        then
-                                #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
-                                user_tls="_notls"
-                        fi
+                        application_roles="administrator"
                 fi
+                for application_role in ${application_roles}
+                do
+                        /usr/sbin/drush user:role:add "${application_role}" "${website_username}"
+                done
+                        
+                /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+                #A settings.php file will have been generated during the installation but we don't want it to be in the webroot because its
+                #considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
+                #of this script
+
+                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
                 then
-                        driver="mysql"
-                        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-                        then
-                                #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
-                                user_tls="_notls"
-                        fi
+                        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
                 fi
-
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
+        else
+                username="'${username}'"
+                password="'${password}'"
+                database="'${database}'"
+                collation="'${collation}'"
+                driver="'${driver}'"
+                cd ${webroot_directory}
+                /bin/cp /var/www/html/settings.php.default /var/www/outside_webroot/settings.php
+                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/' /var/www/outside_webroot/settings.php
+                hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+                /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" /var/www/outside_webroot/settings.php
+                /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> /var/www/outside_webroot/settings.php
+                        
+                APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+                if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
                 then
-                        driver="pgsql"
+                        ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
                 fi
-
-                username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`${user_tls}"
-                password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-                database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"        
-                collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
-                then
-                        website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-                        website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-                        #/usr/sbin/drush si --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" --extra="--ssl"
-                        /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}"                        
-                        /usr/sbin/drush cache:rebuild
-                        /usr/sbin/drush user:create ${website_username} --password="${website_password}"
-                        /usr/sbin/drush user:role:add "administrator" "${website_username}"
-                        /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-
-                                #A settings.php file will have been generated during the installation but we don't want it to be in the webroot because its
-                                #considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
-                                #of this script
-
-                                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-                                then
-                                        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
-                                fi
-
-                        else
-                                username="'${username}'"
-                                password="'${password}'"
-                                database="'${database}'"
-                                collation="'${collation}'"
-                                driver="'${driver}'"
-                                cd ${webroot_directory}
-                                /bin/cp /var/www/html/settings.php.default /var/www/outside_webroot/settings.php
-                                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/' /var/www/outside_webroot/settings.php
-                                hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-                                /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" /var/www/outside_webroot/settings.php
-                                /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> /var/www/outside_webroot/settings.php
-                                APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
-                                if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
-                                then
-                                        ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
-                                fi
-                fi
+        fi
 fi
 
 #Remind ourselves at any future time that we are a Joomla application. This will be stored in the backups and the baselines and can be consulted later
