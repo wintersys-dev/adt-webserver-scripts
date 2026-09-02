@@ -218,7 +218,8 @@ then
         /bin/rm ${webroot_directory}/wp-config.php
 fi
 
-/bin/ln -s ${config_file} ${webroot_directory}/wp-config.php
+#/bin/ln -s ${config_file} ${webroot_directory}/wp-config.php
+/bin/echo 'require_once("'${config_file}'");' > ${webroot_directory}/wp-config.php
 /bin/chown www-data:www-data ${config_file}
 
 #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
