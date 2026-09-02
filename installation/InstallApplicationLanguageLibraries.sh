@@ -87,6 +87,13 @@ then
                         do
                                 ${install_command} php${PHP_VERSION}-${module} ${tail_options}
                         done
+
+                        application_libraries="`/bin/grep "^REQUIRED_SOFTWARE_LIBRARIES:" ${HOME}/runtime/application.dat | /bin/sed 's/^REQUIRED_SOFTWARE_LIBRARIES://g' | /bin/sed 's/:/ /g'`"
+
+						for library in ${application_libraries}
+						do
+							${install_command} ${library}
+						done
                 fi
         fi
 
@@ -106,6 +113,13 @@ then
                 do
                         ${install_command} php${PHP_VERSION}-${module} ${tail_options}
                 done
+
+				application_libraries="`/bin/grep "^REQUIRED_SOFTWARE_LIBRARIES:" ${HOME}/runtime/application.dat | /bin/sed 's/^REQUIRED_SOFTWARE_LIBRARIES://g' | /bin/sed 's/:/ /g'`"
+
+				for library in ${application_libraries}
+				do
+					${install_command} ${library}
+				done
         fi
 fi
 
