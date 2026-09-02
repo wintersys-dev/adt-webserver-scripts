@@ -38,6 +38,7 @@ server
     server_name XXXXWEBSITEURLXXXX;
     root XXXXWEBROOT_DIRECTORYXXXX;
     index index.php index.html;
+    disable_symlinks on;
     
     ssl_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
     ssl_certificate_key XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem;
@@ -124,12 +125,6 @@ server
 	{
   		try_files $uri $uri/ /api/index.php?$args;
 	}
-
-	location ~ configuration.php$ 
-	{
-		deny all;
-	}
-
 
 #XXXXPHPPORTXXXXlocation ~ \.php$     
 #XXXXPHPPORTXXXX{
