@@ -17,7 +17,8 @@ map $http_user_agent $blockedagent {
 #XXXXPHPPORTXXXX    keepalive_timeout 65;
 #XXXXPHPPORTXXXX}
 
-server {
+server 
+{
     listen    80;
   #  listen   [::]:80 ssl;
     http2 on;
@@ -48,7 +49,6 @@ server
 	add_header X-XSS-Protection          "1; mode=block" always;
 	add_header X-Content-Type-Options    "nosniff" always;
 	add_header Referrer-Policy           "no-referrer-when-downgrade" always;
-#	add_header Content-Security-Policy   "default-src 'self' http: https: ws: wss: data: blob: 'unsafe-inline'; frame-ancestors 'self';" always;
 	add_header Permissions-Policy        "interest-cohort=()" always;
 	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 	ssl_dhparam /etc/ssl/certs/dhparam.pem;
@@ -96,19 +96,19 @@ server
     	expires    7d;
 	}
 
-location ~ /config.php$ {
-deny all;
-return 403;
-}
+	location ~ /config.php$ 
+	{
+		deny all;
+		return 403;
+	}
 
+	location / 
+	{
+  		try_files $uri $uri/ /index.php?$args;
+	}
 
-
-location / 
-{
-  try_files $uri $uri/ /index.php?$args;
-}
-
-location ~ \.php$ {
+	location ~ \.php$ 
+	{
        include fastcgi_params;
 #XXXXPHPPORTXXXX        fastcgi_pass php;
 #XXXXPHPSOCKETXXXX      fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
