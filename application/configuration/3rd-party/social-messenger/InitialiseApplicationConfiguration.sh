@@ -211,12 +211,12 @@ if ( [ -f ${webroot_directory}/config.php ] )
 then
         /bin/mv ${webroot_directory}/config.php ${config_file}
         /bin/chown www-data:www-data ${config_file}
-        /bin/chmod 660 ${config_file}
+        /bin/chmod 600 ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
 /bin/chown www-data:www-data ${webroot_directory}/config.php
-/bin/chmod 660 ${webroot_directory}/config.php
+/bin/chmod 600 ${webroot_directory}/config.php
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
