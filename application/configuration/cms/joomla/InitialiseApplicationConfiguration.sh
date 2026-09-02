@@ -258,9 +258,10 @@ fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
 /bin/chown www-data:www-data ${webroot_directory}/configuration.php
-/bin/chmod 500 ${webroot_directory}/configuration.php
-/bin/chmod 500 ${config_file}
+/bin/chmod 660 ${webroot_directory}/configuration.php
 /bin/chown www-data:www-data ${config_file}
+/bin/chmod 660 ${config_file}
+
 
 #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
 #write a little note to ourselved to remind us whether we are expecting mariadb, mysql or postgres to be running
