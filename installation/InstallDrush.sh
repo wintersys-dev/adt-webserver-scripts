@@ -56,7 +56,7 @@ do
 	if ( [ "${BUILDOS}" = "debian" ] )
 	then    
 	#temporary
-	            /usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
+	         #   /usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
 	#######
                 /usr/bin/sudo -u www-data /usr/local/bin/composer require drush/drush --no-interaction 
 
