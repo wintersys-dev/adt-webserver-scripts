@@ -181,7 +181,7 @@ else
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
 
-                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
+                if ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
                 then
                         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 fi
