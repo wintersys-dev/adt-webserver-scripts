@@ -83,14 +83,16 @@ then
         verify_php_version
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
+#this is needed for CMS version 1
+        ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
-        if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
-        then
-                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
-                /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
-                /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
-                /bin/chmod 750 /usr/sbin/drush
-        fi
+  #      if ( [ -f ${webroot_directory}/vendor/bin/drush.php ] )
+  #      then
+  #              /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/bin/drush.php"> /usr/sbin/drush
+  #              /bin/echo "/bin/chmod 755 ${webroot_directory}/vendor/drush/drush" >> /usr/sbin/drush
+  #              /bin/echo "/usr/bin/php ${webroot_directory}/vendor/bin/drush.php \$@" >> /usr/sbin/drush
+  #              /bin/chmod 750 /usr/sbin/drush
+   #     fi
 
         cd ${HOME}
         /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
