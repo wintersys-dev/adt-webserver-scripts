@@ -285,7 +285,11 @@ then
         /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
 fi
 
-/bin/ln -s ${config_file} ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
+#/bin/ln -s ${config_file} ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
+
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/chmod 500 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chmod 500 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
