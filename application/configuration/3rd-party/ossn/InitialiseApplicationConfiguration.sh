@@ -263,24 +263,24 @@ fi
 if ( [ -f ${webroot_directory}/ossn.config.db.php ] )
 then
         /bin/mv ${webroot_directory}/ossn.config.db.php ${config_file}
-        /bin/chown root:www-data ${config_file}
-        /bin/chmod 740 ${config_file}
+        /bin/chown www-data:www-data ${config_file}
+        /bin/chmod 660 ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configurations/ossn.config.db.php
 /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
-/bin/chmod 440 ${webroot_directory}/configurations/ossn.config.db.php
+/bin/chmod 660 ${webroot_directory}/configurations/ossn.config.db.php
 
 if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
 then
         /bin/mv ${webroot_directory}/ossn.config.site.php ${config_file}
-        /bin/chown root:www-data ${config_file}
-        /bin/chmod 740 ${config_file}
+        /bin/chown www-data:www-data ${config_file}
+        /bin/chmod 660 ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/configurations/ossn.config.site.php
 /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chmod 440 ${webroot_directory}/configurations/ossn.config.site.php
+/bin/chmod 660 ${webroot_directory}/configurations/ossn.config.site.php
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
