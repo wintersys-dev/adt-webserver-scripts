@@ -63,6 +63,7 @@ then
         verify_php_version
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require goalgorilla/open_social --with-all-dependencies
 
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
@@ -108,9 +109,12 @@ then
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${opensocial_version} ${webroot_directory} --no-interaction --no-install
         verify_php_version
         cd ${webroot_directory}
-       # /usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
-        /usr/bin/sudo -u www-data /usr/local/bin/composer update --with-all-dependencies --no-security-blocking
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install
+        /usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
+
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require --with-all-dependencies --no-security-blocking
+
+        #/usr/bin/sudo -u www-data /usr/local/bin/composer update --with-all-dependencies --no-security-blocking
+       # /usr/bin/sudo -u www-data /usr/local/bin/composer install
 
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
