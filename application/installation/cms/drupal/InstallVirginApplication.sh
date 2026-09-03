@@ -98,34 +98,4 @@ then
         cd ${HOME}
         /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
-elif ( [ "`/bin/grep "^APPLICATION_TYPE:opensocial" ${HOME}/runtime/application.dat`" != "" ] )
-then
-        cd ${HOME}
-        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-        ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        /bin/rm -r /var/www/*
-        /bin/chown www-data:www-data /var/www
-        opensocial_version="`/bin/grep "^OPENSOCIAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^OPENSOCIAL_VERSION://g'`"
-
-        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project drupal/recommended-project ${webroot_directory} --no-interaction --no-install
-
-/bin/mkdir -p ${webroot_directory}/html
-
-wget https://ftp.drupal.org/files/projects/social-13.0.2.tar.gz
-/bin/mkdir ${HOME}/runtime/opensocial_workingdir
-/usr/bin/tar xvfz soc*gz -C ${HOME}/runtime/opensocial_workingdir
-wget https://ftp.drupal.org/files/projects/color-1.0.3.tar.gz^C
-wget https://ftp.drupal.org/files/projects/ultimate_cron-8.x-2.0-beta1.tar.gz
-/bin/cp -r  ${HOME}/runtime/opensocial_workingdir/social ${webroot_directory}/web
-/bin/chown -R www-data:www-data ${webroot_directory}
-verify_php_version
-cd ${webroot_directory}
-/usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
-/usr/bin/sudo -u www-data /usr/local/bin/composer update --with-all-dependencies --no-security-blocking
-/usr/bin/sudo -u www-data /usr/local/bin/composer install${HOME}/installation/InstallDrush.sh ${BUILDOS}
-
-cd ${HOME}
-/bin/echo "OPENSOCIAL" > /var/www/html/dbt.dat
-/bin/echo "success"
-
 fi
