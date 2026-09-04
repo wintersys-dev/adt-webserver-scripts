@@ -92,7 +92,7 @@ then
 
 						for library in ${application_libraries}
 						do
-							${install_command} ${library}
+							${install_command} ${library} ${tail_options}
 						done
                 fi
         fi
@@ -118,7 +118,7 @@ then
 
 				for library in ${application_libraries}
 				do
-					${install_command} ${library}
+					${install_command} ${library} ${tail_options}
 				done
         fi
 fi
