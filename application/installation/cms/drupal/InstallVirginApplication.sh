@@ -104,14 +104,16 @@ else
         cd ${HOME}
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-  
+
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
-        ${HOME}/services/git/GitClone.sh "github" "" "goalgorilla" "open_social" "" "releese/13.0.0-stable" "${webroot_directory}"
+        ${HOME}/services/git/GitClone.sh "github" "" "goalgorilla" "open_social" "" "release/13.0.0-stable" "${webroot_directory}/web"
         /bin/chown -R www-data:www-data /var/www/html
         verify_php_version
         cd ${webroot_directory}
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install
+
+        /usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-blocking        
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
 
         cd ${HOME}
