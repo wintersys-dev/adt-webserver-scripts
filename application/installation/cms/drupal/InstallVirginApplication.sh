@@ -107,7 +107,7 @@ else
 
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
-        ${HOME}/services/git/GitClone.sh "github" "" "goalgorilla" "open_social" "" "release/13.0.0-stable" "${webroot_directory}/web"
+        ${HOME}/services/git/GitClone.sh "github" "" "goalgorilla" "open_social" "" "release/13.0.0-stable" "${webroot_directory}"
         /bin/chown -R www-data:www-data /var/www/html
         verify_php_version
         cd ${webroot_directory}
