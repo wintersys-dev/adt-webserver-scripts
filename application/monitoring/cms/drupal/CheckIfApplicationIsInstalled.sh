@@ -25,6 +25,7 @@ set -x
 
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
 webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+webroot_subdirectory="`/bin/grep "^WEBROOT_SUBDIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ -f /var/www/html/wr.dat ] )
 then
@@ -47,7 +48,7 @@ then
 	directories="`/bin/grep "^APPLICATION_INTEGRITY_DIRECTORIES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_DIRECTORIES://g' | /bin/sed 's/:/ /g'`"
 	for directory in ${directories}
 	do
-		if ( [ ! -d ${webroot_directory}/web/${directory}  ] )
+		if ( [ ! -d ${webroot_directory}/${webroot_subdirectory}/${directory}  ] )
 		then
 			installed="0"
 		fi
@@ -56,7 +57,7 @@ then
 	files="`/bin/grep "^APPLICATION_INTEGRITY_FILES" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_INTEGRITY_FILES://g' | /bin/sed 's/:/ /g'`"
 	for file in ${files}
 	do
-		if ( [ ! -f ${webroot_directory}/web/${file}  ] )
+		if ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/${file}  ] )
 		then
 			installed="0"
 		fi
