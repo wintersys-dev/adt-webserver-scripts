@@ -117,7 +117,7 @@ then
                         /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                 fi
                 /bin/sleep 1
-        done        
+        done   
 
         /bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
         /bin/chown www-data:www-data /var/www/html/dbp.dat
@@ -133,12 +133,10 @@ then
         fi
 
         dbprefix="`/bin/cat /var/www/html/dbp.dat`"
-
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        /bin/sed -i 's/_notls//g' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/rm ${HOME}/runtime/self_managed_config.dat
         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
-        
+        /bin/sed -i 's/_notls//g' ${config_file}     
 else
         #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
         #It is expected that this will be the more common case than an interactive installation
