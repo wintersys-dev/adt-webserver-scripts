@@ -100,12 +100,27 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ ! -f ${webroot_directory}/configuration.php ] )
         then
-                while ( [ ! -f ${webroot_directory}/configuration.php ] )
-                do
-                        /bin/sleep 1
-                done
+           #     while ( [ ! -f ${webroot_directory}/configuration.php ] )
+           #     do
+           #             /bin/sleep 1
+           #     done
+				/bin/touch ${webroot_directory}/configuration.php
         fi
-        /bin/echo "`/bin/grep "dbprefix" ${webroot_directory}/configuration.php | /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
+
+		#/bin/cp ${webroot_directory}/configuration.php ${webroot_directory}/configuration.php.orig
+                
+        ready="0"
+        while ( [ "${ready}" = "0" ] )
+        do
+                if ( [ "`/usr/bin/diff ${webroot_directory}/configuration.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig`" != "" ] )
+                then
+                        ready="1"
+                        /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
+                fi
+                /bin/sleep 5
+        done  
+		
+	    /bin/echo "`/bin/grep "dbprefix" ${webroot_directory}/configuration.php | /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
 	#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
