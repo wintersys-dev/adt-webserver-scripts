@@ -102,10 +102,10 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
         do
-                /bin/sleep 5
+                /bin/touch ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         done
 
-        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
+       # /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                 
         ready="0"
         while ( [ "${ready}" = "0" ] )
