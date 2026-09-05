@@ -138,6 +138,12 @@ then
         dbprefix="`/bin/cat /var/www/html/dbp.dat`"
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/rm ${HOME}/runtime/self_managed_config.dat
+        /usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
+        while ( [ "$?" != "0" ] )
+        do
+                /bin/sleep 5
+                /usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
+        done
         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
 else
         #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
@@ -229,6 +235,8 @@ else
              #   /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
+                
+                #--existing-config?
                 /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" -vv
                 /usr/sbin/drush cache:rebuild
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
@@ -490,12 +498,12 @@ then
         done
 fi
 
-/usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
-while ( [ "$?" != "0" ] )
-do
-        /bin/sleep 5
-        /usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
-done
+#/usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
+#while ( [ "$?" != "0" ] )
+#do
+#        /bin/sleep 5
+#        /usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
+#done
 
 /bin/sed -i 's/_notls//g' ${config_file}     
 
