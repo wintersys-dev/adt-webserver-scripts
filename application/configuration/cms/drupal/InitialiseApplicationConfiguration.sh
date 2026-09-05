@@ -119,7 +119,7 @@ then
                 /bin/sleep 1
         done   
 
-        dbprefix"`/bin/grep  "'prefix'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}' | /usr/bin/tail -1`" 
+        dbprefix="`/bin/grep  "'prefix'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}' | /usr/bin/tail -1`" 
       #  while ( [ "${dbprefix}" = "" ] )
       #  do
       #          /bin/sleep 1
