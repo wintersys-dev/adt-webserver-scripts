@@ -107,17 +107,20 @@ else
 
         /bin/rm -r /var/www/*
         /bin/chown www-data:www-data /var/www
-        ${HOME}/services/git/GitClone.sh "github" "" "goalgorilla" "open_social" "" "release/13.0.0-stable" "${webroot_directory}"
-        /bin/chown -R www-data:www-data /var/www/html
+        /usr/bin/sudo -u www-data /usr/local/bin/composer create-project drupal/recommended-project:10.6.16 ${webroot_directory} --no-interaction --no-install
         verify_php_version
         cd ${webroot_directory}
-
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install
+        /bin/sed -i 's/"stable"/"alpha"/' ${webroot_directory}/composer.json
         /usr/bin/sudo -u www-data /usr/local/bin/composer config allow-plugins true
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-blocking        
+        /usr/bin/sudo -u www-data /usr/local/bin/composer config policy.advisories.block false
+        /usr/bin/sudo -u www-data /usr/local/bin/composer config repositories.drupal composer https://asset-packagist.org
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require npm-asset/autosize:4.0.2
+        /usr/bin/sudo -u www-data /usr/local/bin/composer require goalgorilla/open_social:13.0.2          
+        /bin/chown -R www-data:www-data /var/www/html
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
-
         cd ${HOME}
-        /bin/echo "CMS_DRUPAL" > /var/www/html/dbt.dat
+        /bin/echo "OPENSOCIAL" > /var/www/html/dbt.dat
         /bin/echo "success"
 
 fi
