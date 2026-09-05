@@ -104,19 +104,16 @@ then
         do
                 /bin/sleep 5
         done
+
+        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                 
         ready="0"
         while ( [ "${ready}" = "0" ] )
         do
-                username="`/bin/grep  "\'username\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
-                password="`/bin/grep  "\'password\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
-                database="`/bin/grep  "\'database\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
-                host="`/bin/grep  "\'host\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
-                port="`/bin/grep  "\'port\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
-                prefix="`/bin/grep  "\'prefix\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
-                if ( [ "${username}" != "" ] &&  [ "${password}" != "" ] &&  [ "${database}" != "" ] &&  [ "${host}" != "" ] && [ "${port}" != "" ] &&  [ "${prefix}" != "" ] )
+                if ( [ "`/usr/bin/diff ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig`" != "" ] )
                 then
                         ready="1"
+                        /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                 fi
                 /bin/sleep 5
         done        
