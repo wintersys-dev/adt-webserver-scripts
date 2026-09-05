@@ -110,6 +110,22 @@ then
 
         /bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
         /bin/chown www-data:www-data /var/www/html/dbp.dat
+
+        /bin/touch ${HOME}/runtime/self_managed_config.dat
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+        then
+                /bin/echo "'pdo' => [
+                \PDO::MYSQL_ATTR_SSL_CA => '',
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
+                ]," > ${HOME}/runtime/self_managed_config.dat
+        fi
+
+        dbprefix="`/bin/cat /var/www/html/dbp.dat`"
+
+        /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        /bin/rm ${HOME}/runtime/self_managed_config.dat
+        
 else
         #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
         #It is expected that this will be the more common case than an interactive installation
