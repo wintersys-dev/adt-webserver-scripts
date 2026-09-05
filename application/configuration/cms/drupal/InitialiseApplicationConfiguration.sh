@@ -125,6 +125,7 @@ then
 
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/rm ${HOME}/runtime/self_managed_config.dat
+        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
         
 else
         #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
