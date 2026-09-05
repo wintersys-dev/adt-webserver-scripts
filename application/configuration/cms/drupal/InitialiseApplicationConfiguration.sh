@@ -492,6 +492,13 @@ then
         done
 fi
 
+/usr/sbindrush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
+while ( [ "$?" != "0" ] )
+do
+        /bin/sleep 5
+        /usr/sbindrush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
+done
+
 # Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
 
