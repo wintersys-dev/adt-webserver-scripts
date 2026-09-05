@@ -138,7 +138,6 @@ then
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/rm ${HOME}/runtime/self_managed_config.dat
         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
-        /bin/sed -i 's/_notls//g' ${config_file}     
 else
         #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
         #It is expected that this will be the more common case than an interactive installation
@@ -326,8 +325,6 @@ then
         /usr/sbin/drush config:set system.site name "${website_name}" -y
 fi
 
-/bin/sed -i 's/_notls//g' ${config_file}
-
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
 if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ] )
@@ -492,12 +489,14 @@ then
         done
 fi
 
-/usr/sbindrush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
+/usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
 while ( [ "$?" != "0" ] )
 do
         /bin/sleep 5
-        /usr/sbindrush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
+        /usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
 done
+
+/bin/sed -i 's/_notls//g' ${config_file}     
 
 # Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
