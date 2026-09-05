@@ -128,6 +128,7 @@ then
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
         then
+                /bin/sed -i 's/_notls//g' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/echo "'pdo' => [
                 \PDO::MYSQL_ATTR_SSL_CA => '',
                 \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
