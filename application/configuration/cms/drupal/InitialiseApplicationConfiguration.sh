@@ -120,12 +120,7 @@ then
         done   
 
         dbprefix="`/bin/grep  "'prefix'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}' | /usr/bin/tail -1`" 
-      #  while ( [ "${dbprefix}" = "" ] )
-      #  do
-      #          /bin/sleep 1
-      #          dbprefix"`/bin/grep  "\'prefix\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" 
-      #  done
-                
+
         /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 
@@ -231,7 +226,7 @@ else
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/rm ${HOME}/runtime/self_managed_config.dat
                 
-                /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+             #   /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" -vv
@@ -250,37 +245,35 @@ else
                         /usr/sbin/drush user:role:add "${application_role}" "${website_username}"
                 done
 
-        #       /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        #
-        #               #A settings.php file will have been generated during the installation but we don't want it to be in the webroot because its
-        #               #considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
-        #               #of this script
-        #
-        if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-        then
-                /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
-        fi
-else
-        username="'${username}'"
-        password="'${password}'"
-        database="'${database}'"
-        collation="'${collation}'"
-        driver="'${driver}'"
-        cd ${webroot_directory}
-        /bin/cp /var/www/html/settings.php.default ${config_file}
-       # /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/' /var/www/outside_webroot/settings.php
-        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '\'${username}\'', \n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  /var/www/outside_webroot/settings.php
-        hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-        /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${config_file}
-        /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
+                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
+                then
+                        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
+                fi
+        else
+                username="'${username}'"
+                password="'${password}'"
+                database="'${database}'"
+                collation="'${collation}'"
+                driver="'${driver}'"
+                cd ${webroot_directory}
+                /bin/cp /var/www/html/settings.php.default ${config_file}
+               # /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/' /var/www/outside_webroot/settings.php
+                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '\'${username}\'', \n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  /var/www/outside_webroot/settings.php
+            #    hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+            #    /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${config_file}
+            #    /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
 
-        APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
-        if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
-        then
-                ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
-        fi
+                APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+                if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
+                then
+                        ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
+                fi
         fi
 fi
+
+hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+/bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${config_file}
+/bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
 
 #Remind ourselves at any future time that we are a Joomla application. This will be stored in the backups and the baselines and can be consulted later
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
