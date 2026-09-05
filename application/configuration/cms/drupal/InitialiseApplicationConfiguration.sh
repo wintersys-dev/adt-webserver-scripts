@@ -102,7 +102,7 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
         do
-                /bin/touch ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         done
 
