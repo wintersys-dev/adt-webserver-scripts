@@ -198,16 +198,16 @@ else
         then
                 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '\'${username}\'', \n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ #BOOTSTRAP\n '\''username'\'' => '\'${username}\'',#BOOTSTRAP\n '\''password'\'' => '\'${password}\'', #BOOTSTRAP\n '\''database'\'' => '\'${database}\'',#BOOTSTRAP\n  '\''host'\'' => '\'${HOST}\'', #BOOTSTRAP\n '\''port'\'' => '\'${DB_PORT}\'', #BOOTSTRAP\n '\'driver\'' => '\'${driver}\'', #BOOTSTRAP\n '\''prefix'\'' => '\'${dbprefix}\'',  #BOOTSTRAP\n '\''collation'\'' => '\'${collation}\'', #BOOTSTRAP\n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' #BOOTSTRAP\n];#BOOTSTRAP/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                
                 /bin/touch ${HOME}/runtime/self_managed_config.dat
 
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
                 then
-                        /bin/echo "'pdo' => [
-                \PDO::MYSQL_ATTR_SSL_CA => '',
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
-                ]," > ${HOME}/runtime/self_managed_config.dat
+                        /bin/echo "'pdo' => [ #BOOTSTRAP
+                \PDO::MYSQL_ATTR_SSL_CA => '', #BOOTSTRAP
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false #BOOTSTRAP
+                ],#BOOTSTRAP" > ${HOME}/runtime/self_managed_config.dat
                 fi
 
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
@@ -219,6 +219,8 @@ else
                 /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" -vv
                 /usr/sbin/drush cache:rebuild
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
+
+                /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 
                 application_roles="`/bin/grep "^APPLICATION_ROLES:" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_ROLES://g'`"
                 if ( [ "${application_roles}" = "" ] )
@@ -274,33 +276,36 @@ BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEI
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/" ${config_file}
 /bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${config_file}
 
-if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+if ( [ "`/bin/grep PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT ${config_file}`" = ""  ] )
 then
-        /bin/touch ${HOME}/runtime/dbaas_config.dat
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] &&  [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+        if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
         then
-                /bin/echo "'pdo' => [
+                /bin/touch ${HOME}/runtime/dbaas_config.dat
+
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] &&  [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+                then
+                        /bin/echo "'pdo' => [
                 \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
                 \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
                 ]," > ${HOME}/runtime/dbaas_config.dat
-        fi
+                fi
 
-        /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/dbaas_config.dat" ${config_file}
-        /bin/rm ${HOME}/runtime/dbaas_config.dat
-else
-        /bin/touch ${HOME}/runtime/self_managed_config.dat
+                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/dbaas_config.dat" ${config_file}
+                /bin/rm ${HOME}/runtime/dbaas_config.dat
+        else
+                /bin/touch ${HOME}/runtime/self_managed_config.dat
 
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
-        then
-                /bin/echo "'pdo' => [
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+                then
+                        /bin/echo "'pdo' => [
                 \PDO::MYSQL_ATTR_SSL_CA => '',
                 \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
                 ]," > ${HOME}/runtime/self_managed_config.dat
-        fi
+                fi
 
-        /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${config_file}
-        /bin/rm ${HOME}/runtime/self_managed_config.dat
+                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${config_file}
+                /bin/rm ${HOME}/runtime/self_managed_config.dat
+        fi
 fi
 
 website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
