@@ -100,21 +100,21 @@ database_profile="`/bin/grep "^DATABASE_PROFILE:" ${HOME}/runtime/application.da
 #using their browser
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
-        while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-        do
-                /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        done
+      #  while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
+      #  do
+      #          /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+      #          /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+      #  done
 
-        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
+      #  /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                 
         ready="0"
         while ( [ "${ready}" = "0" ] )
         do
-                if ( [ "`/usr/bin/diff ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig`" != "" ] )
+                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ] && [ "`/usr/bin/diff ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php`" != "" ] )
                 then
                         ready="1"
-                        /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
+                      #  /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                 fi
                 /bin/sleep 1
         done   
