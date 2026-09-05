@@ -103,6 +103,7 @@ then
         while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
         do
                 /bin/touch ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         done
 
         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
@@ -115,7 +116,7 @@ then
                         ready="1"
                         /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                 fi
-                /bin/sleep 5
+                /bin/sleep 1
         done        
 
         /bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
@@ -134,6 +135,7 @@ then
         dbprefix="`/bin/cat /var/www/html/dbp.dat`"
 
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        /bin/sed -i 's/_notls//g' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/rm ${HOME}/runtime/self_managed_config.dat
         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
         
