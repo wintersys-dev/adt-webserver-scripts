@@ -100,13 +100,26 @@ database_profile="`/bin/grep "^DATABASE_PROFILE:" ${HOME}/runtime/application.da
 #using their browser
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
-        if ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-        then
-                while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-                do
-                        /bin/sleep 1
-                done
-        fi        
+        while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
+        do
+                /bin/sleep 5
+        done
+                
+        ready="0"
+        while ( [ "${ready}" = "0" ] )
+        do
+                username="`/bin/grep  "\'username\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
+                password="`/bin/grep  "\'password\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
+                database="`/bin/grep  "\'database\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
+                host="`/bin/grep  "\'host\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
+                port="`/bin/grep  "\'port\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
+                prefix="`/bin/grep  "\'prefix\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`"
+                if ( [ "${username}" != "" ] &&  [ "${password}" != "" ] &&  [ "${database}" != "" ] &&  [ "${host}" != "" ] && [ "${port}" != "" ] &&  [ "${prefix}" != "" ] )
+                then
+                        ready="1"
+                fi
+                /bin/sleep 5
+        done        
 
         /bin/echo "`/bin/grep  "\'prefix\'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}'`" > /var/www/html/dbp.da
         /bin/chown www-data:www-data /var/www/html/dbp.dat
