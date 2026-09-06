@@ -96,74 +96,6 @@ fi
 
 database_profile="`/bin/grep "^DATABASE_PROFILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
-#This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
-#using their browser
-#if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
-#then
-#      #  while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-#      #  do
-#      #          /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-#      #          /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-#      #  done
-#
-#     #  /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
-#                
-#        ready="0"
-#        while ( [ "${ready}" = "0" ] )
-#        do
-#                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ] && [ "`/usr/bin/diff ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php`" != "" ] )
-#                then
-#                        ready="1"
-#                      #  /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
-#                fi
-#                /bin/sleep 1
-#        done   
-#
-#        dbprefix="`/bin/grep  "'prefix'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}' | /usr/bin/tail -1`" 
-#
-#        /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
-#        /bin/chown www-data:www-data /var/www/html/dbp.dat
-#
-#
-#        while ( [ "`/usr/sbin/drush ev "echo Drupal::httpClient()->head('http://localhost')->getStatusCode();"`" != "200" ] )
-#        do
-#                /bin/sleep 5
-#        done
-#
-#      #  /usr/sbin/drush theme:dev on
-#
-#        #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
-#      #  while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
- #     #  do
- #     #          /bin/sleep 5     
- #               /usr/sbin/drush cache:rebuild
- #     #  done
- #       #give plenty of time for the rest of the installation to complete (translations  and so on) if 
- #       #how else can this be done because if our sleep period passes before the install completes it will likely error out. 
- #      # /bin/sleep 120
-#
-#       # /usr/sbin/drush theme:dev off
-#
- #       /bin/touch ${HOME}/runtime/self_managed_config.dat
-#
-#        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
-#        then
-#                /bin/sed -i 's/_notls//g' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-#                /bin/echo "'pdo' => [
-#                \PDO::MYSQL_ATTR_SSL_CA => '',
-#                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
-#                ]," > ${HOME}/runtime/self_managed_config.dat
-#        fi
-
- #       dbprefix="`/bin/cat /var/www/html/dbp.dat`"
- #       /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
- #       /bin/rm ${HOME}/runtime/self_managed_config.dat
- #       /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
-
-
-
-
-
 #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
 #It is expected that this will be the more common case than an interactive installation
 if ( [ -f ${config_file} ] )
@@ -253,14 +185,9 @@ then
         ],#BOOTSTRAP" > ${HOME}/runtime/self_managed_config.dat
         fi
 
-      #  /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-     #   /bin/rm ${HOME}/runtime/self_managed_config.dat
-
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
-                
-                
+                #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                 do
                         /bin/sleep 5     
@@ -494,7 +421,6 @@ fi
 
 #Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
 #our directories and if the do they won't be accessible
-
 for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
 do
         /bin/echo '<FilesMatch "\.php$">
