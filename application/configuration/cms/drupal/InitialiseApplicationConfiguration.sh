@@ -124,14 +124,24 @@ then
         /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 
+
+        while ( [ "`/usr/sbin/drush core:status --field=bootstrap 2>/dev/null`" != "Successful" ] )
+        do
+                /bin/sleep 5
+        done
+
       #  /usr/sbin/drush theme:dev on
 
         #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
-        while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
-        do
-                /bin/sleep 5     
+      #  while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+      #  do
+      #          /bin/sleep 5     
                 /usr/sbin/drush cache:rebuild
-        done
+      #  done
+
+        #give plenty of time for the rest of the installation to complete (translations  and so on) if 
+        #how else can this be done because if our sleep period passes before the install completes it will likely error out. 
+       # /bin/sleep 120
 
        # /usr/sbin/drush theme:dev off
 
