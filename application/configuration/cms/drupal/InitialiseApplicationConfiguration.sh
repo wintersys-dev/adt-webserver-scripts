@@ -482,5 +482,5 @@ fi
 #If anything went wrong, fire off an email
 if ( [ ! -f  ${HOME}/runtime/INITIAL_CONFIG_SET ] )
 then
-        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy joomla configuration file to the live location during application initiation" "ERROR"
+        ${HOME}/services/email/SendEmail.sh "CONFIGURATION FILE ABSENT" "Failed to copy drupal configuration file to the live location during application initiation" "ERROR"
 fi
