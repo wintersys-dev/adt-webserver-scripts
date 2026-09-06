@@ -98,158 +98,171 @@ database_profile="`/bin/grep "^DATABASE_PROFILE:" ${HOME}/runtime/application.da
 
 #This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
 #using their browser
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+#if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+#then
+#      #  while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
+#      #  do
+#      #          /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+#      #          /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+#      #  done
+#
+#     #  /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
+#                
+#        ready="0"
+#        while ( [ "${ready}" = "0" ] )
+#        do
+#                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ] && [ "`/usr/bin/diff ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php`" != "" ] )
+#                then
+#                        ready="1"
+#                      #  /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
+#                fi
+#                /bin/sleep 1
+#        done   
+#
+#        dbprefix="`/bin/grep  "'prefix'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}' | /usr/bin/tail -1`" 
+#
+#        /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
+#        /bin/chown www-data:www-data /var/www/html/dbp.dat
+#
+#
+#        while ( [ "`/usr/sbin/drush ev "echo Drupal::httpClient()->head('http://localhost')->getStatusCode();"`" != "200" ] )
+#        do
+#                /bin/sleep 5
+#        done
+#
+#      #  /usr/sbin/drush theme:dev on
+#
+#        #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
+#      #  while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+ #     #  do
+ #     #          /bin/sleep 5     
+ #               /usr/sbin/drush cache:rebuild
+ #     #  done
+ #       #give plenty of time for the rest of the installation to complete (translations  and so on) if 
+ #       #how else can this be done because if our sleep period passes before the install completes it will likely error out. 
+ #      # /bin/sleep 120
+#
+#       # /usr/sbin/drush theme:dev off
+#
+ #       /bin/touch ${HOME}/runtime/self_managed_config.dat
+#
+#        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+#        then
+#                /bin/sed -i 's/_notls//g' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+#                /bin/echo "'pdo' => [
+#                \PDO::MYSQL_ATTR_SSL_CA => '',
+#                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
+#                ]," > ${HOME}/runtime/self_managed_config.dat
+#        fi
+
+ #       dbprefix="`/bin/cat /var/www/html/dbp.dat`"
+ #       /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+ #       /bin/rm ${HOME}/runtime/self_managed_config.dat
+ #       /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
+
+
+
+
+
+#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
+#It is expected that this will be the more common case than an interactive installation
+if ( [ -f ${config_file} ] )
 then
-      #  while ( [ ! -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-      #  do
-      #          /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-      #          /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-      #  done
+        /bin/rm ${config_file}
+fi
 
-      #  /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
-                
-        ready="0"
-        while ( [ "${ready}" = "0" ] )
-        do
-                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ] && [ "`/usr/bin/diff ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php`" != "" ] )
-                then
-                        ready="1"
-                      #  /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
-                fi
-                /bin/sleep 1
-        done   
-
-        dbprefix="`/bin/grep  "'prefix'" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  | /usr/bin/awk -F"\'" '{print $4}' | /usr/bin/tail -1`" 
-
-        /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
+#In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
+#in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
+if ( [ -f /var/www/html/dbp.dat ] )
+then
+        dbprefix="`/bin/cat /var/www/html/dbp.dat`"
+else
+        dbprefix="adt`/usr/bin/tr -dc a-z0-9 </dev/urandom | /usr/bin/head -c 5; /bin/echo`_"
+        /bin/echo ${dbprefix} > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
+        /bin/chmod 600 /var/www/html/dbp.dat
+fi
 
+#Find out where our database server is
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+else
+        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+fi
 
-        while ( [ "`/usr/sbin/drush ev "echo Drupal::httpClient()->head('http://localhost')->getStatusCode();"`" != "200" ] )
-        do
-                /bin/sleep 5
-        done
+DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
 
-      #  /usr/sbin/drush theme:dev on
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+else
+        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+fi
 
-        #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
-      #  while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
-      #  do
-      #          /bin/sleep 5     
-                /usr/sbin/drush cache:rebuild
-      #  done
+user_tls=""
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+then
+        driver="mysql"  
+        #  if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+        #  then
+              #          #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
+              #          user_tls="_notls"
+              #  fi
+fi
 
-        #give plenty of time for the rest of the installation to complete (translations  and so on) if 
-        #how else can this be done because if our sleep period passes before the install completes it will likely error out. 
-       # /bin/sleep 120
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+then
+        driver="mysql"
+              #  if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+              #  then
+              #          #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
+              #          user_tls="_notls"
+              #  fi
+fi
 
-       # /usr/sbin/drush theme:dev off
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
+then
+        driver="pgsql"
+fi
 
+username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`${user_tls}"
+password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"        
+collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
+then
+        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ #BOOTSTRAP\n '\''username'\'' => '\'${username}\'',#BOOTSTRAP\n '\''password'\'' => '\'${password}\'', #BOOTSTRAP\n '\''database'\'' => '\'${database}\'',#BOOTSTRAP\n  '\''host'\'' => '\'${HOST}\'', #BOOTSTRAP\n '\''port'\'' => '\'${DB_PORT}\'', #BOOTSTRAP\n '\'driver\'' => '\'${driver}\'', #BOOTSTRAP\n '\''prefix'\'' => '\'${dbprefix}\'',  #BOOTSTRAP\n '\''collation'\'' => '\'${collation}\'', #BOOTSTRAP\n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' #BOOTSTRAP\n];#BOOTSTRAP/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+               
         /bin/touch ${HOME}/runtime/self_managed_config.dat
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
         then
-                /bin/sed -i 's/_notls//g' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/echo "'pdo' => [
-                \PDO::MYSQL_ATTR_SSL_CA => '',
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
-                ]," > ${HOME}/runtime/self_managed_config.dat
+                /bin/echo "'pdo' => [ #BOOTSTRAP
+        \PDO::MYSQL_ATTR_SSL_CA => '', #BOOTSTRAP
+        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false #BOOTSTRAP
+        ],#BOOTSTRAP" > ${HOME}/runtime/self_managed_config.dat
         fi
 
-        dbprefix="`/bin/cat /var/www/html/dbp.dat`"
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/rm ${HOME}/runtime/self_managed_config.dat
-        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
-else
-        #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
-        #It is expected that this will be the more common case than an interactive installation
-        if ( [ -f ${config_file} ] )
+
+        if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                /bin/rm ${config_file}
-        fi
-
-        #In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
-        #in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
-        if ( [ -f /var/www/html/dbp.dat ] )
-        then
-                dbprefix="`/bin/cat /var/www/html/dbp.dat`"
-        else
-                dbprefix="adt`/usr/bin/tr -dc a-z0-9 </dev/urandom | /usr/bin/head -c 5; /bin/echo`_"
-                /bin/echo ${dbprefix} > /var/www/html/dbp.dat
-                /bin/chown www-data:www-data /var/www/html/dbp.dat
-                /bin/chmod 600 /var/www/html/dbp.dat
-        fi
-
-        #Find out where our database server is
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-        then
-                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-        else
-                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-        fi
-
-        DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-        then
-                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-        else
-                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-        fi
-
-        user_tls=""
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-        then
-                driver="mysql"  
-              #  if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-              #  then
-              #          #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
-              #          user_tls="_notls"
-              #  fi
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-        then
-                driver="mysql"
-              #  if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-              #  then
-              #          #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
-              #          user_tls="_notls"
-              #  fi
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
-        then
-                driver="pgsql"
-        fi
-
-        username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`${user_tls}"
-        password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-        database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"        
-        collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
-        then
-                /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ #BOOTSTRAP\n '\''username'\'' => '\'${username}\'',#BOOTSTRAP\n '\''password'\'' => '\'${password}\'', #BOOTSTRAP\n '\''database'\'' => '\'${database}\'',#BOOTSTRAP\n  '\''host'\'' => '\'${HOST}\'', #BOOTSTRAP\n '\''port'\'' => '\'${DB_PORT}\'', #BOOTSTRAP\n '\'driver\'' => '\'${driver}\'', #BOOTSTRAP\n '\''prefix'\'' => '\'${dbprefix}\'',  #BOOTSTRAP\n '\''collation'\'' => '\'${collation}\'', #BOOTSTRAP\n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' #BOOTSTRAP\n];#BOOTSTRAP/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-               
-                /bin/touch ${HOME}/runtime/self_managed_config.dat
-
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
-                then
-                        /bin/echo "'pdo' => [ #BOOTSTRAP
-                \PDO::MYSQL_ATTR_SSL_CA => '', #BOOTSTRAP
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false #BOOTSTRAP
-                ],#BOOTSTRAP" > ${HOME}/runtime/self_managed_config.dat
-                fi
-
-                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/rm ${HOME}/runtime/self_managed_config.dat
-                
+                #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
+                while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+                do
+                        /bin/sleep 5     
+                        /usr/sbin/drush cache:rebuild
+                done
+        else        
              #   /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
+                
                 
                 #--existing-config?
                 /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" -vv
