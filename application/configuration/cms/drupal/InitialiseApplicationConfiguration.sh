@@ -124,6 +124,12 @@ then
         /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 
+        #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
+        while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+        do
+                /bin/sleep 5
+        done
+
         /bin/touch ${HOME}/runtime/self_managed_config.dat
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
@@ -138,12 +144,6 @@ then
         dbprefix="`/bin/cat /var/www/html/dbp.dat`"
         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/rm ${HOME}/runtime/self_managed_config.dat
-        /usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
-        while ( [ "$?" != "0" ] )
-        do
-                /bin/sleep 5
-                /usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
-        done
         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
 else
         #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
@@ -497,15 +497,6 @@ then
                 /usr/sbin/drush cr -y
         done
 fi
-
-#/usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
-#while ( [ "$?" != "0" ] )
-#do
-#        /bin/sleep 5
-#        /usr/sbin/drush sql-query "SELECT 1 FROM ${dbprefix}_config LIMIT 0,1" > /dev/null 2>&1
-#done
-
-/bin/sed -i 's/_notls//g' ${config_file}     
 
 # Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
