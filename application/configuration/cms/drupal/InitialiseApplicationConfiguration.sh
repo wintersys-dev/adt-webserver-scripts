@@ -285,25 +285,25 @@ then
                 then
                         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
                 fi
-        else
-                username="'${username}'"
-                password="'${password}'"
-                database="'${database}'"
-                collation="'${collation}'"
-                driver="'${driver}'"
-                cd ${webroot_directory}
-                /bin/cp /var/www/html/settings.php.default ${config_file}
-               # /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/' /var/www/outside_webroot/settings.php
-                /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '\'${username}\'', \n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  /var/www/outside_webroot/settings.php
-            #    hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-            #    /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${config_file}
-            #    /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
+        fi
+        
+        username="'${username}'"
+        password="'${password}'"
+        database="'${database}'"
+        collation="'${collation}'"
+        driver="'${driver}'"
+        cd ${webroot_directory}
+        /bin/cp /var/www/html/settings.php.default ${config_file}
+        # /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '${username}', \n '\''password'\'' => '${password}', \n '\''database'\'' => '${database}',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '${DB_PORT}', \n '\''driver'\'' => '${driver}', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '${collation}', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/' /var/www/outside_webroot/settings.php
+        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '\'${username}\'', \n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  /var/www/outside_webroot/settings.php
+        #    hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+        #    /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${config_file}
+        #    /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
 
-                APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
-                if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
-                then
-                        ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
-                fi
+        APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+        if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
+        then
+                ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
         fi
 fi
 
