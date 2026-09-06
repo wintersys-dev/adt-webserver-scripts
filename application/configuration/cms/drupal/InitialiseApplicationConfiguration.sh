@@ -124,17 +124,16 @@ then
         /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 
-        /usr/sbin/drush theme:dev on
+      #  /usr/sbin/drush theme:dev on
 
         #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
         while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
         do
-                /bin/sleep 5
-                
+                /bin/sleep 5     
+                /usr/sbin/drush cache:rebuild
         done
 
-        /usr/sbin/drush theme:dev off
-        /usr/sbin/drush cache:rebuild
+       # /usr/sbin/drush theme:dev off
 
         /bin/touch ${HOME}/runtime/self_managed_config.dat
 
