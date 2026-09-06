@@ -267,7 +267,7 @@ then
                         /usr/sbin/drush cache:rebuild
                 done
 
-                /bin/sleep 20
+                /bin/sleep 25
                 
                 /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
