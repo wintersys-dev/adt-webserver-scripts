@@ -208,7 +208,7 @@ then
         then
                 if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
                 then
-                        #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
+                        #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
                         user_tls="_notls"
                 fi
         fi
@@ -221,7 +221,7 @@ then
         then
                 if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
                 then
-                        #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
+                        #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
                         user_tls="_notls"
                 fi
         fi
