@@ -128,6 +128,7 @@ then
         while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
         do
                 /bin/sleep 5
+                /usr/sbin/drush cache:rebuild
         done
 
         /bin/touch ${HOME}/runtime/self_managed_config.dat
