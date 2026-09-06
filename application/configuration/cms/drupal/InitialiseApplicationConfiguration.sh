@@ -259,15 +259,21 @@ then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
+                
+                
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                 do
                         /bin/sleep 5     
                         /usr/sbin/drush cache:rebuild
                 done
+                #Give a bit of time for the rest of the installation to complete, we know we have been acitivated by the user by now at least
+                /bin/sleep 120
+                
                 /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/rm ${HOME}/runtime/self_managed_config.dat
                 /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
         else        
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
