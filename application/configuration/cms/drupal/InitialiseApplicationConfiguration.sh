@@ -204,21 +204,27 @@ user_tls=""
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
 then
         driver="mysql"  
-        #  if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-        #  then
-              #          #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
-              #          user_tls="_notls"
-              #  fi
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+        then
+                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+                then
+                        #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
+                        user_tls="_notls"
+                fi
+        fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
 then
         driver="mysql"
-              #  if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-              #  then
-              #          #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
-              #          user_tls="_notls"
-              #  fi
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+        then
+                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+                then
+                        #If you know how to get drush to do a site:install over ssl if you could show me I will get rid of this cludge
+                        user_tls="_notls"
+                fi
+        fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
@@ -247,28 +253,28 @@ then
         ],#BOOTSTRAP" > ${HOME}/runtime/self_managed_config.dat
         fi
 
-        /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        /bin/rm ${HOME}/runtime/self_managed_config.dat
+      #  /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+     #   /bin/rm ${HOME}/runtime/self_managed_config.dat
 
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                /bin/chmod 500 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/sed 's/#BOOTSTRAP//g' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                 do
                         /bin/sleep 5     
                         /usr/sbin/drush cache:rebuild
                 done
+                /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/rm ${HOME}/runtime/self_managed_config.dat
                 /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         else        
-             #   /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-                
-                
+                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/rm ${HOME}/runtime/self_managed_config.dat
                 #--existing-config?
-                /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" -vv
+                /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" 
                 /usr/sbin/drush cache:rebuild
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
 
@@ -289,7 +295,7 @@ then
                         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
                 fi
         fi
-        
+else    
         username="'${username}'"
         password="'${password}'"
         database="'${database}'"
