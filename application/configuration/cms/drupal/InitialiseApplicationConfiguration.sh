@@ -125,7 +125,7 @@ then
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 
 
-        while ( [ "`/usr/sbin/drush core:status --field=bootstrap 2>/dev/null`" != "Successful" ] )
+        while ( [ "`/usr/sbin/drush ev "echo Drupal::httpClient()->head('http://localhost')->getStatusCode();"`" != "200" ] )
         do
                 /bin/sleep 5
         done
