@@ -271,6 +271,7 @@ then
                 
                 /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/sed -i "s/_notls//g" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/rm ${HOME}/runtime/self_managed_config.dat
                 /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
