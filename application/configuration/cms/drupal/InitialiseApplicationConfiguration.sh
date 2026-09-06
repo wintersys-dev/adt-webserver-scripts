@@ -230,14 +230,8 @@ then
                 fi
         fi
 else    
-    #    username="'${username}'"
-    #    password="'${password}'"
-    #    database="'${database}'"
-    #    collation="'${collation}'"
-    #    driver="'${driver}'"
         cd ${webroot_directory}
         /bin/cp /var/www/html/settings.php.default ${config_file}
-      #  /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [\n '\''username'\'' => '\'${username}\'', \n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  /var/www/outside_webroot/settings.php
         /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ \n '\''username'\'' => '\'${username}\'',\n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${config_file}
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
@@ -308,8 +302,6 @@ then
         /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
 fi
 
-#/bin/ln -s ${config_file} ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
-
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chmod 600 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
@@ -338,7 +330,6 @@ fi
 
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
 # code sets up that structure
-
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
 then
         directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
