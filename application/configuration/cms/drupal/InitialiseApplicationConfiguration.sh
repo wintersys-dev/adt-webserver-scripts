@@ -187,6 +187,8 @@ then
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         fi
 
+        /bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
