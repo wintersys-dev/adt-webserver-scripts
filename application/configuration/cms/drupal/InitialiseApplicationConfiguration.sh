@@ -180,6 +180,12 @@ then
         /bin/touch ${HOME}/runtime/self_managed_config.dat
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
         then
+        #PHP 8.5 and above
+        #Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
+        #PHP 8.4 and below
+       # \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true 
+
+        
                 /bin/echo "'pdo' => [ 
         \PDO::MYSQL_ATTR_SSL_CA => NULL, 
         \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false 
