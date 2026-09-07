@@ -198,7 +198,8 @@ fi
 
 if ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
 then
-	${HOME}/services/email/SendEmail.sh "APPLICATION FAILED TO INSTALL" "Your ${APPLICATION} application failed to install, please look into why" "ERROR"
+	${HOME}/services/email/SendEmail.sh "APPLICATION FAILED TO INSTALL AFTER MULTPLE ATTEMPTS" "Your ${APPLICATION} application failed to install, please look into why" "ERROR"
+	exit
 fi
 
 /bin/echo "${0} Storing database engine type"
