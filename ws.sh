@@ -199,7 +199,6 @@ fi
 
 if ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
 then
-else
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
                ${HOME}/services/email/SendEmail.sh  "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "As this is an an installation of a virgin ${APPLICATION} application please check APPLICATION_INTEGRITY_DIRECTORIES APPLICATION_INTEGRITY_FILES is correct in the descriptor.dat file for the version of ${APPLICATION} you are trying to install"
