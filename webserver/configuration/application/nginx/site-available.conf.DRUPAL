@@ -100,6 +100,14 @@ server
 		return 403;
 	}
 
+
+	location /private 
+	{
+		deny all;
+		return 403;
+	}
+
+
 	location / 
 	{
 		try_files $uri $uri/ /index.php?$args;
