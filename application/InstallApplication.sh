@@ -103,13 +103,6 @@ fi
 if ( [ "`${HOME}/application/monitoring/CheckIfApplicationIsInstalled.sh | /bin/grep 'APPLICATION_INSTALLED:1'`" != "" ] )
 then
         /bin/touch ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED
-else
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
-        then
-               ${HOME}/services/email/SendEmail.sh  "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "As this is an an installation of a virgin ${APPLICATION} application please check APPLICATION_INTEGRITY_DIRECTORIES APPLICATION_INTEGRITY_FILES is correct in the descriptor.dat file for the version of ${APPLICATION} you are trying to install"
-        else
-                ${HOME}/services/email/SendEmail.sh "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "The application sourcecode from the datastore: ${BUILD_ARCHIVE_CHOICE} has been not been installed or is not online for some reason" "ERROR"
-        fi
 fi
 
 ${HOME}/installation/InstallApplicationTooling.sh "${BUILDOS}" "post"
