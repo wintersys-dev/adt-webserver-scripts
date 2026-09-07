@@ -68,6 +68,9 @@ ServerName XXXXWEBSITEURLXXXX
 		Require all denied
 	</Files>
 
+    <LocationMatch "/private">
+	    Require all denied
+    </LocationMatch>
 
 	<Directory XXXXWEBROOT_DIRECTORYXXXX/web/sites/default/files>
 		Options +FollowSymlinks -Includes -ExecCGI -Indexes
