@@ -198,9 +198,12 @@ then
                 done
 
                 /usr/sbin/drush cache:rebuild
-                #once the configuration settigns have been input theres still an unknown period of time
+                #once the configuration settings have been input there's still an unknown period of time
                 #for the installation to complete. If we switch to tls before the install completes it will
                 #error out so make sure we are patient
+                #I don't know of any way to be 100% sure that the drupal install has 100% completed there doesn't seem to be any
+                #flag is which says 'installation 100% complete' if you are a drupal guy and could tell me
+                #if there is a way I will clean this up
                 /bin/sleep 120
                 
                 /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
