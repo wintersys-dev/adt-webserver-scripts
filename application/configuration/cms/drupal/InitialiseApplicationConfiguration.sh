@@ -188,13 +188,15 @@ then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
-                while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+                #while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+                while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
                 do
                         /bin/sleep 5     
-                        /usr/sbin/drush cache:rebuild
+                        
                 done
 
-                /bin/sleep 25
+                /usr/sbin/drush cache:rebuild
+            #    /bin/sleep 25
                 
                 /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
