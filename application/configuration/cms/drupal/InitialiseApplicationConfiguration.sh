@@ -176,7 +176,7 @@ then
         /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ \n '\''username'\'' => '\'${username}\'',\n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
         /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        /bin/echo '$settings['skip_permissions_hardening'] = TRUE;' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        /bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/touch ${HOME}/runtime/self_managed_config.dat
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
         then
