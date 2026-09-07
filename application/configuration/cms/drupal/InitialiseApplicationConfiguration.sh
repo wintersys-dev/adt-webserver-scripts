@@ -169,6 +169,10 @@ password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/ap
 database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"        
 collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 
+/bin/cp ${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat ${HOME}/runtime/database_credentials.dat
+
+
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
