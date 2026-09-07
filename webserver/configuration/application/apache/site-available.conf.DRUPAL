@@ -60,6 +60,10 @@ ServerName XXXXWEBSITEURLXXXX
 		Require all denied
 	</Files>
 
+	<Files install.php>
+		Require all denied
+	</Files>
+
 	<Files .htaccess>
 		Require all denied
 	</Files>
