@@ -190,14 +190,18 @@ then
         then
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
                 #while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+               
+                #Thus will wait until the user has entered all the configuration settingd such as website username and password
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
                 do
-                        /bin/sleep 5     
-                        
+                        /bin/sleep 5             
                 done
 
                 /usr/sbin/drush cache:rebuild
-            #    /bin/sleep 25
+                #once the configuration settigns have been input theres still an unknown period of time
+                #for the installation to complete. If we switch to tls before the install completes it will
+                #error out so make sure we are patient
+                /bin/sleep 120
                 
                 /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
