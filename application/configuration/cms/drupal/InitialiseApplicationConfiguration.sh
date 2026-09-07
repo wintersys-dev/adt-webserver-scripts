@@ -171,13 +171,23 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 
 /bin/cp ${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat ${HOME}/runtime/database_credentials.dat
 
+/bin/sed -i "s/XXXXDATABASE_NAMEXXXX/${database}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXDATABASE_USERNAMEXXXX/${username}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXDATABASE_PASSWORDXXXX/${password}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXDATABASE_HOSTXXXX/${HOST}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXDATABASE_PORTXXXX/${DB_PORT}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXDATABASE_DRIVERXXXX/${driver}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXDATABASE_COLLATIONXXXX/${collation}/" ${HOME}/runtime/database_credentials.dat
+
 
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
         /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ \n '\''username'\'' => '\'${username}\'',\n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        #/bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ \n '\''username'\'' => '\'${username}\'',\n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        /bin/cat ${HOME}/runtime/database_credentials.dat >>  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        
         hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
         /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
