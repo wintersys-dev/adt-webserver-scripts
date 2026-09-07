@@ -136,27 +136,27 @@ user_tls=""
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
 then
         driver="mysql"  
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-        then
-                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
-                then
-                        #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-                        user_tls="_notls"
-                fi
-        fi
+       # if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+       # then
+       #         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+       #         then
+       #                 #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
+       #                 user_tls="_notls"
+       #         fi
+       # fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
 then
         driver="mysql"
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-        then
-                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
-                then
-                        #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-                        user_tls="_notls"
-                fi
-        fi
+       # if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+       # then
+       #         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+       #         then
+       #                 #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
+       #                 user_tls="_notls"
+       #         fi
+       # fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
@@ -169,23 +169,44 @@ password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/ap
 database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"        
 collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 
+/bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ #BOOTSTRAP\n '\''username'\'' => '\'${username}\'',#BOOTSTRAP\n '\''password'\'' => '\'${password}\'', #BOOTSTRAP\n '\''database'\'' => '\'${database}\'',#BOOTSTRAP\n  '\''host'\'' => '\'${HOST}\'', #BOOTSTRAP\n '\''port'\'' => '\'${DB_PORT}\'', #BOOTSTRAP\n '\'driver\'' => '\'${driver}\'', #BOOTSTRAP\n '\''prefix'\'' => '\'${dbprefix}\'',  #BOOTSTRAP\n '\''collation'\'' => '\'${collation}\'', #BOOTSTRAP\n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' #BOOTSTRAP\n];#BOOTSTRAP/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+/bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+
+if ( [ "`/bin/grep PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT ${config_file}`" = ""  ] )
+then
+        if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+        then
+                /bin/touch ${HOME}/runtime/dbaas_config.dat
+
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] &&  [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+                then
+                        /bin/echo "'pdo' => [
+                \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
+                ]," > ${HOME}/runtime/dbaas_config.dat
+                fi
+
+                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/dbaas_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+                /bin/rm ${HOME}/runtime/dbaas_config.dat
+        else
+                /bin/touch ${HOME}/runtime/self_managed_config.dat
+
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+                then
+                        /bin/echo "'pdo' => [
+                \PDO::MYSQL_ATTR_SSL_CA => '',
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
+                ]," > ${HOME}/runtime/self_managed_config.dat
+                fi
+
+                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+                /bin/rm ${HOME}/runtime/self_managed_config.dat
+        fi
+fi
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
-        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ #BOOTSTRAP\n '\''username'\'' => '\'${username}\'',#BOOTSTRAP\n '\''password'\'' => '\'${password}\'', #BOOTSTRAP\n '\''database'\'' => '\'${database}\'',#BOOTSTRAP\n  '\''host'\'' => '\'${HOST}\'', #BOOTSTRAP\n '\''port'\'' => '\'${DB_PORT}\'', #BOOTSTRAP\n '\'driver\'' => '\'${driver}\'', #BOOTSTRAP\n '\''prefix'\'' => '\'${dbprefix}\'',  #BOOTSTRAP\n '\''collation'\'' => '\'${collation}\'', #BOOTSTRAP\n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' #BOOTSTRAP\n];#BOOTSTRAP/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-        /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        
-        /bin/touch ${HOME}/runtime/self_managed_config.dat
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
-        then
-                /bin/echo "'pdo' => [ #BOOTSTRAP
-        \PDO::MYSQL_ATTR_SSL_CA => '', #BOOTSTRAP
-        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false #BOOTSTRAP
-        ],#BOOTSTRAP" > ${HOME}/runtime/self_managed_config.dat
-        fi
-
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
@@ -198,26 +219,19 @@ then
                 done
 
                 /usr/sbin/drush cache:rebuild
-                #once the configuration settings have been input there's still an unknown period of time
-                #for the installation to complete. If we switch to tls before the install completes it will
-                #error out so make sure we are patient
-                #I don't know of any way to be 100% sure that the drupal install has 100% completed there doesn't seem to be any
-                #flag is which says 'installation 100% complete' if you are a drupal guy and could tell me
-                #if there is a way I will clean this up
-                /bin/sleep 120
+
+#                /bin/sleep 120
                 
-                /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/sed -i "s/_notls//g" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/rm ${HOME}/runtime/self_managed_config.dat
-                /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
+          #      /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+          #      /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+          #      /bin/sed -i "s/_notls//g" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+          #      /bin/rm ${HOME}/runtime/self_managed_config.dat
+          #      /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+          #      /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
         else        
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /bin/rm ${HOME}/runtime/self_managed_config.dat
-                #--existing-config?
+
                 /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" 
                 /usr/sbin/drush cache:rebuild
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
@@ -240,6 +254,10 @@ then
                 fi
         fi
 else    
+        if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php ] )
+        then
+                /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+        fi
         cd ${webroot_directory}
         /bin/cp /var/www/html/settings.php.default ${config_file}
         /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ \n '\''username'\'' => '\'${username}\'',\n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${config_file}
@@ -266,37 +284,6 @@ BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEI
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/" ${config_file}
 /bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${config_file}
 
-if ( [ "`/bin/grep PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT ${config_file}`" = ""  ] )
-then
-        if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
-        then
-                /bin/touch ${HOME}/runtime/dbaas_config.dat
-
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] &&  [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
-                then
-                        /bin/echo "'pdo' => [
-                \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
-                ]," > ${HOME}/runtime/dbaas_config.dat
-                fi
-
-                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/dbaas_config.dat" ${config_file}
-                /bin/rm ${HOME}/runtime/dbaas_config.dat
-        else
-                /bin/touch ${HOME}/runtime/self_managed_config.dat
-
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
-                then
-                        /bin/echo "'pdo' => [
-                \PDO::MYSQL_ATTR_SSL_CA => '',
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
-                ]," > ${HOME}/runtime/self_managed_config.dat
-                fi
-
-                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${config_file}
-                /bin/rm ${HOME}/runtime/self_managed_config.dat
-        fi
-fi
 
 website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
 
