@@ -189,6 +189,17 @@ cd ${HOME}
 
 ${HOME}/application/InstallApplication.sh
 
+#If the application failed to install, give it another go
+if ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
+then
+	${HOME}/application/InstallApplication.sh
+fi
+
+if ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
+then
+	${HOME}/services/email/SendEmail.sh "APPLICATION FAILED TO INSTALL" "Your ${APPLICATION} application failed to install, please look into why" "ERROR"
+
+
 /bin/echo "${0} Storing database engine type"
 webroot_database_engine="`/bin/cat /var/www/html/dbe.dat`"
 
