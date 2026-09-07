@@ -191,7 +191,8 @@ then
         hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
         /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        /bin/touch ${HOME}/runtime/self_managed_config.dat
+        /bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+     #   /bin/touch ${HOME}/runtime/self_managed_config.dat
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
         then
         #PHP 8.5 and above
@@ -200,14 +201,14 @@ then
        # \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true 
 
         
-                /bin/echo "'pdo' => [ 
-        \PDO::MYSQL_ATTR_SSL_CA => NULL, 
-        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false 
-        ]," > ${HOME}/runtime/self_managed_config.dat
-                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        fi
+    #            /bin/echo "'pdo' => [ 
+     #   \PDO::MYSQL_ATTR_SSL_CA => NULL, 
+      #  \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false 
+      #  ]," > ${HOME}/runtime/self_managed_config.dat
+       #         /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+      #  fi
 
-        /bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        
 
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
