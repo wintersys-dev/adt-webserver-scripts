@@ -29,6 +29,10 @@ static-file.exclude-extensions = ( ".php", ".fcgi" )
 ## Deny access the file-extensions
 url.access-deny = ( "~", ".inc", "settings.php", "install.php" )
 
+$HTTP["url"] =~ "/private/" {
+     url.access-deny = ("")
+}
+
 ## Enable/Disable Directory Listings
 dir-listing.encoding = "utf-8"
 dir-listing.hide-dotfiles = "enable"
