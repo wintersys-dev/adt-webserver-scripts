@@ -129,6 +129,7 @@ WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'DNSCHOICE'`"
 APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 APPLICATION_LANGUAGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONLANGUAGE'`"
+BUILD_ARCHIVE_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDARCHIVECHOICE'`"
 SSL_GENERATION_SERVICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSLGENERATIONSERVICE'`"
 GIT_EMAIL_ADDRESS="`${HOME}/utilities/config/ExtractConfigValue.sh 'GITEMAILADDRESS'`"
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
@@ -198,8 +199,15 @@ fi
 
 if ( [ ! -f ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED ] )
 then
-	${HOME}/services/email/SendEmail.sh "APPLICATION FAILED TO INSTALL AFTER MULTPLE ATTEMPTS" "Your ${APPLICATION} application failed to install, please look into why" "ERROR"
-	exit
+else
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
+        then
+               ${HOME}/services/email/SendEmail.sh  "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "As this is an an installation of a virgin ${APPLICATION} application please check APPLICATION_INTEGRITY_DIRECTORIES APPLICATION_INTEGRITY_FILES is correct in the descriptor.dat file for the version of ${APPLICATION} you are trying to install"
+        else
+                ${HOME}/services/email/SendEmail.sh "I BELIEVE STRONGLY AN APPLICATION FAILED TO INSTALL" "The application sourcecode from the datastore: ${BUILD_ARCHIVE_CHOICE} has been not been installed or is not online for some reason" "ERROR"
+        fi
+		
+		exit
 fi
 
 /bin/echo "${0} Storing database engine type"
