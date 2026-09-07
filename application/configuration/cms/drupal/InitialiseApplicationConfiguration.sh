@@ -136,27 +136,27 @@ user_tls=""
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
 then
         driver="mysql"  
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-        then
-                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
-                then
-                        #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-                        user_tls="_notls"
-                fi
-        fi
+       # if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+       # then
+       #         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+       #         then
+       #                 #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
+       #                 user_tls="_notls"
+       #         fi
+        #fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
 then
         driver="mysql"
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-        then
-                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
-                then
-                        #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-                        user_tls="_notls"
-                fi
-        fi
+       # if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+       # then
+              #  if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+              #  then
+              #          #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
+              #          user_tls="_notls"
+              #  fi
+       # fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
@@ -181,7 +181,7 @@ then
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
         then
                 /bin/echo "'pdo' => [ 
-        \PDO::MYSQL_ATTR_SSL_CA => '', 
+        \PDO::MYSQL_ATTR_SSL_CA => NULL, 
         \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false 
         ]," > ${HOME}/runtime/self_managed_config.dat
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
@@ -291,7 +291,7 @@ then
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
                 then
                         /bin/echo "'pdo' => [
-                \PDO::MYSQL_ATTR_SSL_CA => '',
+                \PDO::MYSQL_ATTR_SSL_CA => NULL,
                 \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
                 ]," > ${HOME}/runtime/self_managed_config.dat
                 fi
