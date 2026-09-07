@@ -102,7 +102,6 @@ fi
 
 if ( [ "`${HOME}/application/monitoring/CheckIfApplicationIsInstalled.sh | /bin/grep 'APPLICATION_INSTALLED:1'`" != "" ] )
 then
-        ${HOME}/services/email/SendEmail.sh "I BELIEVE STRONGLY AN APPLICATION HAS BEEN INSTALLED" "The application sourcecode from the datastore: ${BUILD_ARCHIVE_CHOICE} has been installed" "INFO"
         /bin/touch ${HOME}/runtime/BESPOKE_APPLICATION_INSTALLED
 else
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
