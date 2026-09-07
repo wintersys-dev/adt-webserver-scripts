@@ -136,27 +136,11 @@ user_tls=""
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
 then
         driver="mysql"  
-       # if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-       # then
-       #         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
-       #         then
-       #                 #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-       #                 user_tls="_notls"
-       #         fi
-       # fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
 then
         driver="mysql"
-       # if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
-       # then
-       #         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
-       #         then
-       #                 #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-       #                 user_tls="_notls"
-       #         fi
-       # fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
@@ -169,9 +153,19 @@ password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password" ${HOME}/runtime/ap
 database="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:database" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"        
 collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 
-/bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ #BOOTSTRAP\n '\''username'\'' => '\'${username}\'',#BOOTSTRAP\n '\''password'\'' => '\'${password}\'', #BOOTSTRAP\n '\''database'\'' => '\'${database}\'',#BOOTSTRAP\n  '\''host'\'' => '\'${HOST}\'', #BOOTSTRAP\n '\''port'\'' => '\'${DB_PORT}\'', #BOOTSTRAP\n '\'driver\'' => '\'${driver}\'', #BOOTSTRAP\n '\''prefix'\'' => '\'${dbprefix}\'',  #BOOTSTRAP\n '\''collation'\'' => '\'${collation}\'', #BOOTSTRAP\n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' #BOOTSTRAP\n];#BOOTSTRAP/'  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+/bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+
 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-/bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+/bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+
+/bin/echo "<?php" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+/usr/bin/printf "\$databases['default']['default'] = [ \n 'username' => '"${username}"',\n 'password' => '"${password}"', \n 'database' => '"${database}"',\n  'host' => '"${HOST}"', \n 'port' => '"${DB_PORT}"', \n 'driver' => '"${driver}"', \n 'prefix' => '"${dbprefix}"',  \n 'collation' => '"${collation}"', \n  'isolation_level' => 'READ COMMITTED' \n];"  >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+/bin/echo "" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+/bin/echo "?>" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+
+/usr/bin/printf '#BOOTSTRAP \n if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) { \n include $app_root . '/' . $site_path . '/settings.local.php';\n }\n exit\n' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+
+/bin/cat ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php | /bin/sed -e '$ d' -e '1d' > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php.trimmed
 
 if ( [ "`/bin/grep PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT ${config_file}`" = ""  ] )
 then
@@ -182,12 +176,12 @@ then
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] &&  [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
                 then
                         /bin/echo "'pdo' => [
-                \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
-                ]," > ${HOME}/runtime/dbaas_config.dat
+                        \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
+                        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
+                        ]," > ${HOME}/runtime/dbaas_config.dat
                 fi
 
-                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/dbaas_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
+                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
                 /bin/rm ${HOME}/runtime/dbaas_config.dat
         else
                 /bin/touch ${HOME}/runtime/self_managed_config.dat
@@ -195,9 +189,9 @@ then
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
                 then
                         /bin/echo "'pdo' => [
-                \PDO::MYSQL_ATTR_SSL_CA => '',
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
-                ]," > ${HOME}/runtime/self_managed_config.dat
+                        \PDO::MYSQL_ATTR_SSL_CA => '',
+                        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
+                        ]," > ${HOME}/runtime/self_managed_config.dat
                 fi
 
                 /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
@@ -209,9 +203,6 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
-                #while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
-               
                 #Thus will wait until the user has entered all the configuration settingd such as website username and password
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
                 do
@@ -220,14 +211,6 @@ then
 
                 /usr/sbin/drush cache:rebuild
 
-#                /bin/sleep 120
-                
-          #      /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-          #      /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-          #      /bin/sed -i "s/_notls//g" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-          #      /bin/rm ${HOME}/runtime/self_managed_config.dat
-          #      /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-          #      /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
         else        
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
@@ -236,39 +219,39 @@ then
                 /usr/sbin/drush cache:rebuild
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
 
-                /bin/sed -i '/#BOOTSTRAP/d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-
                 application_roles="`/bin/grep "^APPLICATION_ROLES:" ${HOME}/runtime/application.dat | /bin/sed 's/APPLICATION_ROLES://g'`"
+
                 if ( [ "${application_roles}" = "" ] )
                 then
                         application_roles="administrator"
                 fi
+
                 for application_role in ${application_roles}
                 do
                         /usr/sbin/drush user:role:add "${application_role}" "${website_username}"
                 done
+        fi
 
-                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-                then
-                        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
-                fi
-        fi
 else    
-        if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php ] )
-        then
-                /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php
-        fi
         cd ${webroot_directory}
-        /bin/cp /var/www/html/settings.php.default ${config_file}
-        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ \n '\''username'\'' => '\'${username}\'',\n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${config_file}
-        hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-        /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${config_file}
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
         then
                 ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
         fi
 fi
+
+/bin/sed -i '/#BOOTSTRAP/,$ d' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/echo "" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/cat ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php.trimmed >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.local.php.trimmed
+/bin/mv ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${config_file}
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/chmod 600 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/chown www-data:www-data ${config_file}
+/bin/chmod 600 ${config_file}
+
 
 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
 
@@ -292,14 +275,8 @@ then
         /usr/sbin/drush config:set system.site name "${website_name}" -y
 fi
 
-#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
-#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
-if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ] )
-then
-        /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
-fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chmod 600 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${config_file}
