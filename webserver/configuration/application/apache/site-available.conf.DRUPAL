@@ -53,33 +53,29 @@ ServerName XXXXWEBSITEURLXXXX
 #XXXXFASTCGIPORTXXXX    </If>
 #XXXXFASTCGIPORTXXXX</FilesMatch>
 
-
 	DirectoryIndex index.php index.html
 
 	<Files settings.php>
 		Require all denied
 	</Files>
 
-	#<Files install.php>
-#		Require all denied
-#	</Files>
-
 	<Files .htaccess>
 		Require all denied
 	</Files>
 
-    <LocationMatch "/private">
-	    Require all denied
-    </LocationMatch>
+	<Directory />
+    	AllowOverride None
+    	Require all denied
+	</Directory>
 
 	<Directory XXXXWEBROOT_DIRECTORYXXXX/web/sites/default/files>
-		Options +FollowSymlinks -Includes -ExecCGI -Indexes
+		Options +SymLinksIfOwnerMatch -FollowSymLinks -Includes -ExecCGI -Indexes
 		AllowOverride All
 		Require all granted
 	</Directory>
 
 	<Directory XXXXWEBROOT_DIRECTORYXXXX/XXXXWEBROOT_SUBDIRECTORYXXXX>
-		Options +FollowSymlinks -Includes -ExecCGI -Indexes
+		Options +SymLinksIfOwnerMatch -FollowSymLinks -Includes -ExecCGI -Indexes
 		AllowOverride All
 		Require all granted
 		RewriteEngine on
