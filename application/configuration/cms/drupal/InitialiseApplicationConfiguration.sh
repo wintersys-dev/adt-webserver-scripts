@@ -194,8 +194,9 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 /bin/cat ${HOME}/runtime/database_credentials.dat >>  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+#/bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
@@ -214,6 +215,7 @@ then
                 /usr/sbin/drush cache:rebuild
                 /bin/sleep 25
                 /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/chmod 550 ${webroot_directory}/${webroot_subdirectory}/sites/default
                 /bin/sed 's/_notls//' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
         else        
