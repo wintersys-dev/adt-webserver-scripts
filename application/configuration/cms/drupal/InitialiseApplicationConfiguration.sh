@@ -241,7 +241,6 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-          #      /usr/bin/chattr +i  ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
 
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
                 do
@@ -254,6 +253,7 @@ then
                         /bin/sleep 5
                         /usr/sbin/drush cache:rebuild
                 done
+                
                 #The system errors out unless the cache is rebuilt so make sure that the cache has definitely been rebuilt upon completion
                 #if not no then in a minute for sure
                 /bin/sleep 23
@@ -264,17 +264,7 @@ then
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
 
-                /bin/cat ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php > ${HOME}/runtime/settings.out.$$
-              #  /usr/bin/chattr +i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /usr/sbin/drush site-install ${database_profile}  --no-interaction 
-              #  /usr/bin/chattr -i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-        
-              #  /usr/sbin/drush config:export -y
-              #  /usr/sbin/drush site-install ${database_profile}  --no-interaction --db-prefix="${dbprefix}"
-                
-               # /usr/sbin/drush site-install standard --no-interaction --existing-config --config-dir="${webroot_directory}/${webroot_subdirectory}/sites/default" --db-prefix="${dbprefix}" 
-                
-              #  /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" 
                 /usr/sbin/drush cache:rebuild
                 /usr/sbin/drush user:create ${website_username} --password="${website_password}"
 
@@ -294,11 +284,11 @@ then
                 fi
         fi
 else    
-        cd ${webroot_directory}
-        /bin/cp /var/www/html/settings.php.default ${config_file}
-        /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ \n '\''username'\'' => '\'${username}\'',\n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${config_file}
-        hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
-        /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${config_file}
+    #    cd ${webroot_directory}
+    #    /bin/cp /var/www/html/settings.php.default ${config_file}
+     #   /bin/sed -i 's/^$databases.*;/\$databases['\''default'\'']['\''default'\''] = [ \n '\''username'\'' => '\'${username}\'',\n '\''password'\'' => '\'${password}\'', \n '\''database'\'' => '\'${database}\'',\n  '\''host'\'' => '\'${HOST}\'', \n '\''port'\'' => '\'${DB_PORT}\'', \n '\'driver\'' => '\'${driver}\'', \n '\''prefix'\'' => '\'${dbprefix}\'',  \n '\''collation'\'' => '\'${collation}\'', \n  '\''isolation_level'\'' => '\''READ COMMITTED'\'' \n];/'  ${config_file}
+     #   hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
+     #   /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${config_file}
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
         then
