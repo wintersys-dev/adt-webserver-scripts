@@ -43,7 +43,6 @@ ServerName XXXXWEBSITEURLXXXX
  	## Strict Transport Security (HSTS)
  	Header set Strict-Transport-Security "max-age=31536000; includeSubdomains; preload"
 
-
  #XXXXFASTCGISOCKETXXXX<FilesMatch \.php$>
  #XXXXFASTCGISOCKETXXXX   <If "-f %{REQUEST_FILENAME}">
  #XXXXFASTCGISOCKETXXXX    SetHandler "proxy:unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock|fcgi://localhost"
@@ -71,7 +70,7 @@ ServerName XXXXWEBSITEURLXXXX
 	</Files>
 
 	<Directory XXXXWEBROOT_DIRECTORYXXXX>
-		Options +FollowSymlinks -Includes -ExecCGI -Indexes
+		Options +SymLinksIfOwnerMatch -FollowSymLinks -Includes -ExecCGI -Indexes
 		AllowOverride All
 		Require all granted
 	</Directory>
