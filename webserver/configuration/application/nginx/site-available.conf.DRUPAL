@@ -94,11 +94,11 @@ server
 		return 403;
 	}
 
-	location ~ /install.php$ 
-	{
-		deny all;
-		return 403;
-	}
+#	location ~ /install.php$ 
+#	{
+#		deny all;
+#		return 403;
+#	}
 
 
 	location /private 
