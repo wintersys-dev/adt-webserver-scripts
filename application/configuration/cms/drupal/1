@@ -1,0 +1,12 @@
+$databases['default']['default'] = [
+  'database' => 'XXXXDATABASE_NAMEXXXX',
+  'username' => 'XXXXDATABASE_USERNAMEXXXX',
+  'password' => 'XXXXDATABASE_PASSWORDXXXX',
+  'host' => 'XXXXDATABASE_HOSTXXXX',
+  'port' => 'XXXXDATABASE_PORTXXXX',
+  'driver' => 'XXXXDATABASE_DRIVERXXXX',
+  'prefix' => 'XXXXDATABASE_PREFIXXXXX',
+  'collation' => 'XXXXDATABASE_COLLATIONXXXX',
+  'isolation_level' => 'READ COMMITTED',
+  'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
+];
