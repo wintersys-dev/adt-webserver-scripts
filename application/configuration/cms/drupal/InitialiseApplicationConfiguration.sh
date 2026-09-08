@@ -145,7 +145,12 @@ then
         then
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
                 then
-                        tls_cert="TRUE"   
+                        if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+                        then
+                                tls_cert="TRUE"   
+                        else
+                                tls_cert="''"
+                        fi 
                         verify_tls_cert="FALSE"
                 fi
         fi
@@ -160,7 +165,12 @@ then
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
         then
-                tls_cert="TRUE"   
+                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+                then
+                        tls_cert="TRUE"   
+                else
+                        tls_cert="''"
+                fi
                 verify_tls_cert="FALSE"
         fi
 fi
@@ -246,8 +256,8 @@ then
         else        
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
-                #--existing-config?
-                /usr/sbin/drush site-install ${database_profile} --no-interaction --existing-config
+
+                /usr/sbin/drush site-install standard --no-interaction --config-dir="${webroot_directory}/${webroot_subdirectory}/sites/default" --db-prefix="${dbprefix}" 
                 
               #  /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" 
                 /usr/sbin/drush cache:rebuild
