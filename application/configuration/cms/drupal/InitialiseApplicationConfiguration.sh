@@ -257,7 +257,7 @@ then
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
 
-                /usr/sbin/drush site-install standard --no-interaction --config-dir="${webroot_directory}/${webroot_subdirectory}/sites/default" --db-prefix="${dbprefix}" 
+                /usr/sbin/drush site-install standard --no-interaction --existing-config --config-dir="${webroot_directory}/${webroot_subdirectory}/sites/default" --db-prefix="${dbprefix}" 
                 
               #  /usr/sbin/drush site-install ${database_profile} --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" 
                 /usr/sbin/drush cache:rebuild
