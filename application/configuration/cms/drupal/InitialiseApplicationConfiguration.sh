@@ -224,7 +224,7 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                /usr/bin/chattr +i  ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+          #      /usr/bin/chattr +i  ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
 
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
                 do
@@ -281,8 +281,6 @@ else
         fi
 fi
 
-#/bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
-
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
@@ -311,7 +309,7 @@ fi
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chmod 600 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/usr/bin/chattr -i  ${config_file}
+#/usr/bin/chattr -i  ${config_file}
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 
