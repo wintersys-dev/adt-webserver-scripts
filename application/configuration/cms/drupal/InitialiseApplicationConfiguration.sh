@@ -239,7 +239,7 @@ then
                 done
                 #The system errors out unless the cache is rebuilt so make sure that the cache has definitely been rebuilt upon completion
                 #if not no then in a minute for sure
-                /bin/sleep 60
+                /bin/sleep 23
                 /usr/sbin/drush cache:rebuild
 
                 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
