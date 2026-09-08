@@ -215,8 +215,13 @@ then
                         /bin/sleep 5             
                 done
 
+                while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+                do
+                        /bin/sleep 5
+                        /usr/sbin/drush cache:rebuild
+                done
+                /bin/sleep 60
                 /usr/sbin/drush cache:rebuild
-               # /bin/sleep 25
               #  /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
               #  /bin/chmod 550 ${webroot_directory}/${webroot_subdirectory}/sites/default
               #  /bin/sed 's/_notls//' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
