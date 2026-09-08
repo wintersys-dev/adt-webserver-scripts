@@ -198,21 +198,21 @@ hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/
 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/sync
 /bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/sync
 /bin/echo "\$settings['config_sync_directory'] = '"${webroot_directory}/${webroot_subdirectory}"/sites/default/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-#/bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-#/bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-#/bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default
+/bin/mkdir-p ${webroot_directory}/${webroot_subdirectory}/sites/default/files
+/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files
+/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/files
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                /usr/bin/chattr +i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
                 #while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                
                 #Thus will wait until the user has entered all the configuration settingd such as website username and password
                # while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
-                while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+               # while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+                while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
                 do
                         /bin/sleep 5             
                 done
@@ -323,7 +323,6 @@ fi
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chmod 600 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/usr/bin/chattr -i ${config_file}
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 
