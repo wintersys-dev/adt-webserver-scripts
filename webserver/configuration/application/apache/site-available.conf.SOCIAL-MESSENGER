@@ -67,7 +67,7 @@ ServerName XXXXWEBSITEURLXXXX
 	</Files>
 
 	<Directory XXXXWEBROOT_DIRECTORYXXXX>
-		Options +FollowSymlinks -Includes -ExecCGI -Indexes
+		Options +SymLinksIfOwnerMatch -FollowSymLinks -Includes -ExecCGI -Indexes
 		AllowOverride All
 		Require all granted
 	</Directory>
