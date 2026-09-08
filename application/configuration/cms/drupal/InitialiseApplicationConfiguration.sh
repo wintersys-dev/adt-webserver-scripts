@@ -213,6 +213,7 @@ then
                 /usr/sbin/drush cache:rebuild
                 /bin/sleep 25
                 /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/sed 's/_notls//' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
         else        
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
