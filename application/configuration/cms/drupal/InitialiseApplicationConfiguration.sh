@@ -177,8 +177,8 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 /bin/sed -i "s/XXXXDATABASE_HOSTXXXX/${HOST}/" ${HOME}/runtime/database_credentials.dat
 /bin/sed -i "s/XXXXDATABASE_PORTXXXX/${DB_PORT}/" ${HOME}/runtime/database_credentials.dat
 /bin/sed -i "s/XXXXDATABASE_DRIVERXXXX/${driver}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXDATABASE_PREFIXXXXX/${dbprefix}/" ${HOME}/runtime/database_credentials.dat
 /bin/sed -i "s/XXXXDATABASE_COLLATIONXXXX/${collation}/" ${HOME}/runtime/database_credentials.dat
-
 
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
@@ -193,8 +193,8 @@ then
         /bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         /bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
      #   /bin/touch ${HOME}/runtime/self_managed_config.dat
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
-        then
+     #   if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
+     #   then
         #PHP 8.5 and above
         #Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
         #PHP 8.4 and below
