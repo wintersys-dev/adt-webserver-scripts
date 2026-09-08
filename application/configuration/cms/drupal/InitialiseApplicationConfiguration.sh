@@ -257,8 +257,13 @@ then
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
 
-                /usr/sbin/drush config:export -y
-                /usr/sbin/drush site-install ${database_profile}  --no-interaction --db-prefix="${dbprefix}"
+
+                /usr/bin/chattr +i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /usr/sbin/drush site-install ${database_profile}  --no-interaction
+                /usr/bin/chattr -i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+        
+              #  /usr/sbin/drush config:export -y
+              #  /usr/sbin/drush site-install ${database_profile}  --no-interaction --db-prefix="${dbprefix}"
                 
                # /usr/sbin/drush site-install standard --no-interaction --existing-config --config-dir="${webroot_directory}/${webroot_subdirectory}/sites/default" --db-prefix="${dbprefix}" 
                 
