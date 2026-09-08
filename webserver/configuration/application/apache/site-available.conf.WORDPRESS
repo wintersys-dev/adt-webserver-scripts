@@ -66,6 +66,11 @@ ServerName XXXXWEBSITEURLXXXX
 	Require all denied
 	</Files>
 
+	<Directory />
+    	AllowOverride None
+    	Require all denied
+	</Directory>
+
 	<Directory XXXXWEBROOT_DIRECTORYXXXX>
 		Options +SymLinksIfOwnerMatch -FollowSymLinks -Includes -ExecCGI -Indexes
 		AllowOverride All
