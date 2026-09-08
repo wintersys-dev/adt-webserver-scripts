@@ -165,7 +165,7 @@ fi
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
 then
         driver="pgsql"
-        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_pgysql.dat"
+        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_pgsql.dat"
 fi
 
 username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`${user_tls}"
