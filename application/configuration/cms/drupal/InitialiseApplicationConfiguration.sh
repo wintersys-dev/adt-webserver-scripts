@@ -213,6 +213,13 @@ hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/
 /bin/echo "\$settings['config_sync_directory'] = 'sites/default/files/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 
+if ( [ ! -d ${webroot_directory}/private ] )
+then
+        /bin/mkdir -p ${webroot_directory}/private
+        /bin/chown www-data:www-data ${webroot_directory}/private
+        /bin/chmod 660 ${webroot_directory}/private
+fi
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
@@ -286,38 +293,6 @@ private_ip="`${HOME}/utilities/processing/GetIP.sh`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
 /bin/sed -i "s/XXXXBUILD_MACHINE_IPXXXX/${BUILD_MACHINE_IP}/" ${config_file}
 /bin/sed -i "s/XXXXPRIVATE_IPXXXX/${private_ip}/" ${config_file}
-
-#if ( [ "`/bin/grep PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT ${config_file}`" = ""  ] )
-#then
-#        if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
-#        then
-#                /bin/touch ${HOME}/runtime/dbaas_config.dat
-#
-#                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] &&  [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
-#                then
-#                        /bin/echo "'pdo' => [
-#                \PDO::MYSQL_ATTR_SSL_CA => '${HOME}/runtime/DBaaS_CERT',
-#                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
-#                ]," > ${HOME}/runtime/dbaas_config.dat
-#                fi
-#
-#                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/dbaas_config.dat" ${config_file}
-#                /bin/rm ${HOME}/runtime/dbaas_config.dat
-#        else
-#                /bin/touch ${HOME}/runtime/self_managed_config.dat
-#
- #               if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" != "1" ] )
- #               then
- #                       /bin/echo "'pdo' => [
- #               \PDO::MYSQL_ATTR_SSL_CA => NULL,
- ##               \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false
- #               ]," > ${HOME}/runtime/self_managed_config.dat
- #               fi
-#
-#                /bin/sed -i "/${dbprefix}/r ${HOME}/runtime/self_managed_config.dat" ${config_file}
-#                /bin/rm ${HOME}/runtime/self_managed_config.dat
-#        fi
-#fi
 
 website_name="`/bin/grep "WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /bin/sed 's/ //g'`"
 
@@ -405,13 +380,6 @@ else
                 /bin/chown www-data:www-data ${directory}
                 /bin/chmod 750 ${directory}
         done
-fi
-
-if ( [ ! -d ${webroot_directory}/private ] )
-then
-        /bin/mkdir -p ${webroot_directory}/private
-        /bin/chown www-data:www-data ${webroot_directory}/private
-        /bin/chmod 750 ${webroot_directory}/private
 fi
 
 # Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
