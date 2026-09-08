@@ -143,7 +143,7 @@ then
                 then
                         #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
                         user_tls="_notls"
-                        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat.notls"
+                        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
                 fi
         fi
 fi
@@ -157,7 +157,7 @@ then
                 then
                         #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
                         user_tls="_notls"
-                        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat.notls"
+                        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
                 fi
         fi
 fi
@@ -165,6 +165,7 @@ fi
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
 then
         driver="pgsql"
+        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_pgysql.dat"
 fi
 
 username="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:username" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`${user_tls}"
