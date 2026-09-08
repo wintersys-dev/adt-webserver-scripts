@@ -211,6 +211,7 @@ then
                 done
 
                 /usr/sbin/drush cache:rebuild
+                /bin/sleep 25
                 /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
                 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
         else        
