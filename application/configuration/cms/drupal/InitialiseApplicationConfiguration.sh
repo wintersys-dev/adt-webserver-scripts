@@ -192,7 +192,6 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/cat ${HOME}/runtime/database_credentials.dat >>  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/echo "return;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 #/bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
@@ -203,14 +202,13 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-            #    /bin/mkdir ${webroot_directory}/${webroot_subdirectory}/sites/default/install
-            #    /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/install
-            #    /bin/chmod 550 ${webroot_directory}/${webroot_subdirectory}/sites/default/install
-            #    /bin/mv ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/install/settings.php
-            #    /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/install/settings.php
-            #    /bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default/install/settings.php
-            #    /bin/ln -s ${webroot_directory}/${webroot_subdirectory}/sites/default/install/settings.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                
+                if ( [ ! -d ${webroot_directory}/${webroot_subdirectory}/sites/default/files ] )
+                then
+                        /bin/mkdir -p ${webroot_directory}/${webroot_subdirectory}/sites/default/files
+                        /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files
+                fi
+                /bin/chmod 444 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/chmod 555 ${webroot_directory}/${webroot_subdirectory}/sites/default
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
                 #while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                
