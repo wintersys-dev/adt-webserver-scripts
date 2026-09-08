@@ -198,11 +198,11 @@ PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION' | /bin
 
 if ( [ "${PHP_VERSION}" -ge "85" ] )
 then
-        /bin/sed '/XXXXPHP8.4_AND_DOWNXXXX/d' ${HOME}/runtime/database_credentials.dat
-        /bin/sed 's/XXXXPHP8.5_AND_UPXXXX//g' ${HOME}/runtime/database_credentials.dat
+        /bin/sed -i '/XXXXPHP8.4_AND_DOWNXXXX/d' ${HOME}/runtime/database_credentials.dat
+        /bin/sed -i 's/XXXXPHP8.5_AND_UPXXXX//g' ${HOME}/runtime/database_credentials.dat
 else
-        /bin/sed '/XXXXPHP8.5_AND_UPXXXX/d' ${HOME}/runtime/database_credentials.dat
-        /bin/sed 's/XXXXPHP8.4_AND_DOWNXXXX//g' ${HOME}/runtime/database_credentials.dat
+        /bin/sed -i '/XXXXPHP8.5_AND_UPXXXX/d' ${HOME}/runtime/database_credentials.dat
+        /bin/sed -i 's/XXXXPHP8.4_AND_DOWNXXXX//g' ${HOME}/runtime/database_credentials.dat
 fi
 
 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
@@ -210,9 +210,6 @@ fi
 /bin/cat ${HOME}/runtime/database_credentials.dat >>  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-#/bin/mkdir-p ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
-#/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
-#/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
 /bin/echo "\$settings['config_sync_directory'] = 'sites/default/files/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 
@@ -221,27 +218,23 @@ then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
                 /usr/bin/chattr +i  ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
-                #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
-                #while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
-               
-                #Thus will wait until the user has entered all the configuration settingd such as website username and password
-               # while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
-               # while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
+
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
                 do
                         /bin/sleep 5             
                 done
 
+                #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
                 while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                 do
                         /bin/sleep 5
                         /usr/sbin/drush cache:rebuild
                 done
+                #The system errors out unless the cache is rebuilt so make sure that the cache has definitely been rebuilt upon completion
+                #if not no then in a minute for sure
                 /bin/sleep 60
                 /usr/sbin/drush cache:rebuild
-              #  /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-              #  /bin/chmod 550 ${webroot_directory}/${webroot_subdirectory}/sites/default
-              #  /bin/sed 's/_notls//' ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+
                 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
         else        
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
