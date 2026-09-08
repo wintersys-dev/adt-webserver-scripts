@@ -194,18 +194,16 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 /bin/cat ${HOME}/runtime/database_credentials.dat >>  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/mkdir-p ${webroot_directory}/${webroot_subdirectory}/sites/default/sync
-/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/sync
-/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/sync
-/bin/echo "\$settings['config_sync_directory'] = '"${webroot_directory}/${webroot_subdirectory}"/sites/default/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/mkdir-p ${webroot_directory}/${webroot_subdirectory}/sites/default/files
-/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files
-/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/files
+/bin/mkdir-p ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+/bin/echo "\$settings['config_sync_directory'] = '"${webroot_directory}/${webroot_subdirectory}"/sites/default/files/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
+                /usr/bin/chattr +i  ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
                 #If this string varies in later releases or is removed then another alternative string will have  to be checked for to signify a completed install                
                 #while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                
@@ -323,6 +321,7 @@ fi
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chmod 600 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/usr/bin/chattr -i  ${config_file}
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 
