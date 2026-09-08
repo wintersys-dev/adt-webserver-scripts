@@ -230,6 +230,13 @@ then
         /bin/chmod 660 ${webroot_directory}/private
 fi
 
+if ( [ ! -d ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync ] )
+then
+        /bin/mkdir -p ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+        /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+        /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+fi
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
@@ -259,7 +266,7 @@ then
 
                 /bin/cat ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php > ${HOME}/runtime/settings.out.$$
               #  /usr/bin/chattr +i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /usr/sbin/drush site-install ${database_profile}  --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" 
+                /usr/sbin/drush site-install ${database_profile}  --no-interaction 
               #  /usr/bin/chattr -i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         
               #  /usr/sbin/drush config:export -y
