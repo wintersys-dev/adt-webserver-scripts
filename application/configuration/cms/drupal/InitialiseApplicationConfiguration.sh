@@ -233,8 +233,8 @@ fi
 if ( [ ! -d ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync ] )
 then
         /bin/mkdir -p ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
-        /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
-        /bin/chmod 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+        /bin/chown -R www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files
+        /bin/chmod -R 660 ${webroot_directory}/${webroot_subdirectory}/sites/default/files
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
