@@ -137,13 +137,16 @@ database_credentials="${HOME}/application/configuration/cms/drupal/database_cred
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
 then
         driver="mysql"  
+        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
+        tls_cert="${HOME}/runtime/DBaaS_CERT"
+        verify_tls_cert="TRUE"
+        
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
         then
-                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
                 then
-                        #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-                     #   user_tls="_notls"
-                        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
+                        tls_cert="TRUE"   
+                        verify_tls_cert="FALSE"
                 fi
         fi
 fi
@@ -151,14 +154,14 @@ fi
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
 then
         driver="mysql"
+        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
+        tls_cert="${HOME}/runtime/DBaaS_CERT"
+        verify_tls_cert="TRUE"
+
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
         then
-                if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
-                then
-                        #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-                     #   user_tls="_notls"
-                        database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
-                fi
+                tls_cert="TRUE"   
+                verify_tls_cert="FALSE"
         fi
 fi
 
@@ -183,6 +186,9 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 /bin/sed -i "s/XXXXDATABASE_DRIVERXXXX/${driver}/" ${HOME}/runtime/database_credentials.dat
 /bin/sed -i "s/XXXXDATABASE_PREFIXXXXX/${dbprefix}/" ${HOME}/runtime/database_credentials.dat
 /bin/sed -i "s/XXXXDATABASE_COLLATIONXXXX/${collation}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXTLS_CERTXXXX/${tls_cert}/" ${HOME}/runtime/database_credentials.dat
+/bin/sed -i "s/XXXXVERIFY_TLS_CERTXXXX/${verify_tls_cert}/" ${HOME}/runtime/database_credentials.dat
+
 
         #PHP 8.5 and above
         #Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
