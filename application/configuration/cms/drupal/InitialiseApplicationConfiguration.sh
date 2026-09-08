@@ -189,11 +189,21 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 /bin/sed -i "s/XXXXTLS_CERTXXXX/${tls_cert}/" ${HOME}/runtime/database_credentials.dat
 /bin/sed -i "s/XXXXVERIFY_TLS_CERTXXXX/${verify_tls_cert}/" ${HOME}/runtime/database_credentials.dat
 
+PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION' | /bin/sed 's/\.//g'`"
 
-        #PHP 8.5 and above
-        #Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
-        #PHP 8.4 and below
-       # \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true 
+#PHP 8.5 and above
+#Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
+#PHP 8.4 and below
+# \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true 
+
+if ( [ "${PHP_VERSION}" -ge "85" ] )
+then
+        /bin/sed '/XXXXPHP8.4_AND_DOWNXXXX/d' ${HOME}/runtime/database_credentials.dat
+        /bin/sed 's/XXXXPHP8.5_AND_UPXXXX//g' ${HOME}/runtime/database_credentials.dat
+else
+        /bin/sed '/XXXXPHP8.5_AND_UPXXXX/d' ${HOME}/runtime/database_credentials.dat
+        /bin/sed 's/XXXXPHP8.4_AND_DOWNXXXX//g' ${HOME}/runtime/database_credentials.dat
+fi
 
 /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
