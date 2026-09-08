@@ -142,7 +142,7 @@ then
                 if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
                 then
                         #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-                        user_tls="_notls"
+                     #   user_tls="_notls"
                         database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
                 fi
         fi
@@ -156,7 +156,7 @@ then
                 if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
                 then
                         #If you know how to get drush to install interactively to mysql or mariadb using a tls database connection then if you could show me I will get rid of this cludge
-                        user_tls="_notls"
+                     #   user_tls="_notls"
                         database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
                 fi
         fi
@@ -205,7 +205,8 @@ then
                 #while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                
                 #Thus will wait until the user has entered all the configuration settingd such as website username and password
-                while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
+               # while ( [ "`/usr/bin/curl --insecure https://localhost:443/core/install.php | /bin/grep "Drupal already installed"`" = "" ] )
+                while ( [ "`/usr/bin/curl --insecure https://localhost:443/index.php 2>/dev/null | /bin/grep "Congratulations and welcome to the Drupal community"`" = "" ] )
                 do
                         /bin/sleep 5             
                 done
