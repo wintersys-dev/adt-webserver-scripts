@@ -194,10 +194,10 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 /bin/cat ${HOME}/runtime/database_credentials.dat >>  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/mkdir-p ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
-/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
-/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
-/bin/echo "\$settings['config_sync_directory'] = '"${webroot_directory}/${webroot_subdirectory}"/sites/default/files/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+#/bin/mkdir-p ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+#/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+#/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
+/bin/echo "\$settings['config_sync_directory'] = 'sites/default/files/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
