@@ -198,6 +198,7 @@ hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/
 #/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
 #/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync
 /bin/echo "\$settings['config_sync_directory'] = 'sites/default/files/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
@@ -264,7 +265,7 @@ else
         fi
 fi
 
-/bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
+#/bin/grep "ADDITIONAL_SETTING:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' >> ${config_file}
 
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
