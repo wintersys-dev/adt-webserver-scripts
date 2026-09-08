@@ -257,10 +257,10 @@ then
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
 
-
-                /usr/bin/chattr +i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-                /usr/sbin/drush site-install ${database_profile}  --no-interaction
-                /usr/bin/chattr -i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /bin/cat ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php > ${HOME}/runtime/settings.out.$$
+              #  /usr/bin/chattr +i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+                /usr/sbin/drush site-install ${database_profile}  --no-interaction --db-url="${driver}://${username}:${password}@${HOST}:${DB_PORT}/${database}" --db-prefix="${dbprefix}" 
+              #  /usr/bin/chattr -i ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
         
               #  /usr/sbin/drush config:export -y
               #  /usr/sbin/drush site-install ${database_profile}  --no-interaction --db-prefix="${dbprefix}"
