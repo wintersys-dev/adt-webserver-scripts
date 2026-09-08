@@ -194,6 +194,9 @@ collation="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:collation" ${HOME}/runtime/
 /bin/cat ${HOME}/runtime/database_credentials.dat >>  ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 /bin/sed -i "s%\$settings.*hash_salt.*;%\$settings['hash_salt'] = '"${hash_salt}"';%" ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+/bin/mkdir-p ${webroot_directory}/${webroot_subdirectory}/sites/default/sync
+/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/sync
+/bin/chmod 750 ${webroot_directory}/${webroot_subdirectory}/sites/default/sync
 /bin/echo "\$settings['config_sync_directory'] = '"${webroot_directory}/${webroot_subdirectory}"/sites/default/sync';" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 #/bin/echo "\$settings['skip_permissions_hardening'] = TRUE;" >> ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 #/bin/chmod 440 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
