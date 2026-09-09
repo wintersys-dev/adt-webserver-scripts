@@ -30,7 +30,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-#set -x 
+set -x 
 
 if ( [ ! -d ${HOME}/logs/joomla_configuration ] )
 then
@@ -46,8 +46,8 @@ then
         /bin/echo "Error file is at: ${HOME}/logs/joomla_configuration/${err_file}"
 fi
 
-exec 1>>${HOME}/logs/joomla_configuration/${log_file}
-exec 2>>${HOME}/logs/joomla_configuration/${err_file}
+#exec 1>>${HOME}/logs/joomla_configuration/${log_file}
+#exec 2>>${HOME}/logs/joomla_configuration/${err_file}
 
 
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
@@ -149,6 +149,18 @@ then
         driver="pgsql"
 fi
 
+#Obtain the database credentials from the application descriptor because this is not an interactive installation
+
+user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
+password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
+db="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
+
+website_name="`/bin/grep "^WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+website_username="`/bin/grep "^WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+website_password="`/bin/grep "^WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+webmaster_email="`/bin/grep "^WEBMASTER_EMAIL:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+website_user_description="`/bin/grep "^WEBSITE_USER_DESCRIPTION:" ${HOME}/runtime/application.dat |  /usr/bin/awk -F':' '{print $NF}'`"
+
 
 #This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
 #using their browser
@@ -181,18 +193,6 @@ then
                 done
         else
                 #Obtain the database credentials from the application descriptor because this is not an interactive installation
-
-                user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
-                password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
-                db="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
-
-                cd /var/www/html
-                website_name="`/bin/grep "^WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-                website_username="`/bin/grep "^WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-                website_password="`/bin/grep "^WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-                webmaster_email="`/bin/grep "^WEBMASTER_EMAIL:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-                website_user_description="`/bin/grep "^WEBSITE_USER_DESCRIPTION:" ${HOME}/runtime/application.dat |  /usr/bin/awk -F':' '{print $NF}'`"
-
                 /usr/bin/php ${webroot_directory}/installation/joomla.php install --site-name="${website_name}" --admin-user="${website_user_description}" --admin-email="${webmaster_email}" --admin-username="${website_username}" --admin-password="${website_password}"  --db-type="${driver}" --db-host="${HOST}:${DB_PORT}"  --db-user=${user} --db-pass=${password} --db-name=${db}  --db-prefix=${dbprefix} --db-encryption=1 --no-interaction  
         fi
 
@@ -282,27 +282,6 @@ fi
 /bin/chmod 600 ${webroot_directory}/configuration.php
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
-
-
-#If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
-#write a little note to ourselved to remind us whether we are expecting mariadb, mysql or postgres to be running
-if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
-then
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires Maria DB as its database" > /var/www/html/dbe.dat
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires Postgres as its database" > /var/www/html/dbe.dat
-        fi
-fi
 
 #These are the additional settings for our config_file. These are set in the application descriptor and so we can override any of the default
 #configuration settings directly in the application descriptor meaning that we can install using a default configuration of our choosing. 
