@@ -121,93 +121,90 @@ else
 	HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
 fi
 
+WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+website_name="`/bin/grep "^WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+website_username="`/bin/grep "^WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+website_password="`/bin/grep "^WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+webmaster_email="`/bin/grep "^WEBMASTER_EMAIL:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+website_user_description="`/bin/grep "^WEBSITE_USER_DESCRIPTION:" ${HOME}/runtime/application.dat |  /usr/bin/awk -F':' '{print $NF}'`"
+db_user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:DB_USER=" ${HOME}/runtime/application.dat |  /usr/bin/awk -F'=' '{print $NF}'`"
+db_password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:DB_PASSWORD=" ${HOME}/runtime/application.dat |  /usr/bin/awk -F'=' '{print $NF}'`"
+db_name="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:DB_NAME=" ${HOME}/runtime/application.dat |  /usr/bin/awk -F'=' '{print $NF}'`"
+
 #This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
 #using their browser
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
+	if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+	then
 #wp core is-installed
+	/bin/cp ${webroot_directory}/wp-config-sample.php ${webroot_directory}/wp-config.php
+
 
         if ( [ ! -f ${webroot_directory}/wp-config.php ] )
         then
-                while ( [ ! -f ${webroot_directory}/wp-config.php ] )
+                ready="0"
+                while ( [ "${ready}" = "0" ] )
                 do
+                        if ( [ -f ${webroot_directory}/wp-config.php ] && [ "`/usr/bin/diff ${webroot_directory}/wp-config.php ${webroot_directory}/wp-config-sample.php`" != "" ] )
+                        then
+                                while ( [ "${ready}" = "0" ] )
+                                do
+									if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )                                        
+									then
+                                        ready="1"
+                                    fi
+                                    /bin/sleep 1
+                                done  
+                        fi
                         /bin/sleep 1
                 done
+		else
+			/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
+			/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
+
+			if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp db check  --path="${webroot_directory}" | /bin/grep 'Success:'`" != "" ] )
+			then
+				/usr/bin/sudo -u www-data /usr/local/bin/wp core install --url="${WEBSITE_URL}" --title="${website_name}" --admin_user="${website_username}" --admin_password="${website_password}" --admin_email="${webmaster_email}" --path="${webroot_directory}"
+				plugins_to_install="`/bin/grep "^PLUGINS_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/PLUGINS_TO_INSTALL//g' | /bin/sed 's/:/ /g'`"
+
+				for plugin in ${plugins_to_install}
+				do
+					/usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
+				done
         fi
+
+        #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
+        #write a little note to ourselved to remind us whether we are expecting mariadb, mysql or postgres to be running
+        if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
+        then
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+                then
+                        /bin/echo "For your information this application requires Maria DB as its database" > /var/www/html/dbe.dat
+                fi
+
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+                then
+                        /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
+                fi
+        fi
+		
         /bin/echo "`/bin/grep "table_prefix" ${webroot_directory}/wp-config.php | /usr/bin/awk -F"\'" '{print $2}'`"  > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
-        #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
-        #It is expected that this will be the more common case than an interactive installation
-        if ( [ -f ${config_file} ] )
-        then
-                /bin/rm ${config_file}
-        fi
+	APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
+	if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
+	then
+		${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
+		exit
+	fi
+	/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${config_file}" --skip-check --path="${webroot_directory}"
+	/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
 
-
-
-
-
-        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-        website_name="`/bin/grep "^WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-        website_username="`/bin/grep "^WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-        website_password="`/bin/grep "^WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-        webmaster_email="`/bin/grep "^WEBMASTER_EMAIL:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-        website_user_description="`/bin/grep "^WEBSITE_USER_DESCRIPTION:" ${HOME}/runtime/application.dat |  /usr/bin/awk -F':' '{print $NF}'`"
-        db_user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:DB_USER=" ${HOME}/runtime/application.dat |  /usr/bin/awk -F'=' '{print $NF}'`"
-        db_password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:DB_PASSWORD=" ${HOME}/runtime/application.dat |  /usr/bin/awk -F'=' '{print $NF}'`"
-        db_name="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:DB_NAME=" ${HOME}/runtime/application.dat |  /usr/bin/awk -F'=' '{print $NF}'`"
-        webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
-        if ( [ "${webroot_directory}" = "" ] )
-        then
-                webroot_directory="/var/www/html/wordpress"
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
-        then
-                /usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
-
-                /usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
-
-                if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp db check  --path="${webroot_directory}" | /bin/grep 'Success:'`" != "" ] )
-                then
-                        /usr/bin/sudo -u www-data /usr/local/bin/wp core install --url="${WEBSITE_URL}" --title="${website_name}" --admin_user="${website_username}" --admin_password="${website_password}" --admin_email="${webmaster_email}" --path="${webroot_directory}"
-
-                        plugins_to_install="`/bin/grep "^PLUGINS_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/PLUGINS_TO_INSTALL//g' | /bin/sed 's/:/ /g'`"
-
-                        for plugin in ${plugins_to_install}
-                        do
-                                /usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
-                        done
-
-                        #A wp-config.php file will have been generated during the installation but we don't want it to be in the webroot because its
-			#considered dynamically updateable so mv it ourside of the webroot to the valuse of ${config_file} which we obtained at the top
-			#of this script
-                        if ( [ -f ${webroot_directory}/wp-config.php ] )
-                        then
-                                /bin/cp ${webroot_directory}/wp-config.php ${config_file}
-                        fi
-                else
-                        ${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
-                fi
-        else
-                APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
-                if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
-                then
-                        ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
-                fi
-
-                /usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${config_file}" --skip-check --path="${webroot_directory}"
-
-                /usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
-
-                if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" != "" ] )
-                then
-                        ${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
-                fi
-
-        fi
+	if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" != "" ] )
+	then
+		${HOME}/services/email/SendEmail.sh "DB Check failed" "Could not verify database during wordpress installation" "ERROR"
+    fi
 fi
 
 #Remind ourselves at any future time that we are a wordpress application. This will be stored in the backups and the baselines and can be consulted later
@@ -221,35 +218,15 @@ fi
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
 if ( [ -f ${webroot_directory}/wp-config.php ] )
 then
-        /bin/rm ${webroot_directory}/wp-config.php
+        /bin/mv ${webroot_directory}/wp-config.php ${config_file}
 fi
 
-#/bin/ln -s ${config_file} ${webroot_directory}/wp-config.php
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/wp-config.php
 /bin/chown www-data:www-data ${webroot_directory}/wp-config.php
 /bin/chmod 600 ${webroot_directory}/wp-config.php
 /bin/chmod 600 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
-#If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
-#write a little note to ourselved to remind us whether we are expecting mariadb, mysql or postgres to be running
-if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
-then
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires Maria DB as its database" > /var/www/html/dbe.dat
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
-        then
-                /bin/echo "For your information this application requires Postgres as its database" > /var/www/html/dbe.dat
-        fi
-fi
 
 for setting in `/bin/grep "^INDIVIDUAL_SETTING:" ${HOME}/runtime/application.dat | /bin/sed 's/^INDIVIDUAL_SETTING://g' | /usr/bin/awk -F'::' '{print $NF}' | /bin/sed 's/^://g'`
 do
