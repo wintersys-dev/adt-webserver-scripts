@@ -138,27 +138,25 @@ then
 	if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 	then
 		#wp core is-installed
-		/bin/cp ${webroot_directory}/wp-config-sample.php ${webroot_directory}/wp-config.php
 
-
-        if ( [ ! -f ${webroot_directory}/wp-config.php ] )
+		if ( [ ! -f ${webroot_directory}/wp-config.php ] )
         then
-                ready="0"
-                while ( [ "${ready}" = "0" ] )
-                do
-                        if ( [ -f ${webroot_directory}/wp-config.php ] && [ "`/usr/bin/diff ${webroot_directory}/wp-config.php ${webroot_directory}/wp-config-sample.php`" != "" ] )
-                        then
-                                while ( [ "${ready}" = "0" ] )
-                                do
-									if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )
-									then
-                                        ready="1"
-                                    fi
-                                    /bin/sleep 1
-                                done  
+			ready="0"
+			while ( [ "${ready}" = "0" ] )
+			do
+				if ( [ -f ${webroot_directory}/wp-config.php ] && [ "`/usr/bin/diff ${webroot_directory}/wp-config.php ${webroot_directory}/wp-config-sample.php`" != "" ] )
+				then
+					while ( [ "${ready}" = "0" ] )
+					do
+						if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )
+						then
+							ready="1"
                         fi
                         /bin/sleep 1
-                done
+                    done  
+                fi
+                /bin/sleep 1
+            done
 		fi
 	else
 		/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
@@ -192,6 +190,7 @@ then
 		
         /bin/echo "`/bin/grep "table_prefix" ${webroot_directory}/wp-config.php | /usr/bin/awk -F"\'" '{print $2}'`"  > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
+	fi
 else
 	APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
 	if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
