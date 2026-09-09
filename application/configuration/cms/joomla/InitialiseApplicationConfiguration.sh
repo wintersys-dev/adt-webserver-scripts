@@ -168,8 +168,6 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                /bin/cp /var/www/html/configuration.php.default ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
-
                 ready="0"
                 while ( [ "${ready}" = "0" ] )
                 do
@@ -177,14 +175,13 @@ then
                         then
                                 /bin/rm ${webroot_directory}/installation/_Joomla*
                         fi
-                        if ( [ -f ${webroot_directory}/configuration.php ] && [ "`/usr/bin/diff ${webroot_directory}/configuration.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig`" != "" ] )
+                        if ( [ -f ${webroot_directory}/configuration.php ] && [ "`/usr/bin/diff ${webroot_directory}/configuration.php ${webroot_directory}/installation/configuration.php-dist`" != "" ] )
                         then
                                 while ( [ "${ready}" = "0" ] )
                                 do
                                         if ( [ "`/usr/bin/php /var/www/html/joomla/cli/joomla.php core:check-updates | /bin/grep 'Your current Joomla version is'`" != "" ] )
                                         then
                                                 ready="1"
-                                                /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                                         fi
                                         /bin/sleep 1
                                 done  
