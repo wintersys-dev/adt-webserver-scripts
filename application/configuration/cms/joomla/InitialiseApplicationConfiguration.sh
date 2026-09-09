@@ -94,6 +94,16 @@ then
         config_file="/var/www/outside_webroot/configuration.php"
 fi
 
+# Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
+seesion_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
+
+if ( [ ! -d ${session_save_path} ] )
+then
+        /bin/mkdir -p ${session_save_path}
+        /bin/chown www-data:www-data ${session_save_path}
+        /bin/chmod 770 ${session_save_path}
+fi
+
 #In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
 #in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
 if ( [ -f /var/www/html/dbp.dat ] )
@@ -359,16 +369,6 @@ fi
 
 #As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
 /bin/chown -R www-data:www-data  /var/www/outside_webroot
-
-# Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
-seesion_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
-
-if ( [ ! -d ${session_save_path} ] )
-then
-        /bin/mkdir -p ${session_save_path}
-        /bin/chown www-data:www-data ${session_save_path}
-        /bin/chmod 770 ${session_save_path}
-fi
 
 #We just set up .htaccess regardless of webserver type. If the webserver can use the htaccess file it will if it can't, no harm done
 
