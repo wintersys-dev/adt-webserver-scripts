@@ -224,6 +224,10 @@ else
 
         if ( [ -f /var/www/html/configuration.php.default ]  )
         then
+                if ( [ -f ${webroot_directory}/configuration.php ] )
+                then
+                        /bin/rm ${webroot_directory}/configuration.php
+                fi
                 /bin/cp /var/www/html/configuration.php.default ${webroot_directory}/configuration.php
                 /bin/chown root:www-data ${webroot_directory}/configuration.php
                 /bin/chmod 660 ${webroot_directory}/configuration.php
