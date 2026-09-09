@@ -270,19 +270,6 @@ fi
 /bin/echo "${webroot_directory}" > /var/www/html/wr.dat
 /bin/chown www-data:www-data /var/www/html/wr.dat
 
-#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
-#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
-if ( [ -f ${webroot_directory}/configuration.php ] )
-then
-        /bin/mv ${webroot_directory}/configuration.php ${config_file}
-fi
-
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
-/bin/chown www-data:www-data ${webroot_directory}/configuration.php
-/bin/chmod 600 ${webroot_directory}/configuration.php
-/bin/chown www-data:www-data ${config_file}
-/bin/chmod 600 ${config_file}
-
 #These are the additional settings for our config_file. These are set in the application descriptor and so we can override any of the default
 #configuration settings directly in the application descriptor meaning that we can install using a default configuration of our choosing. 
 
@@ -295,12 +282,25 @@ do
         then
                 if ( [ "${label}" != "" ] && [ "${value}" != "" ] )
                 then
-                        /bin/sed -i "s%\$${label} =.*$%\$${label} = ${value};%" ${config_file}
+                        /bin/sed -i "s%\$${label} =.*$%\$${label} = ${value};%" ${webroot_directory}/configuration.php
                 fi
         else
-                /bin/sed -i '$ i\        public $'${label}' = '${value}';' ${config_file}
+                /bin/sed -i '$ i\        public $'${label}' = '${value}';' ${webroot_directory}/configuration.php
         fi
 done
+
+#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
+#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
+if ( [ -f ${webroot_directory}/configuration.php ] )
+then
+        /bin/mv ${webroot_directory}/configuration.php ${config_file}
+fi
+
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
+/bin/chown www-data:www-data ${webroot_directory}/configuration.php
+/bin/chmod 600 ${webroot_directory}/configuration.php
+/bin/chown www-data:www-data ${config_file}
+/bin/chmod 600 ${config_file}
 
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
 # code sets up that structure
