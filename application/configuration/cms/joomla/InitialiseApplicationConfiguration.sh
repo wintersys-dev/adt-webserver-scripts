@@ -177,7 +177,7 @@ then
                   #      fi
 
 
-                        while inotifywait -e create --include '_Joomla*' ${webroot_directory}/installation
+                        while inotifywait -e create --include '_Joomla' ${webroot_directory}/installation
                         do
                                 if ( [ -f ${webroot_directory}/installation/_Joomla* ] )
                                 then
