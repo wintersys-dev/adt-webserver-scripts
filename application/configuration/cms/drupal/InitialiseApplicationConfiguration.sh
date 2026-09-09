@@ -263,7 +263,7 @@ then
                 /bin/sleep 23
                 /usr/sbin/drush cache:rebuild
 
-                /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
+             #   /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
         else        
                 website_username="`/bin/grep "WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
                 website_password="`/bin/grep "WEBSITE_PASSWORD:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}' | /usr/bin/awk '{print $1}'`"
@@ -282,10 +282,10 @@ then
                         /usr/sbin/drush user:role:add "${application_role}" "${website_username}"
                 done
 
-                if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-                then
-                        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
-                fi
+             #   if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
+             #   then
+             #           /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
+             #   fi
         fi
 
         #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
@@ -332,12 +332,20 @@ then
                 done
         fi
 else    
-        /bin/cp /var/www/html/settings.php.default ${config_file}
+      #  if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php ] )
+      #  then
+      #          /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php ${config_file}
+      #  fi
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
         then
                 ${HOME}/services/email/SendEmail.sh "APPLICATION TYPE MISMATCH" "Your template thinks it is a different application type to your webroot" "ERROR"
         fi
+fi
+
+if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
+then
+        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
 fi
 
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
