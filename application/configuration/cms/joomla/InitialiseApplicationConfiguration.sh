@@ -151,6 +151,10 @@ then
                 ready="0"
                 while ( [ "${ready}" = "0" ] )
                 do
+                        if ( [ -f ${webroot_directory}/installation/_Joomla* ] )
+                        then
+                                /bin/rm ${webroot_directory}/installation/_Joomla*
+                        fi
                         if ( [ -f ${webroot_directory}/configuration.php ] && [ "`/usr/bin/diff ${webroot_directory}/configuration.php ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig`" != "" ] )
                         then
                                 while ( [ "${ready}" = "0" ] )
@@ -163,7 +167,7 @@ then
                                         /bin/sleep 5
                                 done  
                         fi
-                        /bin/sleep 5
+                        /bin/sleep 1
                 done
         else
                 #Obtain the database credentials from the application descriptor because this is not an interactive installation
