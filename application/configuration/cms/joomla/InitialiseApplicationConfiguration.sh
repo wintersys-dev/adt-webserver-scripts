@@ -46,8 +46,8 @@ then
         /bin/echo "Error file is at: ${HOME}/logs/joomla_configuration/${err_file}"
 fi
 
-#exec 1>>${HOME}/logs/joomla_configuration/${log_file}
-#exec 2>>${HOME}/logs/joomla_configuration/${err_file}
+exec 1>>${HOME}/logs/joomla_configuration/${log_file}
+exec 2>>${HOME}/logs/joomla_configuration/${err_file}
 
 
 #Extract the value of the webroot directory from the application descriptor and if its not set, fall back to a default value
