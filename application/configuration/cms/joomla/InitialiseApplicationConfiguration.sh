@@ -168,26 +168,36 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                ready="0"
-                while ( [ "${ready}" = "0" ] )
-                do
-                        if ( [ -f ${webroot_directory}/installation/_Joomla* ] )
-                        then
-                                /bin/rm ${webroot_directory}/installation/_Joomla*
-                        fi
-                        if ( [ -f ${webroot_directory}/configuration.php ] && [ "`/usr/bin/diff ${webroot_directory}/configuration.php ${webroot_directory}/installation/configuration.php-dist`" != "" ] )
-                        then
-                                while ( [ "${ready}" = "0" ] )
-                                do
-                                        if ( [ "`/usr/bin/php /var/www/html/joomla/cli/joomla.php core:check-updates | /bin/grep 'Your current Joomla version is'`" != "" ] )
-                                        then
-                                                ready="1"
-                                        fi
-                                        /bin/sleep 1
-                                done  
-                        fi
-                        /bin/sleep 1
-                done
+              #  ready="0"
+              #  while ( [ "${ready}" = "0" ] )
+              #  do
+                  #      if ( [ -f ${webroot_directory}/installation/_Joomla* ] )
+                  #      then
+                  #              /bin/rm ${webroot_directory}/installation/_Joomla*
+                  #      fi
+
+
+                        while inotifywait -e close_write  --include '_Joomla*' /var/www/html/joomla/installation
+                        do
+                                if ( [ -f ${webroot_directory}/installation/_Joomla* ] )
+                                then
+                                        /bin/rm ${webroot_directory}/installation/_Joomla*
+                                        break
+                                fi
+                        done
+                        #if ( [ -f ${webroot_directory}/configuration.php ] && [ "`/usr/bin/diff ${webroot_directory}/configuration.php ${webroot_directory}/installation/configuration.php-dist`" != "" ] )
+                        #then
+                        #        while ( [ "${ready}" = "0" ] )
+                        #        do
+                        #                if ( [ "`/usr/bin/php /var/www/html/joomla/cli/joomla.php core:check-updates | /bin/grep 'Your current Joomla version is'`" != "" ] )
+                        #                then
+                        #                        ready="1"
+                        #                fi
+                        #                /bin/sleep 1
+                        #        done  
+                        #fi
+               #         /bin/sleep 1
+               # done
         else
                 #Obtain the database credentials from the application descriptor because this is not an interactive installation
                 /usr/bin/php ${webroot_directory}/installation/joomla.php install --site-name="${website_name}" --admin-user="${website_user_description}" --admin-email="${webmaster_email}" --admin-username="${website_username}" --admin-password="${website_password}"  --db-type="${driver}" --db-host="${HOST}:${DB_PORT}"  --db-user=${user} --db-pass=${password} --db-name=${db}  --db-prefix=${dbprefix} --db-encryption=1 --no-interaction  
