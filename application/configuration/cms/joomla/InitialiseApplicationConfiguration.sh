@@ -177,7 +177,7 @@ then
                   #      fi
 
 
-                        while inotifywait -e close_write  --include '_Joomla*' /var/www/html/joomla/installation
+                        while inotifywait -e create --include '_Joomla*' ${webroot_directory}/installation
                         do
                                 if ( [ -f ${webroot_directory}/installation/_Joomla* ] )
                                 then
@@ -185,6 +185,7 @@ then
                                         break
                                 fi
                         done
+                        
                         #if ( [ -f ${webroot_directory}/configuration.php ] && [ "`/usr/bin/diff ${webroot_directory}/configuration.php ${webroot_directory}/installation/configuration.php-dist`" != "" ] )
                         #then
                         #        while ( [ "${ready}" = "0" ] )
