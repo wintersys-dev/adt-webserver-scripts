@@ -226,8 +226,8 @@ hash_salt="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:hash_salt" ${HOME}/runtime/
 if ( [ ! -d ${webroot_directory}/private ] )
 then
         /bin/mkdir -p ${webroot_directory}/private
-        /bin/chown www-data:www-data ${webroot_directory}/private
-        /bin/chmod 660 ${webroot_directory}/private
+        /bin/chown -R www-data:www-data ${webroot_directory}/private
+        /bin/chmod 750 ${webroot_directory}/private
 fi
 
 if ( [ ! -d ${webroot_directory}/${webroot_subdirectory}/sites/default/files/sync ] )
