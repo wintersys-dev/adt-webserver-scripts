@@ -164,7 +164,7 @@ then
                                                 ready="1"
                                                 /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php.orig
                                         fi
-                                        /bin/sleep 5
+                                        /bin/sleep 1
                                 done  
                         fi
                         /bin/sleep 1
