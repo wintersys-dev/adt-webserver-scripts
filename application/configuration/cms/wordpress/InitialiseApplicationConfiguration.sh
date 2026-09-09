@@ -137,8 +137,8 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
 	if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 	then
-#wp core is-installed
-	/bin/cp ${webroot_directory}/wp-config-sample.php ${webroot_directory}/wp-config.php
+		#wp core is-installed
+		/bin/cp ${webroot_directory}/wp-config-sample.php ${webroot_directory}/wp-config.php
 
 
         if ( [ ! -f ${webroot_directory}/wp-config.php ] )
@@ -150,7 +150,7 @@ then
                         then
                                 while ( [ "${ready}" = "0" ] )
                                 do
-									if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )                                        
+									if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )
 									then
                                         ready="1"
                                     fi
@@ -159,20 +159,21 @@ then
                         fi
                         /bin/sleep 1
                 done
-		else
-			/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
-			/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
+		fi
+	else
+		/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
+		/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
 
-			if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp db check  --path="${webroot_directory}" | /bin/grep 'Success:'`" != "" ] )
-			then
-				/usr/bin/sudo -u www-data /usr/local/bin/wp core install --url="${WEBSITE_URL}" --title="${website_name}" --admin_user="${website_username}" --admin_password="${website_password}" --admin_email="${webmaster_email}" --path="${webroot_directory}"
-				plugins_to_install="`/bin/grep "^PLUGINS_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/PLUGINS_TO_INSTALL//g' | /bin/sed 's/:/ /g'`"
+		if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp db check  --path="${webroot_directory}" | /bin/grep 'Success:'`" != "" ] )
+		then
+			/usr/bin/sudo -u www-data /usr/local/bin/wp core install --url="${WEBSITE_URL}" --title="${website_name}" --admin_user="${website_username}" --admin_password="${website_password}" --admin_email="${webmaster_email}" --path="${webroot_directory}"
+			plugins_to_install="`/bin/grep "^PLUGINS_TO_INSTALL:" ${HOME}/runtime/application.dat | /bin/sed 's/PLUGINS_TO_INSTALL//g' | /bin/sed 's/:/ /g'`"
 
-				for plugin in ${plugins_to_install}
-				do
-					/usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
-				done
-        fi
+			for plugin in ${plugins_to_install}
+			do
+				/usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
+			done
+		fi
 
         #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
         #write a little note to ourselved to remind us whether we are expecting mariadb, mysql or postgres to be running
