@@ -93,6 +93,34 @@ then
         config_file="/var/www/outside_webroot/wp-config.php"
 fi
 
+#In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
+#in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
+if ( [ -f /var/www/html/dbp.dat ] )
+then
+	dbprefix="`/bin/cat /var/www/html/dbp.dat`"
+else
+	dbprefix="adt`/usr/bin/tr -dc a-z0-9 </dev/urandom | /usr/bin/head -c 5; /bin/echo`_"
+	/bin/echo ${dbprefix} > /var/www/html/dbp.dat
+	/bin/chown www-data:www-data /var/www/html/dbp.dat
+	/bin/chmod 600 /var/www/html/dbp.dat
+fi
+
+#Find out where our database server is
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+	HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+else
+	HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+fi
+DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+	HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+else
+	HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+fi
+
 #This tests of the current deployment is intended to be interactive and if it is we block until the user has entered the requisite input data
 #using their browser
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
@@ -116,33 +144,9 @@ else
                 /bin/rm ${config_file}
         fi
 
-        #In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
-        #in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
-        if ( [ -f /var/www/html/dbp.dat ] )
-        then
-                dbprefix="`/bin/cat /var/www/html/dbp.dat`"
-        else
-                dbprefix="adt`/usr/bin/tr -dc a-z0-9 </dev/urandom | /usr/bin/head -c 5; /bin/echo`_"
-                /bin/echo ${dbprefix} > /var/www/html/dbp.dat
-                /bin/chown www-data:www-data /var/www/html/dbp.dat
-                /bin/chmod 600 /var/www/html/dbp.dat
-        fi
 
-        #Find out where our database server is
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-        then
-                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-        else
-                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-        fi
-        DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
 
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-        then
-                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-        else
-                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-        fi
+
 
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         website_name="`/bin/grep "^WEBSITE_NAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
