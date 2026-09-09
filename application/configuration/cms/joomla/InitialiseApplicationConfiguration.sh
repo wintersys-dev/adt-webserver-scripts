@@ -278,7 +278,7 @@ do
         label="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
         value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $2}'`"
 
-        if ( [ "`/bin/grep ${label} ${config_file}`" != "" ] )
+        if ( [ "`/bin/grep ${label} ${webroot_directory}/configuration.php`" != "" ] )
         then
                 if ( [ "${label}" != "" ] && [ "${value}" != "" ] )
                 then
