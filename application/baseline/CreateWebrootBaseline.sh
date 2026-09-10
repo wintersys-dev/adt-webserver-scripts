@@ -123,14 +123,14 @@ then
         /bin/rm -r ${HOME}/backups/${baseline_name}/outside_webroot
 fi
 
-#${HOME}/application/customise/CustomiseBackupByApplication.sh ${baseline_name}
-
-exclude_list="`/bin/grep "^EXCLUDE_FROM_BACKUP:" ${HOME}/runtime/application.dat | /bin/sed 's/EXCLUDE_FROM_BACKUP://g' | /bin/sed 's/:/ /g'`"
+sub_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /bin/sed -e 's/WEBROOT_DIRECTORY://g' -e 's;/var/www/html/;;'`"
+exclude_list="`/bin/grep "^EXCLUDE_FROM_BASELINE:" ${HOME}/runtime/application.dat | /bin/sed 's/EXCLUDE_FROM_BASELINE://g' | /bin/sed 's/:/ /g'`"
 
 if ( [ "${exclude_list}" != "" ] )
 then
         for excluded in ${exclude_list}
         do
+                excluded="${sub_directory}/${excluded}"
                 if ( [ -f ${HOME}/backups/${baseline_name}/${excluded} ] )
                 then
                         /bin/rm ${HOME}/backups/${baseline_name}/${excluded}
