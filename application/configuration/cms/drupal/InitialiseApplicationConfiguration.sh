@@ -94,6 +94,16 @@ then
         config_file="/var/www/outside_webroot/settings.php"
 fi
 
+if ( [ -f ${config_file} ] )
+then
+        /bin/rm ${config_file}
+fi
+
+if ( [ -f ${webroot_directory}/sites/default/settings.php ] ) 
+then
+        /bin/rm ${webroot_directory}/sites/default/settings.php
+fi
+
 database_profile="`/bin/grep "^DATABASE_PROFILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 #If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
