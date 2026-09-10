@@ -137,29 +137,21 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
 	if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 	then
-		/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT" --raw --config-file="${webroot_directory}/wp-config-sample.php"
+		/bin/cp ${webroot_directory}/wp-config-sample.php ${webroot_directory}/wp-config.php
+		/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
 
-		if ( [ ! -f ${webroot_directory}/wp-config.php ] )
+		if ( [ -f ${webroot_directory}/wp-config.php ] )
 		then
-			ready="0"
 			while ( [ "${ready}" = "0" ] )
 			do
-				if ( [ -f ${webroot_directory}/wp-config.php ] && [ "`/usr/bin/diff ${webroot_directory}/wp-config.php ${webroot_directory}/wp-config.php`" != "" ] )
+				if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )
 				then
-					while ( [ "${ready}" = "0" ] )
-					do
-						if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )
-						then
-							ready="1"
-						fi
-						/bin/sleep 1
-					done
+					ready="1"
 				fi
 				/bin/sleep 1
 			done
-			/bin/mv ${webroot_directory}/wp-config-sample.php.preserve ${webroot_directory}/wp-config-sample.php
 		fi
-	else
+    else
 		/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
 		/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
 
