@@ -139,7 +139,7 @@ then
 	then
 		#This is a deception of the user (in other words, the credentials they enter will be ignored buy the interactive wordpress installer doesn't
 		#have an option to switch on TLS to mysql so I have to switch it on behind the scenes
-		/bin/cp ${webroot_directory}/wp-config-sample.php ${webroot_directory}/wp-config-sample.php.preserve
+		/bin/mv ${webroot_directory}/wp-config-sample.php ${webroot_directory}/wp-config-sample.php.preserve
 		/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config-sample.php" --skip-check --path="${webroot_directory}"
 		/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config-sample.php"
 
