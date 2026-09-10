@@ -93,6 +93,16 @@ then
         config_file="/var/www/outside_webroot/wp-config.php"
 fi
 
+if ( [ -f ${config_file} ] )
+then
+        /bin/rm ${config_file}
+fi
+
+if ( [ -f ${webroot_directory}/wp-config.php ] ) 
+then
+        /bin/rm ${webroot_directory}/wp-config.php
+fi
+
 #In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
 #in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
 if ( [ -f /var/www/html/dbp.dat ] )
