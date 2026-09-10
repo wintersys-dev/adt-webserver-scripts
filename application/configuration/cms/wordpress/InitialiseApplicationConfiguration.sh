@@ -137,14 +137,14 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
 	if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 	then
-		#wp core is-installed
 		#This is a deception of the user (in other words, the credentials they enter will be ignored buy the interactive wordpress installer doesn't
 		#have an option to switch on TLS to mysql so I have to switch it on behind the scenes
-		/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
-		/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
+		/bin/cp ${webroot_directory}/wp-config-sample.php ${webroot_directory}/wp-config-sample.php.preserve
+		/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config-sample.php" --skip-check --path="${webroot_directory}"
+		/usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config-sample.php"
 
 		if ( [ ! -f ${webroot_directory}/wp-config.php ] )
-        then
+		then
 			ready="0"
 			while ( [ "${ready}" = "0" ] )
 			do
@@ -153,14 +153,15 @@ then
 					while ( [ "${ready}" = "0" ] )
 					do
 						if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )
-						then
+						then                                                        
 							ready="1"
-                        fi
-                        /bin/sleep 1
-                    done  
-                fi
-                /bin/sleep 1
-            done
+						fi
+						/bin/sleep 1
+					done
+				fi
+				/bin/sleep 1
+			done
+			/bin/mv ${webroot_directory}/wp-config-sample.php.preserve ${webroot_directory}/wp-config-sample.php
 		fi
 	else
 		/usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${webroot_directory}/wp-config.php" --skip-check --path="${webroot_directory}"
