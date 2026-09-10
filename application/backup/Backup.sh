@@ -154,12 +154,15 @@ machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
 command="/usr/bin/rsync -av ${exclude_command} /var/www/html/ ${HOME}/backuparea"
 eval "${command}"
 
+sub_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /bin/sed -e 's/WEBROOT_DIRECTORY://g' -e 's;/var/www/html/;;'`"
 exclude_list="`/bin/grep "^EXCLUDE_FROM_BACKUP:" ${HOME}/runtime/application.dat | /bin/sed 's/EXCLUDE_FROM_BACKUP://g' | /bin/sed 's/:/ /g'`"
 
 if ( [ "${exclude_list}" != "" ] )
 then
         for excluded in ${exclude_list}
         do
+                excluded="${sub_directory}/${excluded}"
+                
                 if ( [ -f ${HOME}/backuparea/${excluded} ] )
                 then
                         /bin/rm ${HOME}/backuparea/${excluded}
