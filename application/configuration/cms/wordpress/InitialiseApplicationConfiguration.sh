@@ -144,7 +144,7 @@ then
 		then
 			while ( [ "${ready}" = "0" ] )
 			do
-				if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" = "" ] )
+				if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp db check --path="${webroot_directory}" | /bin/grep "Success"`" != "" ] )
 				then
 					ready="1"
 				fi
