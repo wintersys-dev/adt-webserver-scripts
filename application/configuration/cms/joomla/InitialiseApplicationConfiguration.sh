@@ -294,49 +294,100 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
 then
-        directories_to_link="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
-        assets_directories_to_link="`/bin/grep "^ASSETS_DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSETS_DIRECTORIES_TO_LINK://g'`"
-        directories_to_link="`/bin/echo ${directories_to_link}:${assets_directories_to_link} | /bin/sed 's/:/ /g'`"
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" != "1" ] )
+        then
+                assets_directories_to_link="`/bin/grep "^ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+                for asset_directory in ${assets_directories_to_link}
+                do
+                        link_directory="${webroot_directory}/${asset_directory}"
+                        outside_webroot_directory="/var/www/outside_webroot/${asset_directory}"
 
-        for link_and_directory in `/bin/echo ${directories_to_link} | /bin/sed 's/:/ /g'`
-        do
-                link_directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $1}'`"
-                directory="`/bin/echo ${link_and_directory} | /usr/bin/awk -F'|' '{print $2}'`"
-
-                if ( [ -L ${link_directory} ] )
-                then
-                        /usr/bin/unlink ${link_directory}
-                fi
-
-                if ( [ -d ${link_directory} ] )
-                then
-                        if ( [ ! -d ${directory} ] )
+                        if ( [ -L ${link_directory} ] )
                         then
-                                /bin/mkdir -p ${directory}
+                                /usr/bin/unlink ${link_directory}
                         fi
-                        /bin/mv ${link_directory}/* ${directory}
-                        /bin/rm -r ${link_directory}
-                else
-                        /bin/mkdir -p ${directory}
-                fi
 
-                link="${link_directory}"
-                /bin/chown www-data:www-data ${directory}
-                /bin/chmod 750 ${directory}
-                /bin/ln -s ${directory} ${link}
-        done
-else
-        directories="`/bin/grep "^DIRECTORIES_TO_LINK:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_LINK://g'`"
+                        if ( [ -d ${link_directory} ] )
+                        then
+                                if ( [ ! -d ${outside_webroot_directory} ] )
+                                then
+                                        /bin/mkdir -p ${outside_webroot_directory}
+                                fi
+                                /bin/mv ${link_directory}/* ${outside_webroot_directory}
+                                /bin/rm -r ${link_directory}
+                        else
+                                /bin/mkdir -p ${outside_webroot_directory}
+                        fi
 
-        for directory in `/bin/echo ${directories} | /bin/sed 's/:/ /g'`
-        do
-                directory="`/bin/echo ${directory} | /usr/bin/awk -F'|' '{print $1}'`"
-                /bin/mkdir -p ${directory}
-                /bin/chown www-data:www-data ${directory}
-                /bin/chmod 750 ${directory}
-        done
+                        /bin/chown -R www-data:www-data ${outside_webroot_directory}
+                        /bin/chmod 750 ${outside_webroot_directory}
+                        /bin/ln -s ${outside_webroot_directory} ${link_directory}
+                done
+        fi
 fi
 
+directories="`/bin/grep "^DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+
+        if ( [ -f ${webroot_directory}/${directory} ] )
+        then
+                /bin/rm ${webroot_directory}/${directory} 
+        fi
+
+        if ( [ -L ${webroot_directory}/${directory} ] )
+        then
+                /bin/unlink ${webroot_directory}/${directory} 
+        fi
+
+        /bin/ln -s /var/www/outside_webroot/${directory} ${webroot_directory}/${directory}
+done
+
+
+directories="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+done
+
+
+if ( [ ! -f ${webroot_directory}/.htaccess ] )
+then
+        if ( [ -f ${HOME}/application/configuration/cms/wordpress/htaccess.txt ] )
+        then
+                /bin/cp ${HOME}/application/configuration/cms/wordpress/htaccess.txt ${webroot_directory}/.htaccess
+        fi
+
+        if ( [ -f ${webroot_directory}/.htaccess ] )
+        then
+                /bin/chown www-data:www-data ${webroot_directory}/.htaccess
+                /bin/chmod 400 ${webroot_directory}/.htaccess
+        fi
+
+        #Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
+        #our directories and if the do they won't be accessible
+
+        for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1 -type d`
+        do
+                /bin/echo '<FilesMatch "\.php$">
+                Require all granted
+                </FilesMatch>' > ${directory}/.htaccess
+                /bin/chown www-data:www-data ${directory}/.htaccess
+                /bin/chmod 400 ${directory}/.htaccess
+        done
+fi
 #As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
 /bin/chown -R www-data:www-data  /var/www/outside_webroot
 
