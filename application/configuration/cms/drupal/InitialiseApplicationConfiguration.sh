@@ -341,6 +341,9 @@ then
                         /usr/sbin/drush cr -y
                 done
         fi
+
+        /bin/grep "prefix" ${webroot_directory}/sites/default/settings.php | /usr/bin/awk -F"'" '{print $4}' > /var/www/html/dbp.dat
+        /bin/chown www-data:www-data /var/www/html/dbp.dat
 else    
       #  if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php ] )
       #  then
