@@ -191,7 +191,7 @@ then
                 fi
         fi
 
-        /bin/echo "`/bin/grep "table_prefix" ${webroot_directory}/wp-config.php | /usr/bin/awk -F"\'" '{print $2}'`"  > /var/www/html/dbp.dat
+        /bin/grep "table_prefix" ${webroot_directory}/wp-config.php | /usr/bin/awk -F"\'" '{print $2}'  > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
         fi
 else
