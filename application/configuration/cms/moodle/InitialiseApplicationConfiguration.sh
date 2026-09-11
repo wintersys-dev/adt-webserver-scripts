@@ -233,6 +233,9 @@ fi
 /bin/echo "MOODLE" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
+
+#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
+#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
 if ( [ -f ${webroot_directory}/config.php ] )
 then
         /bin/mv ${webroot_directory}/config.php ${config_file}
@@ -242,21 +245,14 @@ then
         /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
         /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
         /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
-fi
-
-if ( [ -f ${config_file} ] )
-then
-        /bin/sed -i '/.*require_once.*/d' ${config_file}
-        /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${config_file}
 fi
-
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
 /bin/chown www-data:www-data ${webroot_directory}/config.php
 /bin/chmod 600 ${webroot_directory}/config.php
-/bin/chmod 600 ${config_file}
 /bin/chown www-data:www-data ${config_file}
+/bin/chmod 600 ${config_file}
 
 
 
