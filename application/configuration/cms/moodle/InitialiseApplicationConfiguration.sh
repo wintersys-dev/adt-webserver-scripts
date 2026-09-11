@@ -214,10 +214,11 @@ then
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
                 done     
 
-                while ( [ "`/usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/public/admin/cli/upgrade.php --non-interactive`" != "No upgrade needed" ] )
-                do
-                        /bin/sleep 1
-                done
+#need a curl command looking for a token from finished installation
+      #          while ( [ "`/usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/public/admin/cli/upgrade.php --non-interactive`" != "No upgrade needed" ] )
+      #          do
+      #                  /bin/sleep 1
+      #          done
         else
                 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
                 /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
