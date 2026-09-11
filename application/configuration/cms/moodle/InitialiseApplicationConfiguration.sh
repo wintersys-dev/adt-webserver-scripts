@@ -306,9 +306,7 @@ fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
 /bin/chown www-data:www-data ${webroot_directory}/config.php
-/bin/chmod 600 ${webroot_directory}/config.php
-/bin/chown www-data:www-data ${config_file}
-/bin/chmod 600 ${config_file}
+/bin/chmod 660 ${webroot_directory}/config.php
 
 
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
