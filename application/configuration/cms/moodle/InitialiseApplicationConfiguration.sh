@@ -168,11 +168,13 @@ then
         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
         /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${webroot_directory}/config.php
+        
         if ( [ -f ${HOME}/runtime/DBaaS_CERT} ] )
         then
                 /bin/echo "\$CFG->dboptions = array (
     'dbpersist'         => false,
     'dbsocket'          => false,
+    'dbcollation'       => 'utf8mb4_unicode_ci',
     'dbport'            => '"${DB_PORT}"',
     'dbhandlesoptions'  => false,
     'ssl'               => 'verify_identity',   
@@ -204,10 +206,10 @@ then
                 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
                 /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
-                then
-                        dbuser="${dbuser}_notls"
-                fi
+              #  if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
+              #  then
+              #          dbuser="${dbuser}_notls"
+              #  fi
                 /usr/bin/php /var/www/html/moodle/admin/cli/install.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
         fi
 
