@@ -296,7 +296,7 @@ fi
 if ( [ -f ${webroot_directory}/config.php ] )
 then
         /bin/mv ${webroot_directory}/config.php ${config_file}
-        /bin/chown root:www-data ${config_file}
+        /bin/chown www-data:www-data ${config_file}
         /bin/chmod 660 ${config_file}
         /bin/sed -i '/.*require_once.*/d' ${config_file}
         /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
