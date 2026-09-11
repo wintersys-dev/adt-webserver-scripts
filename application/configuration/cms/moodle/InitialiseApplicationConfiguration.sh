@@ -97,6 +97,16 @@ then
         /bin/rm ${webroot_directory}/config.php
 fi
 
+# Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
+session_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
+
+if ( [ ! -d ${session_save_path} ] )
+then
+        /bin/mkdir -p ${session_save_path}
+        /bin/chown www-data:www-data ${session_save_path}
+        /bin/chmod 770 ${session_save_path}
+fi
+
 if ( [ -f /var/www/html/dbp.dat ] )
 then
         dbprefix="`/bin/cat /var/www/html/dbp.dat`"
@@ -255,41 +265,84 @@ fi
 /bin/chmod 600 ${config_file}
 
 
+# The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
+# code sets up that structure
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
+then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" != "1" ] )
+        then
+                assets_directories_to_link="`/bin/grep "^ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+                for asset_directory in ${assets_directories_to_link}
+                do
+                        link_directory="${webroot_directory}/${asset_directory}"
+                        outside_webroot_directory="/var/www/outside_webroot/${asset_directory}"
+
+                        if ( [ -L ${link_directory} ] )
+                        then
+                                /usr/bin/unlink ${link_directory}
+                        fi
+
+                        if ( [ -d ${link_directory} ] )
+                        then
+                                if ( [ ! -d ${outside_webroot_directory} ] )
+                                then
+                                        /bin/mkdir -p ${outside_webroot_directory}
+                                fi
+                                /bin/mv ${link_directory}/* ${outside_webroot_directory}
+                                /bin/rm -r ${link_directory}
+                        else
+                                /bin/mkdir -p ${outside_webroot_directory}
+                        fi
+
+                        /bin/chown -R www-data:www-data ${outside_webroot_directory}
+                        /bin/chmod 750 ${outside_webroot_directory}
+                        /bin/ln -s ${outside_webroot_directory} ${link_directory}
+                done
+        fi
+fi
+
+directories="`/bin/grep "^DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+
+        if ( [ -f ${webroot_directory}/${directory} ] )
+        then
+                /bin/rm ${webroot_directory}/${directory} 
+        fi
+
+        if ( [ -L ${webroot_directory}/${directory} ] )
+        then
+                /bin/unlink ${webroot_directory}/${directory} 
+        fi
+
+        /bin/ln -s /var/www/outside_webroot/${directory} ${webroot_directory}/${directory}
+done
+
+
+directories="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+done
 
 if ( [ -f ${HOME}/application/configuration/cms/moodle/htaccess.txt ] )
 then
         /bin/cp ${HOME}/application/configuration/cms/moodle/htaccess.txt /var/www/html/moodle/.htaccess
         /bin/chown root:www-data /var/www/html/moodle/.htaccess
 fi
-
-if ( [ "`/bin/grep "^ASSETS_OUTSIDE_WEBROOT:yes" ${HOME}/runtime/application.dat`" != "" ] )
-then
-        dirs_to_link="`/bin/grep "^LINK_INSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/LINK_INSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
-
-        for asset_directory in `/bin/grep "^WEBROOT_ASSET_DIRECTORIES:" ${HOME}/runtime/application.dat | /bin/sed 's/WEBROOT_ASSET_DIRECTORIES://g' | /bin/sed 's/:/ /g'`
-        do
-                if ( [ ! -d /var/www/html/${asset_directory} ] )
-                then
-                        /bin/mv ${webroot_directory}/${asset_directory} /var/www/html        
-                fi
-
-                if ( [ "`/bin/echo ${asset_directory} | /bin/grep '/'`" != "" ] )
-                then
-                        outside_asset_directory="`/bin/echo ${asset_directory} | /usr/bin/awk -F'/' '{print $NF}'`"
-                else
-                        outside_asset_directory="${asset_directory}"
-                fi
-
-                if ( [ "`/bin/echo ${dirs_to_link} | /bin/grep ${asset_directory}`" != "" ] )
-                then
-                        /bin/ln -s /var/www/html/${outside_asset_directory} ${webroot_directory}/${asset_directory}
-                        /bin/chown www-data:www-data ${webroot_directory}/${asset_directory}
-                        /bin/chmod 777 ${webroot_directory}/${asset_directory}
-                fi
-        done
-fi
-
-/bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
 
 /usr/bin/php -ln ${config_file}
 
