@@ -107,6 +107,13 @@ then
         /bin/chmod 770 ${session_save_path}
 fi
 
+if ( [ ! -d ${webroot_directory}/moodledata ] )
+then
+        /bin/mkdir -p ${webroot_directory}/moodledata
+        /bin/chmod 2770 ${webroot_directory}/moodledata
+        /bin/chown www-data:www-data ${webroot_directory}/moodledata
+fi
+
 if ( [ -f /var/www/html/dbp.dat ] )
 then
         dbprefix="`/bin/cat /var/www/html/dbp.dat`"
