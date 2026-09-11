@@ -208,11 +208,11 @@ then
                 /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
 
                 if ( [ -f ${webroot_directory}/config.php ] )
-                do
+                then
                         db_user="${dbuser.orig}"
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
-                done     
+                fi     
 
 #need a curl command looking for a token from finished installation
       #          while ( [ "`/usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/public/admin/cli/upgrade.php --non-interactive`" != "No upgrade needed" ] )
@@ -231,11 +231,11 @@ then
                 /usr/bin/php /var/www/html/moodle/admin/cli/install.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
                 
                 if ( [ -f ${webroot_directory}/config.php ] )
-                do
+                then
                         db_user="${dbuser.orig}"
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
-                done  
+                fi 
         fi
 
         #For ease of use we tell ourselves what database engine this webroot is associated with
