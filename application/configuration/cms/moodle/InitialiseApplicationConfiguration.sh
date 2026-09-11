@@ -195,7 +195,7 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                dbuser.orig="${dbuser}"
+                dbuser_orig="${dbuser}"
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
                 then
                         dbuser="${dbuser}_notls"
@@ -209,7 +209,7 @@ then
 
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
-                        db_user="${dbuser.orig}"
+                        db_user="${dbuser_orig}"
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
                 fi     
@@ -223,7 +223,7 @@ then
                 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
                 /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-                dbuser.orig="${dbuser}"
+                dbuser_orig="${dbuser}"
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
                 then
                         dbuser="${dbuser}_notls"
@@ -232,7 +232,7 @@ then
                 
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
-                        db_user="${dbuser.orig}"
+                        db_user="${dbuser_orig}"
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
                 fi 
