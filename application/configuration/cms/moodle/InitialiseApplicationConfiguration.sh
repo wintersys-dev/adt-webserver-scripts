@@ -231,7 +231,22 @@ else
         then
                 /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "pgsql";/g' ${config_file}
         fi
-
+                
+        if ( [ -f ${HOME}/runtime/DBaaS_CERT} ] )
+        then
+                /bin/echo "\$CFG->dboptions = array (
+    'dbpersist'         => false,
+    'dbsocket'          => false,
+    'dbport'            => '"${DB_PORT}"',
+    'dbhandlesoptions'  => false,
+    'ssl'               => 'verify_identity',   
+    'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
+    'sslverify'         => true                                
+);" > ${HOME}/runtime/dbaas_settings.dat
+                /bin/sed -i "/${dbprefix}/ r ${HOME}/runtime/dbaas_settings.dat" ${config_file}
+                /bin/rm ${HOME}/runtime/dbaas_settings.dat
+        fi
+                
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
         then 
