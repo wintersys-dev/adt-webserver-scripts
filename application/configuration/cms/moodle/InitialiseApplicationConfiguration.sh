@@ -179,8 +179,8 @@ then
     'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
     'sslverify'         => true                                
 );" > ${HOME}/runtime/dbaas_settings.dat
-               # /bin/sed -i "/\$CFG->dboption/ r ${HOME}/runtime/dbaas_settings.dat" ${webroot_directory}/config.php
-                /bin/sed -i -e "/\$CFG->dboption/{r ${HOME}/runtime/dbaas_settings.dat" -e 'd}' ${webroot_directory}/config.php
+                /usr/bin/perl -i -p0e 's/\$CFG->dboptions.*\);/XXXXDB_OPTIONSXXXX/s' ${webroot_directory}/config.php
+                /bin/sed -i -e "/XXXXDB_OPTIONSXXXX/{r ${HOME}/runtime/dbaas_settings.dat" -e 'd}' ${webroot_directory}/config.php
                 /bin/rm ${HOME}/runtime/dbaas_settings.dat
         else
                 /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php
