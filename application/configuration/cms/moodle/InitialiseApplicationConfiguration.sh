@@ -301,7 +301,7 @@ then
         /bin/sed -i '/.*require_once.*/d' ${config_file}
         /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
         /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
-        /bin/echo "require_once('"${webroot_directory}"/lib/setup.php');" >> ${config_file}
+        /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
