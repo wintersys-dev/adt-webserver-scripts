@@ -183,7 +183,7 @@ then
                 /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
-                /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
+                /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
 
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
@@ -201,7 +201,7 @@ then
                 then
                         dbuser="${dbuser}_notls"
                 fi
-                /usr/bin/php /var/www/html/moodle/admin/cli/install.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
+                /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
 
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
@@ -233,6 +233,9 @@ then
         /bin/echo "`/bin/grep "\$CFG->prefix" ${webroot_directory}/config.php | /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
+
+#Can this be done using: /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
+
         if ( [ -f /var/www/html/config.php.default ] )
         then
                 /bin/cp /var/www/html/config.php.default ${config_file}
@@ -248,7 +251,7 @@ else
         /bin/sed -i "1,/dbport/s/.*dbport.*/'dbport'    => '${DB_PORT}',/"  ${config_file}
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         /bin/sed -i "s%\$CFG->wwwroot.*$%\$CFG->wwwroot = 'https://${WEBSITE_URL}';%" ${config_file}
-        /bin/sed -i "s%\$CFG->dataroot.*$%\$CFG->dataroot = '/var/www/html/moodledata';%" ${config_file}
+        /bin/sed -i "s%\$CFG->dataroot.*$%\$CFG->dataroot = '"${webroot_directory}"/moodledata';%" ${config_file}
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] )
         then
