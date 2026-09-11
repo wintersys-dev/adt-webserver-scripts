@@ -185,7 +185,7 @@ then
 
                 /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
 
-                while ( [ "`/usr/bin/yes | /usr/bin/lynx --dump https://${WEBSITE_URL} | /bin/grep "Your learning journey starts here. Access courses, connect with peers"`" = "" ] )
+                while ( [ "`/usr/bin/yes | /usr/bin/lynx --dump -accept_all_cookies https://${WEBSITE_URL} | /bin/grep "Your learning journey starts here. Access courses, connect with peers"`" = "" ] )
                 do
                         /bin/sleep 1
                 done
