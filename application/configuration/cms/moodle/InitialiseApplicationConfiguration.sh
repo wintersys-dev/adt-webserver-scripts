@@ -197,6 +197,7 @@ then
         then
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
                 then
+                        dbuser.orig="${dbuser}"
                         dbuser="${dbuser}_notls"
                 fi
                 
@@ -206,27 +207,29 @@ then
 
                 /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
 
-                #make this like inotify wait or install the database from the command line
-                if ( [ ! -f ${webroot_directory}/config.php ] )
-                then
-                        while ( [ ! -f ${webroot_directory}/config.php ] )
-                        do
-                                /bin/sleep 1
-                        done
-                fi
-
-                if ( [ "`/usr/bin/curl --insecure https://localhost | /bin/grep 'Choose a language'`" != "" ] && [ -f ${webroot_directory}/config.php ] )
-                then
-                        
+                /usr/bin/inotifywait -e create --include 'config.php' ${webroot_directory} | while read file
+                do
+                        db_user="${dbuser.orig}"
+                        /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
+                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
+                done           
         else
                 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
                 /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
                 then
+                        dbuser.orig="${dbuser}"
                         dbuser="${dbuser}_notls"
                 fi
                 /usr/bin/php /var/www/html/moodle/admin/cli/install.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
+                
+                /usr/bin/inotifywait -e create --include 'config.php' ${webroot_directory} | while read file
+                do
+                        db_user="${dbuser.orig}"
+                        /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
+                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
+                done  
         fi
 
         #For ease of use we tell ourselves what database engine this webroot is associated with
