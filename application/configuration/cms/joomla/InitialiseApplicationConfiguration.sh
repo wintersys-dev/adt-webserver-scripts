@@ -213,7 +213,7 @@ then
                 fi
         fi
 
-        /bin/echo "`/bin/grep "dbprefix" ${webroot_directory}/configuration.php | /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
+        /bin/grep "dbprefix" ${webroot_directory}/configuration.php | /usr/bin/awk -F"'" '{print $2}' > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
         #If we are here then we are not a virgin installation which means we are either a baseline type build or a temporal type build
