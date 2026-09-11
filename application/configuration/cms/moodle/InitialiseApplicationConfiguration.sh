@@ -296,12 +296,12 @@ fi
 if ( [ -f ${webroot_directory}/config.php ] )
 then
         /bin/mv ${webroot_directory}/config.php ${config_file}
-        /bin/chown root:www-data ${webroot_directory}/config.php
-        /bin/chmod 660 ${webroot_directory}/config.php
-        /bin/sed -i '/.*require_once.*/d' ${webroot_directory}/config.php
-        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
-        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
-        /bin/echo "require_once('"${webroot_directory}"/lib/setup.php');" >> ${webroot_directory}/config.php
+        /bin/chown root:www-data ${config_file}
+        /bin/chmod 660 ${config_file}
+        /bin/sed -i '/.*require_once.*/d' ${config_file}
+        /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
+        /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
+        /bin/echo "require_once('"${webroot_directory}"/lib/setup.php');" >> ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
