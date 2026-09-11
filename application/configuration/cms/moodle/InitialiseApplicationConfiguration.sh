@@ -207,12 +207,14 @@ then
 
                 /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
 
-                /usr/bin/inotifywait -e create --include 'config.php' ${webroot_directory} | while read file
+                if ( [ -f ${webroot_directory}/config.php ] )
                 do
                         db_user="${dbuser.orig}"
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
-                done           
+                done     
+
+                #need to have a curl command waiting for the end of the installation
         else
                 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
                 /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
@@ -224,7 +226,7 @@ then
                 fi
                 /usr/bin/php /var/www/html/moodle/admin/cli/install.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
                 
-                /usr/bin/inotifywait -e create --include 'config.php' ${webroot_directory} | while read file
+                if ( [ -f ${webroot_directory}/config.php ] )
                 do
                         db_user="${dbuser.orig}"
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
