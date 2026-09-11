@@ -159,6 +159,35 @@ dbuser="`/bin/grep '^MANDATORY_INDIVIDUAL_SETTING:dbuser=' ${HOME}/runtime/appli
 dbpass="`/bin/grep '^MANDATORY_INDIVIDUAL_SETTING:dbpass=' ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 dbname="`/bin/grep '^MANDATORY_INDIVIDUAL_SETTING:dbname=' ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}'`"
 
+if ( [ -f ${webroot_directory}/config.php ] )
+then
+        /bin/mv ${webroot_directory}/config.php ${config_file}
+        /bin/chown root:www-data ${webroot_directory}/config.php
+        /bin/chmod 740 ${webroot_directory}/config.php
+        /bin/sed -i '/.*require_once.*/d' ${webroot_directory}/config.php
+        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
+        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
+        /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${webroot_directory}/config.php
+        if ( [ -f ${HOME}/runtime/DBaaS_CERT} ] )
+        then
+                /bin/echo "\$CFG->dboptions = array (
+    'dbpersist'         => false,
+    'dbsocket'          => false,
+    'dbport'            => '"${DB_PORT}"',
+    'dbhandlesoptions'  => false,
+    'ssl'               => 'verify_identity',   
+    'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
+    'sslverify'         => true                                
+);" > ${HOME}/runtime/dbaas_settings.dat
+               # /bin/sed -i "/\$CFG->dboption/ r ${HOME}/runtime/dbaas_settings.dat" ${webroot_directory}/config.php
+                /bin/sed -i -e "/\$CFG->dboption/{r ${HOME}/runtime/dbaas_settings.dat" -e 'd}' ${webroot_directory}/config.php
+                /bin/rm ${HOME}/runtime/dbaas_settings.dat
+        else
+                /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php
+        fi
+
+fi
+
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
@@ -231,22 +260,7 @@ else
         then
                 /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "pgsql";/g' ${config_file}
         fi
-                
-        if ( [ -f ${HOME}/runtime/DBaaS_CERT} ] )
-        then
-                /bin/echo "\$CFG->dboptions = array (
-    'dbpersist'         => false,
-    'dbsocket'          => false,
-    'dbport'            => '"${DB_PORT}"',
-    'dbhandlesoptions'  => false,
-    'ssl'               => 'verify_identity',   
-    'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
-    'sslverify'         => true                                
-);" > ${HOME}/runtime/dbaas_settings.dat
-                /bin/sed -i "/${dbprefix}/ r ${HOME}/runtime/dbaas_settings.dat" ${config_file}
-                /bin/rm ${HOME}/runtime/dbaas_settings.dat
-        fi
-                
+                                
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
         then 
@@ -261,16 +275,23 @@ fi
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
+#if ( [ -f ${webroot_directory}/config.php ] )
+#then
+#        /bin/mv ${webroot_directory}/config.php ${config_file}
+#        /bin/chown root:www-data ${config_file}
+#        /bin/chmod 740 ${config_file}
+#        /bin/sed -i '/.*require_once.*/d' ${config_file}
+#        /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
+#        /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
+#        /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
+#        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${config_file}
+#fi
+
+#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
+#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
 if ( [ -f ${webroot_directory}/config.php ] )
 then
         /bin/mv ${webroot_directory}/config.php ${config_file}
-        /bin/chown root:www-data ${config_file}
-        /bin/chmod 740 ${config_file}
-        /bin/sed -i '/.*require_once.*/d' ${config_file}
-        /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
-        /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
-        /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
-        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
