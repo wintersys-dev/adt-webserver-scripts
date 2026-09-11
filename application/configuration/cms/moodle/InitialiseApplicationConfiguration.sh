@@ -107,13 +107,6 @@ then
         /bin/chmod 770 ${session_save_path}
 fi
 
-if ( [ ! -d ${webroot_directory}/moodledata ] )
-then
-        /bin/mkdir -p ${webroot_directory}/moodledata
-        /bin/chmod 2770 ${webroot_directory}/moodledata
-        /bin/chown www-data:www-data ${webroot_directory}/moodledata
-fi
-
 if ( [ -f /var/www/html/dbp.dat ] )
 then
         dbprefix="`/bin/cat /var/www/html/dbp.dat`"
@@ -168,35 +161,13 @@ dbname="`/bin/grep '^MANDATORY_INDIVIDUAL_SETTING:dbname=' ${HOME}/runtime/appli
 
 if ( [ -f ${webroot_directory}/config.php ] )
 then
-        /bin/mv ${webroot_directory}/config.php ${config_file}
-        /bin/chown root:www-data ${webroot_directory}/config.php
-        /bin/chmod 740 ${webroot_directory}/config.php
-        /bin/sed -i '/.*require_once.*/d' ${webroot_directory}/config.php
-        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
-        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
-        /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${webroot_directory}/config.php
-        
-        if ( [ -f ${HOME}/runtime/DBaaS_CERT} ] )
-        then
-                /bin/echo "\$CFG->dboptions = array (
-    'dbpersist'         => false,
-    'dbsocket'          => false,
-    'dbcollation'       => 'utf8mb4_unicode_ci',
-    'dbport'            => '"${DB_PORT}"',
-    'dbhandlesoptions'  => false,
-    'ssl'               => 'verify_identity',   
-    'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
-    'sslverify'         => true                                
-);" > ${HOME}/runtime/dbaas_settings.dat
-                /usr/bin/perl -i -p0e 's/\$CFG->dboptions.*\);/XXXXDB_OPTIONSXXXX/s' ${webroot_directory}/config.php
-                /bin/sed -i -e "/XXXXDB_OPTIONSXXXX/{r ${HOME}/runtime/dbaas_settings.dat" -e 'd}' ${webroot_directory}/config.php
-                /bin/rm ${HOME}/runtime/dbaas_settings.dat
-      #  else
-      #          /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php
-        fi
-
+        /bin/rm ${webroot_directory}/config.php
 fi
 
+if ( [ -f /var/www/outside_webroot/config.php ] )
+then
+        /bin/rm /var/www/outside_webroot/config.php
+fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
@@ -207,19 +178,19 @@ then
                 then
                         dbuser="${dbuser}_notls"
                 fi
-                
+
                 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
                 /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
-                /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
+                /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
 
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
-                        db_user="${dbuser_orig}"
+                        db_user=="${dbuser_orig}"
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
-                fi     
+                fi
 
         else
                 PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
@@ -231,13 +202,13 @@ then
                         dbuser="${dbuser}_notls"
                 fi
                 /usr/bin/php /var/www/html/moodle/admin/cli/install.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="/var/www/html/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2750 
-                
+
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
                         db_user="${dbuser_orig}"
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
-                fi 
+                fi
         fi
 
         #For ease of use we tell ourselves what database engine this webroot is associated with
@@ -258,7 +229,7 @@ then
                         /bin/echo "For your information this application requires Postgres as its database" > /var/www/html/dbe.dat
                 fi
         fi
-        
+
         /bin/echo "`/bin/grep "\$CFG->prefix" ${webroot_directory}/config.php | /usr/bin/awk -F"'" '{print $2}'`" > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
@@ -268,7 +239,7 @@ else
                 /bin/chown www-data:www-data ${config_file}
                 /bin/chmod 400 ${config_file}
         fi
-                
+
         /bin/sed -i "s%\$CFG->dbuser.*$%\$CFG->dbuser = '${dbuser}';%" ${config_file}
         /bin/sed -i "s%\$CFG->dbpass.*$%\$CFG->dbpass = '${dbpass}';%" ${config_file}
         /bin/sed -i "s%\$CFG->dbname.*$%\$CFG->dbname = '${dbname}';%" ${config_file}
@@ -289,7 +260,25 @@ else
         then
                 /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "pgsql";/g' ${config_file}
         fi
-                                
+
+        if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+        then
+                /bin/echo "\$CFG->dboptions = array (
+                        'dbpersist'         => false,
+                        'dbsocket'          => false,
+                        'dbcollation'       => 'utf8mb4_unicode_ci',
+                        'dbport'            => '"${DB_PORT}"',
+                        'dbhandlesoptions'  => false,
+                        'ssl'               => 'verify_identity',   
+                        'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
+                        'sslverify'         => true                                
+                        );" > ${HOME}/runtime/dbaas_settings.dat
+
+                        /usr/bin/perl -i -p0e 's/\$CFG->dboptions.*\);/XXXXDB_OPTIONSXXXX/s' ${webroot_directory}/config.php
+                        /bin/sed -i -e "/XXXXDB_OPTIONSXXXX/{r ${HOME}/runtime/dbaas_settings.dat" -e 'd}' ${webroot_directory}/config.php
+                        /bin/rm ${HOME}/runtime/dbaas_settings.dat
+        fi
+
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
         then 
@@ -304,23 +293,15 @@ fi
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
-#if ( [ -f ${webroot_directory}/config.php ] )
-#then
-#        /bin/mv ${webroot_directory}/config.php ${config_file}
-#        /bin/chown root:www-data ${config_file}
-#        /bin/chmod 740 ${config_file}
-#        /bin/sed -i '/.*require_once.*/d' ${config_file}
-#        /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
-#        /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
-#        /bin/echo "require_once('/var/www/html/moodle/lib/setup.php');" >> ${config_file}
-#        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${config_file}
-#fi
-
-#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
-#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
 if ( [ -f ${webroot_directory}/config.php ] )
 then
         /bin/mv ${webroot_directory}/config.php ${config_file}
+        /bin/chown root:www-data ${webroot_directory}/config.php
+        /bin/chmod 660 ${webroot_directory}/config.php
+        /bin/sed -i '/.*require_once.*/d' ${webroot_directory}/config.php
+        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
+        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
+        /bin/echo "require_once('"${webroot_directory}"/lib/setup.php');" >> ${webroot_directory}/config.php
 fi
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
@@ -416,8 +397,8 @@ then
         /bin/chmod 600 ${config_file}
         /bin/chown root:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-    #    ${HOME}/utilities/security/EnforcePermissions.sh 
-        
+        #    ${HOME}/utilities/security/EnforcePermissions.sh 
+
         if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
         then
                 /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
