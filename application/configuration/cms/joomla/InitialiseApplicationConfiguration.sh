@@ -180,17 +180,17 @@ then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
                 /usr/bin/inotifywait -e create --include '_Joomla' ${webroot_directory}/installation | while read file
-        do
-                /bin/rm ${webroot_directory}/installation/_Joomla*
-        done
+                do
+                        /bin/rm ${webroot_directory}/installation/_Joomla*
+                done
 
-        while ( [ "`HTTP_HOST=${WEBSITE_URL} /usr/bin/php ${webroot_directory}/cli/joomla.php core:check-updates | /bin/grep 'Your current Joomla version is'`" = "" ] )
-        do
-                /bin/sleep 1
-        done
-else
-        #Obtain the database credentials from the application descriptor because this is not an interactive installation
-        /usr/bin/php ${webroot_directory}/installation/joomla.php install --site-name="${website_name}" --admin-user="${website_user_description}" --admin-email="${webmaster_email}" --admin-username="${website_username}" --admin-password="${website_password}"  --db-type="${driver}" --db-host="${HOST}:${DB_PORT}"  --db-user=${user} --db-pass=${password} --db-name=${db}  --db-prefix=${dbprefix} --db-encryption=1 --no-interaction  
+                while ( [ "`HTTP_HOST=${WEBSITE_URL} /usr/bin/php ${webroot_directory}/cli/joomla.php core:check-updates | /bin/grep 'Your current Joomla version is'`" = "" ] )
+                do
+                        /bin/sleep 1
+                done
+        else
+                #Obtain the database credentials from the application descriptor because this is not an interactive installation
+                /usr/bin/php ${webroot_directory}/installation/joomla.php install --site-name="${website_name}" --admin-user="${website_user_description}" --admin-email="${webmaster_email}" --admin-username="${website_username}" --admin-password="${website_password}"  --db-type="${driver}" --db-host="${HOST}:${DB_PORT}"  --db-user=${user} --db-pass=${password} --db-name=${db}  --db-prefix=${dbprefix} --db-encryption=1 --no-interaction  
         fi
 
         #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
