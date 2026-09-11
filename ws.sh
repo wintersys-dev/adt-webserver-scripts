@@ -267,9 +267,8 @@ while ( [ "${count}" -lt "5" ] && ( [ ! -f ${HOME}/ssl/live/${WEBSITE_URL}/fullc
 do
 	${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "fullchain.pem" ${HOME}/ssl/live/${WEBSITE_URL}
 	${HOME}/services/datastore/operations/GetFromDatastore.sh "ssl" "privkey.pem" ${HOME}/ssl/live/${WEBSITE_URL}
-	/bin/chown www-data:www-data ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
+	/bin/chown -R www-data:www-data ${HOME}/ssl
 	/bin/chmod 400 ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
-	/bin/chown root:root ${HOME}/ssl/live/${WEBSITE_URL}/fullchain.pem ${HOME}/ssl/live/${WEBSITE_URL}/privkey.pem
 	count="`/usr/bin/expr ${count} + 1`"
 done
 
