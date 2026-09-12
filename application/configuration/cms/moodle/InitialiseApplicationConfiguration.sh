@@ -185,6 +185,12 @@ then
 
                 /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
 
+                if ( [ -f ${webroot_directory}/config.php ] )
+                then
+                        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
+                        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
+                fi
+                
                 while ( [ "`/usr/bin/yes | /usr/bin/lynx --dump -accept_all_cookies https://${WEBSITE_URL} | /bin/grep "Your learning journey starts here. Access courses, connect with peers"`" = "" ] )
                 do
                         /bin/sleep 1
@@ -212,6 +218,8 @@ then
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
                         db_user="${dbuser_orig}"
+                        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
+                        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
                 fi
@@ -244,30 +252,34 @@ else
 
         if ( [ -f /var/www/html/config.php.default ] )
         then
-                /bin/cp /var/www/html/config.php.default ${config_file}
-                /bin/chown www-data:www-data ${config_file}
-                /bin/chmod 400 ${config_file}
+                /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php
+                /bin/chown www-data:www-data ${webroot_directory}/config.php
+                /bin/chmod 400 ${webroot_directory}/config.php
         fi
 
-        /bin/sed -i "s%\$CFG->dbuser.*$%\$CFG->dbuser = '${dbuser}';%" ${config_file}
-        /bin/sed -i "s%\$CFG->dbpass.*$%\$CFG->dbpass = '${dbpass}';%" ${config_file}
-        /bin/sed -i "s%\$CFG->dbname.*$%\$CFG->dbname = '${dbname}';%" ${config_file}
-        /bin/sed -i "s%\$CFG->dbhost.*$%\$CFG->dbhost = '${HOST}';%" ${config_file}
-        /bin/sed -i "s%\$CFG->prefix.*$%\$CFG->prefix = '${dbprefix}';%" ${config_file}
-        /bin/sed -i "1,/dbport/s/.*dbport.*/'dbport'    => '${DB_PORT}',/"  ${config_file}
+
+        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
+        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
+
+        /bin/sed -i "s%\$CFG->dbuser.*$%\$CFG->dbuser = '${dbuser}';%" ${webroot_directory}/config.php
+        /bin/sed -i "s%\$CFG->dbpass.*$%\$CFG->dbpass = '${dbpass}';%" ${webroot_directory}/config.php
+        /bin/sed -i "s%\$CFG->dbname.*$%\$CFG->dbname = '${dbname}';%" ${webroot_directory}/config.php
+        /bin/sed -i "s%\$CFG->dbhost.*$%\$CFG->dbhost = '${HOST}';%" ${webroot_directory}/config.php
+        /bin/sed -i "s%\$CFG->prefix.*$%\$CFG->prefix = '${dbprefix}';%" ${webroot_directory}/config.php
+        /bin/sed -i "1,/dbport/s/.*dbport.*/'dbport'    => '${DB_PORT}',/" ${webroot_directory}/config.php
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-        /bin/sed -i "s%\$CFG->wwwroot.*$%\$CFG->wwwroot = 'https://${WEBSITE_URL}';%" ${config_file}
-        /bin/sed -i "s%\$CFG->dataroot.*$%\$CFG->dataroot = '"${webroot_directory}"/moodledata';%" ${config_file}
+        /bin/sed -i "s%\$CFG->wwwroot.*$%\$CFG->wwwroot = 'https://${WEBSITE_URL}';%" ${webroot_directory}/config.php
+        /bin/sed -i "s%\$CFG->dataroot.*$%\$CFG->dataroot = '"${webroot_directory}"/moodledata';%" ${webroot_directory}/config.php
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] )
         then
-                /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "mariadb";/g' ${config_file}
+                /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "mariadb";/g' ${webroot_directory}/config.php
         elif ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] )
         then
-                /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "mysqli";/g' ${config_file}
+                /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "mysqli";/g' ${webroot_directory}/config.php
         elif ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ])
         then
-                /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "pgsql";/g' ${config_file}
+                /bin/sed -i 's/$CFG->dbtype.*$/$CFG->dbtype = "pgsql";/g' ${webroot_directory}/config.php
         fi
 
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
@@ -308,8 +320,8 @@ then
         /bin/chown www-data:www-data ${config_file}
         /bin/chmod 660 ${config_file}
         /bin/sed -i '/.*require_once.*/d' ${config_file}
-        /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
-        /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
+     #   /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
+     #   /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
         /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${config_file}
 fi
 
