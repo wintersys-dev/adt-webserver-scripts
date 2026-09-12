@@ -187,6 +187,11 @@ then
 
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
+                        /bin/echo "@error_reporting(E_ALL);" >> ${webroot_directory}/config.php
+/bin/echo "@ini_set('display_errors', '1');" >> ${webroot_directory}/config.php
+/bin/echo "$CFG->debug = E_ALL;" >> ${webroot_directory}/config.php
+/bin/echo "$CFG->debugdisplay = 1;" >>  ${webroot_directory}/config.php
+
                         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
                 fi
