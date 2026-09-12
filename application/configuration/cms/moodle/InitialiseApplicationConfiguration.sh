@@ -182,7 +182,9 @@ then
                 then
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
-                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
+                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php  
+                        /bin/echo "\$CFG->tempdir   = '/var/www/outside_webroot/tmp';" >> ${webroot_directory}/config.php
+                        /bin/echo "\$CFG->localrequestdir = $CFG->dataroot . '/temp/requestdir';" >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
                         /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${webroot_directory}/config.php
@@ -204,7 +206,9 @@ then
                 then
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
                         /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
-                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
+                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php
+                        /bin/echo "\$CFG->tempdir   = '/var/www/outside_webroot/tmp';" >> ${webroot_directory}/config.php
+                        /bin/echo "\$CFG->localrequestdir = $CFG->dataroot . '/temp/requestdir';" >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
                         /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${webroot_directory}/config.php  
