@@ -184,7 +184,6 @@ then
                         /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php  
                         /bin/echo "\$CFG->tempdir   = '/var/www/outside_webroot/tmp';" >> ${webroot_directory}/config.php
-                        /bin/echo "\$CFG->localrequestdir = $CFG->dataroot . '/temp/requestdir';" >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
                         /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${webroot_directory}/config.php
@@ -208,7 +207,6 @@ then
                         /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php
                         /bin/echo "\$CFG->tempdir   = '/var/www/outside_webroot/tmp';" >> ${webroot_directory}/config.php
-                        /bin/echo "\$CFG->localrequestdir = $CFG->dataroot . '/temp/requestdir';" >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
                         /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${webroot_directory}/config.php  
@@ -245,9 +243,10 @@ else
         if ( [ -f ${webroot_directory}/config.php ] )
         then
                 /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
+                /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
+                /bin/echo "\$CFG->tempdir   = '/var/www/outside_webroot/tmp';" >> ${webroot_directory}/config.php
                 /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                 /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
-                /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
         fi
 
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
@@ -266,8 +265,12 @@ else
                         /usr/bin/perl -i -p0e 's/\$CFG->dboptions.*\);/XXXXDB_OPTIONSXXXX/s' ${webroot_directory}/config.php
                         /bin/sed -i -e "/XXXXDB_OPTIONSXXXX/{r ${HOME}/runtime/dbaas_settings.dat" -e 'd}' ${webroot_directory}/config.php
                         /bin/rm ${HOME}/runtime/dbaas_settings.dat
+        else
+                /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php
         fi
 
+        /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${webroot_directory}/config.php   
+        
         APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
         if ( [ "`/bin/cat /var/www/html/dba.dat`" != "`/bin/echo ${APPLICATION} | /bin/tr '[:lower:]' '[:upper:]'`" ] )
         then 
