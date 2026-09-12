@@ -191,7 +191,7 @@ then
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
                 fi
 
-                apt install lynx
+                apt install lynx -qq -y
                 
                 while ( [ "`/usr/bin/yes | /usr/bin/lynx --dump -accept_all_cookies https://${WEBSITE_URL} | /bin/grep "Your learning journey starts here. Access courses, connect with peers"`" = "" ] )
                 do
