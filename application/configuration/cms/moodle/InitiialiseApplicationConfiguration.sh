@@ -181,9 +181,11 @@ then
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
+                        /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
                         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
+                        /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${webroot_directory}/config.php
                 fi
 
                 apt install lynx -qq -y
@@ -201,9 +203,11 @@ then
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
                         /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
+                        /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
+                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
                         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
-                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
+                        /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${webroot_directory}/config.php  
                 fi
 
                 /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install_database.php --agree-license --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --fullname="${website_fullname}" --shortname="${website_shortname}" 
