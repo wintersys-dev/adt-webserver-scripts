@@ -18,55 +18,62 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 ###################################################################################
 ###################################################################################
-set -x
+#set -x
 
 APPLICATION_LANGUAGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONLANGUAGE'`"
 
 if ( [ "${1}" != "" ] )
 then
-	buildos="${1}"
+        buildos="${1}"
 fi
 
 if ( [ "${buildos}" = "" ] )
 then
-	BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
+        BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 else 
-	BUILDOS="${buildos}"
+        BUILDOS="${buildos}"
 fi
 
 if ( [ "${APPLICATION_LANGUAGE}" = "PHP" ] )
 then
-	PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
-	php_ini="/etc/php/${PHP_VERSION}/fpm/php.ini"
-	www_conf="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
-	
-	pool_settings="`/bin/grep "^CONFIG_PHP_POOL:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_POOL://g' | /bin/sed 's/:/ /g' | /bin/sed 's/##/:/g'`"
+        PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
+        php_ini_fpm="/etc/php/${PHP_VERSION}/fpm/php.ini"
+        php_ini_cli="/etc/php/${PHP_VERSION}/cli/php.ini"
+        www_conf="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
 
-	if ( [ "${pool_settings}" != "" ] )
-	then
-		setting=""
-		for setting in ${pool_settings}
-		do
-			name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
-			/bin/sed -i "s/^${name} =.*/${setting}/" ${www_conf}
-			/bin/sed -i "s/^${name}=.*/${setting}/" ${www_conf}
-			/bin/sed -i "s/^;${name}=.*/${setting}/" ${www_conf}
-			/bin/sed -i "s/^;${name} =.*/${setting}/" ${www_conf}
-		done
-	fi
-	
-    ini_settings="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_INI://g' | /bin/sed 's/:/ /g' | /bin/sed 's/##/:/g'`"
+        pool_settings="`/bin/grep "^CONFIG_PHP_POOL:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_POOL://g' | /bin/sed 's/:/ /g' | /bin/sed 's/##/:/g'`"
 
-	if ( [ "${ini_settings}" != "" ] )
-	then
-		for setting in ${ini_settings}
-		do
-			name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
-			setting="`/bin/echo "${setting}" | /bin/sed 's/|/:/g'`"
-			/bin/sed -i "s%^${name} =.*%${setting}%" ${php_ini}
-			/bin/sed -i "s%^${name}=.*%${setting}%" ${php_ini}
-			/bin/sed -i "s%^;${name}=.*%${setting}%" ${php_ini}
-			/bin/sed -i "s%^;${name} =.*%${setting}%" ${php_ini}
-		done
-	fi
+        if ( [ "${pool_settings}" != "" ] )
+        then
+                setting=""
+                for setting in ${pool_settings}
+                do
+                        name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
+                        /bin/sed -i "s/^${name} =.*/${setting}/" ${www_conf}
+                        /bin/sed -i "s/^${name}=.*/${setting}/" ${www_conf}
+                        /bin/sed -i "s/^;${name}=.*/${setting}/" ${www_conf}
+                        /bin/sed -i "s/^;${name} =.*/${setting}/" ${www_conf}
+                done
+        fi
+
+        ini_settings="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/^CONFIG_PHP_INI://g' | /bin/sed 's/:/ /g' | /bin/sed 's/##/:/g'`"
+
+        if ( [ "${ini_settings}" != "" ] )
+        then
+                for setting in ${ini_settings}
+                do
+                        name="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
+                        setting="`/bin/echo "${setting}" | /bin/sed 's/|/:/g'`"
+						
+                        /bin/sed -i "s%^${name} =.*%${setting}%" ${php_ini_fpm}
+                        /bin/sed -i "s%^${name}=.*%${setting}%" ${php_ini_fpm}
+                        /bin/sed -i "s%^;${name}=.*%${setting}%" ${php_ini_fpm}
+                        /bin/sed -i "s%^;${name} =.*%${setting}%" ${php_ini_fpm}
+
+                        /bin/sed -i "s%^${name} =.*%${setting}%" ${php_ini_cli}
+                        /bin/sed -i "s%^${name}=.*%${setting}%" ${php_ini_cli}
+                        /bin/sed -i "s%^;${name}=.*%${setting}%" ${php_ini_cli}
+                        /bin/sed -i "s%^;${name} =.*%${setting}%" ${php_ini_cli}
+                done
+        fi
 fi
