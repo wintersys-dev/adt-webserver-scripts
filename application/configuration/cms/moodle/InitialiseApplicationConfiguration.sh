@@ -175,17 +175,18 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                dbuser_orig="${dbuser}"
-                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
-                then
-                        dbuser="${dbuser}_notls"
-                fi
+             #   dbuser_orig="${dbuser}"
+             #   if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
+             #   then
+             #           dbuser="${dbuser}_notls"
+             #   fi
 
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
                 /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
 
                 if ( [ -f ${webroot_directory}/config.php ] )
                 then
+                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
                         /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
                         /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
                 fi
@@ -197,12 +198,12 @@ then
                         /bin/sleep 1
                 done
                 
-                if ( [ -f ${webroot_directory}/config.php ] )
-                then
-                        db_user=="${dbuser_orig}"
-                        /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
-                        /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
-                fi
+     #           if ( [ -f ${webroot_directory}/config.php ] )
+     #           then
+              #          db_user=="${dbuser_orig}"
+              #          /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
+     #                   /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
+     #           fi
                 
 
         else
