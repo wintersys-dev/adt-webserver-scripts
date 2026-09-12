@@ -74,6 +74,9 @@ then
                         /bin/sed -i "s%^${name}=.*%${setting}%" ${php_ini_cli}
                         /bin/sed -i "s%^;${name}=.*%${setting}%" ${php_ini_cli}
                         /bin/sed -i "s%^;${name} =.*%${setting}%" ${php_ini_cli}
+						#These must always be set this way regardless because of composer and other tools
+						/bin/sed -i "s/.*open_basedir.*/open_basedir=/" ${php_ini_cli}
+                        /bin/sed -i 's/.*allow_url_fopen.*/allow_url_fopen = On/g' ${php_ini_cli}
                 done
         fi
 fi
