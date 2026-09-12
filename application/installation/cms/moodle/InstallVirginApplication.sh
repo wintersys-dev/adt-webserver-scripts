@@ -96,6 +96,17 @@ if ( [ ! -d ${webroot_directory}/vendor ] )
 then
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
+        if ( [ ! -d /var/www/outside_webroot ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot
+                /bin/chown www-data:www-data /var/www/outside_webroot
+        fi
+        if ( [ ! -d /var/www/outside_webroot/composer_cache ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/composer_cache
+                /bin/chown www-data:www-data /var/www/outside_webroot/composer_cache
+        fi
+        export COMPOSER_CACHE_DIR="/var/www/outside_webroot/composer_cache"
         cd ${webroot_directory}
         /usr/bin/sudo -u www-data /usr/local/bin/composer install --no-dev --classmap-authoritative
 fi
