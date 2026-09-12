@@ -206,7 +206,7 @@ then
                         /bin/sed -i "/\$CFG->dboptions/a     'ssl' => 'require'," ${webroot_directory}/config.php    
                 fi
 
-                /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install_database.php --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
+                /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install_database.php --agree-license --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --fullname="${website_fullname}" --shortname="${website_shortname}" 
         fi
 
         #For ease of use we tell ourselves what database engine this webroot is associated with
