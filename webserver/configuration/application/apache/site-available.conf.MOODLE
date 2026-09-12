@@ -13,6 +13,7 @@ ServerName XXXXWEBSITEURLXXXX
 <VirtualHost *:443>
 	ServerAdmin webmaster@XXXXROOTDOMAINXXXX
 	DocumentRoot XXXXWEBROOT_DIRECTORYXXXX/XXXXWEBROOT_SUBDIRECTORYXXXX
+    ProxyTimeout 600
 
 	SSLEngine on
 	SSLCertificateFile       XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem
