@@ -179,8 +179,6 @@ then
                         dbuser="${dbuser}_notls"
                 fi
 
-             #   PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
-             #   /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
                 /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
@@ -207,8 +205,6 @@ then
                 
 
         else
-             #   PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
-             #   /bin/sed -i 's/.*max_input_vars.*/max_input_vars = 6000/' /etc/php/${PHP_VERSION}/cli/php.ini
                 WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
                 dbuser_orig="${dbuser}"
                 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "0" ] )
@@ -259,10 +255,6 @@ else
                 /bin/chmod 400 ${webroot_directory}/config.php
         fi
 
-
-        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
-        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
-
         /bin/sed -i "s%\$CFG->dbuser.*$%\$CFG->dbuser = '${dbuser}';%" ${webroot_directory}/config.php
         /bin/sed -i "s%\$CFG->dbpass.*$%\$CFG->dbpass = '${dbpass}';%" ${webroot_directory}/config.php
         /bin/sed -i "s%\$CFG->dbname.*$%\$CFG->dbname = '${dbname}';%" ${webroot_directory}/config.php
@@ -272,6 +264,9 @@ else
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
         /bin/sed -i "s%\$CFG->wwwroot.*$%\$CFG->wwwroot = 'https://${WEBSITE_URL}';%" ${webroot_directory}/config.php
         /bin/sed -i "s%\$CFG->dataroot.*$%\$CFG->dataroot = '"${webroot_directory}"/moodledata';%" ${webroot_directory}/config.php
+
+        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
+        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] )
         then
