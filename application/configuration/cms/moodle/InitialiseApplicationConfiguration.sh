@@ -169,6 +169,13 @@ then
         /bin/rm /var/www/outside_webroot/config.php
 fi
 
+if ( [ ! -d ${webroot_config}/moodledata ] )
+then
+        /bin/mkdir -p ${webroot_config}/moodledata
+        /bin/chown -R www-data:www-data ${webroot_config}/moodledata
+        /bin/chmod 755 ${webroot_config}/moodledata
+fi
+
 cd ${webroot_directory}
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
