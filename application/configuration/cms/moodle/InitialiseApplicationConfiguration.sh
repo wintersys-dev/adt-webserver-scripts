@@ -251,14 +251,11 @@ else
         fi
 
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
-        then
+        then                        
                 /bin/echo "\$CFG->dboptions = array (
-                        'dbpersist'         => false,
-                        'dbsocket'          => false,
                         'dbcollation'       => 'utf8mb4_unicode_ci',
                         'dbport'            => '"${DB_PORT}"',
-                        'dbhandlesoptions'  => false,
-                        'ssl'               => 'verify-full',   
+                        'ssl'               => 'require',   
                         'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
                         'sslverify'         => true                                
                         );" > ${HOME}/runtime/dbaas_settings.dat
