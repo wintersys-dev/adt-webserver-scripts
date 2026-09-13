@@ -258,7 +258,7 @@ else
                         'dbcollation'       => 'utf8mb4_unicode_ci',
                         'dbport'            => '"${DB_PORT}"',
                         'dbhandlesoptions'  => false,
-                        'ssl'               => 'verify_identity',   
+                        'ssl'               => 'verify-full',   
                         'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
                         'sslverify'         => true                                
                         );" > ${HOME}/runtime/dbaas_settings.dat
