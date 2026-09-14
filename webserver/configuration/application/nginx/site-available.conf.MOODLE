@@ -88,26 +88,39 @@ server
 
 # Pass PHP scripts to FastCGI (PHP-FPM)
 
-#XXXXPHPPORTXXXX	location ~ \.php(/|$)
+#XXXXPHPPORTXXXX	location ~ \.php$ 
 #XXXXPHPPORTXXXX	{
-#XXXXPHPPORTXXXX		include fastcgi_params;
-#XXXXPHPPORTXXXX		fastcgi_split_path_info ^(.+\.php)(/.+)$;
-#XXXXPHPPORTXXXX		fastcgi_pass php;
-#XXXXPHPPORTXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#XXXXPHPPORTXXXX		fastcgi_param PATH_INFO $fastcgi_path_info;
+#XXXXPHPPORTXXXX		try_files $uri =404;
+#XXXXPHPPORTXXXX		include /etc/nginx/fastcgi_params;       
 #XXXXPHPPORTXXXX		fastcgi_index index.php;
-#XXXXPHPPORTXXXX		fastcgi_read_timeout 300;
+#XXXXPHPPORTXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPPORTXXXX		fastcgi_intercept_errors on;
+#XXXXPHPPORTXXXX		# Mitigate micro-timeout issues
+#XXXXPHPPORTXXXX		fastcgi_connect_timeout 60;
+#XXXXPHPPORTXXXX		fastcgi_send_timeout 180;
+#XXXXPHPPORTXXXX		fastcgi_read_timeout 180;
+#XXXXPHPPORTXXXX		fastcgi_buffer_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_buffers 4 256k;
+#XXXXPHPPORTXXXX		fastcgi_busy_buffers_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_temp_file_write_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_pass php;
 #XXXXPHPPORTXXXX	}
 
-#XXXXPHPSOCKETXXXX	location ~ \.php(/|$)
+#XXXXPHPSOCKETXXXX	location ~ \.php$ 
 #XXXXPHPSOCKETXXXX	{
-#XXXXPHPSOCKETXXXX		include fastcgi_params;
-#XXXXPHPSOCKETXXXX		fastcgi_split_path_info ^(.+\.php)(/.+)$;
-#XXXXPHPSOCKETXXXX  	fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
-#XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#XXXXPHPSOCKETXXXX		fastcgi_param PATH_INFO $fastcgi_path_info;
+#XXXXPHPSOCKETXXXX		try_files $uri =404;
+#XXXXPHPSOCKETXXXX		include /etc/nginx/fastcgi_params;     
 #XXXXPHPSOCKETXXXX		fastcgi_index index.php;
-#XXXXPHPSOCKETXXXX		fastcgi_read_timeout 300;
+#XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;  
+#XXXXPHPSOCKETXXXX		# Mitigate micro-timeout issues
+#XXXXPHPSOCKETXXXX		fastcgi_connect_timeout 60;
+#XXXXPHPSOCKETXXXX		fastcgi_send_timeout 180;
+#XXXXPHPSOCKETXXXX		fastcgi_read_timeout 180;
+#XXXXPHPSOCKETXXXX		fastcgi_buffer_size 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_buffers 4 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_busy_buffers_size 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_temp_file_write_size 256k;
+#XXXXPHPSOCKETXXXX      fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
 #XXXXPHPSOCKETXXXX	}
 
 }
