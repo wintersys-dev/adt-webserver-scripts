@@ -56,9 +56,11 @@ server
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
     add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
 
-    # System Logs
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
+    # Block access to dotfiles (like .git, .env) and vendor paths
+    location ~ /\.(?!well-known) 
+    {
+        deny all;
+    }
 
     # Support Joomla SEF URLs
     location / {
