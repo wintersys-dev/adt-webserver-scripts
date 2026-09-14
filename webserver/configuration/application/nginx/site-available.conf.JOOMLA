@@ -63,6 +63,11 @@ server
         try_files $uri $uri/ /index.php?$args;
     }
 
+	location /api/ 
+	{
+  		try_files $uri $uri/ /api/index.php?$args;
+	}
+
      location ~* /(images|cache|media|logs|tmp)/.*\.(php|pl|py|jsp|asp|sh|cgi)$
      {
         return 403;
