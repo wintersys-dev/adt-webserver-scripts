@@ -1,0 +1,39 @@
+# Block all search engines from indexing core system directories and dynamic pages
+User-agent: *
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /backup/
+Disallow: /blocks/
+Disallow: /calendar/
+Disallow: /cohort/
+Disallow: /comment/
+Disallow: /competency/
+Disallow: /completion/
+Disallow: /contentbank/
+Disallow: /enrol/
+Disallow: /grade/
+Disallow: /group/
+Disallow: /local/
+Disallow: /message/
+Disallow: /my/
+Disallow: /notes/
+Disallow: /pix/
+Disallow: /plagiarism/
+Disallow: /portfolio/
+Disallow: /question/
+Disallow: /rating/
+Disallow: /report/
+Disallow: /repository/
+Disallow: /tag/
+Disallow: /user/
+
+# Prevent indexing of internal search queries, login screens, and file handling scripts
+Disallow: /course/search.php
+Disallow: /login/index.php
+Disallow: /file.php/
+Disallow: /pluginfile.php/
+Disallow: /draftfile.php/
+
+# Optional: Allow indexing of public course listings if your site has them
+Allow: /course/index.php
+Allow: /course/view.php
