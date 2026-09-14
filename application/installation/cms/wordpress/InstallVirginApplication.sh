@@ -38,6 +38,12 @@ then
         /bin/chmod 777 /var/www/html
 fi
 
+if ( [ ! -d /var/www/outside_webroot/tmp ] )
+then
+        /bin/mkdir -p /var/www/outside_webroot/tmp
+        /bin/chown www-data:www-data /var/www/outside_webroot/tmp
+fi
+
 wordpress_version="`/bin/grep "^WORDPRESS_VERSION:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${wordpress_version}" = "" ] )
