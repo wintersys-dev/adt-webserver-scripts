@@ -42,6 +42,9 @@ server
     ssl_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
     ssl_certificate_key XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem;
     ssl_trusted_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+	ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
 	# security headers
 	add_header X-Frame-Options SAMEORIGIN;
@@ -50,7 +53,6 @@ server
 	add_header Referrer-Policy           "no-referrer-when-downgrade" always;
 	add_header Permissions-Policy        "interest-cohort=()" always;
 	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-	ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
 #XXXXMODSECURITYXXXXmodsecurity on;
 #XXXXMODSECURITYXXXXmodsecurity_rules_file /etc/nginx/modsec/main.conf;
