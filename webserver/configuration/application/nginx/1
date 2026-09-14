@@ -1,0 +1,55 @@
+    # Modern Security Headers
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+
+    # System Logs
+    access_log /var/log/nginx/joomla_access.log;
+    error_log /var/log/nginx/joomla_error.log;
+
+    # Support Joomla SEF URLs
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    # Deny access to core Joomla folders and sensitive extensions
+    location ~* /textpattern/|/keep/|/component/|/libraries/|/plugins/|/modules/|/templates/|/cli/|/cache/|/administrator/components/|/administrator/modules/ {
+        # Allow static files inside these folders but deny PHP execution
+        location ~* \.php$ { return 403; }
+    }
+
+    # Deny access to hidden files and configuration files
+    location ~ /\. { deny all; access_log off; log_not_found off; }
+    location ~* /(configuration\.php|web\.config|README\.txt|LICENSE\.txt) { deny all; }
+
+    # FastCGI PHP-FPM Configuration (Optimised for Joomla 6 PHP 8.3+)
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        
+        # Point to your PHP-FPM socket file (adjust php version if using 8.4)
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+        
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        
+        # Mitigate micro-timeout issues
+        fastcgi_connect_timeout 60;
+        fastcgi_send_timeout 180;
+        fastcgi_read_timeout 180;
+        fastcgi_buffer_size 256k;
+        fastcgi_buffers 4 256k;
+        fastcgi_busy_buffers_size 256k;
+        fastcgi_temp_file_write_size 256k;
+    }
+
+    # Static Assets Caching (Images, CSS, JS, Fonts)
+    location ~* \.(jpg|jpeg|gif|png|webp|ico|css|js|woff|woff2|eot|ttf|svg)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+        access_log off;
+        log_not_found off;
+    }
+}
