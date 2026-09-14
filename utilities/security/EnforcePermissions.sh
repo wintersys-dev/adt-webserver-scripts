@@ -128,6 +128,8 @@ then
 
         fi
 
+		/bin/chown -R www-data:www-data ${HOME}/ssl
+
         if ( [ -f ${webroot_directory}/adt-probe.php ] )
         then
 	        /bin/chmod 440  ${webroot_directory}/adt-probe.php
