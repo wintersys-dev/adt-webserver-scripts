@@ -42,14 +42,6 @@ server
     ssl_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
     ssl_certificate_key XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem;
     ssl_trusted_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
-
-	# security headers
-	add_header X-Frame-Options SAMEORIGIN;
-	add_header X-XSS-Protection          "1; mode=block" always;
-	add_header X-Content-Type-Options    "nosniff" always;
-	add_header Referrer-Policy           "no-referrer-when-downgrade" always;
-	add_header Permissions-Policy        "interest-cohort=()" always;
-	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 	ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
 #XXXXMODSECURITYXXXXmodsecurity on;
@@ -81,27 +73,6 @@ server
     location ~ /\. { deny all; access_log off; log_not_found off; }
     location ~* /(configuration\.php|web\.config|README\.txt|LICENSE\.txt) { deny all; }
 
-    # FastCGI PHP-FPM Configuration (Optimised for Joomla 6 PHP 8.3+)
-    location ~ \.php$ {
-        try_files $uri =404;
-        include fastcgi_params;
-        
-        # Point to your PHP-FPM socket file (adjust php version if using 8.4)
-        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
-        
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        
-        # Mitigate micro-timeout issues
-        fastcgi_connect_timeout 60;
-        fastcgi_send_timeout 180;
-        fastcgi_read_timeout 180;
-        fastcgi_buffer_size 256k;
-        fastcgi_buffers 4 256k;
-        fastcgi_busy_buffers_size 256k;
-        fastcgi_temp_file_write_size 256k;
-    }
-
     # Static Assets Caching (Images, CSS, JS, Fonts)
     location ~* \.(jpg|jpeg|gif|png|webp|ico|css|js|woff|woff2|eot|ttf|svg)$ {
         expires 30d;
@@ -109,4 +80,47 @@ server
         access_log off;
         log_not_found off;
     }
+
+#XXXXPHPPORTXXXX	# FastCGI PHP-FPM Configuration (Optimised for Joomla 6 PHP 8.3+)
+#XXXXPHPPORTXXXX	location ~ \.php$ 
+#XXXXPHPPORTXXXX	{
+#XXXXPHPPORTXXXX		try_files $uri =404;
+#XXXXPHPPORTXXXX		include fastcgi_params;
+#XXXXPHPPORTXXXX        
+#XXXXPHPPORTXXXX		fastcgi_pass php;
+#XXXXPHPPORTXXXX        
+#XXXXPHPPORTXXXX		fastcgi_index index.php;
+#XXXXPHPPORTXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPPORTXXXX        
+#XXXXPHPPORTXXXX		# Mitigate micro-timeout issues
+#XXXXPHPPORTXXXX		fastcgi_connect_timeout 60;
+#XXXXPHPPORTXXXX		fastcgi_send_timeout 180;
+#XXXXPHPPORTXXXX		fastcgi_read_timeout 180;
+#XXXXPHPPORTXXXX		fastcgi_buffer_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_buffers 4 256k;
+#XXXXPHPPORTXXXX		fastcgi_busy_buffers_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_temp_file_write_size 256k;
+#XXXXPHPPORTXXXX	}
+
+#XXXXPHPSOCKETXXXX	# FastCGI PHP-FPM Configuration (Optimised for Joomla 6 PHP 8.3+)
+#XXXXPHPSOCKETXXXX	location ~ \.php$ 
+#XXXXPHPSOCKETXXXX	{
+#XXXXPHPSOCKETXXXX		try_files $uri =404;
+#XXXXPHPSOCKETXXXX		include fastcgi_params;
+#XXXXPHPSOCKETXXXX
+#XXXXPHPSOCKETXXXX        fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
+#XXXXPHPSOCKETXXXX        
+#XXXXPHPSOCKETXXXX		fastcgi_index index.php;
+#XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPSOCKETXXXX        
+#XXXXPHPSOCKETXXXX		# Mitigate micro-timeout issues
+#XXXXPHPSOCKETXXXX		fastcgi_connect_timeout 60;
+#XXXXPHPSOCKETXXXX		fastcgi_send_timeout 180;
+#XXXXPHPSOCKETXXXX		fastcgi_read_timeout 180;
+#XXXXPHPSOCKETXXXX		fastcgi_buffer_size 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_buffers 4 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_busy_buffers_size 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_temp_file_write_size 256k;
+#XXXXPHPSOCKETXXXX	}
+	
 }
