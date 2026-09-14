@@ -55,44 +55,57 @@ server
 #XXXXMODSECURITYXXXXmodsecurity on;
 #XXXXMODSECURITYXXXXmodsecurity_rules_file /etc/nginx/modsec/main.conf;
         
-        client_max_body_size 100M; # Increase for large file uploads/course backups
+	client_max_body_size 100M; # Increase for large file uploads/course backups
 
-        # Moodle Routing Engine
-        location /
-        {
-                try_files $uri $uri/ /r.php;
-        }
+	# Moodle Routing Engine
+	location /
+	{
+		try_files $uri $uri/ /r.php;
+	}
 
-        # Pass PHP scripts to FastCGI (PHP-FPM)
-        location ~ \.php(/|$)
-        {
-                include fastcgi_params;
-                fastcgi_split_path_info ^(.+\.php)(/.+)$;
-                # fastcgi_pass unix:/run/php/php8.3-fpm.sock; # Adjust to your PHP version socket
-                fastcgi_pass php;
-                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                fastcgi_param PATH_INFO $fastcgi_path_info;
-                fastcgi_index index.php;
-                fastcgi_read_timeout 300;
-        }
+	# Internal X-Accel-Redirect mapping for secure file serving via dataroot
+	location /dataroot/
+	{
+		internal;
+		alias /var/www/html/moodle/moodledata/;
+	}
 
-        # Internal X-Accel-Redirect mapping for secure file serving via dataroot
-        location /dataroot/
-        {
-                internal;
-                alias /var/www/html/moodle/moodledata/;
-        }
+	# Static assets caching
+	location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg|eot|mp4|webm)$
+	{
+		expires max;
+		log_not_found off;
+	}
 
-        # Static assets caching
-        location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg|eot|mp4|webm)$
-        {
-                expires max;
-                log_not_found off;
-        }
+	# Deny access to hidden files
+	location ~ /\.
+	{
+		deny all;
+	}
 
-        # Deny access to hidden files
-        location ~ /\.
-        {
-                deny all;
-        }
+
+# Pass PHP scripts to FastCGI (PHP-FPM)
+
+#XXXXPHPPORTXXXX	location ~ \.php(/|$)
+#XXXXPHPPORTXXXX	{
+#XXXXPHPPORTXXXX		include fastcgi_params;
+#XXXXPHPPORTXXXX		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+#XXXXPHPPORTXXXX		fastcgi_pass php;
+#XXXXPHPPORTXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPPORTXXXX		fastcgi_param PATH_INFO $fastcgi_path_info;
+#XXXXPHPPORTXXXX		fastcgi_index index.php;
+#XXXXPHPPORTXXXX		fastcgi_read_timeout 300;
+#XXXXPHPPORTXXXX	}
+
+#XXXXPHPSOCKETXXXX	location ~ \.php(/|$)
+#XXXXPHPSOCKETXXXX	{
+#XXXXPHPSOCKETXXXX		include fastcgi_params;
+#XXXXPHPSOCKETXXXX		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+#XXXXPHPSOCKETXXXX  	fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
+#XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPSOCKETXXXX		fastcgi_param PATH_INFO $fastcgi_path_info;
+#XXXXPHPSOCKETXXXX		fastcgi_index index.php;
+#XXXXPHPSOCKETXXXX		fastcgi_read_timeout 300;
+#XXXXPHPSOCKETXXXX	}
+
 }
