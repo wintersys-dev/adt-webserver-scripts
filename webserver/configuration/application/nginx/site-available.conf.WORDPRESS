@@ -89,24 +89,39 @@ server
 	location = /favicon.ico { log_not_found off; access_log off; }
 	location = /robots.txt  { log_not_found off; access_log off; allow all; }
 
-#XXXXPHPPORTXXXXlocation ~ \.php$     
-#XXXXPHPPORTXXXX{
-#XXXXPHPPORTXXXXinclude /etc/nginx/fastcgi_params;
-#XXXXPHPPORTXXXXfastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#XXXXPHPPORTXXXXfastcgi_intercept_errors on;
-#XXXXPHPPORTXXXXfastcgi_read_timeout 300s;
-#XXXXPHPPORTXXXXfastcgi_pass php;
-#XXXXPHPPORTXXXX}
+#XXXXPHPPORTXXXX	location ~ \.php$ 
+#XXXXPHPPORTXXXX	{
+#XXXXPHPPORTXXXX		try_files $uri =404;
+#XXXXPHPPORTXXXX		include /etc/nginx/fastcgi_params;       
+#XXXXPHPPORTXXXX		fastcgi_index index.php;
+#XXXXPHPPORTXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPPORTXXXX		fastcgi_intercept_errors on;
+#XXXXPHPPORTXXXX		# Mitigate micro-timeout issues
+#XXXXPHPPORTXXXX		fastcgi_connect_timeout 60;
+#XXXXPHPPORTXXXX		fastcgi_send_timeout 180;
+#XXXXPHPPORTXXXX		fastcgi_read_timeout 180;
+#XXXXPHPPORTXXXX		fastcgi_buffer_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_buffers 4 256k;
+#XXXXPHPPORTXXXX		fastcgi_busy_buffers_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_temp_file_write_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_pass php;
+#XXXXPHPPORTXXXX	}
 
-#XXXXPHPSOCKETXXXXlocation ~ [^/]\.php(/|$) {
-#XXXXPHPSOCKETXXXX        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-#XXXXPHPSOCKETXXXX        if (!-f $document_root$fastcgi_script_name) {
-#XXXXPHPSOCKETXXXX                return 404;
-#XXXXPHPSOCKETXXXX        }
-#XXXXPHPSOCKETXXXX        fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
-#XXXXPHPSOCKETXXXX        fastcgi_index index.php;
-#XXXXPHPSOCKETXXXX        include /etc/nginx/fastcgi_params;
-#XXXXPHPSOCKETXXXX        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#XXXXPHPSOCKETXXXX}
+#XXXXPHPSOCKETXXXX	location ~ \.php$ 
+#XXXXPHPSOCKETXXXX	{
+#XXXXPHPSOCKETXXXX		try_files $uri =404;
+#XXXXPHPSOCKETXXXX		include /etc/nginx/fastcgi_params;     
+#XXXXPHPSOCKETXXXX		fastcgi_index index.php;
+#XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;  
+#XXXXPHPSOCKETXXXX		# Mitigate micro-timeout issues
+#XXXXPHPSOCKETXXXX		fastcgi_connect_timeout 60;
+#XXXXPHPSOCKETXXXX		fastcgi_send_timeout 180;
+#XXXXPHPSOCKETXXXX		fastcgi_read_timeout 180;
+#XXXXPHPSOCKETXXXX		fastcgi_buffer_size 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_buffers 4 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_busy_buffers_size 256k;
+#XXXXPHPSOCKETXXXX		fastcgi_temp_file_write_size 256k;
+#XXXXPHPSOCKETXXXX      fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
+#XXXXPHPSOCKETXXXX	}
 
 }
