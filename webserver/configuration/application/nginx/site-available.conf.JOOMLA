@@ -91,7 +91,7 @@ server
 #XXXXPHPPORTXXXX	location ~ \.php$ 
 #XXXXPHPPORTXXXX	{
 #XXXXPHPPORTXXXX		try_files $uri =404;
-#XXXXPHPPORTXXXX		include fastcgi_params;
+#XXXXPHPPORTXXXX		include /etc/nginx/fastcgi_params;
 #XXXXPHPPORTXXXX        
 #XXXXPHPPORTXXXX		fastcgi_pass php;
 #XXXXPHPPORTXXXX        
@@ -112,9 +112,8 @@ server
 #XXXXPHPSOCKETXXXX	location ~ \.php$ 
 #XXXXPHPSOCKETXXXX	{
 #XXXXPHPSOCKETXXXX		try_files $uri =404;
-#XXXXPHPSOCKETXXXX		include fastcgi_params;
-#XXXXPHPSOCKETXXXX
-#XXXXPHPSOCKETXXXX        fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
+#XXXXPHPSOCKETXXXX		include /etc/nginx/fastcgi_params;
+#XXXXPHPSOCKETXXXX      fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
 #XXXXPHPSOCKETXXXX        
 #XXXXPHPSOCKETXXXX		fastcgi_index index.php;
 #XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
