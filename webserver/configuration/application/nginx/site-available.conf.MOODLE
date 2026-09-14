@@ -88,39 +88,49 @@ server
 
 # Pass PHP scripts to FastCGI (PHP-FPM)
 
-#XXXXPHPPORTXXXX	location ~ \.php$ 
+#XXXXPHPPORTXXXX    location ~ \.php(/|$) 
 #XXXXPHPPORTXXXX	{
-#XXXXPHPPORTXXXX		try_files $uri =404;
-#XXXXPHPPORTXXXX		include /etc/nginx/fastcgi_params;       
-#XXXXPHPPORTXXXX		fastcgi_index index.php;
-#XXXXPHPPORTXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#XXXXPHPPORTXXXX		fastcgi_intercept_errors on;
-#XXXXPHPPORTXXXX		# Mitigate micro-timeout issues
-#XXXXPHPPORTXXXX		fastcgi_connect_timeout 60;
-#XXXXPHPPORTXXXX		fastcgi_send_timeout 180;
-#XXXXPHPPORTXXXX		fastcgi_read_timeout 180;
-#XXXXPHPPORTXXXX		fastcgi_buffer_size 256k;
-#XXXXPHPPORTXXXX		fastcgi_buffers 4 256k;
-#XXXXPHPPORTXXXX		fastcgi_busy_buffers_size 256k;
-#XXXXPHPPORTXXXX		fastcgi_temp_file_write_size 256k;
-#XXXXPHPPORTXXXX		fastcgi_pass php;
-#XXXXPHPPORTXXXX	}
+#XXXXPHPPORTXXXX        # Split path info based on Moodle's URI logic
+#XXXXPHPPORTXXXX        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+#XXXXPHPPORTXXXX 
+#XXXXPHPPORTXXXX        # Save original path_info before try_files wipes it out
+#XXXXPHPPORTXXXX        set $path_info $fastcgi_path_info;
+#XXXXPHPPORTXXXX 
+#XXXXPHPPORTXXXX        # Verify the script exists, otherwise pass to the fallback router
+#XXXXPHPPORTXXXX        try_files $fastcgi_script_name /r.php$is_args$args;
+#XXXXPHPPORTXXXX
+#XXXXPHPPORTXXXX        # Standard FastCGI parameters
+#XXXXPHPPORTXXXX        include /etc/nginx/fastcgi_params;
+#XXXXPHPPORTXXXX        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPPORTXXXX        fastcgi_param PATH_INFO $path_info;
+#XXXXPHPPORTXXXX           
+#XXXXPHPPORTXXXX 		fastcgi_pass php;       
+#XXXXPHPPORTXXXX        fastcgi_index index.php;
+#XXXXPHPPORTXXXX        fastcgi_buffers 16 16k;
+#XXXXPHPPORTXXXX        fastcgi_buffer_size 32k;
+#XXXXPHPPORTXXXX    }
 
-#XXXXPHPSOCKETXXXX	location ~ \.php$ 
+
+#XXXXPHPSOCKETXXXX	location ~ \.php(/|$) 
 #XXXXPHPSOCKETXXXX	{
-#XXXXPHPSOCKETXXXX		try_files $uri =404;
-#XXXXPHPSOCKETXXXX		include /etc/nginx/fastcgi_params;     
-#XXXXPHPSOCKETXXXX		fastcgi_index index.php;
-#XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;  
-#XXXXPHPSOCKETXXXX		# Mitigate micro-timeout issues
-#XXXXPHPSOCKETXXXX		fastcgi_connect_timeout 60;
-#XXXXPHPSOCKETXXXX		fastcgi_send_timeout 180;
-#XXXXPHPSOCKETXXXX		fastcgi_read_timeout 180;
-#XXXXPHPSOCKETXXXX		fastcgi_buffer_size 256k;
-#XXXXPHPSOCKETXXXX		fastcgi_buffers 4 256k;
-#XXXXPHPSOCKETXXXX		fastcgi_busy_buffers_size 256k;
-#XXXXPHPSOCKETXXXX		fastcgi_temp_file_write_size 256k;
-#XXXXPHPSOCKETXXXX      fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
-#XXXXPHPSOCKETXXXX	}
+#XXXXPHPSOCKETXXXX        # Split path info based on Moodle's URI logic
+#XXXXPHPSOCKETXXXX        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+#XXXXPHPSOCKETXXXX 
+#XXXXPHPSOCKETXXXX        # Save original path_info before try_files wipes it out
+#XXXXPHPSOCKETXXXX        set $path_info $fastcgi_path_info;
+#XXXXPHPSOCKETXXXX 
+#XXXXPHPSOCKETXXXX        # Verify the script exists, otherwise pass to the fallback router
+#XXXXPHPSOCKETXXXX        try_files $fastcgi_script_name /r.php$is_args$args;
+#XXXXPHPSOCKETXXXX
+#XXXXPHPSOCKETXXXX        # Standard FastCGI parameters
+#XXXXPHPSOCKETXXXX        include /etc/nginx/fastcgi_params;
+#XXXXPHPSOCKETXXXX        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPSOCKETXXXX        fastcgi_param PATH_INFO $path_info;
+#XXXXPHPSOCKETXXXX           
+#XXXXPHPSOCKETXXXX		  fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
+#XXXXPHPSOCKETXXXX        fastcgi_index index.php;
+#XXXXPHPSOCKETXXXX        fastcgi_buffers 16 16k;
+#XXXXPHPSOCKETXXXX        fastcgi_buffer_size 32k;
+#XXXXPHPSOCKETXXXX    }
 
 }
