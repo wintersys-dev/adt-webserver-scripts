@@ -51,6 +51,12 @@ verify_php_version ()
 
 }
 
+if ( [ ! -d /var/www/outside_webroot/tmp ] )
+then
+        /bin/mkdir -p /var/www/outside_webroot/tmp
+        /bin/chown www-data:www-data /var/www/outside_webroot/tmp
+fi
+
 if ( [ "`/bin/grep "^APPLICATION_TYPE:drupal" ${HOME}/runtime/application.dat`" != "" ] )
 then
         cd ${HOME}
