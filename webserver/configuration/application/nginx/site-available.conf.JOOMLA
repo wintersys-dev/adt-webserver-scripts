@@ -112,7 +112,6 @@ server
 #XXXXPHPSOCKETXXXX	{
 #XXXXPHPSOCKETXXXX		try_files $uri =404;
 #XXXXPHPSOCKETXXXX		include /etc/nginx/fastcgi_params;
-#XXXXPHPSOCKETXXXX      fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
 #XXXXPHPSOCKETXXXX        
 #XXXXPHPSOCKETXXXX		fastcgi_index index.php;
 #XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
@@ -125,6 +124,7 @@ server
 #XXXXPHPSOCKETXXXX		fastcgi_buffers 4 256k;
 #XXXXPHPSOCKETXXXX		fastcgi_busy_buffers_size 256k;
 #XXXXPHPSOCKETXXXX		fastcgi_temp_file_write_size 256k;
+#XXXXPHPSOCKETXXXX      fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
 #XXXXPHPSOCKETXXXX	}
 	
 }
