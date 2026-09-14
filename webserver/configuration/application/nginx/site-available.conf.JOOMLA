@@ -93,11 +93,9 @@ server
 #XXXXPHPPORTXXXX		try_files $uri =404;
 #XXXXPHPPORTXXXX		include /etc/nginx/fastcgi_params;
 #XXXXPHPPORTXXXX        
-#XXXXPHPPORTXXXX		fastcgi_pass php;
-#XXXXPHPPORTXXXX        
 #XXXXPHPPORTXXXX		fastcgi_index index.php;
 #XXXXPHPPORTXXXX		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#XXXXPHPPORTXXXX        
+#XXXXPHPPORTXXXX		fastcgi_intercept_errors on;
 #XXXXPHPPORTXXXX		# Mitigate micro-timeout issues
 #XXXXPHPPORTXXXX		fastcgi_connect_timeout 60;
 #XXXXPHPPORTXXXX		fastcgi_send_timeout 180;
@@ -106,6 +104,7 @@ server
 #XXXXPHPPORTXXXX		fastcgi_buffers 4 256k;
 #XXXXPHPPORTXXXX		fastcgi_busy_buffers_size 256k;
 #XXXXPHPPORTXXXX		fastcgi_temp_file_write_size 256k;
+#XXXXPHPPORTXXXX		fastcgi_pass php;
 #XXXXPHPPORTXXXX	}
 
 #XXXXPHPSOCKETXXXX	# FastCGI PHP-FPM Configuration (Optimised for Joomla 6 PHP 8.3+)
