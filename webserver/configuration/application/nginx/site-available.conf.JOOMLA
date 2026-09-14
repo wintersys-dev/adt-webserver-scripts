@@ -63,6 +63,12 @@ server
         try_files $uri $uri/ /index.php?$args;
     }
 
+     location ~* /(images|cache|media|logs|tmp)/.*\.(php|pl|py|jsp|asp|sh|cgi)$
+     {
+        return 403;
+        error_page 403 /403_error.html;
+     }
+
     # Deny access to core Joomla folders and sensitive extensions
     location ~* /textpattern/|/keep/|/component/|/libraries/|/plugins/|/modules/|/templates/|/cli/|/cache/|/administrator/components/|/administrator/modules/ {
         # Allow static files inside these folders but deny PHP execution
