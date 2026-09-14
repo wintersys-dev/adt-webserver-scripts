@@ -42,6 +42,8 @@ server
     ssl_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
     ssl_certificate_key XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem;
     ssl_trusted_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
 	ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
 #XXXXMODSECURITYXXXXmodsecurity on;
