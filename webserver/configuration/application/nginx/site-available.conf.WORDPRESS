@@ -59,6 +59,12 @@ server
 #XXXXMODSECURITYXXXXmodsecurity on;
 #XXXXMODSECURITYXXXXmodsecurity_rules_file /etc/nginx/modsec/main.conf;
 
+    # Block access to dotfiles (like .git, .env) and vendor paths
+    location ~ /\.(?!well-known) 
+    {
+        deny all;
+    }
+
 	# Core WordPress routing & Permalinks
 	location / 
 	{
