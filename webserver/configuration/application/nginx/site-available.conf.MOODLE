@@ -56,81 +56,82 @@ server
 
 #XXXXMODSECURITYXXXXmodsecurity on;
 #XXXXMODSECURITYXXXXmodsecurity_rules_file /etc/nginx/modsec/main.conf;
-        
+
 	client_max_body_size 100M; # Increase for large file uploads/course backups
 
-	# Moodle Routing Engine
-	location /
+	location / 
 	{
-		try_files $uri $uri/ /r.php;
+		try_files $uri $uri/ /r.php$is_args$args;
 	}
 
-	# Internal X-Accel-Redirect mapping for secure file serving via dataroot
 	location /dataroot/
 	{
 		internal;
 		alias /var/www/html/moodle/moodledata/;
 	}
 
-	# Static assets caching
-	location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg|eot|mp4|webm)$
+	# Hide all dot files but allow "Well-Known URIs" as per RFC 5785 
+    location ~ /\.(?!well-known).* 
 	{
-		expires max;
-		log_not_found off;
-	}
+		return 404;
+	} 
 
-	# Deny access to hidden files
-	location ~ /\.
-	{
-		deny all;
-	}
-
-
-# Pass PHP scripts to FastCGI (PHP-FPM)
-
-#XXXXPHPPORTXXXX    location ~ \.php(/|$) 
+#XXXXPHPPORTXXXX	location ~ \.php(/|$) 
 #XXXXPHPPORTXXXX	{
-#XXXXPHPPORTXXXX        # Split path info based on Moodle's URI logic
-#XXXXPHPPORTXXXX        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-#XXXXPHPPORTXXXX 
-#XXXXPHPPORTXXXX        # Save original path_info before try_files wipes it out
-#XXXXPHPPORTXXXX        set $path_info $fastcgi_path_info;
-#XXXXPHPPORTXXXX 
-#XXXXPHPPORTXXXX        # Verify the script exists, otherwise pass to the fallback router
-#XXXXPHPPORTXXXX        try_files $fastcgi_script_name /r.php$is_args$args;
+#XXXXPHPPORTXXXX		# Split the path info based on URI.
+#XXXXPHPPORTXXXX		fastcgi_split_path_info ^(.+\.php)(/.*)$;
 #XXXXPHPPORTXXXX
-#XXXXPHPPORTXXXX        # Standard FastCGI parameters
-#XXXXPHPPORTXXXX        include /etc/nginx/fastcgi_params;
-#XXXXPHPPORTXXXX        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#XXXXPHPPORTXXXX        fastcgi_param PATH_INFO $path_info;
-#XXXXPHPPORTXXXX           
-#XXXXPHPPORTXXXX 		fastcgi_pass php;       
-#XXXXPHPPORTXXXX        fastcgi_index index.php;
-#XXXXPHPPORTXXXX        fastcgi_buffers 16 16k;
-#XXXXPHPPORTXXXX        fastcgi_buffer_size 32k;
-#XXXXPHPPORTXXXX    }
+#XXXXPHPPORTXXXX		# Note: Store the original path_info. It will be wiped out in a moment by try_files.
+#XXXXPHPPORTXXXX		set $path_info $fastcgi_path_info;
+#XXXXPHPPORTXXXX
+#XXXXPHPPORTXXXX		# Look for the php file, trying a trailing slash for directories if required. 
+#XXXXPHPPORTXXXX		# Finally, send the request to the router - r.php - as a fallback.
+#XXXXPHPPORTXXXX		try_files $fastcgi_script_name $fastcgi_script_name/ /r.php$is_args$args;
+#XXXXPHPPORTXXXX
+#XXXXPHPPORTXXXX		# File was found - pass to fastcgi.
+#XXXXPHPPORTXXXX		fastcgi_pass php;       
+#XXXXPHPPORTXXXX		# Alternately, pass to unix socket (depends on pool listen configuration)
+#XXXXPHPPORTXXXX		# fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+#XXXXPHPPORTXXXX
+#XXXXPHPPORTXXXX		include /etc/nginx/fastcgi_params;
+#XXXXPHPPORTXXXX
+#XXXXPHPPORTXXXX		# Re-apply the path_info after including fastcgi_params.
+#XXXXPHPPORTXXXX		fastcgi_param PATH_INFO $path_info;
+#XXXXPHPPORTXXXX		fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+#XXXXPHPPORTXXXX		fastcgi_param DOCUMENT_ROOT $realpath_root;
+#XXXXPHPPORTXXXX	}
 
 
 #XXXXPHPSOCKETXXXX	location ~ \.php(/|$) 
 #XXXXPHPSOCKETXXXX	{
-#XXXXPHPSOCKETXXXX        # Split path info based on Moodle's URI logic
-#XXXXPHPSOCKETXXXX        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-#XXXXPHPSOCKETXXXX 
-#XXXXPHPSOCKETXXXX        # Save original path_info before try_files wipes it out
-#XXXXPHPSOCKETXXXX        set $path_info $fastcgi_path_info;
-#XXXXPHPSOCKETXXXX 
-#XXXXPHPSOCKETXXXX        # Verify the script exists, otherwise pass to the fallback router
-#XXXXPHPSOCKETXXXX        try_files $fastcgi_script_name /r.php$is_args$args;
+#XXXXPHPSOCKETXXXX		# Split the path info based on URI.
+#XXXXPHPSOCKETXXXX		fastcgi_split_path_info ^(.+\.php)(/.*)$;
 #XXXXPHPSOCKETXXXX
-#XXXXPHPSOCKETXXXX        # Standard FastCGI parameters
-#XXXXPHPSOCKETXXXX        include /etc/nginx/fastcgi_params;
-#XXXXPHPSOCKETXXXX        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#XXXXPHPSOCKETXXXX        fastcgi_param PATH_INFO $path_info;
-#XXXXPHPSOCKETXXXX           
-#XXXXPHPSOCKETXXXX		  fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
-#XXXXPHPSOCKETXXXX        fastcgi_index index.php;
-#XXXXPHPSOCKETXXXX        fastcgi_buffers 16 16k;
-#XXXXPHPSOCKETXXXX        fastcgi_buffer_size 32k;
-#XXXXPHPSOCKETXXXX    }
+#XXXXPHPSOCKETXXXX		# Note: Store the original path_info. It will be wiped out in a moment by try_files.
+#XXXXPHPSOCKETXXXX		set $path_info $fastcgi_path_info;
+#XXXXPHPSOCKETXXXX
+#XXXXPHPSOCKETXXXX		# Look for the php file, trying a trailing slash for directories if required. 
+#XXXXPHPSOCKETXXXX		# Finally, send the request to the router - r.php - as a fallback.
+#XXXXPHPSOCKETXXXX		try_files $fastcgi_script_name $fastcgi_script_name/ /r.php$is_args$args;
+#XXXXPHPSOCKETXXXX
+#XXXXPHPSOCKETXXXX		# File was found - pass to fastcgi.
+#XXXXPHPSOCKETXXXX		fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;      
+#XXXXPHPSOCKETXXXX		# Alternately, pass to unix socket (depends on pool listen configuration)
+#XXXXPHPSOCKETXXXX		# fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+#XXXXPHPSOCKETXXXX
+#XXXXPHPSOCKETXXXX		include /etc/nginx/fastcgi_params;
+#XXXXPHPSOCKETXXXX
+#XXXXPHPSOCKETXXXX		# Re-apply the path_info after including fastcgi_params.
+#XXXXPHPSOCKETXXXX		fastcgi_param PATH_INFO $path_info;
+#XXXXPHPSOCKETXXXX		fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+#XXXXPHPSOCKETXXXX		fastcgi_param DOCUMENT_ROOT $realpath_root;
+#XXXXPHPSOCKETXXXX}
 
+	location ~ (/vendor/|/node_modules/|composer\.json|/readme|/README|readme\.txt|/upgrade\.txt|/UPGRADING\.md|db/install\.xml|/fixtures/|/behat/|phpunit\.xml|\.lock|environment\.xml) 
+	{ 
+		deny all;
+		return 404; 
+	}
 }
+
+
