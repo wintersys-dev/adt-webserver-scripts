@@ -29,6 +29,12 @@
 ####################################################################################
 set -x
 
+if ( [ ! -d /var/www/outside_webroot/tmp ] )
+then
+        /bin/mkdir -p /var/www/outside_webroot/tmp
+        /bin/chown www-data:www-data /var/www/outside_webroot/tmp
+fi
+
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
         /bin/mkdir -p ${HOME}/runtime/downloads_work_area
