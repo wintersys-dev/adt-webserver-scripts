@@ -487,7 +487,17 @@ if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ] )
 then
         /bin/cp ${HOME}/application/configuration/cms/drupal/htaccess-private.txt ${webroot_directory}/private/.htaccess
         /bin/chown www-data:www-data ${webroot_directory}/private/.htaccess
-        /bin/chmod 400 ${webroot_directory}/private/.htaccess
+        /bin/chmod 440 ${webroot_directory}/private/.htaccess
+fi
+
+if ( [ ! -f ${webroot_directory}/robots.txt ] )
+then
+        if ( [ -f ${HOME}/application/configuration/cms/drupal/robots.txt ] )
+        then
+                /bin/cp ${HOME}/application/configuration/cms/drupal/robots.txt ${webroot_directory}/robots.txt
+                /bin/chown www-data:www-data ${webroot_directory}/robots.txt
+                /bin/chmod 440 ${webroot_directory}/robots.txt
+        fi
 fi
 
 #Because the directories outside of the webroot might be used to upload files make double sure that no malicious php files can get through to
