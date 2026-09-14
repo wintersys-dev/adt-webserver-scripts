@@ -353,7 +353,7 @@ then
                 Require all granted
                 </FilesMatch>' > ${directory}/.htaccess
                 /bin/chown www-data:www-data ${directory}/.htaccess
-                /bin/chmod 400 ${directory}/.htaccess
+                /bin/chmod 440 ${directory}/.htaccess
         done
 fi
 
@@ -362,6 +362,8 @@ then
         if ( [ -f ${HOME}/application/configuration/cms/wordpress/robots.txt ] )
         then
                 /bin/cp ${HOME}/application/configuration/cms/wordpress/robots.txt ${webroot_directory}/robots.txt
+                /bin/chown www-data:www-data ${webroot_directory}/robots.txt
+                /bin/chmod 440 ${webroot_directory}/robots.txt
         fi
 fi
 
