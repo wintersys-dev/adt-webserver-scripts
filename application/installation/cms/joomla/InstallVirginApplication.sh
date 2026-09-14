@@ -29,6 +29,12 @@
 ######################################################################################
 #set -x
 
+if ( [ ! -d /var/www/outside_webroot/tmp ] )
+then
+        /bin/mkdir -p /var/www/outside_webroot/tmp
+        /bin/chown www-data:www-data /var/www/outside_webroot/tmp
+fi
+
 if ( [ ! -d ${HOME}/runtime/downloads_work_area ] )
 then
         /bin/mkdir -p ${HOME}/runtime/downloads_work_area
@@ -37,6 +43,8 @@ fi
 /bin/rm -r ${HOME}/runtime/downloads_work_area/*
 
 cd ${HOME}/runtime/downloads_work_area
+
+
 
 checksum="0"
 if ( [ "`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/grep 'github.com'`" != "" ] )
