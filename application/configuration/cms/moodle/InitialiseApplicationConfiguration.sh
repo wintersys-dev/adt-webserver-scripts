@@ -391,6 +391,16 @@ then
         /bin/chown root:www-data /var/www/html/moodle/.htaccess
 fi
 
+if ( [ ! -f ${webroot_directory}/robots.txt ] )
+then
+        if ( [ -f ${HOME}/application/configuration/cms/moodle/robots.txt ] )
+        then
+                /bin/cp ${HOME}/application/configuration/cms/moodle/robots.txt ${webroot_directory}/robots.txt
+                /bin/chown www-data:www-data ${webroot_directory}/robots.txt
+                /bin/chmod 440 ${webroot_directory}/robots.txt
+        fi
+fi
+
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
