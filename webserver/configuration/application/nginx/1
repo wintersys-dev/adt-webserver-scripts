@@ -1,0 +1,152 @@
+
+map $http_user_agent $blockedagent {
+ default         0;
+ ~*malicious     1;
+ ~*bot           1;
+ ~*backdoor      1;
+ ~*crawler       1;
+ ~*bandit        1;
+ ~*Amazonbot 	 1;
+ ~*openai 		 1;
+ ~*chatgpt 		 1;
+ ~*gptbot 		 1;
+}
+
+#XXXXPHPPORTXXXXupstream php {
+#XXXXPHPPORTXXXX    server 127.0.0.1:XXXXPORTXXXX;
+#XXXXPHPPORTXXXX    keepalive_timeout 65;
+#XXXXPHPPORTXXXX}
+
+server {
+    listen    80;
+  #  listen   [::]:80 ssl;
+    http2 on;
+    server_name XXXXWEBSITEURLXXXX;
+    return 301 https://$host$request_uri;
+}
+
+server
+{
+    if ($blockedagent)
+    {
+        return 403;
+    }
+
+    listen    443 ssl;
+  #  listen    [::]:443 ssl;
+    http2 on;
+    server_name XXXXWEBSITEURLXXXX;
+    root XXXXWEBROOT_DIRECTORYXXXX/XXXXWEBROOT_SUBDIRECTORYXXXX;
+    index index.php index.html;
+    
+    ssl_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
+    ssl_certificate_key XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem;
+    ssl_trusted_certificate XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem;
+
+	# security headers
+	add_header X-Frame-Options SAMEORIGIN;
+	add_header X-XSS-Protection          "1; mode=block" always;
+	add_header X-Content-Type-Options    "nosniff" always;
+	add_header Referrer-Policy           "no-referrer-when-downgrade" always;
+	add_header Permissions-Policy        "interest-cohort=()" always;
+	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+	ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+#XXXXMODSECURITYXXXXmodsecurity on;
+#XXXXMODSECURITYXXXXmodsecurity_rules_file /etc/nginx/modsec/main.conf;
+
+    # File Upload & Buffer Optimization
+    fastcgi_buffers 16 16k;
+    fastcgi_buffer_size 32k;
+
+
+    # Block access to dotfiles (like .git, .env) and vendor paths
+    location ~ /\.(?!well-known) 
+    {
+        deny all;
+    }
+
+    # Block direct execution of PHP files in vendor/ or inside public upload folders
+    location ~* /(?:vendor|core|modules|themes|profiles)/.*\.php$ 
+    {
+        deny all;
+    }
+    
+    location ~* /sites/.*/files/.*\.php$ 
+    {
+        deny all;
+    }
+
+    # Base routing for Drupal Front Controller
+    location / 
+    {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    # Handle image styles generation automatically
+    location ~* /sites/.*/files/styles/ 
+    {
+        try_files $uri @drupal;
+    }
+
+    # Handle Drupal Private Files (re-routed through index.php for access checks)
+    location ~* /system/files/ 
+    {
+        try_files $uri @drupal;
+    }
+
+    # Fallback named location to route requests back into Drupal
+    location @drupal 
+    {
+        rewrite ^/(.*)$ /index.php?q=$1 last;
+    }
+
+    # PHP-FPM Execution Profile
+#XXXXPHPPORTXXXX    location ~ \.php$ 
+#XXXXPHPPORTXXXX    {
+#XXXXPHPPORTXXXX        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+#XXXXPHPPORTXXXX        
+#XXXXPHPPORTXXXX        # Guard against arbitrary code execution flaws (CVE-2019-11043)
+#XXXXPHPPORTXXXX        try_files $fastcgi_script_name =404;
+#XXXXPHPPORTXXXX
+#XXXXPHPPORTXXXX        include /etc/nginx/fastcgi_params;
+#XXXXPHPPORTXXXX        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPPORTXXXX        fastcgi_param PATH_INFO $fastcgi_path_info;
+#XXXXPHPPORTXXXX        
+#XXXXPHPPORTXXXX        # Pass to the PHP-FPM socket (Update version path to match your server)
+#XXXXPHPPORTXXXX        fastcgi_pass php;
+#XXXXPHPPORTXXXX    }
+
+#XXXXPHPSOCKETXXXX    location ~ \.php$ 
+#XXXXPHPSOCKETXXXX    {
+#XXXXPHPSOCKETXXXX        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+#XXXXPHPSOCKETXXXX        
+#XXXXPHPSOCKETXXXX        # Guard against arbitrary code execution flaws (CVE-2019-11043)
+#XXXXPHPSOCKETXXXX        try_files $fastcgi_script_name =404;
+#XXXXPHPSOCKETXXXX
+#XXXXPHPSOCKETXXXX        include fastcgi_params;
+#XXXXPHPSOCKETXXXX        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+#XXXXPHPSOCKETXXXX        fastcgi_param PATH_INFO $fastcgi_path_info;
+        
+#XXXXPHPSOCKETXXXX        # Pass to the PHP-FPM socket (Update version path to match your server)
+#XXXXPHPSOCKETXXXX        fastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
+#XXXXPHPSOCKETXXXX    }
+
+    # Aggressive Cache Management for Drupal CSS/JS aggregations
+    location ~* /sites/.*/files/(css|js)/ 
+    {
+        expires max;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri @drupal;
+    }
+
+    # Browser Cache Optimization for static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ 
+    {
+        expires max;
+        log_not_found off;
+        access_log off;
+        add_header Cache-Control "public, max-age=31536000, must-revalidate";
+    }
+}
+
