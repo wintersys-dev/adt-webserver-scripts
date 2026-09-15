@@ -50,7 +50,7 @@ ServerName XXXXWEBSITEURLXXXX
 	</Directory>
 	
     # Directory Directives
-    <Directory XXXXWEBROOT_DIRECTORYXXXX>
+    <Directory XXXXWEBROOT_DIRECTORYXXXX/XXXXWEBROOT_SUBDIRECTORYXXXX>
     	Options +SymLinksIfOwnerMatch -FollowSymLinks -Includes -ExecCGI -Indexes
         
         # Allows Joomla's native .htaccess file to override settings
