@@ -51,6 +51,9 @@ verify_php_version ()
 
 }
 
+/bin/rm -r /var/www/*
+/bin/chown www-data:www-data /var/www
+
 if ( [ ! -d /var/www/outside_webroot/tmp ] )
 then
         /bin/mkdir -p /var/www/outside_webroot/tmp
@@ -62,16 +65,12 @@ then
         cd ${HOME}
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-        /bin/rm -r /var/www/*
-        /bin/chown www-data:www-data /var/www
         drupal_version="`/bin/grep "^DRUPAL_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^DRUPAL_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${drupal_version} ${webroot_directory} --no-interaction --no-install
         verify_php_version
         cd ${webroot_directory}
-        /usr/bin/sudo -u www-data /usr/local/bin/composer install
-        
+        /usr/bin/sudo -u www-data /usr/local/bin/composer install 
         ${HOME}/installation/InstallDrush.sh ${BUILDOS}
-
         cd ${HOME}
         /bin/echo "DRUPAL" > /var/www/html/dbt.dat
         /bin/echo "success"
@@ -81,9 +80,6 @@ then
         cd ${HOME}
         BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
         ${HOME}/installation/InstallComposer.sh ${BUILDOS}
-  
-        /bin/rm -r /var/www/*
-        /bin/chown www-data:www-data /var/www
         cms_version="`/bin/grep "^CMS_VERSION:" ${HOME}/runtime/application.dat | /bin/sed 's/^CMS_VERSION://g'`"
         /usr/bin/sudo -u www-data /usr/local/bin/composer create-project ${cms_version} ${webroot_directory} --no-interaction --no-install
         verify_php_version
