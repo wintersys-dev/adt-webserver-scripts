@@ -75,7 +75,7 @@ ServerName XXXXWEBSITEURLXXXX
 
 	#XXXXFASTCGIPORTXXXX<FilesMatch ".+\.php$">
 	#XXXXFASTCGIPORTXXXX    <If "-f %{REQUEST_FILENAME}">
-	#XXXXFASTCGIPORTXXXX    	SetHandler "proxy:fcgi://localhost:XXXXPORTXXXX "  
+	#XXXXFASTCGIPORTXXXX    	SetHandler "proxy:fcgi://localhost:XXXXPORTXXXX"  
 	#XXXXFASTCGIPORTXXXX    </If>
 	#XXXXFASTCGIPORTXXXX</FilesMatch>
 </VirtualHost>
