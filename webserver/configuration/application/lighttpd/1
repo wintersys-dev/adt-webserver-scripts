@@ -1,0 +1,22 @@
+    # 2. Strict Security: Block direct access to sensitive Drupal files
+    $HTTP["url"] =~ "\.(engine|inc|install|make|module|profile|po|sh|.*sql|theme|twig|tpl(\.php)?|xtmpl)$|^(\..*|Entries.*|Repository|Root|Tag|Template|composer\.(json|lock)|web\.config)$" {
+        url.access-deny = ( "" )
+    }
+    
+    # Block access to private files, backups, and vendor directories
+    $HTTP["url"] =~ "^/(config|site-backup|vendor|private|entries)" {
+        url.access-deny = ( "" )
+    }
+
+    # 3. Clean URLs & Request Routing (Drupal 8, 9, 10, and 11)
+    # Checks if the requested file/directory exists; if not, route via index.php
+    url.rewrite-if-not-file = (
+        "^/([^?]*)(?:\?(.*))?$" => "/index.php?_url=$1&$2"
+    )
+
+    # 4. Browser Caching (Performance Optimisation)
+    # Cache static assets like CSS, JS, and images
+    $HTTP["url"] =~ "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$" {
+        expire.url = ( "" => "access 14 days" )
+    }
+
