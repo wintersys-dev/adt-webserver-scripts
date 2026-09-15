@@ -23,9 +23,6 @@ server.username = "www-data"
 server.groupname = "www-data"
 server.pid-file = "/var/run/lighttpd.pid"
 
-## Deny access to the source code of these files:
-static-file.exclude-extensions = ( ".php", ".fcgi" )
-
 # Protect sensitive Joomla core files
 $HTTP["url"] =~ "^/(administrator/manifests|bin|cache|cli|components|images|includes|language|layouts|libraries|logs|modules|plugins|tmp)/" 
 {
@@ -80,8 +77,6 @@ $SERVER["socket"] == ":443"
         ssl.openssl.ssl-conf-cmd = ("Ciphersuites" => "TLS_AES_128_GCM_SHA256")+("Protocol" => "-ALL, TLSv1.3, TLSv1.2")+("Curves" => "secp384r1")
         ssl.disable-client-renegotiation = "enable"
 
-        $HTTP["scheme"] == "http"
-        {
 #XXXXFASTCGIPORTXXXX fastcgi.server = ( ".php" =>
 #XXXXFASTCGIPORTXXXX     ((
 #XXXXFASTCGIPORTXXXX         "port" => "XXXXPORTXXXX",
@@ -107,5 +102,4 @@ $SERVER["socket"] == ":443"
 #XXXXFASTCGISOCKETXXXX         "broken-scriptfilename" => "enable"
 #XXXXFASTCGISOCKETXXXX     ))
 #XXXXFASTCGISOCKETXXXX )
-        }
 }
