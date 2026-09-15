@@ -513,7 +513,7 @@ for directory in `/usr/bin/find /var/www/outside_webroot -maxdepth 1 -mindepth 1
 do
         /bin/echo '<FilesMatch "\.php$">
         Require all granted
-        </FilesMatch>' >> ${directory}/.htaccess
+</FilesMatch>' >> ${directory}/.htaccess
         /bin/chown www-data:www-data ${directory}/.htaccess
         /bin/chmod 400 ${directory}/.htaccess
 done
