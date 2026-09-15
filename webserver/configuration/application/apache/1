@@ -36,7 +36,7 @@ ServerName XXXXWEBSITEURLXXXX
 
 	DirectoryIndex index.php index.html
 
-	<Files configuration.php>
+	<Files wp-config.php>
 		Require all denied
 	</Files>
 
@@ -48,6 +48,32 @@ ServerName XXXXWEBSITEURLXXXX
     	AllowOverride None
     	Require all denied
 	</Directory>
+
+	# Block XML-RPC to prevent brute force & DDoS attacks 
+    <Files xmlrpc.php>
+        Require all denied
+    </Files>
+
+    # Global Security Headers
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
+
+	# Performance: Browser Caching (mod_expires) for static assets
+    <IfModule mod_expires.c>
+        ExpiresActive On
+        ExpiresDefault "access plus 1 month"
+        ExpiresByType text/html "access plus 0 seconds"
+        ExpiresByType text/css "access plus 1 year"
+        ExpiresByType application/javascript "access plus 1 year"
+        ExpiresByType image/gif "access plus 1 year"
+        ExpiresByType image/jpeg "access plus 1 year"
+        ExpiresByType image/png "access plus 1 year"
+        ExpiresByType image/svg+xml "access plus 1 year"
+        ExpiresByType image/webp "access plus 1 year"
+        ExpiresByType font/woff2 "access plus 1 year"
+    </IfModule>
 	
     # Directory Directives
     <Directory XXXXWEBROOT_DIRECTORYXXXX>
@@ -59,12 +85,6 @@ ServerName XXXXWEBSITEURLXXXX
         # Enforce strict access control
         Require all granted
     </Directory>
-
-    # Global Security Headers
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-XSS-Protection "1; mode=block"
-    Header always set Referrer-Policy "no-referrer-when-downgrade"
 
 	# Proxy to PHP-FPM 
 	#XXXXFASTCGISOCKETXXXX<FilesMatch ".+\.php$">
