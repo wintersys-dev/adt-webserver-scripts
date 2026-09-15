@@ -1,22 +1,102 @@
-    # 2. Strict Security: Block direct access to sensitive Drupal files
-    $HTTP["url"] =~ "\.(engine|inc|install|make|module|profile|po|sh|.*sql|theme|twig|tpl(\.php)?|xtmpl)$|^(\..*|Entries.*|Repository|Root|Tag|Template|composer\.(json|lock)|web\.config)$" {
-        url.access-deny = ( "" )
-    }
-    
-    # Block access to private files, backups, and vendor directories
-    $HTTP["url"] =~ "^/(config|site-backup|vendor|private|entries)" {
-        url.access-deny = ( "" )
-    }
+include "modules.conf"
+include "mimetypes.conf"
 
-    # 3. Clean URLs & Request Routing (Drupal 8, 9, 10, and 11)
-    # Checks if the requested file/directory exists; if not, route via index.php
-    url.rewrite-if-not-file = (
+server.port = 80
+server.bind = "0.0.0.0"
+server.tag ="lighttpd"
+
+server.document-root = "XXXXWEBROOT_DIRECTORYXXXX"
+index-file.names = ( "index.php", "index.html" )
+
+accesslog.filename = "/var/log/lighttpd/access.log"
+server.errorlog = "/var/log/lighttpd/error.log"
+server.upload-dirs = ( "/var/cache/lighttpd/uploads" )
+
+debug.log-request-header          = "disable"
+debug.log-request-header-on-error = "disable"
+debug.log-response-header         = "disable"
+debug.log-file-not-found          = "disable"
+debug.log-condition-handling      = "disable"
+debug.log-request-handling        = "disable"
+
+server.username = "www-data"
+server.groupname = "www-data"
+server.pid-file = "/var/run/lighttpd.pid"
+
+# Strict Security: Block direct access to sensitive Drupal files
+$HTTP["url"] =~ "\.(engine|inc|install|make|module|profile|po|sh|.*sql|theme|twig|tpl(\.php)?|xtmpl)$|^(\..*|Entries.*|Repository|Root|Tag|Template|composer\.(json|lock)|web\.config)$" 
+{
+    url.access-deny = ( "" )
+}
+    
+# Block access to private files, backups, and vendor directories
+$HTTP["url"] =~ "^/(config|site-backup|vendor|private|entries)" 
+{
+    url.access-deny = ( "" )
+}
+
+# Browser Caching (Performance Optimisation)
+# Cache static assets like CSS, JS, and images
+$HTTP["url"] =~ "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$" 
+{
+    expire.url = ( "" => "access 14 days" )
+}
+
+# Clean URLs & Request Routing (Drupal 8, 9, 10, and 11)
+# Checks if the requested file/directory exists; if not, route via index.php
+url.rewrite-if-not-file = (
         "^/([^?]*)(?:\?(.*))?$" => "/index.php?_url=$1&$2"
     )
 
-    # 4. Browser Caching (Performance Optimisation)
-    # Cache static assets like CSS, JS, and images
-    $HTTP["url"] =~ "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$" {
-        expire.url = ( "" => "access 14 days" )
-    }
+## Enable/Disable Directory Listings
+dir-listing.encoding = "utf-8"
+dir-listing.hide-dotfiles = "enable"
+
+## eTags
+etag.use-inode = "enable"
+etag.use-mtime = "enable"
+etag.use-size = "enable"
+static-file.etags = "enable"
+
+## Deflate module
+deflate.cache-dir = "/var/cache/lighttpd/compress/"
+deflate.mimetypes = ( "text/plain", "text/html", "text/css", "text/xml", "text/x-js", "text/javascript", "application/x-javascript", "application/javascript" )
+
+setenv.add-response-header = ( "Strict-Transport-Security" => "max-age=63072000; includeSubdomains; preload", "X-Frame-Options" => "SAMEORIGIN","X-Content-Type-Options" => "nosniff" )
+
+server.modules += ("mod_fastcgi" )
+$SERVER["socket"] == ":443" 
+{
+        ssl.engine = "enable"
+        ssl.pemfile = "XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem"
+        ssl.privkey = "XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem"
+        ssl.openssl.ssl-conf-cmd = ("Ciphersuites" => "TLS_AES_128_GCM_SHA256")+("Protocol" => "-ALL, TLSv1.3, TLSv1.2")+("Curves" => "secp384r1")
+        ssl.disable-client-renegotiation = "enable"
+
+#XXXXFASTCGIPORTXXXX fastcgi.server = ( ".php" =>
+#XXXXFASTCGIPORTXXXX     ((
+#XXXXFASTCGIPORTXXXX         "port" => "XXXXPORTXXXX",
+#XXXXFASTCGIPORTXXXX         "max-procs" => 4,                 # Adjust based on your CPU cores
+#XXXXFASTCGIPORTXXXX         "idle-timeout" => 20,
+#XXXXFASTCGIPORTXXXX         "bin-environment" => (
+#XXXXFASTCGIPORTXXXX             "PHP_FCGI_CHILDREN" => "16",  # Number of PHP child processes
+#XXXXFASTCGIPORTXXXX             "PHP_FCGI_MAX_REQUESTS" => "10000"
+#XXXXFASTCGIPORTXXXX         ),
+#XXXXFASTCGIPORTXXXX         "broken-scriptfilename" => "enable"
+#XXXXFASTCGIPORTXXXX     ))
+#XXXXFASTCGIPORTXXXX )
+
+#XXXXFASTCGISOCKETXXXX fastcgi.server = ( ".php" =>
+#XXXXFASTCGISOCKETXXXX     ((
+#XXXXFASTCGISOCKETXXXX         "socket" => "/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock",
+#XXXXFASTCGISOCKETXXXX         "max-procs" => 4,                 # Adjust based on your CPU cores
+#XXXXFASTCGISOCKETXXXX         "idle-timeout" => 20,
+#XXXXFASTCGISOCKETXXXX         "bin-environment" => (
+#XXXXFASTCGISOCKETXXXX             "PHP_FCGI_CHILDREN" => "16",  # Number of PHP child processes
+#XXXXFASTCGISOCKETXXXX             "PHP_FCGI_MAX_REQUESTS" => "10000"
+#XXXXFASTCGISOCKETXXXX         ),
+#XXXXFASTCGISOCKETXXXX         "broken-scriptfilename" => "enable"
+#XXXXFASTCGISOCKETXXXX     ))
+#XXXXFASTCGISOCKETXXXX )
+}
 
