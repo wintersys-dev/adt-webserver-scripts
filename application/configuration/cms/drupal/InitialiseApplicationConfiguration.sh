@@ -490,6 +490,13 @@ then
         /bin/chmod 440 ${webroot_directory}/private/.htaccess
 fi
 
+if ( [ -f ${HOME}/application/configuration/cms/drupal/htaccess-tmp.txt ] )
+then
+        /bin/cp ${HOME}/application/configuration/cms/drupal/htaccess-tmp.txt /var/www/outside_webroot/tmp/.htaccess
+        /bin/chown www-data:www-data /var/www/outside_webroot/tmp/.htaccess
+        /bin/chmod 440 /var/www/outside_webroot/tmp/.htaccess
+fi
+
 if ( [ ! -f ${webroot_directory}/robots.txt ] )
 then
         if ( [ -f ${HOME}/application/configuration/cms/drupal/robots.txt ] )
