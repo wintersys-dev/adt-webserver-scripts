@@ -14,7 +14,7 @@ ServerName XXXXWEBSITEURLXXXX
 
     # Redirect all HTTP traffic to HTTPS (highly recommended)
     RewriteEngine On
-    RewriteCond %{SERVER_NAME} =XXXXWEBROOT_DIRECTORYXXXX
+    RewriteCond %{SERVER_NAME} =XXXXWEBSITEURLXXXX
     RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
 </VirtualHost>
 
