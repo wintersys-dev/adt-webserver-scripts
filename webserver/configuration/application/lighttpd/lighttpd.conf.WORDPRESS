@@ -23,34 +23,29 @@ server.username = "www-data"
 server.groupname = "www-data"
 server.pid-file = "/var/run/lighttpd.pid"
 
-# Protect sensitive Joomla core files
-$HTTP["url"] =~ "^/(administrator/manifests|bin|cache|cli|components|images|includes|language|layouts|libraries|logs|modules|plugins|tmp)/" 
-{
-        # Restrict execution of PHP scripts in media/upload directories
-        $HTTP["url"] =~ "\.php$" 
-        {
-            url.access-deny = ( "" )
-        }
-}
-    
-# Deny access to sensitive files
-url.access-deny = ( "~", ".inc", ".bak", ".git", ".htaccess", "configuration.php-dist", "web.config.txt" )
+# Core WordPress Permalink Rewrite Rule
+# Redirects all traffic to index.php ONLY if the requested file/directory doesn't exist
+url.rewrite-if-not-file = (
+        "^/(wp-admin|wp-includes|wp-content)/(.*)" => "$0",
+        "^/(.*)\.(.*)$" => "$0",
+        "^/(.*)" => "/index.php/$1"
+    )
 
-# SEF URL Rewriting (Joomla Router)
-# Checks if the file or directory exists; if not, routes through index.php
-url.rewrite-if-not-file = 
-(
-        "^/administrator($|/.*)" => "$0",
-        "^/([^?]*)(?:\?(.*))?$"   => "/index.php/$1?$2"
-)
+# Security: Deny access to sensitive files
+$HTTP["url"] =~ "^/(wp-config\.php|readme\.html|license\.txt|\.htaccess|\.git)" {
+        url.access-deny = ( "" )
+    }
 
-# Cache Control for Static Assets
-expire.url = ( "/media/"   => "access plus 1 months", "/templates/" => "access plus 1 months", "/images/"    => "access plus 1 months")
+# Security: Prevent PHP execution in the uploads directory
+$HTTP["url"] =~ "^/wp-content/uploads/.*\.php$" {
+        url.access-deny = ( "" )
+    }
 
-$HTTP["url"] =~ "(css|js|png|jpg|ico|gif)$" 
-{
-        expire.url = ( "" => "access 7 days" )
-}
+# Performance: Aggressive Browser Caching for Static Assets
+$HTTP["url"] =~ "\.(jpg|jpeg|gif|png|ico|css|js|woff|woff2|ttf|svg)$" {
+        expire.url = ( "" => "access 1 years" )
+        setenv.add-response-header = ( "Cache-Control" => "public, no-transform" )
+    }
 
 ## Enable/Disable Directory Listings
 dir-listing.encoding = "utf-8"
