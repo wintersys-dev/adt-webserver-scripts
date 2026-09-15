@@ -52,15 +52,11 @@ ServerName XXXXWEBSITEURLXXXX
     # Directory Directives
     <Directory XXXXWEBROOT_DIRECTORYXXXX/XXXXWEBROOT_SUBDIRECTORYXXXX>
     	Options +SymLinksIfOwnerMatch -FollowSymLinks -Includes -ExecCGI -Indexes
-        
-        # Allows Joomla's native .htaccess file to override settings
         AllowOverride All
-        
-        # Enforce strict access control
         Require all granted
-
-	     # Moodle Slash Arguments handling (required for SCORM packages and files)
+		# Moodle Slash Arguments handling (required for SCORM packages and files)
         AcceptPathInfo On
+		FallbackResource /r.php
     </Directory>
 
 	 # Strict Security: Block direct web access to sensitive Moodle system paths
