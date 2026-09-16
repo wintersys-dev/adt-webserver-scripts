@@ -211,7 +211,7 @@ else
                 salt="`/usr/bin/tr -dc A-Za-z0-9 </dev/urandom | /usr/bin/head -c 8; /bin/echo`"
                 /bin/sed -i "s/XXXXSALTXXXX/${salt}/" ${HOME}/runtime/create_admin.sh
                 salted_website_password_hash="`/usr/bin/php -r "echo password_hash('"${website_password}${salt}"', PASSWORD_BCRYPT);"`"
-                /bin/sed -i "s;XXXXWEBMASTER_PASSWORDXXXX;${website_password_hash};" ${HOME}/runtime/create_admin.sh
+                /bin/sed -i "s;XXXXWEBMASTER_PASSWORDXXXX;${salted_website_password_hash};" ${HOME}/runtime/create_admin.sh
                 /bin/sed -i "s/XXXXWEBMASTER_EMAILXXXX/${webmaster_email}/" ${HOME}/runtime/create_admin.sh
                 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${HOME}/runtime/create_admin.sh
                 /bin/rm ${HOME}/runtime/create_admin.sh
