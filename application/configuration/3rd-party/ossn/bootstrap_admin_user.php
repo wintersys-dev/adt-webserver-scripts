@@ -13,6 +13,7 @@ $user->gender= 'male';
 $user->sendactiviation = false;
 $user->usertype = 'admin';
 $user->validated = true;
+$user->birthdate = '1995-06-15';
 
 if ($user->addUser()) {
     echo "User created successfully!\n";
