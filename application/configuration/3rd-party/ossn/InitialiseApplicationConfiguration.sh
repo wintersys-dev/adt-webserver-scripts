@@ -211,7 +211,7 @@ else
                 /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/ossn.install.php
                 /bin/cp ${HOME}/application/configuration/3rd-party/ossn/bootstrap_admin_user.php ${webroot_directory}/bootstrap_admin_user.php
                 /bin/sed -i "s/XXXXWEBMASTER_USERNAMEXXXX/${website_username}/" ${webroot_directory}/bootstrap_admin_user.php
-                /bin/sed -i "s;XXXXWEBMASTER_PASSWORDXXXX;${website_password_hash};" ${webroot_directory}/bootstrap_admin_user.php
+                /bin/sed -i "s;XXXXWEBMASTER_PASSWORDXXXX;${website_password};" ${webroot_directory}/bootstrap_admin_user.php
                 /bin/sed -i "s/XXXXWEBMASTER_EMAILXXXX/${webmaster_email}/" ${webroot_directory}/bootstrap_admin_user.php
                 cwd="`/usr/bin/pwd`"
                 cd ${webroot_directory}
