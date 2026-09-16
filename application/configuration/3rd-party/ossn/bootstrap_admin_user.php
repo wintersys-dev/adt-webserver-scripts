@@ -4,7 +4,7 @@ define('OSSN_ALLOW_SYSTEM_START', true);
 require_once('system/start.php');
 
 $user = new OssnUser;
-$user->username = 'newuser1';
+$user->username = 'XXXXWEBMASTER_USERNAMEXXXX';
 $user->email = 'user@example.com1';
 $user->password = 'SecurePassword123';
 $user->first_name = 'John';
