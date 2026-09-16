@@ -91,6 +91,15 @@ then
         /bin/chmod 750 /var/www/outside_webroot
 fi
 
+data_directory="`/bin/grep "^DATA_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+if ( [ ! -d ${data_directory} ] )
+then
+        /bin/mkdir -p  ${data_directory}
+        /bin/chown www-data:www-data ${data_directory}
+        /bin/chmod 750 ${data_directory}
+fi
+
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
 if ( [ "${config_file}" = "" ] )
@@ -192,13 +201,8 @@ else
         /bin/sed -i "s%<<user>>%${user}%" ${config_file}
         /bin/sed -i "s%<<password>>%${password}%" ${config_file}
         /bin/sed -i "s%<<dbname>>%${dbname}%" ${config_file}
-
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-
         /bin/sed -i "s%<<siteurl>>%https://${WEBSITE_URL}/%" ${config_file_site}
-
-        data_directory="`/bin/grep "^DATA_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-
         /bin/sed -i "s%<<datadir>>%${data_directory}/%" ${config_file_site}
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
