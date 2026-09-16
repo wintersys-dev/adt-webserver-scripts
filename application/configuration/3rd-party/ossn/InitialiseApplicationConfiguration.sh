@@ -160,16 +160,6 @@ else
         HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
 fi
 
-#Work out what database driver we need
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-then
-        driver="mysqli"
-fi
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-then
-        driver="mysqli"
-fi
 
 #ossn doesn't support TLS connections to the mysql database so have to use the _notls user. This means that ossn should not be used to access a database
 #that is hosted outside of the current VPC or private network. If ossn supports TLS over the wire to remote databases in the future this can be
