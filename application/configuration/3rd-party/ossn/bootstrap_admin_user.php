@@ -9,8 +9,10 @@ $user->email = 'XXXXWEBMASTER_EMAILXXXX';
 $user->password = 'XXXXWEBMASTER_PASSWORDXXXX';
 $user->first_name = 'System';
 $user->last_name = 'Administrator';
-$user->validated = 'true';
-$user->usertype = 'admin'; 
+$user->gender= 'male';
+$user->sendactiviation = false;
+$user->usertype = 'admin';
+$user->validated = true;
 
 if ($user->addUser()) {
     echo "User created successfully!\n";
