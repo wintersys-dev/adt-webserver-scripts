@@ -24,5 +24,4 @@ INSERT INTO `ossn_users` (
                 '', 
                 UNIX_TIMESTAMP(),
                 UNIX_TIMESTAMP()
-                );
-~                     
+                );                
