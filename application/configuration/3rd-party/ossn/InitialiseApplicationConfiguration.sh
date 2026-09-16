@@ -171,6 +171,48 @@ then
         driver="mysqli"
 fi
 
+database_tls="${HOME}/application/configuration/cms/drupal/database_tls_mysql.dat"
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+then
+        driver="mysql"
+        database_tls_file="${HOME}/application/configuration/cms/ossn/database_tls_mysql.dat"
+        tls_cert="${HOME}/runtime/DBaaS_CERT"
+        verify_tls_cert="TRUE"
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+        then
+                if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
+                then
+                        tls_cert="''"
+                        verify_tls_cert="FALSE"
+                fi
+        fi
+fi
+
+/bin/cp ${database_tls_file} ${HOME}/runtime/database_tls.dat
+PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION' | /bin/sed 's/\.//g'`"
+#PHP 8.5 and above
+#Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
+#PHP 8.4 and below
+#\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true
+
+if ( [ "${PHP_VERSION}" -ge "85" ] )
+then
+        /bin/sed -i '/XXXXPHP8.4_AND_DOWNXXXX/d' ${HOME}/runtime/database_tls.dat
+        /bin/sed -i 's/XXXXPHP8.5_AND_UPXXXX//g' ${HOME}/runtime/database_tls.dat
+else
+        /bin/sed -i '/XXXXPHP8.5_AND_UPXXXX/d' ${HOME}/runtime/database_tls.dat
+        /bin/sed -i 's/XXXXPHP8.4_AND_DOWNXXXX//g' ${HOME}/runtime/database_tls.dat
+fi
+
+/bin/sed -i "s/XXXXTLS_CERTXXXX/${tls_cert}/" ${HOME}/runtime/database_tls.dat
+/bin/sed -i "s/XXXXVERIFY_TLS_CERTXXXX/${verify_tls_cert}/" ${HOME}/runtime/database_tls.dat
+
+if ( [ -f ${webroot_directory}/classes/OssnDatabase.php ] )
+then
+        /bin/sed -i "/PDO::ATTR_EMULATE_PREPARES   => false,/ r ${HOME}/runtime/database_tls.dat" ${webroot_directory}/classes/OssnDatabase.php
+fi
+
 user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`_notls"
 password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
