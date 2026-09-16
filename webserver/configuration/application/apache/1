@@ -1,0 +1,85 @@
+# Hide server version on error pages
+ServerSignature Off
+
+#XXXXMODSECURITYXXXXSecRuleEngine On
+#XXXXMODSECURITYXXXXIncludeOptional /etc/modsecurity/*.conf
+#XXXXMODSECURITYXXXXInclude /etc/modsecurity/rules/*.conf
+
+SSLSessionCache "shmcb:/var/log/apache2/ssl_scache(512000)"
+ServerName XXXXWEBSITEURLXXXX
+
+<VirtualHost *:80>
+	ServerAdmin webmaster@XXXXROOTDOMAINXXXX
+	DocumentRoot XXXXWEBROOT_DIRECTORYXXXX
+
+    # Redirect all HTTP traffic to HTTPS (highly recommended)
+    RewriteEngine On
+    RewriteCond %{SERVER_NAME} =XXXXWEBSITEURLXXXX
+    RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+</VirtualHost>
+
+<VirtualHost *:443>
+	ServerAdmin webmaster@XXXXROOTDOMAINXXXX
+	DocumentRoot XXXXWEBROOT_DIRECTORYXXXX
+
+	SSLEngine on
+	SSLCertificateFile       XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem
+	SSLCertificateKeyFile    XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem
+	SSLCACertificateFile /etc/ssl/certs/ca-certificates.crt
+ 	SSLProtocol -ALL +TLSv1.2 +TLSv1.3
+	SSLCipherSuite  HIGH:!aNULL:!MD5;
+	SSLHonorCipherOrder on
+	SSLCompression off
+	SSLSessionTickets off
+	SSLSessionCacheTimeout 300
+	SSLOpenSSLConfCmd DHParameters "/etc/ssl/certs/dhparam.pem"
+
+	DirectoryIndex index.php index.html
+
+	<Files configurations/ossn.config.site.php>
+		Require all denied
+	</Files>
+
+  <Files configurations/ossn.config.db.php>
+		Require all denied
+	</Files>
+
+	<Files .htaccess>
+		Require all denied
+	</Files>
+
+	<Directory />
+    	AllowOverride None
+    	Require all denied
+	</Directory>
+	
+    # Directory Directives
+    <Directory XXXXWEBROOT_DIRECTORYXXXX>
+    	Options +SymLinksIfOwnerMatch -FollowSymLinks -Includes -ExecCGI -Indexes
+        
+        # Allows Joomla's native .htaccess file to override settings
+        AllowOverride All
+        
+        # Enforce strict access control
+        Require all granted
+    </Directory>
+
+    # Global Security Headers
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
+
+	# Proxy to PHP-FPM 
+	#XXXXFASTCGISOCKETXXXX<FilesMatch ".+\.php$">
+	#XXXXFASTCGISOCKETXXXX   <If "-f %{REQUEST_FILENAME}">
+	#XXXXFASTCGISOCKETXXXX   	SetHandler "proxy:unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock|fcgi://localhost"
+	#XXXXFASTCGISOCKETXXXX   </If>
+	#XXXXFASTCGISOCKETXXXX</FilesMatch>
+
+	#XXXXFASTCGIPORTXXXX<FilesMatch ".+\.php$">
+	#XXXXFASTCGIPORTXXXX    <If "-f %{REQUEST_FILENAME}">
+	#XXXXFASTCGIPORTXXXX    	SetHandler "proxy:fcgi://localhost:XXXXPORTXXXX"  
+	#XXXXFASTCGIPORTXXXX    </If>
+	#XXXXFASTCGIPORTXXXX</FilesMatch>
+</VirtualHost>
