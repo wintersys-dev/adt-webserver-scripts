@@ -207,14 +207,14 @@ else
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
-        
                 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
                 /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/ossn.install.php
                 /bin/cp ${HOME}/application/configuration/3rd-party/ossn/create_admin.sh ${HOME}/runtime/create_admin.sh
                 /bin/sed -i "s/XXXXWEBMASTER_USERNAMEXXXX/${website_username}/" ${HOME}/runtime/create_admin.sh
-                salt="`/usr/bin/tr -dc A-Za-z0-9 </dev/urandom | /usr/bin/head -c 8; /bin/echo`"
+                salt=""
+                website_password_hash="`/usr/bin/php -r "echo password_hash('"${website_password}"', PASSWORD_BCRYPT);"`"
+                salt="`/bin/echo ${website_password_hash} | /usr/bin/cut -c 8-29`"
                 /bin/sed -i "s/XXXXSALTXXXX/${salt}/" ${HOME}/runtime/create_admin.sh
-                salted_website_password_hash="`/usr/bin/php -r "echo password_hash('"${website_password}${salt}"', PASSWORD_BCRYPT);"`"
                 /bin/sed -i "s;XXXXWEBMASTER_PASSWORDXXXX;${salted_website_password_hash};" ${HOME}/runtime/create_admin.sh
                 /bin/sed -i "s/XXXXWEBMASTER_EMAILXXXX/${webmaster_email}/" ${HOME}/runtime/create_admin.sh
                 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${HOME}/runtime/create_admin.sh
