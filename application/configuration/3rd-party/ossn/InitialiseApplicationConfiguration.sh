@@ -342,10 +342,6 @@ done
 /bin/chown -R www-data:www-data  /var/www/outside_webroot
 
 
-
-
-
-
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
 then
@@ -366,7 +362,6 @@ then
         fi
 fi
 
-
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
@@ -374,7 +369,6 @@ then
         /bin/chmod 600 ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-        ${HOME}/utilities/security/EnforcePermissions.sh &
        
         if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
         then
@@ -389,9 +383,8 @@ fi
 if ( [ "$?" = "0" ] && [ ! -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
 then
         /bin/chmod 600 ${config_file_site}
-        /bin/chown root:www-data ${config_file_site}
+        /bin/chown www-data:www-data ${config_file_site}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-    #    ${HOME}/utilities/security/EnforcePermissions.sh 
        
         if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
         then
