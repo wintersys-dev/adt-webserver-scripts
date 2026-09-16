@@ -21,7 +21,7 @@ INSERT INTO `ossn_users` (
                 'admin', 
                 UNIX_TIMESTAMP(),
                 UNIX_TIMESTAMP(),
-                1, 
+                '', 
                 UNIX_TIMESTAMP(),
                 UNIX_TIMESTAMP()
                 );
