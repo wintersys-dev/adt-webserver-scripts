@@ -215,8 +215,12 @@ else
                 /bin/sed -i "s/XXXXWEBMASTER_EMAILXXXX/${webmaster_email}/" ${webroot_directory}/bootstrap_admin_user.php
                 cwd="`/usr/bin/pwd`"
                 cd ${webroot_directory}
+                /bin/cp ${config_file} ${webroot_directory}/configurations/ossn.config.db.php && /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
+                /bin/cp ${config_file_site} ${webroot_directory}/configurations/ossn.config.site.php && /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
                 /usr/bin/php ${webroot_directory}/bootstrap_admin_user.php
                 /bin/rm ${webroot_directory}/bootstrap_admin_user.php
+                /bin/rm ${webroot_directory}/configurations/ossn.config.db.php
+                /bin/rm ${webroot_directory}/configurations/ossn.config.site.php
                 cd ${cwd}
         else
                 /bin/touch ${webroot_directory}/installation/INSTALLED
