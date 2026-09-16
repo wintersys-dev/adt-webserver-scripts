@@ -205,7 +205,13 @@ else
         then
                 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
                 /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/ossn.install.php
-
+                /bin/cp ${HOME}/application/configuration/3rd-party/ossn/create_admin.sh ${HOME}/runtime/create_admin.sh
+                /bin/sed -i "s/XXXXWEBMASTER_USERNAMEXXXX/${website_username}/" ${HOME}/runtime/create_admin.sh
+                website_password_hash="`/usr/bin/php -r "echo password_hash('"${website_password}"', PASSWORD_BCRYPT);"`"
+                /bin/sed -i "s/XXXXWEBMASTER_PASSWORDXXXX/${website_password_hash}/" ${HOME}/runtime/create_admin.sh
+                /bin/sed -i "s/XXXXWEBMASTER_EMAILXXXX/${webmaster_email}/" ${HOME}/runtime/create_admin.sh
+                ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${HOME}/runtime/create_admin.sh
+                /bin/rm ${HOME}/runtime/create_admin.sh
         else
                 /bin/touch ${webroot_directory}/installation/INSTALLED
                 /bin/chown www-data:www-data ${webroot_directory}/installation/INSTALLED
