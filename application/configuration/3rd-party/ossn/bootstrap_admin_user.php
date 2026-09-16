@@ -5,12 +5,12 @@ require_once('system/start.php');
 
 $user = new OssnUser;
 $user->username = 'XXXXWEBMASTER_USERNAMEXXXX';
-$user->email = 'user@example.com1';
-$user->password = 'SecurePassword123';
-$user->first_name = 'John';
-$user->last_name = 'Doe';
+$user->email = 'XXXXWEBMASTER_EMAILXXXX';
+$user->password = 'XXXXWEBMASTER_PASSWORDXXXX';
+$user->first_name = 'System';
+$user->last_name = 'Administrator';
 $user->validated = true;
-$user->type = 'administrator'; // Use 'admin' for an administrator account
+$user->type = 'admin'; 
 
 if ($user->addUser()) {
     echo "User created successfully!\n";
