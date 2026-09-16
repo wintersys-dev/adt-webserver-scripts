@@ -78,6 +78,12 @@ then
         /bin/chown www-data:www-data /var/www/html/ossn.config.db.php.default
 fi
 
+if ( [ -f ${webroot_directory}/configurations/ossn.config.site.example.php ] )
+then
+        /bin/cp ${webroot_directory}/configurations/ossn.config.site.example.php /var/www/html/ossn.config.site.php.default
+        /bin/chown www-data:www-data /var/www/html/ossn.config.site.php.default
+fi
+
 if ( [ ! -d /var/www/outside_webroot ] )
 then
         /bin/mkdir /var/www/outside_webroot
@@ -89,10 +95,15 @@ config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/b
 
 if ( [ "${config_file}" = "" ] )
 then
-        config_file="/var/www/html/ossn.config.db.php"
+        config_file="/var/www/outside_webroot/ossn.config.db.php"
 fi
 
-if ( [ -f ${webroot_directory}/ossn.config.db.php ] )
+if ( [ -f ${config_file} ] )
+then
+        /bin/rm ${config_file}
+fi
+
+if ( [ -f ${webroot_directory}/ossn.config.db.php ] ) 
 then
         /bin/rm ${webroot_directory}/ossn.config.db.php
 fi
@@ -109,119 +120,78 @@ then
         /bin/rm ${webroot_directory}/ossn.config.site.php
 fi
 
-if ( [ -f ${webroot_directory}/configurations/ossn.config.site.example.php ] )
+# Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
+session_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
+
+if ( [ ! -d ${session_save_path} ] )
 then
-        /bin/cp ${webroot_directory}/configurations/ossn.config.site.example.php /var/www/html/ossn.config.site.php.default
-        /bin/chown www-data:www-data /var/www/html/ossn.config.site.php.default
+        /bin/mkdir -p ${session_save_path}
+        /bin/chown www-data:www-data ${session_save_path}
+        /bin/chmod 770 ${session_save_path}
 fi
 
 dbprefix="ossn_"
 /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
 /bin/chown www-data:www-data /var/www/html/dbp.dat
 
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+#Find out where our database server is
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
 then
-        if ( [ ! -f ${webroot_directory}/ossn.config.db.php ] || [ ! -f ${webroot_directory}/ossn.site.db.php ] )
+        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+else
+        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+fi
+
+DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+else
+        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+fi
+
+#Work out what database driver we need
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+then
+        driver="mysqli"
+fi
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+then
+        driver="mysqli"
+fi
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Postgres`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Postgres`" = "1" ] )
+then
+        driver="pgsql"
+fi
+
+user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`_notls"
+password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
+dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
+
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
+else
+        if ( [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
         then
-                while ( [ ! -f ${webroot_directory}/ossn.config.db.php ] || [ ! -f ${webroot_directory}/ossn.site.db.php ] )
-                do
-                        /bin/sleep 1
-                done
+                if ( [ ! -f ${webroot_directory}/ossn.config.db.php ] || [ ! -f ${webroot_directory}/ossn.site.db.php ] )
+                then
+                        while ( [ ! -f ${webroot_directory}/ossn.config.db.php ] || [ ! -f ${webroot_directory}/ossn.site.db.php ] )
+                        do
+                                /bin/sleep 1
+                        done
+                fi
         fi
 else
-        if ( [ -f ${config_file} ] )
-        then
-                /bin/rm ${config_file}
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-        then
-                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-        else
-                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-        fi
-        DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-        then
-                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-        else
-                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-        fi
-
-        if ( [ -f ${HOME}/runtime/application.dat ] )
-        then
-                if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
-                then
-                        /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
-                fi
-
-                if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
-                then
-                        /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                fi
-
-                for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-                do
-                        directory="/var/www/html/${directory}"
-
-                        if ( [ ! -d ${directory} ] )
-                        then
-                                /bin/mkdir -p ${directory}
-                                /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                        fi
-
-                        while ( [ "${directory}" != "/var/www/html" ] )
-                        do
-                                /bin/chmod 755 ${directory}
-                                /bin/chown www-data:www-data ${directory}
-                                directory=`/usr/bin/dirname "${directory}"`
-                        done
-                done
-        fi
-
-
-        if ( [ -f /var/www/html/ossn.config.db.php.default ] && [ ! -f ${config_file} ] )
-        then
-                /bin/cp /var/www/html/ossn.config.db.php.default ${config_file}
-                /bin/chown www-data:www-data ${config_file}
-                /bin/chmod 400 ${config_file}
-        else
-                if ( [ ! -f  ${HOME}/runtime/CONFIG_EMAIL_SENT ] )
-                then
-                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
-                        /bin/touch ${HOME}/runtime/CONFIG_EMAIL_SENT
-                        exit
-                fi
-        fi
-
-        if ( [ -f /var/www/html/ossn.config.site.php.default ] && [ ! -f ${config_file_site} ] )
-        then
-                /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
-                /bin/chown www-data:www-data ${config_file_site}
-                /bin/chmod 400 ${config_file_site}
-        else
-                if ( [ ! -f  ${HOME}/runtime/CONFIG_SITE_EMAIL_SENT ] )
-                then
-                        ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn site configuration file is absent" "ERROR"
-                        /bin/touch ${HOME}/runtime/CONFIG_SITE_EMAIL_SENT
-                        exit
-                fi
-        fi
-
-        user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`_notls"
-        password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
-        dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-        then
-                type="mysqli"
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-        then
-                type="mysqli"
-        fi
+        /bin/cp /var/www/html/ossn.config.db.php.default ${config_file}
+        /bin/chown www-data:www-data ${config_file}
+        /bin/chmod 400 ${config_file}
+        
+        /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
+        /bin/chown www-data:www-data ${config_file_site}
+        /bin/chmod 400 ${config_file_site}
 
         /bin/sed -i "s%<<host>>%${HOST}%" ${config_file}
         /bin/sed -i "s%<<port>>%${DB_PORT}%" ${config_file}
@@ -251,6 +221,9 @@ fi
 /bin/echo "OSSN" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
+/bin/echo "${webroot_directory}" > /var/www/html/wr.dat
+/bin/chown www-data:www-data /var/www/html/wr.dat
+
 if ( [ ! -f ${webroot_directory}/.htaccess ] )
 then
         /bin/sed -i 's/order allow,deny/Require all granted/g' ${webroot_directory}/installation/configs/htaccess.dist
@@ -263,24 +236,103 @@ fi
 if ( [ -f ${webroot_directory}/ossn.config.db.php ] )
 then
         /bin/mv ${webroot_directory}/ossn.config.db.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chmod 600 ${config_file}
 fi
+
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configurations/ossn.config.db.php
 /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
 /bin/chmod 600 ${webroot_directory}/configurations/ossn.config.db.php
+/bin/chown www-data:www-data ${config_file}
+/bin/chmod 600 ${config_file}
 
 if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
 then
         /bin/mv ${webroot_directory}/ossn.config.site.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chmod 600 ${config_file}
 fi
 
 /bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
 /bin/chmod 600 ${webroot_directory}/configurations/ossn.config.site.php
+/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
+/bin/chown www-data:www-data ${config_file}
+/bin/chmod 600 ${config_file}
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
+then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" != "1" ] )
+        then
+                assets_directories_to_link="`/bin/grep "^ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+                for asset_directory in ${assets_directories_to_link}
+                do
+                        link_directory="${webroot_directory}/${asset_directory}"
+                        outside_webroot_directory="/var/www/outside_webroot/${asset_directory}"
+
+                        if ( [ -L ${link_directory} ] )
+                        then
+                                /usr/bin/unlink ${link_directory}
+                        fi
+
+                        if ( [ -d ${link_directory} ] )
+                        then
+                                if ( [ ! -d ${outside_webroot_directory} ] )
+                                then
+                                        /bin/mkdir -p ${outside_webroot_directory}
+                                fi
+                                /bin/mv ${link_directory}/* ${outside_webroot_directory}
+                                /bin/rm -r ${link_directory}
+                        else
+                                /bin/mkdir -p ${outside_webroot_directory}
+                        fi
+
+                        /bin/chown -R www-data:www-data ${outside_webroot_directory}
+                        /bin/chmod 750 ${outside_webroot_directory}
+                        /bin/ln -s ${outside_webroot_directory} ${link_directory}
+                done
+        fi
+fi
+
+directories="`/bin/grep "^DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+
+        if ( [ -f ${webroot_directory}/${directory} ] )
+        then
+                /bin/rm ${webroot_directory}/${directory} 
+        fi
+
+        if ( [ -L ${webroot_directory}/${directory} ] )
+        then
+                /bin/unlink ${webroot_directory}/${directory} 
+        fi
+
+        /bin/ln -s /var/www/outside_webroot/${directory} ${webroot_directory}/${directory}
+done
+
+
+directories="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+done
+
+#As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
+/bin/chown -R www-data:www-data  /var/www/outside_webroot
+
+
+
+
+
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
@@ -302,9 +354,6 @@ then
         fi
 fi
 
-/bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
-/bin/chown www-data:www-data `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
-/bin/chmod 775 `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
 
 /usr/bin/php -ln ${config_file}
 
