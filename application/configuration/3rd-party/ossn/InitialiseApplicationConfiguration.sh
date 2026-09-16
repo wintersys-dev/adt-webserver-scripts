@@ -209,15 +209,15 @@ else
         then
                 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
                 /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/ossn.install.php
-                /bin/cp ${HOME}/application/configuration/3rd-party/ossn/create_admin.sql ${HOME}/runtime/create_admin.sql
-                /bin/sed -i "s/XXXXWEBMASTER_USERNAMEXXXX/${website_username}/" ${HOME}/runtime/create_admin.sql
-                website_password_hash="`/usr/bin/php -r "echo password_hash('"${website_password}"', PASSWORD_BCRYPT);"`"
-                salt="`/usr/bin/tr -dc A-Za-z0-9 </dev/urandom | /usr/bin/head -c 8; /bin/echo`"
-                /bin/sed -i "s/XXXXSALTXXXX/${salt}/" ${HOME}/runtime/create_admin.sql
-                /bin/sed -i "s;XXXXWEBMASTER_PASSWORDXXXX;${website_password_hash};" ${HOME}/runtime/create_admin.sql
-                /bin/sed -i "s/XXXXWEBMASTER_EMAILXXXX/${webmaster_email}/" ${HOME}/runtime/create_admin.sql
-                ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${HOME}/runtime/create_admin.sql
-                /bin/rm ${HOME}/runtime/create_admin.sql
+                /bin/cp ${HOME}/application/configuration/3rd-party/ossn/bootstrap_admin_user.php ${webroot_directory}/bootstrap_admin_user.php
+                /bin/sed -i "s/XXXXWEBMASTER_USERNAMEXXXX/${website_username}/" ${webroot_directory}/bootstrap_admin_user.php
+                /bin/sed -i "s;XXXXWEBMASTER_PASSWORDXXXX;${website_password_hash};" ${webroot_directory}/bootstrap_admin_user.php
+                /bin/sed -i "s/XXXXWEBMASTER_EMAILXXXX/${webmaster_email}/" ${webroot_directory}/bootstrap_admin_user.php
+                cwd="`/usr/bin/pwd`"
+                cd ${webroot_directory}
+                /usr/bin/php ${webroot_directory}/bootstrap_admin_user.php
+                /bin/rm ${webroot_directory}/bootstrap_admin_user.php
+                cd ${cwd}
         else
                 /bin/touch ${webroot_directory}/installation/INSTALLED
                 /bin/chown www-data:www-data ${webroot_directory}/installation/INSTALLED
