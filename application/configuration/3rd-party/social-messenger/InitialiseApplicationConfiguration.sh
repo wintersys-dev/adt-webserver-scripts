@@ -297,11 +297,7 @@ fi
 
 if ( [ "$?" = "0" ] )
 then
-        /bin/chmod 600 ${config_file}
-        /bin/chown root:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-      #  ${HOME}/utilities/security/EnforcePermissions.sh 
-
         if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
         then
                 /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
