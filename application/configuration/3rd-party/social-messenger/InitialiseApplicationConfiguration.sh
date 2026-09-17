@@ -136,14 +136,14 @@ tls_suffix="_notls"
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
 then
         tls_suffix=""
-        /bin/sed -i "s;XXXXHOMEXXXX;${HOME};" /var/www/html/config.php
+        /bin/sed -i "s;XXXXHOMEXXXX;${HOME};" ${webroot_directory}/config.php
 fi
 
 user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`${tls_suffix}"
 password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 
-/bin/cp /var/www/html/config.php ${config_file}
+/bin/cp ${webroot_directory}/config.php ${config_file}
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 400 ${config_file}
 
