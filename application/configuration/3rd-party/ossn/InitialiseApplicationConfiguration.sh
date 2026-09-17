@@ -206,6 +206,7 @@ else
                 /bin/sed -i "s/<<owner_email>>/${owner_email}/" ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
                 notification_email="`/bin/grep "^WEBMASTER_EMAIL:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
                 /bin/sed -i "s/<<notification_email>>/${notification_email}/" ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
+                /bin/cp ${HOME}/application/configuration/3rd-party/ossn/bootstrap_admin_user.php ${webroot_directory}/bootstrap_admin_user.php
                 ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/installation/sql/opensource-socialnetwork.sql
                 /bin/sed -i '0,/requirments/{s//account/}' ${webroot_directory}/installation/libraries/ossn.install.php
                 /bin/cp ${HOME}/application/configuration/3rd-party/ossn/bootstrap_admin_user.php ${webroot_directory}/bootstrap_admin_user.php
