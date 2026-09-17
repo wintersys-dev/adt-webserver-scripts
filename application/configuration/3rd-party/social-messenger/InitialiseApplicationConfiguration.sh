@@ -78,8 +78,8 @@ then
         /bin/chown www-data:www-data /var/www/html/config.php.default
 elif ( [ ! f ${webroot_directory}/config.php ] && [ -f /var/www/html/config.php.default ] )
 then
-        /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php /var/www/html/config.php.default
-        /bin/chown www-data:www-data /var/www/html/config.php.default 
+        /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php 
+        /bin/chown www-data:www-data ${webroot_directory}/config.php  
 fi
 
 if ( [ ! -d /var/www/outside_webroot ] )
