@@ -112,6 +112,35 @@ dbprefix="social_messenger_" #This is expected to be present even though it is n
 /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
 /bin/chown www-data:www-data /var/www/html/dbp.dat
 
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+else
+        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+fi
+DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+        HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
+else
+        HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
+fi
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+then
+        type="mysqli"
+fi
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+then
+        type="mysqli"
+fi
+
+user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`_notls"
+password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
+dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
         if ( [ ! -f ${webroot_directory}/config.php ] )
@@ -122,78 +151,10 @@ then
                 done
         fi
 else
-        if ( [ -f ${config_file} ] )
-        then
-                /bin/rm ${config_file}
-        fi
+        /bin/cp /var/www/html/config.php.default ${config_file}
+        /bin/chown www-data:www-data ${config_file}
+        /bin/chmod 400 ${config_file}
 
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-        then
-                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-        else
-                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-        fi
-        DB_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBPORT'`"
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
-        then
-                HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
-        else
-                HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-        fi
-
-        if ( [ -f ${HOME}/runtime/application.dat ] )
-        then
-                if ( [ ! -d ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing ] )
-                then
-                        /bin/mkdir -p ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing
-                fi
-
-                if ( [ -f ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat ] )
-                then
-                        /bin/rm ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                fi
-
-                for directory in `/bin/grep "^DIRECTORIES_TO_CREATE:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_TO_CREATE://g' | /bin/sed 's/:/ /g'`
-                do
-                        directory="/var/www/html/${directory}"
-
-                        if ( [ ! -d ${directory} ] )
-                        then
-                                /bin/mkdir -p ${directory}
-                                /bin/echo "${directory}" >> ${HOME}/runtime/filesystem_sync/webroot-sync/outgoing/exclusion_list.dat
-                        fi
-
-                        while ( [ "${directory}" != "/var/www/html" ] )
-                        do
-                                /bin/chmod 755 ${directory}
-                                /bin/chown www-data:www-data ${directory}
-                                directory=`/usr/bin/dirname "${directory}"`
-                        done
-                done
-        fi
-
-        if ( [ -f /var/www/html/config.php.default ] )
-        then
-                /bin/cp /var/www/html/config.php.default ${config_file}
-        else
-                ${HOME}/services/email/SendEmail.sh "DEFAULT CONFIGURATION FILE ABSENT" "Default ossn configuration file is absent" "ERROR"
-                exit
-        fi
-
-        user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`_notls"
-        password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
-        dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-        then
-                type="mysqli"
-        fi
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-        then
-                type="mysqli"
-        fi
 
         /bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}'");/g' ${config_file}
         /bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${user}'");/g' ${config_file}
