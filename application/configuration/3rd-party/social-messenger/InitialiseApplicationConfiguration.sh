@@ -134,34 +134,22 @@ user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/applicati
 password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
+/bin/cp /var/www/html/config.php.default ${config_file}
+/bin/chown www-data:www-data ${config_file}
+/bin/chmod 400 ${config_file}
+
+/bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}'");/g' ${config_file}
+/bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${user}'");/g' ${config_file}
+/bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${password}'");/g' ${config_file}
+/bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${dbname}'");/g' ${config_file}
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
-        if ( [ ! -f ${webroot_directory}/config.php ] )
-        then
-                while ( [ ! -f ${webroot_directory}/config.php ] )
-                do
-                        /bin/sleep 1
-                done
-        fi
+        /bin/sed -i "s/social_messenger_db/${dbname}/g" ${webroot_directory}/database.sql
+        ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/database.sql
 else
-        /bin/cp /var/www/html/config.php.default ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chmod 400 ${config_file}
-
-
-        /bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}'");/g' ${config_file}
-        /bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${user}'");/g' ${config_file}
-        /bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${password}'");/g' ${config_file}
-        /bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${dbname}'");/g' ${config_file}
-
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
-        then
-                /bin/sed -i "s/social_messenger_db/${dbname}/g" ${webroot_directory}/database.sql
-                ${HOME}/utilities/remote/ConnectToRemoteMySQL.sh < ${webroot_directory}/database.sql
-        else
-                /bin/touch ${webroot_directory}/installation/INSTALLED
-                /bin/chown www-data:www-data ${webroot_directory}/installation/INSTALLED
-        fi
+        /bin/touch ${webroot_directory}/installation/INSTALLED
+        /bin/chown www-data:www-data ${webroot_directory}/installation/INSTALLED
 fi
 
 #This is how we tell ourselves this is a the Open Source Social Network  application
@@ -190,12 +178,6 @@ fi
 
 /bin/echo "${webroot_directory}" > /var/www/html/wr.dat
 /bin/chown www-data:www-data /var/www/html/wr.dat
-
-
-if ( [ -f ${webroot_directory}/config.php ] )
-then
-        /bin/mv ${webroot_directory}/config.php ${config_file}
-fi
 
 
 /bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
