@@ -76,6 +76,10 @@ if ( [ -f ${webroot_directory}/config.php ] && [ ! -f /var/www/html/config.php.d
 then
         /bin/cp ${webroot_directory}/config.php /var/www/html/config.php.default
         /bin/chown www-data:www-data /var/www/html/config.php.default
+elif ( [ ! f ${webroot_directory}/config.php ] && [ -f /var/www/html/config.php.default ] )
+then
+        /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php /var/www/html/config.php.default
+        /bin/chown www-data:www-data /var/www/html/config.php.default 
 fi
 
 if ( [ ! -d /var/www/outside_webroot ] )
