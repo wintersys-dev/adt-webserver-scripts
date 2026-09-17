@@ -76,10 +76,6 @@ if ( [ -f ${webroot_directory}/config.php ] && [ ! -f /var/www/html/config.php.d
 then
         /bin/cp ${webroot_directory}/config.php /var/www/html/config.php.default
         /bin/chown www-data:www-data /var/www/html/config.php.default
-elif ( [ ! f ${webroot_directory}/config.php ] && [ -f /var/www/html/config.php.default ] )
-then
-        /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php 
-        /bin/chown www-data:www-data ${webroot_directory}/config.php  
 fi
 
 if ( [ ! -d /var/www/outside_webroot ] )
@@ -96,9 +92,14 @@ then
         config_file="/var/www/html/config.php"
 fi
 
-if ( [ -f ${webroot_directory}/config.php ] )
+#if ( [ -f ${webroot_directory}/config.php ] )
+#then
+#        /bin/rm ${webroot_directory}/config.php
+#fi
+
+if ( [ ! -f ${webroot_directory}/config.php ] || [ "`/usr/bin/diff /var/www/html/config.php.default ${webroot_directory}/config.php`" != "" ] )
 then
-        /bin/rm ${webroot_directory}/config.php
+        /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php 
 fi
 
 # Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
@@ -130,11 +131,19 @@ else
         HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
 fi
 
-user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`_notls"
+tls_suffix="_notls"
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+        tls_suffix=""
+        /bin/sed -i "s;XXXXHOMEXXXX;${HOME};" /var/www/html/config.php
+fi
+
+user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`${tls_suffix}"
 password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 
-/bin/cp /var/www/html/config.php.default ${config_file}
+/bin/cp /var/www/html/config.php ${config_file}
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 400 ${config_file}
 
