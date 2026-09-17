@@ -1,2 +1,2 @@
-PDO::MYSQL_ATTR_SSL_CA             => 'XXXHOMEXXXX/runtime/DBaaS_CERT', 
+PDO::MYSQL_ATTR_SSL_CA             => 'XXXXHOMEXXXX/runtime/DBaaS_CERT', 
 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true 
