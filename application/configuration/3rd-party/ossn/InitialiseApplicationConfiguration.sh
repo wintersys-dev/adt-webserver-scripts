@@ -173,9 +173,9 @@ webmaster_email="`/bin/grep "^WEBMASTER_EMAIL:" ${HOME}/runtime/application.dat 
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
-        if ( [ ! -f ${webroot_directory}/ossn.config.db.php ] || [ ! -f ${webroot_directory}/ossn.site.db.php ] )
+        if ( [ ! -f ${webroot_directory}/configurations/ossn.config.db.php ] || [ ! -f ${webroot_directory}/configurations/ossn.site.db.php ] )
         then
-                while ( [ ! -f ${webroot_directory}/ossn.config.db.php ] || [ ! -f ${webroot_directory}/ossn.site.db.php ] )
+                while ( [ ! -f ${webroot_directory}/configurations/ossn.config.db.php ] || [ ! -f ${webroot_directory}/configurations/ossn.site.db.php ] )
                 do
                         /bin/sleep 1
                 done
