@@ -191,9 +191,6 @@ then
         /bin/rm ${HOME}/runtime/tls_enable.php
 fi
 
-#ossn doesn't support TLS connections to the mysql database so have to use the _notls user. This means that ossn should not be used to access a database
-#that is hosted outside of the current VPC or private network. If ossn supports TLS over the wire to remote databases in the future this can be
-#updated and made secure. 
 user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`${tls_suffix}"
 password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
