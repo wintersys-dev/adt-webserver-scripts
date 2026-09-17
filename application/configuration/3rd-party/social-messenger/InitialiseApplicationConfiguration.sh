@@ -107,7 +107,6 @@ then
         /bin/chmod 770 ${session_save_path}
 fi
 
-
 dbprefix="social_messenger_" #This is expected to be present even though it is not used by other parts of the processing
 /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
 /bin/chown www-data:www-data /var/www/html/dbp.dat
@@ -125,16 +124,6 @@ then
         HOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'DBIDENTIFIER'`"
 else
         HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
-fi
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
-then
-        type="mysqli"
-fi
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
-then
-        type="mysqli"
 fi
 
 user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`_notls"
@@ -161,8 +150,6 @@ else
         /bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${password}'");/g' ${config_file}
         /bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${dbname}'");/g' ${config_file}
 
-
-
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
                 /bin/sed -i "s/social_messenger_db/${dbname}/g" ${webroot_directory}/database.sql
@@ -176,18 +163,6 @@ fi
 #This is how we tell ourselves this is a the Open Source Social Network  application
 /bin/echo "SOCIAL-MESSENGER" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
-
-
-if ( [ -f ${webroot_directory}/config.php ] )
-then
-        /bin/mv ${webroot_directory}/config.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chmod 600 ${config_file}
-fi
-
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
-/bin/chown www-data:www-data ${webroot_directory}/config.php
-/bin/chmod 600 ${webroot_directory}/config.php
 
 #For ease of use we tell ourselves what database engine this webroot is associated with
 if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
@@ -209,9 +184,114 @@ then
         fi
 fi
 
-/bin/mkdir -p `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
-/bin/chown www-data:www-data `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
-/bin/chmod 775 `/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`
+/bin/echo "${webroot_directory}" > /var/www/html/wr.dat
+/bin/chown www-data:www-data /var/www/html/wr.dat
+
+
+if ( [ -f ${webroot_directory}/config.php ] )
+then
+        /bin/mv ${webroot_directory}/config.php ${config_file}
+fi
+
+
+/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
+/bin/chown www-data:www-data ${webroot_directory}/config.php
+/bin/chmod 600 ${webroot_directory}/config.php
+/bin/chown www-data:www-data ${config_file}
+/bin/chmod 600 ${config_file}
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
+then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" != "1" ] )
+        then
+                assets_directories_to_link="`/bin/grep "^ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+                for asset_directory in ${assets_directories_to_link}
+                do
+                        link_directory="${webroot_directory}/${asset_directory}"
+                        outside_webroot_directory="/var/www/outside_webroot/${asset_directory}"
+
+                        if ( [ -L ${link_directory} ] )
+                        then
+                                /usr/bin/unlink ${link_directory}
+                        fi
+
+                        if ( [ -d ${link_directory} ] )
+                        then
+                                if ( [ ! -d ${outside_webroot_directory} ] )
+                                then
+                                        /bin/mkdir -p ${outside_webroot_directory}
+                                fi
+                                /bin/mv ${link_directory}/* ${outside_webroot_directory}
+                                /bin/rm -r ${link_directory}
+                        else
+                                /bin/mkdir -p ${outside_webroot_directory}
+                        fi
+
+                        /bin/chown -R www-data:www-data ${outside_webroot_directory}
+                        /bin/chmod 750 ${outside_webroot_directory}
+                        /bin/ln -s ${outside_webroot_directory} ${link_directory}
+                done
+        fi
+fi
+
+directories="`/bin/grep "^DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+
+        if ( [ -f ${webroot_directory}/${directory} ] )
+        then
+                /bin/rm ${webroot_directory}/${directory} 
+        fi
+
+        if ( [ -L ${webroot_directory}/${directory} ] )
+        then
+                /bin/unlink ${webroot_directory}/${directory} 
+        fi
+
+        /bin/ln -s /var/www/outside_webroot/${directory} ${webroot_directory}/${directory}
+done
+
+
+directories="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+done
+
+#As I said we expect all files that our outside of the webroot to be accessible and updatable by the user that the webserver is running as www-data
+/bin/chown -R www-data:www-data  /var/www/outside_webroot
+
+#For ease of use we tell ourselves what database engine this webroot is associated with
+if ( [ ! -f /var/www/html/dbe.dat ] || [ "`/bin/cat /var/www/html/dbe.dat`" = "" ] )
+then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:Maria`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:Maria`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires Maria DB as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONTYPE:MySQL`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:MySQL`" = "1" ] )
+        then
+                /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
+        fi
+
+        if ( [ -f /var/www/html/dbe.dat ] )
+        then
+                /bin/chown www-data:www-data /var/www/html/dbe.dat
+                /bin/chmod 600 /var/www/html/dbe.dat
+        fi
+fi
 
 /usr/bin/php -ln ${config_file}
 
