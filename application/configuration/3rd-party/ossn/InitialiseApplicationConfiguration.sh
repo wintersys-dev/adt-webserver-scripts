@@ -121,7 +121,7 @@ config_file_site="`/bin/grep "^CONFIG_FILE_SITE:" ${HOME}/runtime/application.da
 
 if ( [ "${config_file_site}" = "" ] )
 then
-        config_file_site="/var/www/html/ossn.site.db.php"
+        config_file_site="/var/www/outside_webroot/ossn.site.db.php"
 fi
 
 if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
