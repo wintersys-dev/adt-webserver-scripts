@@ -49,7 +49,7 @@ then
         /bin/chown -R www-data:www-data /var/www/html
 else
         checksum="0"
-        if ( [ "`/bin/grep "^SOURCECODE_URL:ossn" ${HOME}/runtime/application.dat | /bin/grep 'opensource-socialnetwork.org'`" != "" ] )
+        if ( [ "`/bin/grep "^SOURCECODE_URL:www.opensource-socialnetwork" ${HOME}/runtime/application.dat | /bin/grep 'opensource-socialnetwork.org'`" != "" ] )
         then
                 SOURCECODE_URL="`/bin/grep "^SOURCECODE_URL" ${HOME}/runtime/application.dat | /bin/sed 's/SOURCECODE_URL://g' | /bin/sed 's/:/ /g'`"
         elif ( [ "`/bin/grep "^SOURCECODE_URL:github" ${HOME}/runtime/application.dat | /bin/grep 'github.com'`" != "" ] )
