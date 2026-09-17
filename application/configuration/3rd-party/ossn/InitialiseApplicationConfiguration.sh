@@ -31,7 +31,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
+#
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
@@ -160,11 +160,41 @@ else
         HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "databaseip/*"`"
 fi
 
+tls_suffix="_notls"
+
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
+then
+        tls_suffix=""
+        /bin/cp ${HOME}/application/configuration/3rd-party/ossn/tls_enable.php ${HOME}/runtime/tls_enable.php
+
+        PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION' | /bin/sed 's/\.//g'`"
+        
+        #PHP 8.5 and above
+        #Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => true,
+        #PHP 8.4 and below
+        # \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true 
+
+        if ( [ "${PHP_VERSION}" -ge "85" ] )
+        then
+                /bin/sed -i '/XXXXPHP8.4_AND_DOWNXXXX/d' ${HOME}/runtime/tls_enable.php 
+                /bin/sed -i 's/XXXXPHP8.5_AND_UPXXXX//g' ${HOME}/runtime/tls_enable.php 
+        else 
+                /bin/sed -i '/XXXXPHP8.5_AND_UPXXXX/d' ${HOME}/runtime/tls_enable.php 
+                /bin/sed -i 's/XXXXPHP8.4_AND_DOWNXXXX//g' ${HOME}/runtime/tls_enable.php 
+        fi
+
+        /bin/sed -i '/ATTR_SSL_CA/d' ${webroot_directory}/classes/OssnDatabase.php
+        /bin/sed -i '/ATTR_SSL_VERIFY_SERVER_CERT/d' ${webroot_directory}/classes/OssnDatabase.php
+
+        /bin/sed -i "s;XXXXHOMEXXXX;${HOME};" ${HOME}/runtime/tls_enable.php
+        /bin/sed -i "/PDO::ATTR_EMULATE_PREPARES   => false,/ r ${HOME}/runtime/tls_enable.php" ${webroot_directory}/classes/OssnDatabase.php
+        /bin/rm ${HOME}/runtime/tls_enable.php
+fi
 
 #ossn doesn't support TLS connections to the mysql database so have to use the _notls user. This means that ossn should not be used to access a database
 #that is hosted outside of the current VPC or private network. If ossn supports TLS over the wire to remote databases in the future this can be
 #updated and made secure. 
-user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`_notls"
+user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`${tls_suffix}"
 password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 website_username="`/bin/grep "^WEBSITE_USERNAME:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -184,7 +214,7 @@ else
         /bin/cp /var/www/html/ossn.config.db.php.default ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/chmod 400 ${config_file}
-        
+
         /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
         /bin/chown www-data:www-data ${config_file_site}
         /bin/chmod 400 ${config_file_site}
@@ -224,10 +254,9 @@ else
                 /bin/rm ${webroot_directory}/configurations/ossn.config.db.php
                 /bin/rm ${webroot_directory}/configurations/ossn.config.site.php
                 cd ${cwd}
-        else
-                /bin/touch ${webroot_directory}/installation/INSTALLED
-                /bin/chown www-data:www-data ${webroot_directory}/installation/INSTALLED
         fi
+
+
 fi
 
 #This is how we tell ourselves this is a the Open Source Social Network  application
@@ -246,14 +275,14 @@ then
         then
                 /bin/echo "For your information this application requires MySQL as its database" > /var/www/html/dbe.dat
         fi
-        
+
         if ( [ -f /var/www/html/dbe.dat ] )
         then
                 /bin/chown www-data:www-data /var/www/html/dbe.dat
                 /bin/chmod 600 /var/www/html/dbe.dat
         fi
 fi
-        
+
 /bin/echo "${webroot_directory}" > /var/www/html/wr.dat
 /bin/chown www-data:www-data /var/www/html/wr.dat
 
@@ -390,7 +419,7 @@ then
         /bin/chmod 600 ${config_file}
         /bin/chown www-data:www-data ${config_file}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-       
+
         if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
         then
                 /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
@@ -406,7 +435,7 @@ then
         /bin/chmod 600 ${config_file_site}
         /bin/chown www-data:www-data ${config_file_site}
         /bin/touch ${HOME}/runtime/INITIAL_CONFIG_SET
-       
+
         if ( [ -f ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED ] )
         then
                 /bin/rm ${HOME}/runtime/INITIAL_CONFIG_SET_FAILED
