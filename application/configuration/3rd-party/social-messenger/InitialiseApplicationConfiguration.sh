@@ -136,7 +136,11 @@ tls_suffix="_notls"
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" = "1" ] )
 then
         tls_suffix=""
-        /bin/sed -i "s;XXXXHOMEXXXX;${HOME};" ${webroot_directory}/config.php
+        if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+        then
+                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot
+        fi
+        #/bin/sed -i "s;XXXXHOMEXXXX;${HOME};" ${webroot_directory}/config.php
 fi
 
 user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`${tls_suffix}"
