@@ -23,11 +23,34 @@ server.username = "www-data"
 server.groupname = "www-data"
 server.pid-file = "/var/run/lighttpd.pid"
 
-## Deny access to the source code of these files:
-static-file.exclude-extensions = ( ".php", ".fcgi" )
+# Protect sensitive Joomla core files
+$HTTP["url"] =~ "^/(administrator/manifests|bin|cache|cli|components|images|includes|language|layouts|libraries|logs|modules|plugins|tmp)/" 
+{
+        # Restrict execution of PHP scripts in media/upload directories
+        $HTTP["url"] =~ "\.php$" 
+        {
+            url.access-deny = ( "" )
+        }
+}
+    
+# Deny access to sensitive files
+url.access-deny = ( "~", ".inc", ".bak", ".git", ".htaccess", "configuration.php-dist", "web.config.txt" )
 
-## Deny access the file-extensions
-url.access-deny = ( "~", ".inc", "ossn.config.db.php", "ossn.config.site.php"  )
+# SEF URL Rewriting (Joomla Router)
+# Checks if the file or directory exists; if not, routes through index.php
+url.rewrite-if-not-file = 
+(
+        "^/administrator($|/.*)" => "$0",
+        "^/([^?]*)(?:\?(.*))?$"   => "/index.php/$1?$2"
+)
+
+# Cache Control for Static Assets
+expire.url = ( "/media/"   => "access plus 1 months", "/templates/" => "access plus 1 months", "/images/"    => "access plus 1 months")
+
+$HTTP["url"] =~ "(css|js|png|jpg|ico|gif)$" 
+{
+        expire.url = ( "" => "access 7 days" )
+}
 
 ## Enable/Disable Directory Listings
 dir-listing.encoding = "utf-8"
@@ -43,55 +66,40 @@ static-file.etags = "enable"
 deflate.cache-dir = "/var/cache/lighttpd/compress/"
 deflate.mimetypes = ( "text/plain", "text/html", "text/css", "text/xml", "text/x-js", "text/javascript", "application/x-javascript", "application/javascript" )
 
-## Expire Models
-$HTTP["url"] =~ "(css|js|png|jpg|ico|gif)$" {
-        expire.url = ( "" => "access 7 days" )
-}
-
-setenv.add-response-header = (
-"Strict-Transport-Security" => "max-age=63072000; includeSubdomains; preload",
-"X-Frame-Options" => "SAMEORIGIN",
-"X-Content-Type-Options" => "nosniff"
-)
-
-$HTTP["scheme"] == "http" {
-
-#XXXXFASTCGIPORTXXXXfastcgi.server += ( ".php" =>
-#XXXXFASTCGIPORTXXXX        ((
-#XXXXFASTCGIPORTXXXX                "host" => "127.0.0.1",
-#XXXXFASTCGIPORTXXXX                "port" => "XXXXPORTXXXX"
-#XXXXFASTCGIPORTXXXX        ))
-#XXXXFASTCGIPORTXXXX    )
-
-#XXXXFASTCGISOCKETXXXXfastcgi.server += ( ".php" =>
-#XXXXFASTCGISOCKETXXXX       ((
-#XXXXFASTCGISOCKETXXXX                "socket" => "/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock",
-#XXXXFASTCGISOCKETXXXX                "broken-scriptfilename" => "enable"
-#XXXXFASTCGISOCKETXXXX       ))
-#XXXXFASTCGISOCKETXXXX)
-}
+setenv.add-response-header = ( "Strict-Transport-Security" => "max-age=63072000; includeSubdomains; preload", "X-Frame-Options" => "SAMEORIGIN","X-Content-Type-Options" => "nosniff" )
 
 server.modules += ("mod_fastcgi" )
-$SERVER["socket"] == ":443" {
-ssl.engine = "enable"
-ssl.pemfile = "XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem"
-ssl.privkey = "XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem"
-ssl.openssl.ssl-conf-cmd = ("Ciphersuites" => "TLS_AES_128_GCM_SHA256")+("Protocol" => "-ALL, TLSv1.3, TLSv1.2")+("Curves" => "secp384r1")
-ssl.disable-client-renegotiation = "enable"
-ssl.use-compression = "disable" #The CRIME attack exploits compression so we need to disable that
+$SERVER["socket"] == ":443" 
+{
+        ssl.engine = "enable"
+        ssl.pemfile = "XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/fullchain.pem"
+        ssl.privkey = "XXXXHOMEXXXX/ssl/live/XXXXWEBSITEURLXXXX/privkey.pem"
+        ssl.openssl.ssl-conf-cmd = ("Ciphersuites" => "TLS_AES_128_GCM_SHA256")+("Protocol" => "-ALL, TLSv1.3, TLSv1.2")+("Curves" => "secp384r1")
+        ssl.disable-client-renegotiation = "enable"
 
-#XXXXFASTCGIPORTXXXXfastcgi.server += ( ".php" =>
-#XXXXFASTCGIPORTXXXX        ((
-#XXXXFASTCGIPORTXXXX                "host" => "127.0.0.1",
-#XXXXFASTCGIPORTXXXX                "port" => "XXXXPORTXXXX"
-#XXXXFASTCGIPORTXXXX        ))
-#XXXXFASTCGIPORTXXXX    )
+#XXXXFASTCGIPORTXXXX fastcgi.server = ( ".php" =>
+#XXXXFASTCGIPORTXXXX     ((
+#XXXXFASTCGIPORTXXXX         "port" => "XXXXPORTXXXX",
+#XXXXFASTCGIPORTXXXX         "max-procs" => 4,                 # Adjust based on your CPU cores
+#XXXXFASTCGIPORTXXXX         "idle-timeout" => 20,
+#XXXXFASTCGIPORTXXXX         "bin-environment" => (
+#XXXXFASTCGIPORTXXXX             "PHP_FCGI_CHILDREN" => "16",  # Number of PHP child processes
+#XXXXFASTCGIPORTXXXX             "PHP_FCGI_MAX_REQUESTS" => "10000"
+#XXXXFASTCGIPORTXXXX         ),
+#XXXXFASTCGIPORTXXXX         "broken-scriptfilename" => "enable"
+#XXXXFASTCGIPORTXXXX     ))
+#XXXXFASTCGIPORTXXXX )
 
-#XXXXFASTCGISOCKETXXXXfastcgi.server += ( ".php" =>
-#XXXXFASTCGISOCKETXXXX       ((
-#XXXXFASTCGISOCKETXXXX                "socket" => "/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock",
-#XXXXFASTCGISOCKETXXXX                "broken-scriptfilename" => "enable"
-#XXXXFASTCGISOCKETXXXX       ))
-#XXXXFASTCGISOCKETXXXX)
-
+#XXXXFASTCGISOCKETXXXX fastcgi.server = ( ".php" =>
+#XXXXFASTCGISOCKETXXXX     ((
+#XXXXFASTCGISOCKETXXXX         "socket" => "/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock",
+#XXXXFASTCGISOCKETXXXX         "max-procs" => 4,                 # Adjust based on your CPU cores
+#XXXXFASTCGISOCKETXXXX         "idle-timeout" => 20,
+#XXXXFASTCGISOCKETXXXX         "bin-environment" => (
+#XXXXFASTCGISOCKETXXXX             "PHP_FCGI_CHILDREN" => "16",  # Number of PHP child processes
+#XXXXFASTCGISOCKETXXXX             "PHP_FCGI_MAX_REQUESTS" => "10000"
+#XXXXFASTCGISOCKETXXXX         ),
+#XXXXFASTCGISOCKETXXXX         "broken-scriptfilename" => "enable"
+#XXXXFASTCGISOCKETXXXX     ))
+#XXXXFASTCGISOCKETXXXX )
 }
