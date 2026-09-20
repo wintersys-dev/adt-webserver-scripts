@@ -56,26 +56,34 @@ server
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
     add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
 
+	charset utf-8;
+
     # Block access to dotfiles (like .git, .env) and vendor paths
     location ~ /\.(?!well-known) 
     {
         deny all;
     }
 
-    # Support Joomla SEF URLs
-    location / {
-        try_files $uri $uri/ /index.php?$args;
+	# Core rewrite engines for OSSN dynamic paths
+	location /
+	{
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+
+    # Handle static requests cleanly and prevent routing loops
+    location ~* \.(jpg|jpeg|gif|png|css|js|ico|xml|woff|woff2|ttf|svg)$ 
+	{
+		try_files $uri $uri/ /index.php?$query_string;
+		expires max;
+		log_not_found off;
+		access_log off;
     }
 
-    # Deny access to hidden files and configuration files
-    location ~ /\. { deny all; access_log off; log_not_found off; }
-
-    # Static Assets Caching (Images, CSS, JS, Fonts)
-    location ~* \.(jpg|jpeg|gif|png|webp|ico|css|js|woff|woff2|eot|ttf|svg)$ {
-        expires 30d;
-        add_header Cache-Control "public, no-transform";
-        access_log off;
-        log_not_found off;
+	# Prevent access to private internal system data
+	location ~ /(configurations|libraries|vendor|ossn_data)/
+	{
+		deny all;
+		return 404;
     }
 
 #XXXXPHPPORTXXXX	# FastCGI PHP-FPM Configuration (Optimised for Joomla 6 PHP 8.3+)
