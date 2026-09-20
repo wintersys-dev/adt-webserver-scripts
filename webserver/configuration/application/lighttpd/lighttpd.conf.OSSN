@@ -24,7 +24,7 @@ server.groupname = "www-data"
 server.pid-file = "/var/run/lighttpd.pid"
 
 # Protect sensitive Joomla core files
-$HTTP["url"] =~ "^/(administrator/manifests|bin|cache|cli|components|images|includes|language|layouts|libraries|logs|modules|plugins|tmp)/" 
+$HTTP["url"] =~ "^/(configurations|libraries|vendor|ossn_data)/" 
 {
         # Restrict execution of PHP scripts in media/upload directories
         $HTTP["url"] =~ "\.php$" 
@@ -34,15 +34,7 @@ $HTTP["url"] =~ "^/(administrator/manifests|bin|cache|cli|components|images|incl
 }
     
 # Deny access to sensitive files
-url.access-deny = ( "~", ".inc", ".bak", ".git", ".htaccess", "configuration.php-dist", "web.config.txt" )
-
-# SEF URL Rewriting (Joomla Router)
-# Checks if the file or directory exists; if not, routes through index.php
-url.rewrite-if-not-file = 
-(
-        "^/administrator($|/.*)" => "$0",
-        "^/([^?]*)(?:\?(.*))?$"   => "/index.php/$1?$2"
-)
+url.access-deny = ( "~", ".inc", ".bak", ".git" )
 
 # Cache Control for Static Assets
 expire.url = ( "/media/"   => "access plus 1 months", "/templates/" => "access plus 1 months", "/images/"    => "access plus 1 months")
