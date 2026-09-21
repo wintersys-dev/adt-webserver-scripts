@@ -20,6 +20,8 @@
 ###################################################################################
 #set -x
 
+HOME="`/bin/cat /home/homedir.dat`"
+
 website="${1}"
 
 checked="0"
@@ -36,6 +38,13 @@ then
         checked="1"
         /usr/bin/yes | timeout 23 /usr/bin/w3m -dump -o ssl_verify_server=0  https://${website}
         status="$?"
+fi
+
+if ( [ "${status}" = "0" ] && [ "${checked}" = "1" ] )
+then
+        /bin/echo "success"
+else
+        /bin/echo "failure"
 fi
 
 
