@@ -186,7 +186,6 @@ then
         /bin/sed -i '/ATTR_SSL_CA/d' ${webroot_directory}/classes/OssnDatabase.php
         /bin/sed -i '/ATTR_SSL_VERIFY_SERVER_CERT/d' ${webroot_directory}/classes/OssnDatabase.php
 
-        /bin/sed -i "s;XXXXHOMEXXXX;${HOME};" ${HOME}/runtime/tls_enable.php
         /bin/sed -i "/PDO::ATTR_EMULATE_PREPARES   => false,/ r ${HOME}/runtime/tls_enable.php" ${webroot_directory}/classes/OssnDatabase.php
         /bin/rm ${HOME}/runtime/tls_enable.php
 fi
