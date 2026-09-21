@@ -224,9 +224,12 @@ then
         /bin/mv ${webroot_directory}/wp-config.php ${config_file}
 fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/wp-config.php
-/bin/chown www-data:www-data ${webroot_directory}/wp-config.php
-/bin/chmod 600 ${webroot_directory}/wp-config.php
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/wp-config.php
+
+/usr/bin/ln -s /var/www/outside_webroot/wp-config.php ${webroot_directory}/wp-config.php
+
+#/bin/chown www-data:www-data ${webroot_directory}/wp-config.php
+#/bin/chmod 600 ${webroot_directory}/wp-config.php
 /bin/chmod 600 ${config_file}
 /bin/chown www-data:www-data ${config_file}
 
