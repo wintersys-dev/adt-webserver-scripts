@@ -381,9 +381,11 @@ then
         /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php 
 fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/chmod 600 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+
+/usr/bin/ln -s /var/www/outside_webroot/settings.php ${webroot_directory}/sites/default/settings.php
+#/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+#/bin/chmod 600 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 
