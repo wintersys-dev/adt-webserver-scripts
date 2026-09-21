@@ -148,7 +148,11 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONT
 then
         driver="mysql"  
         database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
-        tls_cert="${HOME}/runtime/DBaaS_CERT"
+        if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+        then
+                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot
+        fi
+        tls_cert="/var/www/outside_webroot/DBaaS_CERT"  #has to be accessible from open_basedir
         verify_tls_cert="TRUE"
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
@@ -170,7 +174,11 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEDBaaSINSTALLATIONT
 then
         driver="mysql"
         database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
-        tls_cert="${HOME}/runtime/DBaaS_CERT"
+        if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
+        then
+                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot
+        fi
+        tls_cert="/var/www/outside_webroot/DBaaS_CERT" #has to be accessible from open_basedir
         verify_tls_cert="TRUE"
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh DATABASEINSTALLATIONTYPE:DBaaS`" != "1" ] )
