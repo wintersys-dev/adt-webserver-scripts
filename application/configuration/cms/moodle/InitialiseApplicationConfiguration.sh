@@ -307,7 +307,9 @@ then
         /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${config_file}
 fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
+
+/usr/bin/ln -s /var/www/outside_webroot/config.php ${webroot_directory}/config.php
 /bin/chown www-data:www-data ${webroot_directory}/config.php
 /bin/chmod 660 ${webroot_directory}/config.php
 
