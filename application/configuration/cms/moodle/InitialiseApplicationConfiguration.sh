@@ -264,12 +264,15 @@ else
         fi
 
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
-        then                        
+        then      
+                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot/DBaaS_CERT
+                /bin/chown www-data:www-data /var/www/outside_webroot/DBaaS_CERT
+                /bin/chmod 440 /var/www/outside_webroot/DBaaS_CERT
                 /bin/echo "\$CFG->dboptions = array (
                         'dbcollation'       => 'utf8mb4_unicode_ci',
                         'dbport'            => '"${DB_PORT}"',
                         'ssl'               => 'require',   
-                        'sslca'             => '"${HOME}"/runtime/DBaaS_CERT', 
+                        'sslca'             => '/var/www/outside_webroot/DBaaS_CERT', 
                         'sslverify'         => true                                
                         );" > ${HOME}/runtime/dbaas_settings.dat
 
