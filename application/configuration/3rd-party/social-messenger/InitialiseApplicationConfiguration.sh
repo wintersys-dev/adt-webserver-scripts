@@ -194,9 +194,11 @@ fi
 /bin/chown www-data:www-data /var/www/html/wr.dat
 
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
-/bin/chown www-data:www-data ${webroot_directory}/config.php
-/bin/chmod 600 ${webroot_directory}/config.php
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
+
+/usr/bin/ln -s /var/www/outside_webroot/config.php ${webroot_directory}/config.php
+#/bin/chown www-data:www-data ${webroot_directory}/config.php
+#/bin/chmod 600 ${webroot_directory}/config.php
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 
