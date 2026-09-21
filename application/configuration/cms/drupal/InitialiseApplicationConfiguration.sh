@@ -150,7 +150,9 @@ then
         database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
         then
-                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot
+                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot/DBaaS_CERT
+                /bin/chown www-data:www-data /var/www/outside_webroot/DBaaS_CERT
+                /bin/chmod 440 /var/www/outside_webroot/DBaaS_CERT
         fi
         tls_cert="/var/www/outside_webroot/DBaaS_CERT"  #has to be accessible from open_basedir
         verify_tls_cert="TRUE"
@@ -176,7 +178,9 @@ then
         database_credentials_file="${HOME}/application/configuration/cms/drupal/database_credentials_mysql.dat"
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
         then
-                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot
+                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot/DBaaS_CERT
+                /bin/chown www-data:www-data /var/www/outside_webroot/DBaaS_CERT
+                /bin/chmod 440 /var/www/outside_webroot/DBaaS_CERT
         fi
         tls_cert="/var/www/outside_webroot/DBaaS_CERT" #has to be accessible from open_basedir
         verify_tls_cert="TRUE"
