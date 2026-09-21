@@ -293,9 +293,11 @@ then
         /bin/mv ${webroot_directory}/configuration.php ${config_file}
 fi
 
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
-/bin/chown www-data:www-data ${webroot_directory}/configuration.php
-/bin/chmod 600 ${webroot_directory}/configuration.php
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
+
+/usr/bin/ln -s /var/www/outside_webroot/configuration.php ${webroot_directory}/configuration.php
+#/bin/chown www-data:www-data ${webroot_directory}/configuration.php
+#/bin/chmod 600 ${webroot_directory}/configuration.php
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 
