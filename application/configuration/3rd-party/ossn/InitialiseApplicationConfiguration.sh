@@ -297,10 +297,10 @@ then
         /bin/mv ${webroot_directory}/ossn.config.db.php ${config_file}
 fi
 
-
-/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configurations/ossn.config.db.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
-/bin/chmod 600 ${webroot_directory}/configurations/ossn.config.db.php
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configurations/ossn.config.db.php
+/usr/bin/ln -s /var/www/outside_webroot/ossn.config.db.php ${webroot_directory}/configurations/ossn.config.db.php
+#/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
+#/bin/chmod 600 ${webroot_directory}/configurations/ossn.config.db.php
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 
@@ -309,9 +309,10 @@ then
         /bin/mv ${webroot_directory}/ossn.config.site.php ${config_file}
 fi
 
-/bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chmod 600 ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
+#/bin/echo "<?php require( '${config_file_site}' ); ?>" > ${webroot_directory}/configurations/ossn.config.site.php
+/usr/bin/ln -s /var/www/outside_webroot/ossn.config.site.php ${webroot_directory}/configurations/ossn.config.site.php
+#/bin/chmod 600 ${webroot_directory}/configurations/ossn.config.site.php
+#/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 
