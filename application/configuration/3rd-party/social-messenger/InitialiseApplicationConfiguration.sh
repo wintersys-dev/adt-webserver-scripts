@@ -138,8 +138,9 @@ then
         tls_suffix=""
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
         then
-                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot
+                /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot/DBaaS_CERT
                 /bin/chown www-data:www-data /var/www/outside_webroot/DBaaS_CERT
+                /bin/chmod 440 /var/www/outside_webroot/DBaaS_CERT
         fi
         #/bin/sed -i "s;XXXXHOMEXXXX;${HOME};" ${webroot_directory}/config.php
 fi
