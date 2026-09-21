@@ -78,7 +78,7 @@ done
 
 if ( [ ! -x /usr/bin/w3m ] && [ "${count}" = "5" ] )
 then
-	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR Lynx" "I believe that lynx hasn't installed correctly, please investigate" "ERROR"
+	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR W3M" "I believe that W3M hasn't installed correctly, please investigate" "ERROR"
 else
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallW3M.sh					
 fi
