@@ -416,8 +416,8 @@ then
                 /usr/bin/wget ${extension_url}
                 /usr/bin/unzip  *.zip
                 /bin/rm *.zip
-                /bin/mv * ${webroot_directory}/public/qtype/${directory_name}
-                /bin/chown -R www-data:www-data ${webroot_directory}/public/qtype
+                /bin/mv * ${webroot_directory}/public/question/${directory_name}
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/question
         done
         
         /bin/rm -r ${HOME}/runtime/moodle_workingdir
