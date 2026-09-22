@@ -410,98 +410,66 @@ fi
 #before they are available for use
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
+        if ( [ ! -d ${HOME}/runtime/moodle_workingdir ] )
+        then
+                /bin/mkdir -p ${HOME}/runtime/moodle_workingdir 
+        else
+                /bin/rm -r ${HOME}/runtime/moodle_workingdir/*
+        fi
+
         /bin/chown -R www-data:www-data ${webroot_directory}
-        for extension_url in `/bin/grep "^ACTIVITY_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^ACTIVITY_EXTENSION_URL://g'`
+        for extension_url in `/bin/grep "^ACTIVITY_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^ACTIVITY_EXTENSION_URL://g' -e 's/:/ /g'`
         do
-                cd ${webroot_directory}/public/mod
+                extension_url="`/bin/echo ${extension_url} | /usr/bin/awk '{print $1}'`"
+                directory_name="`/bin/echo ${extension_url} | /usr/bin/awk '{print $2}'`"
+                cd ${HOME}/runtime/moodle_workingdir
                 /usr/bin/wget ${extension_url}
-                /usr/bin/unzip *.zip
+                /usr/bin/unzip  *.zip
                 /bin/rm *.zip
-                /bin/chown -R www-data:www-data ${webroot_directory}/public/mod
-                cwd="`/usr/bin/pwd`"
-                cd ${webroot_directory}/public/mod
-                #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
-                usable_name="`/bin/ls -dt */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-                actual_name="`/bin/ls -dt */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-
-                if ( [ "${usable_name}" != "${actual_name}" ] )
-                then
-                        /bin/mv ${webroot_directory}/public/mod/${actual_name} ${webroot_directory}/public/mod/${usable_name}
-                        /bin/chown -R www-data:www-data ${webroot_directory}/public/mod/${usable_name}
-                fi
-
-                cd ${cwd}
+                /bin/mv * ${webroot_directory}/public/mod/${directory_name}
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/mod
                 /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive        
         done
-        for extension_url in `/bin/grep "^BLOCKS_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^BLOCKS_EXTENSION_URL://g'`
+
+        for extension_url in `/bin/grep "^BLOCKS_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^BLOCKS_EXTENSION_URL://g' -e 's/:/ /g'`
         do
-                cd ${webroot_directory}/public/blocks
+                extension_url="`/bin/echo ${extension_url} | /usr/bin/awk '{print $1}'`"
+                directory_name="`/bin/echo ${extension_url} | /usr/bin/awk '{print $2}'`"
+                cd ${HOME}/runtime/moodle_workingdir
                 /usr/bin/wget ${extension_url}
-                /usr/bin/unzip *.zip
-                /bin/rm *.zip  
+                /usr/bin/unzip  *.zip
+                /bin/rm *.zip
+                /bin/mv * ${webroot_directory}/public/blocks/${directory_name}
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/blocks
-                cwd="`/usr/bin/pwd`"
-                cd ${webroot_directory}/public/blocks
-                #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
-                usable_name="`/bin/ls -dt */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-                actual_name="`/bin/ls -dt */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-
-                if ( [ "${usable_name}" != "${actual_name}" ] )
-                then
-                        /bin/mv ${webroot_directory}/public/blocks/${actual_name} ${webroot_directory}/public/blocks/${usable_name}
-                        /bin/chown -R www-data:www-data ${webroot_directory}/public/blocks/${usable_name}
-                fi
-
-                cd ${cwd}
-                /bin/chown -R www-data:www-data ${webroot_directory}/public/blocks
-                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive        
+                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive
         done
-        for extension_url in `/bin/grep "^THEMES_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^THEMES_EXTENSION_URL://g'`
+
+        for extension_url in `/bin/grep "^THEMES_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^THEMES_EXTENSION_URL://g' -e 's/:/ /g'`
         do
-                cd ${webroot_directory}/public/theme
+                extension_url="`/bin/echo ${extension_url} | /usr/bin/awk '{print $1}'`"
+                directory_name="`/bin/echo ${extension_url} | /usr/bin/awk '{print $2}'`"
+                cd ${HOME}/runtime/moodle_workingdir
                 /usr/bin/wget ${extension_url}
-                /usr/bin/unzip *.zip
-                /bin/rm *.zip   
-                cwd="`/usr/bin/pwd`"
-                cd ${webroot_directory}/public/theme
-                #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
-                usable_name="`/bin/ls -dt */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-                actual_name="`/bin/ls -dt */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-
-                if ( [ "${usable_name}" != "${actual_name}" ] )
-                then
-                        /bin/mv ${webroot_directory}/public/theme/${actual_name} ${webroot_directory}/public/theme/${usable_name}
-                        /bin/chown -R www-data:www-data ${webroot_directory}/public/theme/${usable_name}
-                fi
-
-                cd ${cwd}
+                /usr/bin/unzip  *.zip
+                /bin/rm *.zip
+                /bin/mv * ${webroot_directory}/public/theme/${directory_name}
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/theme
                 /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive
         done
-        for extension_url in `/bin/grep "^ENROL_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^ENROL_EXTENSION_URL://g'`
+
+        for extension_url in `/bin/grep "^ENROL_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^ENROL_EXTENSION_URL://g' -e 's/:/ /g'`
         do
-                cd ${webroot_directory}/public/enrol
+                extension_url="`/bin/echo ${extension_url} | /usr/bin/awk '{print $1}'`"
+                directory_name="`/bin/echo ${extension_url} | /usr/bin/awk '{print $2}'`"
+                cd ${HOME}/runtime/moodle_workingdir
                 /usr/bin/wget ${extension_url}
-                /usr/bin/unzip *.zip
-                /bin/rm *.zip   
+                /usr/bin/unzip  *.zip
+                /bin/rm *.zip
+                /bin/mv * ${webroot_directory}/public/enrol/${directory_name}
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/enrol
-                cwd="`/usr/bin/pwd`"
-                cd ${webroot_directory}/public/enrol
-                #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
-                usable_name="`/bin/ls -dt */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-                actual_name="`/bin/ls -dt */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-
-                if ( [ "${usable_name}" != "${actual_name}" ] )
-                then
-                        /bin/mv ${webroot_directory}/public/enrol/${actual_name} ${webroot_directory}/public/enrol/${usable_name}
-                        /bin/chown -R www-data:www-data ${webroot_directory}/public/enrol/${usable_name}
-                fi
-
-                cd ${cwd}
-                /bin/chown -R www-data:www-data ${webroot_directory}/public/enrol
-                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive    
+                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive
         done
+        /bin/rm -r ${HOME}/runtime/moodle_workingdir
 fi
 
 /usr/bin/php -ln ${config_file}
