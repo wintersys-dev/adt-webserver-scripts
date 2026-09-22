@@ -418,12 +418,11 @@ then
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/mod
-                webroot_directory="/var/www/html/moodle"
                 cwd="`/usr/bin/pwd`"
                 cd ${webroot_directory}/public/mod
                 #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
-                usable_name="`/bin/ls -dr */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-                actual_name="`/bin/ls -dr */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                usable_name="`/bin/ls -dt */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                actual_name="`/bin/ls -dt */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
 
                 if ( [ "${usable_name}" != "${actual_name}" ] )
                 then
@@ -442,12 +441,11 @@ then
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip  
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/blocks
-                webroot_directory="/var/www/html/moodle"
                 cwd="`/usr/bin/pwd`"
                 cd ${webroot_directory}/public/blocks
                 #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
-                usable_name="`/bin/ls -dr */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-                actual_name="`/bin/ls -dr */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                usable_name="`/bin/ls -dt */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                actual_name="`/bin/ls -dt */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
 
                 if ( [ "${usable_name}" != "${actual_name}" ] )
                 then
@@ -465,12 +463,11 @@ then
                 /usr/bin/wget ${extension_url}
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip   
-                webroot_directory="/var/www/html/moodle"
                 cwd="`/usr/bin/pwd`"
                 cd ${webroot_directory}/public/theme
                 #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
-                usable_name="`/bin/ls -dr */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-                actual_name="`/bin/ls -dr */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                usable_name="`/bin/ls -dt */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                actual_name="`/bin/ls -dt */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
 
                 if ( [ "${usable_name}" != "${actual_name}" ] )
                 then
@@ -489,12 +486,11 @@ then
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip   
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/enrol
-                webroot_directory="/var/www/html/moodle"
                 cwd="`/usr/bin/pwd`"
                 cd ${webroot_directory}/public/enrol
                 #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
-                usable_name="`/bin/ls -dr */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
-                actual_name="`/bin/ls -dr */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                usable_name="`/bin/ls -dt */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                actual_name="`/bin/ls -dt */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
 
                 if ( [ "${usable_name}" != "${actual_name}" ] )
                 then
