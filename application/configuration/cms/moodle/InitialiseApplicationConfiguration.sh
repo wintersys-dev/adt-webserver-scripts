@@ -406,6 +406,29 @@ then
         fi
 fi
 
+#Install any extensions that we are configured to install. As far as I can see these will need to be enabled explicitly with the joomla backend
+#before they are available for use
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
+then
+        /bin/chown -R www-data:www-data ${webroot_directory}
+        for extension_url in `/bin/grep "^ACTIVITY_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^ACTIVITY_EXTENSION_URL://g'`
+        do
+                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+        done
+        for extension_url in `/bin/grep "^BLOCKS_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^BLOCKS_EXTENSION_URL://g'`
+        do
+                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+        done
+        for extension_url in `/bin/grep "^THEMES_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^THEMES_EXTENSION_URL://g'`
+        do
+                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+        done
+        for extension_url in `/bin/grep "^ENROL_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^ENROL_EXTENSION_URL://g'`
+        do
+                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+        done
+fi
+
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
