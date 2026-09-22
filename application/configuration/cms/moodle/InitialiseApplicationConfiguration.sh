@@ -413,22 +413,35 @@ then
         /bin/chown -R www-data:www-data ${webroot_directory}
         for extension_url in `/bin/grep "^ACTIVITY_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^ACTIVITY_EXTENSION_URL://g'`
         do
-                cd ${webroot_directory}/mod
+                cd ${webroot_directory}/public/mod
                 /usr/bin/wget ${extension_url}
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/mod
         done
         for extension_url in `/bin/grep "^BLOCKS_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^BLOCKS_EXTENSION_URL://g'`
         do
-                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+                cd ${webroot_directory}/public/blocks
+                /usr/bin/wget ${extension_url}
+                /usr/bin/unzip *.zip
+                /bin/rm *.zip  
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/blocks
         done
         for extension_url in `/bin/grep "^THEMES_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^THEMES_EXTENSION_URL://g'`
         do
-                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+                cd ${webroot_directory}/public/theme
+                /usr/bin/wget ${extension_url}
+                /usr/bin/unzip *.zip
+                /bin/rm *.zip   
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/theme
         done
         for extension_url in `/bin/grep "^ENROL_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^ENROL_EXTENSION_URL://g'`
         do
-                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+                cd ${webroot_directory}/public/enrol
+                /usr/bin/wget ${extension_url}
+                /usr/bin/unzip *.zip
+                /bin/rm *.zip   
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/enrol
         done
 fi
 
