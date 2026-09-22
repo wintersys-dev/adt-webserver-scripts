@@ -418,6 +418,7 @@ then
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/mod
+                 /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive        
         done
         for extension_url in `/bin/grep "^BLOCKS_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^BLOCKS_EXTENSION_URL://g'`
         do
@@ -426,6 +427,7 @@ then
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip  
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/blocks
+                 /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive        
         done
         for extension_url in `/bin/grep "^THEMES_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^THEMES_EXTENSION_URL://g'`
         do
@@ -433,7 +435,22 @@ then
                 /usr/bin/wget ${extension_url}
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip   
+                webroot_directory="/var/www/html/moodle"
+                cwd="`/usr/bin/pwd`"
+                cd ${webroot_directory}/public/theme
+                #The problem is that if the theme name has any numbers in it's directory nname then it doesn't get installed so strip out any numbers and special characters
+                usable_name="`/bin/ls -dr */ | /usr/bin/tr -cd '[:alpha:][:space:]' | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+                actual_name="`/bin/ls -dr */ | /usr/bin/tr '\n' ' ' | /usr/bin/awk '{print $NF}'`"
+
+                if ( [ "${usable_name}" != "${actual_name}" ] )
+                then
+                        /bin/mv ${webroot_directory}/public/theme/${actual_name} ${webroot_directory}/public/theme/${usable_name}
+                        /bin/chown -R www-data:www-data ${webroot_directory}/public/theme/${usable_name}
+                fi
+
+                cd ${cwd}
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/theme
+                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive
         done
         for extension_url in `/bin/grep "^ENROL_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^ENROL_EXTENSION_URL://g'`
         do
@@ -442,6 +459,7 @@ then
                 /usr/bin/unzip *.zip
                 /bin/rm *.zip   
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/enrol
+                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive
         done
 fi
 
