@@ -418,10 +418,11 @@ then
         fi
 
         /bin/chown -R www-data:www-data ${webroot_directory}
-        for extension_url in `/bin/grep "^ACTIVITY_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^ACTIVITY_EXTENSION_URL://g' -e 's/:/ /g'`
+        for install_details in `/bin/grep "^ACTIVITY_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^ACTIVITY_EXTENSION_URL://g'`
         do
-                extension_url="`/bin/echo ${extension_url} | /usr/bin/awk '{print $1}'`"
-                directory_name="`/bin/echo ${extension_url} | /usr/bin/awk '{print $2}'`"
+                extension_url="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory_name="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $2}'`"
+
                 cd ${HOME}/runtime/moodle_workingdir
                 /usr/bin/wget ${extension_url}
                 /usr/bin/unzip  *.zip
@@ -431,10 +432,10 @@ then
                 /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive        
         done
 
-        for extension_url in `/bin/grep "^BLOCKS_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^BLOCKS_EXTENSION_URL://g' -e 's/:/ /g'`
+        for install_details in `/bin/grep "^BLOCKS_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^BLOCKS_EXTENSION_URL://g'`
         do
-                extension_url="`/bin/echo ${extension_url} | /usr/bin/awk '{print $1}'`"
-                directory_name="`/bin/echo ${extension_url} | /usr/bin/awk '{print $2}'`"
+                extension_url="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory_name="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $2}'`"
                 cd ${HOME}/runtime/moodle_workingdir
                 /usr/bin/wget ${extension_url}
                 /usr/bin/unzip  *.zip
@@ -444,10 +445,10 @@ then
                 /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive
         done
 
-        for extension_url in `/bin/grep "^THEMES_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^THEMES_EXTENSION_URL://g' -e 's/:/ /g'`
+        for install_details in `/bin/grep "^THEMES_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^THEMES_EXTENSION_URL://g'`
         do
-                extension_url="`/bin/echo ${extension_url} | /usr/bin/awk '{print $1}'`"
-                directory_name="`/bin/echo ${extension_url} | /usr/bin/awk '{print $2}'`"
+                extension_url="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory_name="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $2}'`"
                 cd ${HOME}/runtime/moodle_workingdir
                 /usr/bin/wget ${extension_url}
                 /usr/bin/unzip  *.zip
@@ -457,10 +458,10 @@ then
                 /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/upgrade.php  --non-interactive
         done
 
-        for extension_url in `/bin/grep "^ENROL_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^ENROL_EXTENSION_URL://g' -e 's/:/ /g'`
+        for install_details in `/bin/grep "^ENROL_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^ENROL_EXTENSION_URL://g'`
         do
-                extension_url="`/bin/echo ${extension_url} | /usr/bin/awk '{print $1}'`"
-                directory_name="`/bin/echo ${extension_url} | /usr/bin/awk '{print $2}'`"
+                extension_url="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory_name="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $2}'`"
                 cd ${HOME}/runtime/moodle_workingdir
                 /usr/bin/wget ${extension_url}
                 /usr/bin/unzip  *.zip
