@@ -371,6 +371,55 @@ then
                 /bin/mv * ${webroot_directory}/public/enrol/${directory_name}
                 /bin/chown -R www-data:www-data ${webroot_directory}/public/enrol
         done
+
+        for install_details in `/bin/grep "^FILTER_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^FILTER_EXTENSION_URL://g'`
+        do
+                extension_url="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory_name="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $2}'`"
+                cd ${HOME}/runtime/moodle_workingdir
+                /usr/bin/wget ${extension_url}
+                /usr/bin/unzip  *.zip
+                /bin/rm *.zip
+                /bin/mv * ${webroot_directory}/public/filter/${directory_name}
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/filter
+        done
+
+        for install_details in `/bin/grep "^AUTH_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^AUTH_EXTENSION_URL://g'`
+        do
+                extension_url="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory_name="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $2}'`"
+                cd ${HOME}/runtime/moodle_workingdir
+                /usr/bin/wget ${extension_url}
+                /usr/bin/unzip  *.zip
+                /bin/rm *.zip
+                /bin/mv * ${webroot_directory}/public/auth/${directory_name}
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/auth
+        done
+
+        for install_details in `/bin/grep "^LOCAL_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^LOCAL_EXTENSION_URL://g'`
+        do
+                extension_url="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory_name="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $2}'`"
+                cd ${HOME}/runtime/moodle_workingdir
+                /usr/bin/wget ${extension_url}
+                /usr/bin/unzip  *.zip
+                /bin/rm *.zip
+                /bin/mv * ${webroot_directory}/public/local/${directory_name}
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/local
+        done
+
+        for install_details in `/bin/grep "^QUESTION_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed -e 's/^QUESTION_EXTENSION_URL://g'`
+        do
+                extension_url="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $1}'`"
+                directory_name="`/bin/echo ${install_details} | /usr/bin/awk -F'|' '{print $2}'`"
+                cd ${HOME}/runtime/moodle_workingdir
+                /usr/bin/wget ${extension_url}
+                /usr/bin/unzip  *.zip
+                /bin/rm *.zip
+                /bin/mv * ${webroot_directory}/public/qtype/${directory_name}
+                /bin/chown -R www-data:www-data ${webroot_directory}/public/qtype
+        done
+        
         /bin/rm -r ${HOME}/runtime/moodle_workingdir
 fi
 
