@@ -293,17 +293,8 @@ then
         /bin/mv ${webroot_directory}/configuration.php ${config_file}
 fi
 
-#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
-
-/usr/bin/ln -s /var/www/outside_webroot/configuration.php ${webroot_directory}/configuration.php
-#/bin/chown www-data:www-data ${webroot_directory}/configuration.php
-#/bin/chmod 600 ${webroot_directory}/configuration.php
-/bin/chown www-data:www-data ${config_file}
-/bin/chmod 600 ${config_file}
-
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
 # code sets up that structure
-
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
 then
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" != "1" ] )
@@ -426,7 +417,13 @@ then
         done
 fi
 
-# Do a final integrity check on the config_file
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/configuration.php
+
+/usr/bin/ln -s /var/www/outside_webroot/configuration.php ${webroot_directory}/configuration.php
+#/bin/chown www-data:www-data ${webroot_directory}/configuration.php
+#/bin/chmod 600 ${webroot_directory}/configuration.php
+/bin/chown www-data:www-data ${config_file}
+/bin/chmod 600 ${config_file}
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
