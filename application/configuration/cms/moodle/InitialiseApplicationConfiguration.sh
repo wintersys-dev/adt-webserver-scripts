@@ -413,7 +413,10 @@ then
         /bin/chown -R www-data:www-data ${webroot_directory}
         for extension_url in `/bin/grep "^ACTIVITY_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^ACTIVITY_EXTENSION_URL://g'`
         do
-                /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+                cd ${webroot_directory}/mod
+                /usr/bin/wget ${extension_url}
+                /usr/bin/unzip *.zip
+                /bin/rm *.zip
         done
         for extension_url in `/bin/grep "^BLOCKS_EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^BLOCKS_EXTENSION_URL://g'`
         do
