@@ -224,16 +224,6 @@ then
         /bin/mv ${webroot_directory}/wp-config.php ${config_file}
 fi
 
-#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/wp-config.php
-
-/usr/bin/ln -s /var/www/outside_webroot/wp-config.php ${webroot_directory}/wp-config.php
-
-#/bin/chown www-data:www-data ${webroot_directory}/wp-config.php
-#/bin/chmod 600 ${webroot_directory}/wp-config.php
-/bin/chmod 600 ${config_file}
-/bin/chown www-data:www-data ${config_file}
-
-
 for setting in `/bin/grep "^INDIVIDUAL_SETTING:" ${HOME}/runtime/application.dat | /bin/sed 's/^INDIVIDUAL_SETTING://g' | /usr/bin/awk -F'::' '{print $NF}' | /bin/sed 's/^://g'`
 do
         label="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $1}'`"
@@ -373,7 +363,11 @@ then
         fi
 fi
 
-# Do a final integrity check on the config_file
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/wp-config.php
+
+/usr/bin/ln -s /var/www/outside_webroot/wp-config.php ${webroot_directory}/wp-config.php
+/bin/chmod 600 ${config_file}
+/bin/chown www-data:www-data ${config_file}
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
