@@ -415,6 +415,13 @@ then
         fi
 fi
 
+#Install any extensions that we are configured to install. As far as I can see these will need to be enabled explicitly with the joomla backend
+#before they are available for use
+for extension_url in `/bin/grep "^EXTENSION_URL:" ${HOME}/runtime/application.dat | /bin/sed 's/^EXTENSION_URL://g'`
+do
+        /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/cli/joomla.php extension:install --url=${extension_url}
+done
+
 # Do a final integrity check on the config_file
 /usr/bin/php -ln ${config_file}
 
