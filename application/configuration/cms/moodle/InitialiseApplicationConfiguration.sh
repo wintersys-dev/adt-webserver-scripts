@@ -305,106 +305,11 @@ then
         /bin/chown www-data:www-data ${config_file}
         /bin/chmod 660 ${config_file}
         /bin/sed -i '/.*require_once.*/d' ${config_file}
-        #   /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
-        #   /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
+        /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
+        /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
         /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${config_file}
 fi
 
-#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
-
-/usr/bin/ln -s /var/www/outside_webroot/config.php ${webroot_directory}/config.php
-/bin/chown www-data:www-data ${webroot_directory}/config.php
-/bin/chmod 660 ${webroot_directory}/config.php
-
-
-# The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
-# code sets up that structure
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
-then
-        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" != "1" ] )
-        then
-                assets_directories_to_link="`/bin/grep "^ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
-                for asset_directory in ${assets_directories_to_link}
-                do
-                        link_directory="${webroot_directory}/${asset_directory}"
-                        outside_webroot_directory="/var/www/outside_webroot/${asset_directory}"
-
-                        if ( [ -L ${link_directory} ] )
-                        then
-                                /usr/bin/unlink ${link_directory}
-                        fi
-
-                        if ( [ -d ${link_directory} ] )
-                        then
-                                if ( [ ! -d ${outside_webroot_directory} ] )
-                                then
-                                        /bin/mkdir -p ${outside_webroot_directory}
-                                fi
-                                /bin/mv ${link_directory}/* ${outside_webroot_directory}
-                                /bin/rm -r ${link_directory}
-                        else
-                                /bin/mkdir -p ${outside_webroot_directory}
-                        fi
-
-                        /bin/chown -R www-data:www-data ${outside_webroot_directory}
-                        /bin/chmod 750 ${outside_webroot_directory}
-                        /bin/ln -s ${outside_webroot_directory} ${link_directory}
-                done
-        fi
-fi
-
-directories="`/bin/grep "^DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
-for directory in ${directories}
-do
-        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
-        then
-                /bin/mkdir -p /var/www/outside_webroot/${directory}
-                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
-                /bin/chmod 750 /var/www/outside_webroot/${directory}
-        fi
-
-        if ( [ -f ${webroot_directory}/${directory} ] )
-        then
-                /bin/rm ${webroot_directory}/${directory} 
-        fi
-
-        if ( [ -L ${webroot_directory}/${directory} ] )
-        then
-                /bin/unlink ${webroot_directory}/${directory} 
-        fi
-
-        /bin/ln -s /var/www/outside_webroot/${directory} ${webroot_directory}/${directory}
-done
-
-
-directories="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
-
-for directory in ${directories}
-do
-        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
-        then
-                /bin/mkdir -p /var/www/outside_webroot/${directory}
-                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
-                /bin/chmod 750 /var/www/outside_webroot/${directory}
-        fi
-done
-
-if ( [ -f ${HOME}/application/configuration/cms/moodle/htaccess.txt ] )
-then
-        /bin/cp ${HOME}/application/configuration/cms/moodle/htaccess.txt /var/www/html/moodle/.htaccess
-        /bin/chown root:www-data /var/www/html/moodle/.htaccess
-fi
-
-if ( [ ! -f ${webroot_directory}/robots.txt ] )
-then
-        if ( [ -f ${HOME}/application/configuration/cms/moodle/robots.txt ] )
-        then
-                /bin/cp ${HOME}/application/configuration/cms/moodle/robots.txt ${webroot_directory}/robots.txt
-                /bin/chown www-data:www-data ${webroot_directory}/robots.txt
-                /bin/chmod 440 ${webroot_directory}/robots.txt
-        fi
-fi
 
 #Install any extensions that we are configured to install. As far as I can see these will need to be enabled explicitly with the joomla backend
 #before they are available for use
@@ -473,6 +378,98 @@ then
         /bin/rm -r ${HOME}/runtime/moodle_workingdir
 fi
 
+# The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
+# code sets up that structure
+if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
+then
+        if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" != "1" ] )
+        then
+                assets_directories_to_link="`/bin/grep "^ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/ASSET_DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+                for asset_directory in ${assets_directories_to_link}
+                do
+                        link_directory="${webroot_directory}/${asset_directory}"
+                        outside_webroot_directory="/var/www/outside_webroot/${asset_directory}"
+
+                        if ( [ -L ${link_directory} ] )
+                        then
+                                /usr/bin/unlink ${link_directory}
+                        fi
+
+                        if ( [ -d ${link_directory} ] )
+                        then
+                                if ( [ ! -d ${outside_webroot_directory} ] )
+                                then
+                                        /bin/mkdir -p ${outside_webroot_directory}
+                                fi
+                                /bin/mv ${link_directory}/* ${outside_webroot_directory}
+                                /bin/rm -r ${link_directory}
+                        else
+                                /bin/mkdir -p ${outside_webroot_directory}
+                        fi
+
+                        /bin/chown -R www-data:www-data ${outside_webroot_directory}
+                        /bin/chmod 750 ${outside_webroot_directory}
+                        /bin/ln -s ${outside_webroot_directory} ${link_directory}
+                done
+        fi
+fi
+
+directories="`/bin/grep "^DIRECTORIES_LINKED_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_LINKED_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+
+        if ( [ -f ${webroot_directory}/${directory} ] )
+        then
+                /bin/rm ${webroot_directory}/${directory} 
+        fi
+
+        if ( [ -L ${webroot_directory}/${directory} ] )
+        then
+                /bin/unlink ${webroot_directory}/${directory} 
+        fi
+
+        /bin/ln -s /var/www/outside_webroot/${directory} ${webroot_directory}/${directory}
+done
+
+directories="`/bin/grep "^DIRECTORIES_OUTSIDE_WEBROOT:" ${HOME}/runtime/application.dat | /bin/sed 's/DIRECTORIES_OUTSIDE_WEBROOT://g' | /bin/sed 's/:/ /g'`"
+
+for directory in ${directories}
+do
+        if ( [ ! -d /var/www/outside_webroot/${directory} ] )
+        then
+                /bin/mkdir -p /var/www/outside_webroot/${directory}
+                /bin/chown www-data:www-data /var/www/outside_webroot/${directory}
+                /bin/chmod 750 /var/www/outside_webroot/${directory}
+        fi
+done
+
+if ( [ -f ${HOME}/application/configuration/cms/moodle/htaccess.txt ] )
+then
+        /bin/cp ${HOME}/application/configuration/cms/moodle/htaccess.txt /var/www/html/moodle/.htaccess
+        /bin/chown root:www-data /var/www/html/moodle/.htaccess
+fi
+
+if ( [ ! -f ${webroot_directory}/robots.txt ] )
+then
+        if ( [ -f ${HOME}/application/configuration/cms/moodle/robots.txt ] )
+        then
+                /bin/cp ${HOME}/application/configuration/cms/moodle/robots.txt ${webroot_directory}/robots.txt
+                /bin/chown www-data:www-data ${webroot_directory}/robots.txt
+                /bin/chmod 440 ${webroot_directory}/robots.txt
+        fi
+fi
+
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
+
+/usr/bin/ln -s /var/www/outside_webroot/config.php ${webroot_directory}/config.php
+/bin/chown www-data:www-data ${webroot_directory}/config.php
+/bin/chmod 660 ${webroot_directory}/config.php
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
