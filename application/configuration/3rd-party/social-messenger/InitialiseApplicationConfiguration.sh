@@ -194,15 +194,6 @@ fi
 /bin/echo "${webroot_directory}" > /var/www/html/wr.dat
 /bin/chown www-data:www-data /var/www/html/wr.dat
 
-
-#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
-
-/usr/bin/ln -s /var/www/outside_webroot/config.php ${webroot_directory}/config.php
-#/bin/chown www-data:www-data ${webroot_directory}/config.php
-#/bin/chmod 600 ${webroot_directory}/config.php
-/bin/chown www-data:www-data ${config_file}
-/bin/chmod 600 ${config_file}
-
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" != "1" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" != "1" ] )
 then
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:0`" != "1" ] )
@@ -296,6 +287,10 @@ then
         fi
 fi
 
+#/bin/echo "<?php require( '${config_file}' ); ?>" > ${webroot_directory}/config.php
+/usr/bin/ln -s /var/www/outside_webroot/config.php ${webroot_directory}/config.php
+/bin/chown www-data:www-data ${config_file}
+/bin/chmod 600 ${config_file}
 /usr/bin/php -ln ${config_file}
 
 if ( [ "$?" = "0" ] )
