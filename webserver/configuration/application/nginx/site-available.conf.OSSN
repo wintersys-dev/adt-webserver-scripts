@@ -72,7 +72,7 @@ server
         }
 
     # Security: Deny direct access to system, library, and data directories
-    location ~* ^/(configurations|libraries|classes|components|themes|system)/.*$ {
+    location ~* ^/(configurations)/.*$ {
         deny all;
         return 404;
     }
@@ -85,7 +85,7 @@ server
     }
 
    location / {
-		Attempt to load literal assets first (images, custom CSS files, etc.)
+		#Attempt to load literal assets first (images, custom CSS files, etc.)
 		try_files $uri $uri/ @ossn_router;
 	}
 
