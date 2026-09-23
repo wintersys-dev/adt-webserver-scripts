@@ -65,10 +65,11 @@ server
                 rewrite ^(.*)$ /installation/tests/apache_rewrite.php break;
     }
 
-    # Handle OSSN core internal component actions
     location /action {
-                rewrite ^/action\/([A-Za-z0-9\_\-\/]+)$ /system/handlers/actions.php?action=$1&$query_string break;
-    }
+                # Capture the specific action path and pass it cleanly as an argument.
+                # CRITICAL: Use the 'last' flag instead of 'break' to trigger the PHP FPM block!
+                rewrite ^/action\/([A-Za-z0-9\_\-\/]+)$ /system/handlers/actions.php?action=$1&$query_string last;
+        }
 
     # Security: Deny direct access to system, library, and data directories
     location ~* ^/(configurations|libraries|classes|components|themes|system)/.*$ {
