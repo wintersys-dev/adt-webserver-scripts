@@ -1,0 +1,54 @@
+    charset utf-8;
+
+    # Maximum file upload size (Adjust based on user photo/video needs)
+    client_max_body_size 64M; 
+
+    # Pretty URL rewrites for OSSN
+    location / {
+        try_files $uri $uri/ /index.php?handler=$request_uri&$query_string;
+    }
+
+    # Security: Deny direct access to system, library, and data directories
+    location ~* ^/(configurations|libraries|classes|components|themes|system|installation)/.*$ {
+        deny all;
+        return 404;
+    }
+
+    # Security: Block access to OSSN data directory if placed inside root
+    # Note: It is highly recommended to place your 'ossn_data' directory OUTSIDE the web root.
+    location ~* ^/ossn_data/.*$ {
+        deny all;
+        return 404;
+    }
+
+    # PHP-FPM Configuration
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        
+        # Match your exact PHP version socket (e.g., php8.1-fpm, php8.2-fpm)
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; 
+        
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        
+        # Performance timeouts
+        fastcgi_read_timeout 300;
+    }
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|otf)$ {
+        expires max;
+        log_not_found off;
+        access_log off;
+    }
+
+    # Deny access to hidden files (.htaccess, .git, etc)
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+}
