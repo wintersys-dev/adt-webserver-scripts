@@ -83,10 +83,19 @@ server
         return 404;
     }
 
-    # Pretty URL rewrites for OSSN
-    location / {
-       # try_files $uri $uri/ /index.php?handler=$request_uri&$query_string;
-		try_files $uri $uri/ /index.php?ossn_page=$uri&$args;
+   location / {
+		Attempt to load literal assets first (images, custom CSS files, etc.)
+		try_files $uri $uri/ @ossn_router;
+	}
+
+	# Dedicated fallback handler for OSSN paths
+	location @ossn_router {
+		# If the request matches /administrator, it captures 'administrator' into $1
+		# and properly routes it as a query argument down to the kernel handler.
+		rewrite ^/([A-Za-z0-9\_-]+)$ /index.php?h=$1 last;
+                   
+		# Handles nested sub-administrator settings and configurations safely
+		rewrite ^/([A-Za-z0-9\_-]+)\/(.*)$ /index.php?h=$1&p=$2 last;
     }
 
     # Cache static assets
