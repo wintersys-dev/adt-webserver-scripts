@@ -99,14 +99,6 @@ server
 		rewrite ^/([A-Za-z0-9\_-]+)\/(.*)$ /index.php?h=$1&p=$2 last;
     }
 
-    # Cache static assets
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|otf)$ {
-        try_files $uri $uri/ /index.php?$args;
-        expires max;
-        log_not_found off;
-        access_log off;
-    }
-
     # Deny access to hidden files (.htaccess, .git, etc)
     location ~ /\. {
         deny all;
