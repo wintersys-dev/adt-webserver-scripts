@@ -199,6 +199,13 @@ webmaster_email="`/bin/grep "^WEBMASTER_EMAIL:" ${HOME}/runtime/application.dat 
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] && [ "`/bin/grep "^INTERACTIVE_APPLICATION_INSTALL" ${HOME}/runtime/application.dat | /bin/sed 's/INTERACTIVE_APPLICATION_INSTALL://g' | /bin/sed 's/:/ /g'`" = "yes" ] )
 then
+        #Dirty cludge to fool the installation check 
+        WEBSERVER_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSERVERCHOICE'`"
+        if ( [ "${WEBSERVER_CHOICE}" = "NGINX" ] )
+        then
+                /bin/sed -i 's;OssnInstallation::isApache;!OssnInstallation::isApache;' /var/www/html/ossn/installation/pages/check.php
+        fi
+        
         if ( [ ! -f ${webroot_directory}/configurations/ossn.config.db.php ] || [ ! -f ${webroot_directory}/configurations/ossn.config.site.db.php ] )
         then
                 while ( [ ! -f ${webroot_directory}/configurations/ossn.config.db.php ] || [ ! -f ${webroot_directory}/configurations/ossn.config.site.db.php ] )
