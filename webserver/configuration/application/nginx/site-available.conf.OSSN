@@ -85,7 +85,8 @@ server
 
     # Pretty URL rewrites for OSSN
     location / {
-        try_files $uri $uri/ /index.php?handler=$request_uri&$query_string;
+       # try_files $uri $uri/ /index.php?handler=$request_uri&$query_string;
+		try_files $uri $uri/ /index.php?ossn_page=$uri&$args;
     }
 
     # Cache static assets
