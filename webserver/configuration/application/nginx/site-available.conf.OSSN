@@ -60,9 +60,14 @@ server
     # Maximum file upload size (Adjust based on user photo/video needs)
     client_max_body_size 64M; 
 
-    # Pretty URL rewrites for OSSN
-    location / {
-        try_files $uri $uri/ /index.php?handler=$request_uri&$query_string;
+    # Trick OSSN installer to bypass the Apache mod_rewrite check
+    location = /rewrite.php {
+                rewrite ^(.*)$ /installation/tests/apache_rewrite.php break;
+    }
+
+    # Handle OSSN core internal component actions
+    location /action {
+                rewrite ^/action\/([A-Za-z0-9\_\-\/]+)$ /system/handlers/actions.php?action=$1&$query_string break;
     }
 
     # Security: Deny direct access to system, library, and data directories
@@ -76,6 +81,11 @@ server
     location ~* ^/ossn_data/.*$ {
         deny all;
         return 404;
+    }
+
+    # Pretty URL rewrites for OSSN
+    location / {
+        try_files $uri $uri/ /index.php?handler=$request_uri&$query_string;
     }
 
 #    # PHP-FPM Configuration
