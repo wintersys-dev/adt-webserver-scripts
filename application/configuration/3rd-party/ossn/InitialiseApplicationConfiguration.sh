@@ -206,9 +206,9 @@ then
                 /bin/sed -i 's;OssnInstallation::isApache;!OssnInstallation::isApache;' /var/www/html/ossn/installation/pages/check.php
         fi
         
-        if ( [ ! -f ${webroot_directory}/configurations/ossn.config.db.php ] || [ ! -f ${webroot_directory}/configurations/ossn.config.site.db.php ] )
+        if ( [ ! -f ${webroot_directory}/configurations/ossn.config.db.php ] || [ ! -f ${webroot_directory}/configurations/ossn.config.site.php ] )
         then
-                while ( [ ! -f ${webroot_directory}/configurations/ossn.config.db.php ] || [ ! -f ${webroot_directory}/configurations/ossn.config.site.db.php ] )
+                while ( [ ! -f ${webroot_directory}/configurations/ossn.config.db.php ] || [ ! -f ${webroot_directory}/configurations/ossn.config.site.php ] )
                 do
                         /bin/sleep 1
                 done
