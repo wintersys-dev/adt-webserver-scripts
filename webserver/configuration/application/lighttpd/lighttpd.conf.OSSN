@@ -69,25 +69,19 @@ $SERVER["socket"] == ":443"
         ssl.openssl.ssl-conf-cmd = ("Ciphersuites" => "TLS_AES_128_GCM_SHA256")+("Protocol" => "-ALL, TLSv1.3, TLSv1.2")+("Curves" => "secp384r1")
         ssl.disable-client-renegotiation = "enable"
 
-        # 1. Bypass the installer's Apache rewrite test
+        url.rewrite-if-not-file = ( "" => "/index.php?${qsa}" )
+
         url.rewrite-once = 
         (
-                "^/rewrite\.php$" => "/installation/tests/apache_rewrite.php"
+                "^/rewrite\.php(?:\?(.*))?$" => "/installation/tests/apache_rewrite.php?$1",
+                "^/(themes|css|js|images|components|uploads|favicon\.ico|robots\.txt)(.*)$" => "$0",
+                "^/([A-Za-z0-9_\-]+)/([^?]+)(?:\?(.*))?$" => "/index.php?h=$1&p=$2&$3",
+                "^/([A-Za-z0-9_\-]+)(?:\?(.*))?$" => "/index.php?h=$1&$2"
         )
 
-        # 2. Handle OSSN core action routing
-        $HTTP["url"] =~ "^/action" 
+        $HTTP["url"] =~ "^/action"
         {
                 url.rewrite-once = ( "^/action/([A-Za-z0-9_\-\/]+)(?:\?(.*))?$" => "/system/handlers/actions.php?action=$1&$2" )
-        }        
-
-        # 3. Standard page/profile routing (Fallback if not a static file)
-        url.rewrite-if-not-file = ( "^/([A-Za-z0-9_\-]+)(?:\?(.*))?$"      => "/index.php?h=$1&$2", "^/([A-Za-z0-9_\-]+)/(.*)(?:\?(.*))?$" => "/index.php?h=$1&p=$2&$3" )
-
-        # 4. Deny access to sensitive files
-        $HTTP["url"] =~ "^/(/configurations/)" 
-        {
-                url.access-deny = ("")
         }
 
 #XXXXFASTCGIPORTXXXX fastcgi.server = ( ".php" =>
