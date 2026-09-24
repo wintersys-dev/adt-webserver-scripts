@@ -85,7 +85,7 @@ $SERVER["socket"] == ":443"
         url.rewrite-if-not-file = ( "^/([A-Za-z0-9_\-]+)(?:\?(.*))?$"      => "/index.php?h=$1&$2", "^/([A-Za-z0-9_\-]+)/(.*)(?:\?(.*))?$" => "/index.php?h=$1&p=$2&$3" )
 
         # 4. Deny access to sensitive files
-        $HTTP["url"] =~ "^/(error_log|\.htaccess|nginx\.dist|lighttpd\.conf)" 
+        $HTTP["url"] =~ "^/(/configurations/)" 
         {
                 url.access-deny = ("")
         }
