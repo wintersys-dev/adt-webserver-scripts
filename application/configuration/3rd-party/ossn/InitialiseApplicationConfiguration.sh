@@ -201,7 +201,7 @@ if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`
 then
         #Dirty cludge to fool the installation check 
         WEBSERVER_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSERVERCHOICE'`"
-        if ( [ "${WEBSERVER_CHOICE}" = "NGINX" ] )
+        if ( [ "${WEBSERVER_CHOICE}" = "NGINX" ] || [ "${WEBSERVER_CHOICE}" = "LIGHTTPD" ] )
         then
                 /bin/sed -i 's;OssnInstallation::isApache;!OssnInstallation::isApache;' /var/www/html/ossn/installation/pages/check.php
         fi
