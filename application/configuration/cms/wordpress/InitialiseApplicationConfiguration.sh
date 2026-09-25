@@ -208,7 +208,7 @@ else
                 exit
         fi
         /usr/bin/sudo -u www-data /usr/local/bin/wp config create --dbuser="${db_user}" --dbpass="${db_password}" --dbname="${db_name}" --dbhost="${HOST}:${DB_PORT}" --dbprefix="${dbprefix}" --config-file="${config_file}" --skip-check --path="${webroot_directory}"
-        /usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${config_file}"
+        /usr/bin/sudo -u www-data /usr/local/bin/wp config set "MYSQL_CLIENT_FLAGS" "MYSQLI_CLIENT_SSL" --raw --config-file="${webroot_directory}/wp-config.php"
 
         if ( [ "`/usr/bin/sudo -u www-data /usr/local/bin/wp core is-installed --path="${webroot_directory}" 2>&1 | /bin/grep 'Error'`" != "" ] )
         then
@@ -225,10 +225,10 @@ fi
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
-if ( [ -f ${webroot_directory}/wp-config.php ] )
-then
-        /bin/mv ${webroot_directory}/wp-config.php ${config_file}
-fi
+#if ( [ -f ${webroot_directory}/wp-config.php ] )
+#then
+#        /bin/mv ${webroot_directory}/wp-config.php ${config_file}
+#fi
 
 for setting in `/bin/grep "^INDIVIDUAL_SETTING:" ${HOME}/runtime/application.dat | /bin/sed 's/^INDIVIDUAL_SETTING://g' | /usr/bin/awk -F'::' '{print $NF}' | /bin/sed 's/^://g'`
 do
@@ -236,7 +236,7 @@ do
         value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $NF}'`"
         if ( [ "${label}" != "" ] && [ "${value}" != "" ] )
         then
-                /usr/bin/sudo -u www-data wp config set "${label}" "${value}" --config-file="${config_file}"
+                /usr/bin/sudo -u www-data wp config set "${label}" "${value}" --config-file="${webroot_directory}/wp-config.php"
         fi
 done
 
@@ -246,7 +246,7 @@ do
         value="`/bin/echo ${setting} | /usr/bin/awk -F'=' '{print $NF}'`"
         if ( [ "${label}" != "" ] && [ "${value}" != "" ] )
         then
-                /usr/bin/sudo -u www-data wp config set "${label}" "${value}" --raw --config-file="${config_file}"
+                /usr/bin/sudo -u www-data wp config set "${label}" "${value}" --raw --config-file="${webroot_directory}/wp-config.php"
         fi
 done
 
@@ -255,7 +255,7 @@ then
         /bin/cp ${HOME}/runtime/DBaaS_CERT /var/www/outside_webroot/DBaaS_CERT
         /bin/chown www-data:www-data /var/www/outside_webroot/DBaaS_CERT
         /bin/chmod 440 /var/www/outside_webroot/DBaaS_CERT
-        /usr/bin/sudo -u www-data wp config set "MYSQL_SSL_CA" "/var/www/outside_webroot/DBaaS_CERT" --config-file="${config_file}"
+        /usr/bin/sudo -u www-data wp config set "MYSQL_SSL_CA" "/var/www/outside_webroot/DBaaS_CERT" --config-file="${webroot_directory}/wp-config.php"
 fi
 
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
