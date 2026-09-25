@@ -99,9 +99,10 @@ then
         /bin/rm ${config_file}
 fi
 
-/bin/cp /var/www/html/settings.php.default ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/chown www-data:www-data ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
-/bin/chmod 640 ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+if ( [ -L ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php ] )
+then
+        /bin/rm ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php
+fi
 
 database_profile="`/bin/grep "^DATABASE_PROFILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
