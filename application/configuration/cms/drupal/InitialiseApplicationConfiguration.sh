@@ -368,10 +368,10 @@ else
         fi
 fi
 
-if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
-then
-        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
-fi
+#if ( [ -f ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ] )
+#then
+#        /bin/cp ${webroot_directory}/${webroot_subdirectory}/sites/default/settings.php  ${config_file}
+#fi
 
 /bin/echo "DRUPAL" > /var/www/html/dba.dat
 /bin/chown www-data:www-data /var/www/html/dba.dat
