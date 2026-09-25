@@ -123,6 +123,11 @@ then
         config_file_site="/var/www/outside_webroot/ossn.site.db.php"
 fi
 
+if ( [ -f ${config_file_site} ] )
+then
+        /bin/rm ${config_file_site}
+fi
+
 /bin/mv /var/www/html/ossn.config.site.php.default ${webroot_directory}/configurations/ossn.config.site.php
 /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
 /bin/chmod 640 ${webroot_directory}/configurations/ossn.config.site.php
