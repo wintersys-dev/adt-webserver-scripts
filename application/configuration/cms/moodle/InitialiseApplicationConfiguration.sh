@@ -246,6 +246,18 @@ then
         /bin/grep "\$CFG->prefix" ${webroot_directory}/config.php | /usr/bin/awk -F"'" '{print $2}' > /var/www/html/dbp.dat
         /bin/chown www-data:www-data /var/www/html/dbp.dat
 else
+
+        if ( [ -f /var/www/html/config.php.default ]  )
+        then
+                if ( [ -f ${webroot_directory}/config.php ] )
+                then
+                        /bin/rm ${webroot_directory}/config.php
+                fi
+                /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php
+                /bin/chown root:www-data ${webroot_directory}/config.php
+                /bin/chmod 660 ${webroot_directory}/config.php
+        fi
+        
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
 
         /bin/chown www-data:www-data ${webroot_directory}
@@ -253,14 +265,11 @@ else
 
         /usr/bin/sudo -u www-data /usr/bin/php /var/www/html/moodle/admin/cli/install.php --skip-database --agree-license --non-interactive --adminuser="${website_username}" --adminpass="${website_password}" --adminemail="${webmaster_email}" --dbport="${DB_PORT}" --dbhost="${HOST}" --dbuser="${dbuser}${no_tls}" --dbpass="${dbpass}" --dbname="${dbname}" --dbtype="${dbtype}" --prefix="${dbprefix}" --wwwroot="https://${WEBSITE_URL}" --dataroot="${webroot_directory}/moodledata" --fullname="${website_fullname}" --shortname="${website_shortname}" --chmod=2770 
 
-        if ( [ -f ${webroot_directory}/config.php ] )
-        then
-                /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
-                /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
-                /bin/echo "\$CFG->tempdir   = '/var/www/outside_webroot/tmp';" >> ${webroot_directory}/config.php
-                /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
-                /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
-        fi
+        /bin/sed -i 's/_notls//g' ${webroot_directory}/config.php
+        /bin/sed -i '/require_once/d' ${webroot_directory}/config.php
+        /bin/echo "\$CFG->tempdir   = '/var/www/outside_webroot/tmp';" >> ${webroot_directory}/config.php
+        /bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
+        /bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
 
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
         then      
