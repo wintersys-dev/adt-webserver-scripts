@@ -149,14 +149,14 @@ user="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:user=" ${HOME}/runtime/applicati
 password="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:password=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/application.dat | /usr/bin/awk -F'=' '{print $NF}' | /bin/sed "s%'%%g"`"
 
-/bin/cp ${webroot_directory}/config.php ${config_file}
-/bin/chown www-data:www-data ${config_file}
-/bin/chmod 400 ${config_file}
+#/bin/cp ${webroot_directory}/config.php ${config_file}
+#/bin/chown www-data:www-data ${config_file}
+#/bin/chmod 400 ${config_file}
 
-/bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}'");/g' ${config_file}
-/bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${user}'");/g' ${config_file}
-/bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${password}'");/g' ${config_file}
-/bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${dbname}'");/g' ${config_file}
+/bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}'");/g' ${webroot_directory}/config.php
+/bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${user}'");/g' ${webroot_directory}/config.php
+/bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${password}'");/g' ${webroot_directory}/config.php
+/bin/sed  -i 's/define("DB_NAME", "social_messenger_db");/define("DB_NAME", "'${dbname}'");/g' ${webroot_directory}/config.php
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
 then
