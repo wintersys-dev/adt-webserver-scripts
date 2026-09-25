@@ -72,17 +72,10 @@ then
         webroot_directory="/var/www/html/social-messenger"
 fi
 
-if ( [ -f ${webroot_directory}/config.php ] && [ ! -f /var/www/html/config.php.default ] )
+if ( [ -f ${webroot_directory}/config.php ] )
 then
-        /bin/cp ${webroot_directory}/config.php /var/www/html/config.php.default
+        /bin/cp ${webroot_directory}/config.php ${webroot_directory}/config.php.default
         /bin/chown www-data:www-data /var/www/html/config.php.default
-fi
-
-if ( [ ! -d /var/www/outside_webroot ] )
-then
-        /bin/mkdir /var/www/outside_webroot
-        /bin/chown www-data:www-data /var/www/outside_webroot
-        /bin/chmod 750 /var/www/outside_webroot
 fi
 
 config_file="`/bin/grep "^CONFIG_FILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
@@ -92,15 +85,22 @@ then
         config_file="/var/www/html/config.php"
 fi
 
+if ( [ ! -d /var/www/outside_webroot ] )
+then
+        /bin/mkdir /var/www/outside_webroot
+        /bin/chown www-data:www-data /var/www/outside_webroot
+        /bin/chmod 750 /var/www/outside_webroot
+fi
+
 #if ( [ -f ${webroot_directory}/config.php ] )
 #then
 #        /bin/rm ${webroot_directory}/config.php
 #fi
 
-if ( [ ! -f ${webroot_directory}/config.php ] || [ "`/usr/bin/diff /var/www/html/config.php.default ${webroot_directory}/config.php`" != "" ] )
-then
-        /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php 
-fi
+#if ( [ ! -f ${webroot_directory}/config.php ] || [ "`/usr/bin/diff /var/www/html/config.php.default ${webroot_directory}/config.php`" != "" ] )
+#then
+#        /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php 
+#fi
 
 # Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
 session_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
