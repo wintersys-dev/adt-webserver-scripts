@@ -297,18 +297,11 @@ fi
 /bin/chown www-data:www-data /var/www/html/dba.dat
 
 
-#We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
-#which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
-if ( [ -f ${webroot_directory}/config.php ] )
-then
-        /bin/mv ${webroot_directory}/config.php ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chmod 660 ${config_file}
-        /bin/sed -i '/.*require_once.*/d' ${config_file}
-        /bin/echo '$CFG->routerconfigured = true;' >> ${config_file}
-        /bin/echo '$CFG->preventexecpath = true;' >> ${config_file}
-        /bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${config_file}
-fi
+
+/bin/sed -i '/.*require_once.*/d' ${webroot_directory}/config.php
+bin/echo '$CFG->routerconfigured = true;' >> ${webroot_directory}/config.php
+/bin/echo '$CFG->preventexecpath = true;' >> ${webroot_directory}/config.php
+/bin/echo "require_once('"${webroot_directory}"/public/lib/setup.php');" >> ${webroot_directory}/config.php
 
 
 #Install any extensions that we are configured to install. As far as I can see these will need to be enabled explicitly with the joomla backend
