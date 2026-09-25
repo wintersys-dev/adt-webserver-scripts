@@ -369,11 +369,11 @@ then
         fi
 fi
 
-/bin/mv ${webroot_directory}/wp-config.php ${config_file}
-/usr/bin/ln -s ${config_file} ${webroot_directory}/wp-config.php
-/bin/chmod 600 ${config_file}
-/bin/chown www-data:www-data ${config_file}
-/usr/bin/php -ln ${config_file}
+/bin/mv ${webroot_directory}/wp-config.php /var/www/html/wp-config.php
+#/usr/bin/ln -s ${config_file} ${webroot_directory}/wp-config.php
+/bin/chmod 600 /var/www/html/wp-config.php
+/bin/chown www-data:www-data /var/www/html/wp-config.php
+/usr/bin/php -ln /var/www/html/wp-config.php
 
 if ( [ "$?" = "0" ] )
 then
