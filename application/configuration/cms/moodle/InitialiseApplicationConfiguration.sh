@@ -92,9 +92,10 @@ then
         /bin/rm ${config_file}
 fi
 
-/bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php
-/bin/chown www-data:www-data ${webroot_directory}/config.php
-/bin/chmod 640 ${webroot_directory}/config.php
+if ( [ -L ${webroot_directory}/config.php ] )
+then
+        /bin/rm ${webroot_directory}/config.php
+fi
 
 # Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
 session_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
