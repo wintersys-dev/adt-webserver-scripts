@@ -163,6 +163,17 @@ dbname="`/bin/grep "^MANDATORY_INDIVIDUAL_SETTING:db=" ${HOME}/runtime/applicati
 #/bin/chown www-data:www-data ${config_file}
 #/bin/chmod 400 ${config_file}
 
+if ( [ -f /var/www/html/config.php.default ]  )
+then
+        if ( [ -f ${webroot_directory}/config.php ] )
+        then
+                /bin/rm ${webroot_directory}/config.php
+        fi
+        /bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php
+        /bin/chown root:www-data ${webroot_directory}/config.php
+        /bin/chmod 640 ${webroot_directory}/config.php
+fi
+
 /bin/sed  -i 's/define("DB_SERVER", "localhost");/define("DB_SERVER", "'${HOST}:${DB_PORT}'");/g' ${webroot_directory}/config.php
 /bin/sed  -i 's/define("DB_USERNAME", "root");/define("DB_USERNAME", "'${user}'");/g' ${webroot_directory}/config.php
 /bin/sed  -i 's/define("DB_PASSWORD", "");/define("DB_PASSWORD", "'${password}'");/g' ${webroot_directory}/config.php
