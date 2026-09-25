@@ -74,7 +74,7 @@ fi
 
 if ( [ -f ${webroot_directory}/config.php ] )
 then
-        /bin/cp ${webroot_directory}/config.php ${webroot_directory}/config.php.default
+        /bin/cp ${webroot_directory}/config.php /var/www/html/config.php.default
         /bin/chown www-data:www-data /var/www/html/config.php.default
 fi
 
