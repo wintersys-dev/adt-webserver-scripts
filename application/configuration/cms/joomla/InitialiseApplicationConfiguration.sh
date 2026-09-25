@@ -288,10 +288,10 @@ done
 
 #We are in a situation now where whatever type of install we are doing, virgin, baseline or temporal our configuration file is at ${config_file}
 #which is ourside of our webroot. So we want to create a symlink from inside our webroot to the actual configuration file
-if ( [ -f ${webroot_directory}/configuration.php ] )
-then
-        /bin/mv ${webroot_directory}/configuration.php ${config_file}
-fi
+#if ( [ -f ${webroot_directory}/configuration.php ] )
+#then
+#        /bin/mv ${webroot_directory}/configuration.php ${config_file}
+#fi
 
 # The application descriptor lists asset directories and regular directories which are to be linked to from inside the webroot and so this bit of 
 # code sets up that structure
