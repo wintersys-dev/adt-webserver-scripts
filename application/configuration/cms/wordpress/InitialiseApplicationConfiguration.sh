@@ -174,6 +174,12 @@ then
                         do
                                 /usr/bin/sudo -u www-data /usr/local/bin/wp plugin install ${plugin} --path="${webroot_directory}"
                         done
+
+                        #The special plugin to hide the admin login area with the value set in the application configuration file
+                        hidden_admin_login="`/bin/grep "^HIDDEN_ADMIN_LOGIN:" ${HOME}/runtime/application.dat | /bin/sed 's/HIDDEN_ADMIN_LOGIN//g' | /bin/sed 's/:/ /g'`"
+
+                        /usr/bin/sudo -u www-data /usr/local/bin/wp plugin install wps-hide-login --path="${webroot_directory}" --activate
+                        /usr/bin/sudo -u www-data /usr/local/bin/wp option update whl_page "${hidden_admin_login}"
                 fi
 
         #If we are looking at our webroot sourcecode we might have forgotten which database type this webroot is associated or was built against so
