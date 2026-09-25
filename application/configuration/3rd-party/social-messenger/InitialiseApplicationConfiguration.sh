@@ -117,7 +117,7 @@ then
         /bin/rm ${config_file}
 fi
 
-/bin/mv /var/www/html/config.php.default ${webroot_directory}/config.php
+/bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php
 /bin/chown www-data:www-data ${webroot_directory}/config.php
 /bin/chmod 640 ${webroot_directory}/config.php
 
