@@ -536,8 +536,8 @@ then
         tag="DRUPALCMS"
 fi
 
-/bin/mv ${webroot_directory}/sites/default/settings.php ${config_file}
-/usr/bin/ln -s ${config_file} ${webroot_directory}/sites/default/settings.php
+/bin/mv ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php ${config_file}
+/usr/bin/ln -s ${config_file} ${webroot_directory}/${webroot_subdirectory}/sites/default/default.settings.php
 /bin/chown www-data:www-data ${config_file}
 /bin/chmod 600 ${config_file}
 /usr/bin/php -ln ${config_file}
