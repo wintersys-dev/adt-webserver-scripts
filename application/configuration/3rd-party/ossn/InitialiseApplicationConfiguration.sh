@@ -112,9 +112,10 @@ then
         /bin/rm ${config_file}
 fi
 
-/bin/cp /var/www/html/ossn.config.db.php.default ${webroot_directory}/configurations/ossn.config.db.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
-/bin/chmod 640 ${webroot_directory}/configurations/ossn.config.db.php
+if ( [ -L ${webroot_directory}/configurations/ossn.config.db.php ] )
+then
+        /bin/rm ${webroot_directory}/configurations/ossn.config.db.php
+fi
 
 config_file_site="`/bin/grep "^CONFIG_FILE_SITE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -128,9 +129,10 @@ then
         /bin/rm ${config_file_site}
 fi
 
-/bin/cp /var/www/html/ossn.config.site.php.default ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
-/bin/chmod 640 ${webroot_directory}/configurations/ossn.config.site.php
+if ( [ -L ${webroot_directory}/configurations/ossn.config.site.php ] )
+then
+        /bin/rm ${webroot_directory}/configurations/ossn.config.site.php
+fi
 
 # Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
 session_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
@@ -217,22 +219,28 @@ then
                 done
         fi
 else
-        /bin/cp /var/www/html/ossn.config.db.php.default ${config_file}
-        /bin/chown www-data:www-data ${config_file}
-        /bin/chmod 400 ${config_file}
+        if ( [ -f /var/www/html/ossn.config.db.php.default ] )
+        then
+                /bin/cp /var/www/html/ossn.config.db.php.default ${webroot_directory}/configurations/ossn.config.db.php
+                /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
+                /bin/chmod 400 ${webroot_directory}/configurations/ossn.config.db.php
+        fi
+        
+       if ( [ -f /var/www/html/ossn.config.site.php.default ] )
+        then
+                /bin/cp /var/www/html/ossn.config.site.php.default ${webroot_directory}/configurations/ossn.config.site.php
+                /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
+                /bin/chmod 400 ${webroot_directory}/configurations/ossn.config.site.php
+        fi
 
-        /bin/cp /var/www/html/ossn.config.site.php.default ${config_file_site}
-        /bin/chown www-data:www-data ${config_file_site}
-        /bin/chmod 400 ${config_file_site}
-
-        /bin/sed -i "s%<<host>>%${HOST}%" ${config_file}
-        /bin/sed -i "s%<<port>>%${DB_PORT}%" ${config_file}
-        /bin/sed -i "s%<<user>>%${user}%" ${config_file}
-        /bin/sed -i "s%<<password>>%${password}%" ${config_file}
-        /bin/sed -i "s%<<dbname>>%${dbname}%" ${config_file}
+        /bin/sed -i "s%<<host>>%${HOST}%" ${webroot_directory}/configurations/ossn.config.db.php
+        /bin/sed -i "s%<<port>>%${DB_PORT}%" ${webroot_directory}/configurations/ossn.config.db.php
+        /bin/sed -i "s%<<user>>%${user}%" ${webroot_directory}/configurations/ossn.config.db.php
+        /bin/sed -i "s%<<password>>%${password}%" ${webroot_directory}/configurations/ossn.config.db.php
+        /bin/sed -i "s%<<dbname>>%${dbname}%" ${webroot_directory}/configurations/ossn.config.db.php
         WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-        /bin/sed -i "s%<<siteurl>>%https://${WEBSITE_URL}/%" ${config_file_site}
-        /bin/sed -i "s%<<datadir>>%${data_directory}/%" ${config_file_site}
+        /bin/sed -i "s%<<siteurl>>%https://${WEBSITE_URL}/%" ${webroot_directory}/configurations/ossn.config.site.php
+        /bin/sed -i "s%<<datadir>>%${data_directory}/%" ${webroot_directory}/configurations/ossn.config.site.php
 
         if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:virgin`" = "1" ] )
         then
@@ -257,12 +265,10 @@ else
                 /bin/cp ${config_file_site} ${webroot_directory}/configurations/ossn.config.site.php && /bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
                 /usr/bin/php ${webroot_directory}/bootstrap_admin_user.php
                 /bin/rm ${webroot_directory}/bootstrap_admin_user.php
-                /bin/rm ${webroot_directory}/configurations/ossn.config.db.php
-                /bin/rm ${webroot_directory}/configurations/ossn.config.site.php
+              #  /bin/rm ${webroot_directory}/configurations/ossn.config.db.php
+              #  /bin/rm ${webroot_directory}/configurations/ossn.config.site.php
                 cd ${cwd}
         fi
-
-
 fi
 
 #This is how we tell ourselves this is a the Open Source Social Network  application
