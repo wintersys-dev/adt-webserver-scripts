@@ -106,11 +106,14 @@ fi
 
 database_profile="`/bin/grep "^DATABASE_PROFILE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
-#If we are here then this is a non-interactive install and all our configuration parameters will be taken from the application.dat file
-#It is expected that this will be the more common case than an interactive installation
 if ( [ -f ${config_file} ] )
 then
         /bin/rm ${config_file}
+fi
+
+if ( [ -f ${webroot_directory}/wp-config.php ] ) 
+then
+        /bin/rm ${webroot_directory}/wp-config.php
 fi
 
 #In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
