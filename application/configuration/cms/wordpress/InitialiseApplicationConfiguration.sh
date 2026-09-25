@@ -98,9 +98,10 @@ then
         /bin/rm ${config_file}
 fi
 
-/bin/cp /var/www/html/wp-config.php.default ${webroot_directory}/wp-config.php
-/bin/chown www-data:www-data ${webroot_directory}/wp-config.php
-/bin/chmod 640 ${webroot_directory}/wp-config.php
+if ( [ -L ${webroot_directory}/wp-config.php ] )
+then
+        /bin/rm ${webroot_directory}/wp-config.php
+fi
 
 #In the case of a subsquent deployment it is expected that the database prefix will have been stored along with the application code
 #in the webroot, but, if it isn virgin installation we will generate the database prefix for ourselves
