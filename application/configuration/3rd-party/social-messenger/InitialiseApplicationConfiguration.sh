@@ -117,9 +117,10 @@ then
         /bin/rm ${config_file}
 fi
 
-/bin/cp /var/www/html/config.php.default ${webroot_directory}/config.php
-/bin/chown www-data:www-data ${webroot_directory}/config.php
-/bin/chmod 640 ${webroot_directory}/config.php
+if ( [ -L ${webroot_directory}/config.php ] )
+then
+        /bin/rm ${webroot_directory}/config.php
+fi
 
 dbprefix="social_messenger_" #This is expected to be present even though it is not used by other parts of the processing
 /bin/echo "${dbprefix}" > /var/www/html/dbp.dat
