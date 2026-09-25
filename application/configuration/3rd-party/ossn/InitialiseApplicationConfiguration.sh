@@ -112,10 +112,9 @@ then
         /bin/rm ${config_file}
 fi
 
-if ( [ -f ${webroot_directory}/ossn.config.db.php ] ) 
-then
-        /bin/rm ${webroot_directory}/ossn.config.db.php
-fi
+/bin/mv /var/www/html/ossn.config.db.php.default ${webroot_directory}/configurations/ossn.config.db.php
+/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.db.php
+/bin/chmod 640 ${webroot_directory}/configurations/ossn.config.db.php
 
 config_file_site="`/bin/grep "^CONFIG_FILE_SITE:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
 
@@ -124,10 +123,9 @@ then
         config_file_site="/var/www/outside_webroot/ossn.site.db.php"
 fi
 
-if ( [ -f ${webroot_directory}/ossn.config.site.php ] )
-then
-        /bin/rm ${webroot_directory}/ossn.config.site.php
-fi
+/bin/mv /var/www/html/ossn.config.site.php.default ${webroot_directory}/configurations/ossn.config.site.php
+/bin/chown www-data:www-data ${webroot_directory}/configurations/ossn.config.site.php
+/bin/chmod 640 ${webroot_directory}/configurations/ossn.config.site.php
 
 # Make sure that the session save path directory is set and exists as sometimes this causes an issue if its not set correctly
 session_save_path="`/bin/grep "^CONFIG_PHP_INI:" ${HOME}/runtime/application.dat | /bin/sed 's/:/ /g' | /bin/grep -o '[^[:space:]]*session.save_path[^[:space:]]*' | /usr/bin/awk -F'=' '{print $NF}'`"
