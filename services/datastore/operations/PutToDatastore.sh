@@ -174,6 +174,8 @@ no_tokens="`/usr/bin/expr ${no_tokens} + 1`"
 
 count="1"
 
+#######put in error checking such as checking $?
+
 if ( [ "${mode}" = "local" ] )
 then
         ${HOME}/services/datastore/operations/PerformPutToDatastore.sh ${file_to_put} ${active_bucket}/${place_to_put} ${delete} ${count}
