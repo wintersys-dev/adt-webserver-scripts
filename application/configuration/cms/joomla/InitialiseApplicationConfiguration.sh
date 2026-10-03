@@ -242,6 +242,7 @@ else
         /bin/sed -i "s%\$dbtype =.*$%\$dbtype = '"${driver}"';%"  ${webroot_directory}/configuration.php
         /bin/sed -i "s%\$dbencryption =.*$%\$dbencryption = 1;%" ${webroot_directory}/configuration.php
 
+#put in here live_url which is tge WEBSITE_URL
 
         if ( [ -f ${HOME}/runtime/DBaaS_CERT ] )
         then
