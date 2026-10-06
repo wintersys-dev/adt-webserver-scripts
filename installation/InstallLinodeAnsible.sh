@@ -18,6 +18,9 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
+#set -x
+
+HOME="`/bin/cat /home/homedir.dat`"
 
 if ( [ "${1}" != "" ] )
 then
@@ -30,7 +33,6 @@ then
 else 
 	BUILDOS="${buildos}"
 fi
-HOME="`/bin/cat /home/homedir.dat`"
 
 manager=""
 options=""
@@ -57,91 +59,86 @@ export DEBIAN_FRONTEND=noninteractive
 install_command="${manager} ${options} install "
 update_command="${manager} ${options} update "
 
-count="0"
-while ( [ ! -f /usr/bin/ansible-playbook ] && [ "${count}" -lt "5" ] )
-do
-	if ( [ "${manager}" != "" ] )
+
+if ( [ "${manager}" != "" ] )
+then
+	if ( [ "${BUILDOS}" = "ubuntu" ] )
 	then
-		if ( [ "${BUILDOS}" = "ubuntu" ] )
-		then
-                        eval ${update_command}
-                        eval ${install_command} ansible-core
+		eval ${update_command}
+		eval ${install_command} ansible-core
                         
-                        if ( [ ! -d ${HOME}/runtime/ansible-env ] )
-                        then
-                                /bin/mkdir -p ${HOME}/runtime/ansible-env
-                        fi
-
-                        python_version="`python3 --version | /usr/bin/awk '{print $NF}' | cut -d. -f1,2`"
-                        eval ${install_command} python${python_version}-venv ${tail_options}
-
-                        # 1. Create a virtual environment (e.g., named 'ansible-env')        
-                        python3 -m venv ${HOME}/runtime/ansible-env
-
-                        # 2. Activate the virtual environment
-                        . ${HOME}/runtime/ansible-env/bin/activate
-
-                        # 3. Upgrade pip and install the requirements securely
-                        pip install --upgrade pip
-
-                        /usr/bin/wget https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt -O ${BUILD_HOME}/runtime/ansible-env/requirements.txt
-
-                        if [ $? -eq 0 ]
-                        then
-                                cat << 'EOF' > "${BUILD_HOME}/runtime/ansible-env/requirements.txt"
-linode_api4>=5.46.1
-polling==0.3.2
-ansible-specdoc>=0.0.20
-EOF
-                        fi
-
-                        pip install --upgrade -r ${BUILD_HOME}/runtime/ansible-env/requirements.txt
+		if ( [ ! -d ${HOME}/runtime/ansible-env ] )
+		then
+			/bin/mkdir -p ${HOME}/runtime/ansible-env
 		fi
 
-		if ( [ "${BUILDOS}" = "debian" ] )
+		python_version="`python3 --version | /usr/bin/awk '{print $NF}' | cut -d. -f1,2`"
+		eval ${install_command} python${python_version}-venv ${tail_options}
+
+		# 1. Create a virtual environment (e.g., named 'ansible-env')        
+		python3 -m venv ${HOME}/runtime/ansible-env
+
+		# 2. Activate the virtual environment
+		. ${HOME}/runtime/ansible-env/bin/activate
+
+		# 3. Upgrade pip and install the requirements securely
+		pip install --upgrade pip
+
+		/usr/bin/wget https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt -O ${BUILD_HOME}/runtime/ansible-env/requirements.txt
+
+		if [ $? -eq 0 ]
 		then
-                        eval ${update_command}
-                        eval ${install_command} ansible-core
-
-                        if ( [ ! -d ${HOME}/runtime/ansible-env ] )
-                        then
-                                /bin/mkdir -p ${HOME}/runtime/ansible-env
-                        fi
-
-                        python_version="`python3 --version | /usr/bin/awk '{print $NF}' | cut -d. -f1,2`"
-                        eval ${install_command} python${python_version}-venv ${tail_options}
-
-                        # 1. Create a virtual environment (e.g., named 'ansible-env')        
-                        python3 -m venv ${HOME}/runtime/ansible-env
-
-                        # 2. Activate the virtual environment
-                        . ${HOME}/runtime/ansible-env/bin/activate
-
-                        # 3. Upgrade pip and install the requirements securely
-                        pip install --upgrade pip
-
-                        /usr/bin/wget https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt -O ${BUILD_HOME}/runtime/ansible-env/requirements.txt
-
-                        if [ $? -eq 0 ]
-                        then
-                                cat << 'EOF' > "${BUILD_HOME}/runtime/ansible-env/requirements.txt"
+			cat << 'EOF' > "${BUILD_HOME}/runtime/ansible-env/requirements.txt"
 linode_api4>=5.46.1
 polling==0.3.2
 ansible-specdoc>=0.0.20
 EOF
-                        fi
-
-                        pip install --upgrade -r ${BUILD_HOME}/runtime/ansible-env/requirements.txt
-                fi
+		fi
+		pip install --upgrade -r ${BUILD_HOME}/runtime/ansible-env/requirements.txt
 	fi
-	count="`/usr/bin/expr ${count} + 1`"
-done
+
+	if ( [ "${BUILDOS}" = "debian" ] )
+	then
+		eval ${update_command}
+		eval ${install_command} ansible-core
+
+		if ( [ ! -d ${HOME}/runtime/ansible-env ] )
+		then
+			/bin/mkdir -p ${HOME}/runtime/ansible-env
+		fi
+
+		python_version="`python3 --version | /usr/bin/awk '{print $NF}' | cut -d. -f1,2`"
+		eval ${install_command} python${python_version}-venv ${tail_options}
+
+		# 1. Create a virtual environment (e.g., named 'ansible-env')        
+		python3 -m venv ${HOME}/runtime/ansible-env
+
+		# 2. Activate the virtual environment
+		. ${HOME}/runtime/ansible-env/bin/activate
+
+		# 3. Upgrade pip and install the requirements securely
+		pip install --upgrade pip
+
+		/usr/bin/wget https://raw.githubusercontent.com/linode/ansible_linode/main/requirements.txt -O ${BUILD_HOME}/runtime/ansible-env/requirements.txt
+
+		if [ $? -eq 0 ]
+		then
+			cat << 'EOF' > "${BUILD_HOME}/runtime/ansible-env/requirements.txt"
+linode_api4>=5.46.1
+polling==0.3.2
+ansible-specdoc>=0.0.20
+EOF
+		fi
+		pip install --upgrade -r ${BUILD_HOME}/runtime/ansible-env/requirements.txt
+	fi
+fi
 
 
-if ( [ ! -x /usr/bin/ansible-playbook ] && [ "${count}" = "5" ] )
+if ( [ ! -x /usr/bin/ansible-playbook ] || [ "`ANSIBLE_LOAD_CALLBACK_PLUGINS=1 ANSIBLE_STDOUT_CALLBACK=json ansible localhost -m ping | jq -r '.plays[0].tasks[0].hosts.localhost.ping'`" != "pong" ] )
 then
 	${HOME}/services/email/SendEmail.sh "INSTALLATION ERROR ANSIBLE" "I believe that ansible hasn't installed correctly, please investigate" "ERROR"
 else
 	/bin/touch ${HOME}/runtime/installedsoftware/InstallLinodeAnsible.sh	
 fi
+
 
