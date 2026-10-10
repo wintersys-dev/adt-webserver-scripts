@@ -38,29 +38,29 @@ then
         /bin/chown ${SERVER_USER}:root ${HOME}/.bashrc
 fi
 
-if ( [ -f ${HOME}/.ssh/webserver_configuration_settings.dat.gz ] )
-then
-        /bin/chown root:root ${HOME}/.ssh/webserver_configuration_settings.dat.gz
-        /bin/chmod 600 ${HOME}/.ssh/webserver_configuration_settings.dat.gz
-fi
+#if ( [ -f ${HOME}/.ssh/webserver_configuration_settings.dat.gz ] )#
+#then
+#        /bin/chown root:root ${HOME}/.ssh/webserver_configuration_settings.dat.gz
+#        /bin/chmod 600 ${HOME}/.ssh/webserver_configuration_settings.dat.gz
+#fi
 
-if ( [ -f ${HOME}/.ssh/webserver_configuration_settings.dat ] )
-then
-        /bin/chown root:root ${HOME}/.ssh/webserver_configuration_settings.dat
-        /bin/chmod 660 ${HOME}/.ssh/webserver_configuration_settings.dat
-fi
+#if ( [ -f ${HOME}/.ssh/webserver_configuration_settings.dat ] )
+#then
+ #       /bin/chown root:root ${HOME}/.ssh/webserver_configuration_settings.dat
+  #      /bin/chmod 660 ${HOME}/.ssh/webserver_configuration_settings.dat
+#fi
 
-if ( [ -f ${HOME}/.ssh/software.dat.gz ] )
-then
-        /bin/chown root:root ${HOME}/.ssh/software.dat.gz
-        /bin/chmod 660 ${HOME}/.ssh/software.dat.gz
-fi
+#if ( [ -f ${HOME}/.ssh/software.dat.gz ] )
+#then
+ #       /bin/chown root:root ${HOME}/.ssh/software.dat.gz
+ #       /bin/chmod 660 ${HOME}/.ssh/software.dat.gz
+#fi
 
-if ( [ -f ${HOME}/.ssh/software.dat ] )
-then
-        /bin/chown root:root ${HOME}/.ssh/software.dat
-        /bin/chmod 660 ${HOME}/.ssh/software.dat
-fi
+#if ( [ -f ${HOME}/.ssh/software.dat ] )
+#then
+#        /bin/chown root:root ${HOME}/.ssh/software.dat
+#        /bin/chmod 660 ${HOME}/.ssh/software.dat
+#fi
 
 #If you want to harden the security of your system you  can change the ownerships of these files to root but you won't be able
 #to "get rooted" using ${HOME}/super/Super.sh
@@ -77,10 +77,26 @@ then
         /bin/chmod 660 ${HOME}/runtime/software.dat
 fi
 
-/bin/chmod 700 ${HOME}/.ssh
-/bin/chmod 600 ${HOME}/.ssh/authorized_keys
-/bin/chmod 600 ${HOME}/.ssh/id_*
-/bin/chmod 644 ${HOME}/.ssh/id_*pub
+#/bin/chmod 700 ${HOME}/.ssh
+#/bin/chmod 600 ${HOME}/.ssh/authorized_keys
+#/bin/chmod 600 ${HOME}/.ssh/id_*
+#/bin/chmod 644 ${HOME}/.ssh/id_*pub
+
+# 1. Fix ownership (assign to your user and your primary group)
+chown -R ${SERVER_USER}:${SERVER_USER} ~/.ssh
+
+# 2. Restrict the .ssh directory
+chmod 700 ${HOME}/.ssh
+
+# 3. Restrict the private keys
+chmod 600 ${HOME}/.ssh/id_*
+chmod 600 ${HOME}/.ssh/authorized_keys
+
+# 4. Set permissions for public keys
+chmod 644 ${HOME}/.ssh/*.pub
+
+# 5. Ensure your home directory isn't group-writable
+chmod go-w ${HOME}
 
 if ( [ "${mode}" != "core-only" ] )
 then
