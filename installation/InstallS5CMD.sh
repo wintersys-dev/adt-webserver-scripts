@@ -48,7 +48,7 @@ do
 		fi
 		if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s5cmd:source'`" = "1" ] )
 		then	
-			${HOME}/installation/InstallGo.sh ${BUILDOS}
+		#	${HOME}/installation/InstallGo.sh ${BUILDOS}
 			cd /opt
 			GOBIN=`/usr/bin/pwd` /usr/bin/go install github.com/peak/s5cmd/v2@latest                 
 			/bin/mv /opt/s5cmd /usr/bin/s5cmd  
@@ -67,7 +67,7 @@ do
 		fi
 		if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTORETOOL:s5cmd:source'`" = "1" ] )
 		then	
-			${HOME}/installation/InstallGo.sh ${BUILDOS}
+		#	${HOME}/installation/InstallGo.sh ${BUILDOS}
 			cd /opt
 			GOBIN=`/usr/bin/pwd` /usr/bin/go install github.com/peak/s5cmd/v2@latest                 
 			/bin/mv /opt/s5cmd /usr/bin/s5cmd  
