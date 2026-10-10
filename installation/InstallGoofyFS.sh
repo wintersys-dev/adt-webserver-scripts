@@ -47,7 +47,7 @@ do
 		
 		if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:source'`" = "1" ] )
 		then
-			${HOME}/installation/InstallGo.sh ${BUILDOS}
+		#	${HOME}/installation/InstallGo.sh ${BUILDOS}
 			cd /opt
 			${HOME}/services/git/GitClone.sh "github" "" "kahing" "goofys" ""
 			cd goofys
@@ -71,7 +71,7 @@ do
 		fi
 		if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:goof:source'`" = "1" ] )
 		then
-			${HOME}/installation/InstallGo.sh ${BUILDOS}
+		#	${HOME}/installation/InstallGo.sh ${BUILDOS}
 			cd /opt
 			${HOME}/services/git/GitClone.sh "github" "" "kahing" "goofys" ""
 			cd goofys
