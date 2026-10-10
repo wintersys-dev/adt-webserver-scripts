@@ -34,7 +34,7 @@ else
 	BUILDOS="${buildos}"
 fi
 
-${HOME}/installation/InstallGnuPG.sh
+#${HOME}/installation/InstallGnuPG.sh
 
 count="0"
 while ( [ ! -x /usr/local/bin/wp ] && [ "${count}" -lt "5" ] )
