@@ -45,7 +45,7 @@ do
 			/bin/chmod 755 /usr/bin/geesefs
 		elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'DATASTOREMOUNTTOOL:geesefs:source'`" = "1" ] )
 		then
-			${HOME}/installation/InstallGo.sh ${BUILDOS}
+		#	${HOME}/installation/InstallGo.sh ${BUILDOS}
 			cd /opt
 			${HOME}/services/git/GitClone.sh "github" "" "yandex-cloud" "geesefs" ""
 			cd geesefs
