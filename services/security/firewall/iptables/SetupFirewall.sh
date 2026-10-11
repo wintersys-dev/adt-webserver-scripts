@@ -288,31 +288,7 @@ then
     		fi
     	fi
 
-
-        if ( [ "${firewall}" = "ufw" ] )
-        then
-        	if ( [ "${ip_address}" = "cloudflare" ] )
-        	then
-        		for ip in `/usr/bin/curl https://www.cloudflare.com/ips-v4/#`
-            	do
-            		if ( [ "`/usr/sbin/ufw status | /bin/grep "ALLOW.*${ip}"`" = "" ] )
-            		then
-            			/usr/sbin/ufw ${openness} from ${ip} to any port 443
-        				updated="1"
-        			fi
-        		done
-    		elif ( [ "`/usr/sbin/ufw status | /bin/grep "${port}" | /bin/grep "ALLOW" | /bin/grep "${ip_address}"`" = "" ] && [ "${delete}" != "yes" ] )
-    		then
-            	/usr/sbin/ufw ${openness} from ${ip_address} to any port ${port}
-            	updated="1"
-            else
-            	if ( [ "`/usr/sbin/ufw status | /bin/grep "${port}" | /bin/grep "ALLOW" | /bin/grep "${ip_address}"`" != "" ] && [ "${delete}" = "yes" ] )
-                then
-                	/usr/bin/yes | /usr/sbin/ufw delete `/usr/sbin/ufw status numbered | /bin/grep ${port} | /usr/bin/awk -F"[\[\]]" '{print $2}' | /bin/sed 's/ //g'`
-                	updated="1"
-            	fi
-			fi
-        elif ( [ "${firewall}" = "iptables" ] )
+		if ( [ "${firewall}" = "iptables" ] )
         then
             if ( [ "${ip_address}" = "cloudflare" ] )
             then
@@ -367,12 +343,7 @@ fi
 
 if ( [ "${updated}" = "1" ] || [ "${initialised}" = "1" ] )
 then
-        if ( [ "${firewall}" = "ufw" ] )
-        then
-                /usr/sbin/ufw -f enable
-                /usr/sbin/ufw reload
-
-        elif ( [ "${firewall}" = "iptables" ] )
+	if ( [ "${firewall}" = "iptables" ] )
         then
                 /usr/sbin/iptables-save > /etc/iptables/rules.v4
                 /usr/sbin/ip6tables-save > /etc/iptables/rules.v6
@@ -387,13 +358,7 @@ then
         fi
 fi
 
-if ( [ "${firewall}" = "ufw" ] )
-then
-        if ( [ "`/usr/bin/ufw status | /bin/grep 'inactive'`" = "" ] )
-        then
-                /bin/touch ${HOME}/runtime/FIREWALL-ACTIVE
-        fi
-elif ( [ "${firewall}" = "iptables" ] )
+if ( [ "${firewall}" = "iptables" ] )
 then
         if ( [ "`${HOME}/utilities/processing/RunServiceCommand.sh netfilter-persistent status | /bin/grep Loaded | /bin/grep enabled`" != "" ] )
         then
