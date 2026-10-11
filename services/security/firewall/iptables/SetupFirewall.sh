@@ -266,7 +266,7 @@ then
         	port="`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $1}'`"
         	ip_address="`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $4}'`"
                         
-			if ( [ "`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $4}'`" = "DELETE" ] )
+			if ( [ "`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $6}'`" = "DELETE" ] )
         	then
         		delete="yes"
     		fi
