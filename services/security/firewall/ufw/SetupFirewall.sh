@@ -103,28 +103,6 @@ then
 		then
 			openness="allow"
 		fi
-elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}'`" = "iptables" ] )
-then
-        firewall="iptables"
-		limit=""
-		limit="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}'`"
-		limit_burst=""
-		limit_burst="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $4}'`"
-		if ( [ "${limit}" = "" ] || [ "${limit_burst}" = "" ] )
-		then
-			limited="off"
-		else
-			if ( [ "${limit}" -eq "${limit}" 2>/dev/null ] && [ "${limit_burst}" -eq "${limit_burst}" 2>/dev/null ] )
-        	then
-				limited="on"
-			else
-				limited="off"
-			fi
-		fi
-		if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
-		then
-			limited="off"
-		fi
 fi
 
 if ( [ ! -f ${HOME}/runtime/FIREWALL-ACTIVE ] )
@@ -153,33 +131,6 @@ then
                 done
 
                 /usr/sbin/ufw reload
-				intialised="1"
-                /bin/touch ${HOME}/runtime/FIREWALL-INITIALISED 
-        elif ( [ "${firewall}" = "iptables" ] && [ ! -f ${HOME}/runtime/FIREWALL-INITIALISED ] )
-        then
-                /usr/sbin/iptables -P INPUT DROP
-                /usr/sbin/iptables -P FORWARD DROP
-                /usr/sbin/iptables -P OUTPUT ACCEPT
-                /usr/sbin/iptables -A INPUT -i lo -j ACCEPT
-                /usr/sbin/iptables -A OUTPUT -o lo -j ACCEPT
-
-                /usr/sbin/iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-                /usr/sbin/iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
-                /usr/sbin/iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
-                /usr/sbin/iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
-
-                /usr/sbin/ip6tables -P INPUT DROP
-                /usr/sbin/ip6tables -P FORWARD DROP
-                /usr/sbin/ip6tables -P OUTPUT ACCEPT
-                /usr/sbin/ip6tables -A INPUT -i lo -j ACCEPT
-                /usr/sbin/ip6tables -A OUTPUT -o lo -j ACCEPT
-
-                VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
-                ip_addresses="`/usr/sbin/iptables -L INPUT -n | /bin/grep "443$" | /bin/grep -v "${VPC_IP_RANGE}" | /bin/grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"`"
-                for ip_address in ${ip_addresses}
-                do
-                        /usr/sbin/iptables -D INPUT -s ${ip_address} -p tcp --dport 443 -j ACCEPT
-                done
 				intialised="1"
                 /bin/touch ${HOME}/runtime/FIREWALL-INITIALISED 
         fi
