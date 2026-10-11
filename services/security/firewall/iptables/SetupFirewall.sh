@@ -200,26 +200,19 @@ then
 
 	if ( [ "${authenticator_ip}" != "" ] )
 	then
-		if ( [ "${firewall}" = "iptables" ] )
-		then
-			/usr/sbin/iptables -I INPUT -s ${authenticator_ip} -j DROP
-		fi
+		/usr/sbin/iptables -I INPUT -s ${authenticator_ip} -j DROP
 	fi
 
 	if ( [ "${authenticator_public_ip}" != "" ] )
-	then
-		if ( [ "${firewall}" = "iptables" ] )
-		then
-			/usr/sbin/iptables -I INPUT -s ${authenticator_public_ip} -j DROP
-		fi
+	then	
+		/usr/sbin/iptables -I INPUT -s ${authenticator_public_ip} -j DROP
 	fi
 fi
 
 if ( [ "`/usr/bin/hostname | /bin/grep '^rp\-'`" = "" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
-		if ( [ "${firewall}" = "iptables" ] )
-        then
+
                 if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep ".*${wireguard_port}.*ACCEPT"`" = "" ] )
                 then
                         /usr/sbin/iptables -A INPUT -s ${BUILD_MACHINE_IP}/32 -p tcp --dport ${wireguard_port} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
@@ -228,13 +221,10 @@ then
                         /usr/sbin/iptables -A OUTPUT -s ${BUILD_MACHINE_IP}/32 -p udp --sport ${wireguard_port} -m conntrack --ctstate ESTABLISHED -j ACCEPT
                         updated="1"
                 fi
-        fi
 fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDMACHINEVPC:0`" = "1" ] )
 then
-	if ( [ "${firewall}" = "iptables" ] )
-	then
 		if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${BUILD_MACHINE_IP}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
 		then
                         /usr/sbin/iptables -A INPUT -s ${BUILD_MACHINE_IP}/32 -p tcp --dport ${SSH_PORT} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
@@ -244,21 +234,15 @@ then
                         /usr/sbin/iptables -A INPUT -s ${BUILD_MACHINE_IP}/32 -p ICMP --icmp-type 8 -j ACCEPT
 			updated="1"
 		fi
-	fi
 fi
 
-
-if ( [ "${firewall}" = "iptables" ] )
+if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${VPC_IP_RANGE}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
 then
-        if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${VPC_IP_RANGE}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
-        then
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport ${SSH_PORT} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
                 /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p ICMP --icmp-type 8 -j ACCEPT
                 updated="1"
-        fi
-
 fi
 
 if ( [ -f ${HOME}/runtime/firewall.dat ] )
@@ -288,8 +272,6 @@ then
     		fi
     	fi
 
-		if ( [ "${firewall}" = "iptables" ] )
-        then
             if ( [ "${ip_address}" = "cloudflare" ] )
             then
             	for ip in `/usr/bin/curl https://www.cloudflare.com/ips-v4/#`
@@ -336,18 +318,15 @@ then
 					fi
 					updated="1"
             	fi
-			fi
 		fi
 	done
 fi
 
 if ( [ "${updated}" = "1" ] || [ "${initialised}" = "1" ] )
 then
-	if ( [ "${firewall}" = "iptables" ] )
-        then
+
                 /usr/sbin/iptables-save > /etc/iptables/rules.v4
                 /usr/sbin/ip6tables-save > /etc/iptables/rules.v6
-        fi
 
         if ( [ "${BUILDOS}" = "ubuntu" ] )
         then
@@ -358,8 +337,6 @@ then
         fi
 fi
 
-if ( [ "${firewall}" = "iptables" ] )
-then
         if ( [ "`${HOME}/utilities/processing/RunServiceCommand.sh netfilter-persistent status | /bin/grep Loaded | /bin/grep enabled`" != "" ] )
         then
                 if ( [ "`${HOME}/utilities/processing/RunServiceCommand.sh netfilter-persistent status | /bin/grep active`" != "" ] )
@@ -367,4 +344,3 @@ then
                         /bin/touch ${HOME}/runtime/FIREWALL-ACTIVE
                 fi
         fi
-fi
