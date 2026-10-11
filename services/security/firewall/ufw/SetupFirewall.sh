@@ -177,18 +177,14 @@ then
 
 	if ( [ "${authenticator_ip}" != "" ] )
 	then
-		if ( [ "${firewall}" = "ufw" ] )
-		then
+
 			/usr/sbin/ufw deny from ${authenticator_ip}
-		fi
 	fi
 
 	if ( [ "${authenticator_public_ip}" != "" ] )
 	then
-		if ( [ "${firewall}" = "ufw" ] )
-		then
+
 			/usr/sbin/ufw deny from ${authenticator_public_ip}
-		fi
 	fi
 fi
 
