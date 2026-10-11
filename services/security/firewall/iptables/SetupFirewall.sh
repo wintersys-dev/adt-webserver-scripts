@@ -200,11 +200,6 @@ then
 
 	if ( [ "${authenticator_ip}" != "" ] )
 	then
-		if ( [ "${firewall}" = "ufw" ] )
-		then
-			/usr/sbin/ufw deny from ${authenticator_ip}
-		fi
-
 		if ( [ "${firewall}" = "iptables" ] )
 		then
 			/usr/sbin/iptables -I INPUT -s ${authenticator_ip} -j DROP
@@ -213,11 +208,6 @@ then
 
 	if ( [ "${authenticator_public_ip}" != "" ] )
 	then
-		if ( [ "${firewall}" = "ufw" ] )
-		then
-			/usr/sbin/ufw deny from ${authenticator_public_ip}
-		fi
-
 		if ( [ "${firewall}" = "iptables" ] )
 		then
 			/usr/sbin/iptables -I INPUT -s ${authenticator_public_ip} -j DROP
@@ -228,15 +218,7 @@ fi
 if ( [ "`/usr/bin/hostname | /bin/grep '^rp\-'`" = "" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
 then
         wireguard_port="`/usr/bin/expr ${SSH_PORT} + 1`"
-        if ( [ "${firewall}" = "ufw" ] )
-        then
-                if ( [ "`/usr/sbin/ufw status | /bin/grep  "${wireguard_port}.*ALLOW.*"`" = "" ] )
-                then
-                        /usr/sbin/ufw allow ${wireguard_port}
-                        /bin/sleep 2
-                        updated="1"
-                fi
-        elif ( [ "${firewall}" = "iptables" ] )
+		if ( [ "${firewall}" = "iptables" ] )
         then
                 if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep ".*${wireguard_port}.*ACCEPT"`" = "" ] )
                 then
@@ -251,16 +233,7 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDMACHINEVPC:0`" = "1" ] )
 then
-	if ( [ "${firewall}" = "ufw" ] )
-	then
-	    if ( [ "`/usr/sbin/ufw status | /bin/grep  "${SSH_PORT}.*ALLOW.*${BUILD_MACHINE_IP}"`" = "" ] )
-		then
-			/usr/sbin/ufw allow from ${BUILD_MACHINE_IP}/32 to any port ${SSH_PORT}
-			/usr/sbin/ufw allow from ${BUILD_MACHINE_IP}/32 to any port 443
-			/bin/sleep 2
-			updated="1"
-		fi
-	elif ( [ "${firewall}" = "iptables" ] )
+	if ( [ "${firewall}" = "iptables" ] )
 	then
 		if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${BUILD_MACHINE_IP}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
 		then
@@ -274,16 +247,8 @@ then
 	fi
 fi
 
-if ( [ "${firewall}" = "ufw" ] )
-then
-        if ( [ "`/usr/sbin/ufw status | /bin/grep "${SSH_PORT}.*ALLOW.*${VPC_IP_RANGE}"`" = "" ] )
-        then
-                /usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port ${SSH_PORT}
-                /usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port 443
-				/usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port 80
-                updated="1"
-        fi
-elif ( [ "${firewall}" = "iptables" ] )
+
+if ( [ "${firewall}" = "iptables" ] )
 then
         if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${VPC_IP_RANGE}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
         then
