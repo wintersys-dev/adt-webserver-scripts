@@ -296,11 +296,6 @@ then
         then
                 /usr/sbin/ufw -f enable
                 /usr/sbin/ufw reload
-
-        elif ( [ "${firewall}" = "iptables" ] )
-        then
-                /usr/sbin/iptables-save > /etc/iptables/rules.v4
-                /usr/sbin/ip6tables-save > /etc/iptables/rules.v6
         fi
 
         if ( [ "${BUILDOS}" = "ubuntu" ] )
