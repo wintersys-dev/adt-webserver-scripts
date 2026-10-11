@@ -207,16 +207,6 @@ then
                         /bin/sleep 2
                         updated="1"
                 fi
-        elif ( [ "${firewall}" = "iptables" ] )
-        then
-                if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep ".*${wireguard_port}.*ACCEPT"`" = "" ] )
-                then
-                        /usr/sbin/iptables -A INPUT -s ${BUILD_MACHINE_IP}/32 -p tcp --dport ${wireguard_port} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-                        /usr/sbin/iptables -A OUTPUT -s ${BUILD_MACHINE_IP}/32 -p tcp --sport ${wireguard_port} -m conntrack --ctstate ESTABLISHED -j ACCEPT
-                        /usr/sbin/iptables -A INPUT -s ${BUILD_MACHINE_IP}/32 -p udp --dport ${wireguard_port} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-                        /usr/sbin/iptables -A OUTPUT -s ${BUILD_MACHINE_IP}/32 -p udp --sport ${wireguard_port} -m conntrack --ctstate ESTABLISHED -j ACCEPT
-                        updated="1"
-                fi
         fi
 fi
 
@@ -254,17 +244,6 @@ then
 				/usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port 80
                 updated="1"
         fi
-elif ( [ "${firewall}" = "iptables" ] )
-then
-        if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${VPC_IP_RANGE}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
-        then
-                /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport ${SSH_PORT} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-                /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-                /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-                /usr/sbin/iptables -A INPUT -s ${VPC_IP_RANGE} -p ICMP --icmp-type 8 -j ACCEPT
-                updated="1"
-        fi
-
 fi
 
 if ( [ -f ${HOME}/runtime/firewall.dat ] )
