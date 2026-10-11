@@ -88,10 +88,7 @@ then
         exit
 fi
 
-firewall=""
-if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}'`" = "ufw" ] )
-then
-        firewall="ufw"
+
 		openness=""
 		if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}'`" = "limit" ] )
 		then
@@ -103,7 +100,6 @@ then
 		then
 			openness="allow"
 		fi
-fi
 
 if ( [ ! -f ${HOME}/runtime/FIREWALL-ACTIVE ] )
 then
@@ -117,7 +113,7 @@ initialised="0"
 
 if ( [ ! -f ${HOME}/runtime/FIREWALL-INITIALISED ] )
 then
-        if ( [ "${firewall}" = "ufw" ] && [ ! -f ${HOME}/runtime/FIREWALL-ACTIVE ] )
+        if ( [ ! -f ${HOME}/runtime/FIREWALL-ACTIVE ] )
         then
                 /usr/bin/yes | /usr/sbin/ufw reset
                 /usr/sbin/ufw delete allow 22/tcp
@@ -212,8 +208,6 @@ fi
 
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDMACHINEVPC:0`" = "1" ] )
 then
-	if ( [ "${firewall}" = "ufw" ] )
-	then
 	    if ( [ "`/usr/sbin/ufw status | /bin/grep  "${SSH_PORT}.*ALLOW.*${BUILD_MACHINE_IP}"`" = "" ] )
 		then
 			/usr/sbin/ufw allow from ${BUILD_MACHINE_IP}/32 to any port ${SSH_PORT}
@@ -221,11 +215,9 @@ then
 			/bin/sleep 2
 			updated="1"
 		fi
-	fi
 fi
 
-if ( [ "${firewall}" = "ufw" ] )
-then
+
         if ( [ "`/usr/sbin/ufw status | /bin/grep "${SSH_PORT}.*ALLOW.*${VPC_IP_RANGE}"`" = "" ] )
         then
                 /usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port ${SSH_PORT}
@@ -233,7 +225,6 @@ then
 				/usr/sbin/ufw allow from ${VPC_IP_RANGE} to any port 80
                 updated="1"
         fi
-fi
 
 if ( [ -f ${HOME}/runtime/firewall.dat ] )
 then
@@ -262,9 +253,6 @@ then
     		fi
     	fi
 
-
-        if ( [ "${firewall}" = "ufw" ] )
-        then
         	if ( [ "${ip_address}" = "cloudflare" ] )
         	then
         		for ip in `/usr/bin/curl https://www.cloudflare.com/ips-v4/#`
@@ -286,17 +274,14 @@ then
                 	updated="1"
             	fi
 			fi
-		fi
 	done
 fi
 
 if ( [ "${updated}" = "1" ] || [ "${initialised}" = "1" ] )
 then
-        if ( [ "${firewall}" = "ufw" ] )
-        then
+
                 /usr/sbin/ufw -f enable
                 /usr/sbin/ufw reload
-        fi
 
         if ( [ "${BUILDOS}" = "ubuntu" ] )
         then
@@ -307,10 +292,9 @@ then
         fi
 fi
 
-if ( [ "${firewall}" = "ufw" ] )
-then
+
         if ( [ "`/usr/bin/ufw status | /bin/grep 'inactive'`" = "" ] )
         then
                 /bin/touch ${HOME}/runtime/FIREWALL-ACTIVE
         fi
-fi
+
