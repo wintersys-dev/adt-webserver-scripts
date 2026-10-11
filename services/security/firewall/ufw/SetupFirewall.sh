@@ -185,11 +185,6 @@ then
 		then
 			/usr/sbin/ufw deny from ${authenticator_ip}
 		fi
-
-		if ( [ "${firewall}" = "iptables" ] )
-		then
-			/usr/sbin/iptables -I INPUT -s ${authenticator_ip} -j DROP
-		fi
 	fi
 
 	if ( [ "${authenticator_public_ip}" != "" ] )
@@ -197,11 +192,6 @@ then
 		if ( [ "${firewall}" = "ufw" ] )
 		then
 			/usr/sbin/ufw deny from ${authenticator_public_ip}
-		fi
-
-		if ( [ "${firewall}" = "iptables" ] )
-		then
-			/usr/sbin/iptables -I INPUT -s ${authenticator_public_ip} -j DROP
 		fi
 	fi
 fi
