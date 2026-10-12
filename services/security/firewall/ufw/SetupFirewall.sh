@@ -22,15 +22,6 @@
 
 export HOME="`/bin/cat /home/homedir.dat`"
 
-if ( [ ! -d ${HOME}/logs/firewall ] )
-then
-        /bin/mkdir -p ${HOME}/logs/firewall
-fi
-
-out_file="firewall/firewall-out-`/bin/date | /bin/sed 's/ //g'`"
-exec 1>>${HOME}/logs/${out_file}
-err_file="firewall/firewall-err-`/bin/date | /bin/sed 's/ //g'`"
-exec 2>>${HOME}/logs/${err_file}
 
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
 SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
@@ -239,9 +230,9 @@ then
         if ( [ "`/bin/echo ${port_token} | /bin/grep 'ipv4'`" != "" ] )
         then
         	port="`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $1}'`"
-        	ip_address="`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $6}'`"
+        	ip_address="`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $4}'`"
                         
-			if ( [ "`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $4}'`" = "DELETE" ] )
+			if ( [ "`/bin/echo ${port_token} | /usr/bin/awk -F'|' '{print $6}'`" = "DELETE" ] )
         	then
         		delete="yes"
     		fi
