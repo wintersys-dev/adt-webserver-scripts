@@ -79,7 +79,7 @@ server
      }
 
     # Deny access to core Joomla folders and sensitive extensions
-    location ~* /textpattern/|/keep/|/libraries/|/plugins/|/modules/|/templates/|/cli/|/cache/|/administrator/components/|/administrator/modules/ {
+    location ~* /libraries/|/plugins/|/modules/|/templates/|/cli/|/cache/|/administrator/components/|/administrator/modules/ {
         # Allow static files inside these folders but deny PHP execution
         location ~* \.php$ { return 403; }
     }
