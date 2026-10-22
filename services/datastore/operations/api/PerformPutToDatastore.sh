@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # 1. Configuration parameters
-LINODE_TOKEN="your_linode_personal_access_token_here"
+TOKEN="your_linode_personal_access_token_here"
 CLUSTER_ID="us-east-1"      # The Linode region cluster where your bucket lives
 BUCKET_NAME="my-bucket"     # Your destination bucket name
 OBJECT_KEY="backups/file.txt" # The destination path inside your bucket
@@ -9,11 +9,14 @@ FILE_TO_UPLOAD="/path/to/local/file.txt"
 
 # 2. Request a secure, temporary upload URL from the Linode API (Valid for 10 minutes)
 echo "Generating secure upload URL from Linode API..."
-API_RESPONSE=$(curl -s -X POST \
-  -H "Authorization: Bearer $LINODE_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "{\"name\": \"$OBJECT_KEY\", \"method\": \"PUT\"}" \
-  "https://linode.com")
+#API_RESPONSE=$(curl -s -X POST \
+ # -H "Authorization: Bearer $LINODE_TOKEN" \
+ # -H "Content-Type: application/json" \
+ # -d "{\"name\": \"$OBJECT_KEY\", \"method\": \"PUT\"}" \
+ # "https://linode.com")
+
+  
+API_RESPONSE="`curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"name": "$OBJECT_KEY", "method": "PUT"}" "https://api.linode.com/v4/object-storage/buckets/${CLUSTER_ID}/${BUCKET_NAME}"'`"
 
 # Extract the temporary URL string from the JSON response
 UPLOAD_URL=$(echo "$API_RESPONSE" | jq -r '.url')
