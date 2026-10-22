@@ -1,0 +1,147 @@
+#!/bin/bash
+
+# ==============================================================================
+# 1. Configuration parameters
+# ==============================================================================
+TOKEN="your_linode_personal_access_token_here"
+CLUSTER_ID="us-east-1"
+BUCKET_NAME="my-bucket"
+OBJECT_KEY="backups/file.large"
+FILE_TO_UPLOAD="/path/to/local/file.large"
+
+# Part size for splitting (Linode requires minimum 5MB per part, except for the last part)
+# 10M = 10 Megabytes. Adjust based on your connection and file size.
+PART_SIZE="10M" 
+
+# Temporary directory to store split file chunks
+TMP_DIR="/tmp/linode_multipart_$$"
+mkdir -p "$TMP_DIR"
+
+# Cleanup function to remove chunks on exit or error
+cleanup() {
+  rm -rf "$TMP_DIR"
+}
+trap cleanup EXIT
+
+# Validate file exists
+if [ ! -f "$FILE_TO_UPLOAD" ]; then
+  echo "Error: Local file $FILE_TO_UPLOAD not found."
+  exit 1
+fi
+
+BASE_API="https://api.linode.com/v4/object-storage/buckets/${CLUSTER_ID}/${BUCKET_NAME}/object-url"
+
+# ==============================================================================
+# 2. Split the file into manageable chunks
+# ==============================================================================
+echo "Splitting file into ${PART_SIZE} chunks..."
+# Splits file into parts named chunk_0001, chunk_0002, etc.
+split -b "$PART_SIZE" -d -a 4 "$FILE_TO_UPLOAD" "${TMP_DIR}/chunk_"
+
+# Get the list of chunks created
+CHUNKS=($(ls ${TMP_DIR}/chunk_* 2>/dev/null))
+TOTAL_PARTS=${#CHUNKS[@]}
+
+if [ "$TOTAL_PARTS" -eq 0 ]; then
+  echo "Error: Failed to split file."
+  exit 1
+fi
+
+echo "Total parts to upload: $TOTAL_PARTS"
+
+# ==============================================================================
+# 3. Initiate Multipart Upload Session
+# ==============================================================================
+echo "Initiating multipart upload..."
+INIT_RES=$(curl -s -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\": \"$OBJECT_KEY\", \"method\": \"POST\"}" \
+  "$BASE_API")
+
+# The initiation API returns an uploadId if supported natively, or uses the standard S3-like init.
+# Note: Linode Object Storage also gives standard Object URLs. To assemble a multipart manifest 
+# seamlessly via curl, we loop through and fetch a PUT URL for each specific part number.
+# Linode's multi-part signed URL spec requires passing part_number in the API request.
+
+# We will collect the ETag headers returned by each part upload to build the final manifest.
+PARTS_MANIFEST="["
+
+# ==============================================================================
+# 4. Upload each chunk sequentially
+# ==============================================================================
+for ((i=0; i<TOTAL_PARTS; i++)); do
+  PART_NUM=$((i + 1))
+  CHUNK_FILE="${CHUNKS[$i]}"
+  
+  echo "Processing part $PART_NUM of $TOTAL_PARTS..."
+
+  # Request a unique signed PUT URL for this specific part number
+  URL_RES=$(curl -s -X POST \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"name\": \"$OBJECT_KEY\", \"method\": \"PUT\", \"part_number\": $PART_NUM}" \
+    "$BASE_API")
+
+  UPLOAD_URL=$(echo "$URL_RES" | jq -r '.url')
+
+  if [ "$UPLOAD_URL" = "null" ] || [ -z "$UPLOAD_URL" ]; then
+    echo "Error: Failed to get upload URL for part $PART_NUM"
+    echo "Response: $URL_RES"
+    exit 1
+  fi
+
+  # Upload the chunk and capture the response headers to get the ETag
+  # The ETag is mandatory to combine the file later
+  HEADER_FILE="${TMP_DIR}/headers_$PART_NUM.txt"
+  
+  curl -s -S -X PUT \
+    -H "Content-Type: application/octet-stream" \
+    --upload-file "$CHUNK_FILE" \
+    -D "$HEADER_FILE" \
+    "$UPLOAD_URL"
+
+  if [ $? -ne 0 ]; then
+    echo "Error: Upload failed for part $PART_NUM"
+    exit 1
+  fi
+
+  # Extract ETag from headers (normalize line endings and quotes)
+  ETAG=$(grep -i "etag:" "$HEADER_FILE" | awk '{print $2}' | tr -d '\r\n"')
+  
+  if [ -z "$ETAG" ]; then
+    echo "Error: Could not retrieve ETag for part $PART_NUM"
+    exit 1
+  fi
+
+  # Append to JSON manifest string
+  if [ "$PART_NUM" -gt 1 ]; then
+    PARTS_MANIFEST="$PARTS_MANIFEST,"
+  fi
+  PARTS_MANIFEST="$PARTS_MANIFEST{\"part_number\":$PART_NUM,\"etag\":\"$ETAG\"}"
+done
+
+PARTS_MANIFEST="$PARTS_MANIFEST]"
+
+# ==============================================================================
+# 5. Complete Multipart Upload Session
+# ==============================================================================
+echo "Completing multipart upload..."
+
+# Linode's direct architecture handles combining via the Object Storage backend 
+# when you finalize with a payload including your trackable parts or by concluding 
+# the S3 protocol flow. For the REST proxy wrapper:
+COMPLETE_RES=$(curl -s -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\": \"$OBJECT_KEY\", \"method\": \"POST\", \"parts\": $PARTS_MANIFEST}" \
+  "$BASE_API")
+
+# Check success criteria
+if echo "$COMPLETE_RES" | jq -e '.errors' >/dev/null 2>&1; then
+  echo "Error: Finalizing multipart upload failed."
+  echo "$COMPLETE_RES" | jq '.errors'
+  exit 1
+else
+  echo "Success! Large file uploaded successfully using multipart chunking."
+fi
