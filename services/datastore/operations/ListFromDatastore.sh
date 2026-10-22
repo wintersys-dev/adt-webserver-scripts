@@ -1,9 +1,25 @@
 #!/bin/sh
 #####################################################################################
 # Author: Peter Winter
-# Date :  9/4/2016
-# Description: List a file from a bucket in the datastore. This will only operate against your
-# first order datastore regardless of whether you are operating in mutli-region mode or not
+# Date :  9/4/2021
+# Description: This script automates individual file or sub-path listing tasks within 
+#              managed cloud datastores. It dynamically resolves naming topologies for 
+#              target S3 buckets based on specific system classifications . 
+#              This inspecting operation executes strictly against your primary, first-order 
+#              datastore instance, skipping replication chain loops to read metadata directly.
+#
+# Arguments:
+#              $1 - <bucket_type>            : Target category classification. 
+#              $2 - <file_to_list>           : Name or relative pathway of the specific object/directory 
+#                                              to inspect. Passing "root" resets this value to empty.
+#              $3 - [additional_specifier]   : Optional contextual tracking suffix string used for 
+#                                              asset paths, target sub-directories, or unique node tags.
+#
+# Environmental Dependencies:
+#              - /home/buildhome.dat containing valid application root pathway tracking string.
+#              - Toolkit helpers: GetVariableValue.sh script infrastructure for variable evaluations.
+#              - Environment registers: S3_ACCESS_KEY, WEBSITE_URL, DNS_CHOICE, SERVER_USER, 
+#                                       SSL_GENERATION_SERVICE configuration states.
 #####################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
@@ -16,14 +32,29 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 ####################################################################################
 #set -x
+set -e
+
+HOME="`/bin/cat /home/homedir.dat`"
+
+if ( [ "${1}" = "" ] || [ "${2}" = "" ] )
+then
+        /bin/echo "Error: 2 arguments are required and 1 optional argument"
+        /bin/echo "Usage: $0 <bucket_type> <file_to_list> <additional_specifier>"
+        exit 1
+fi
 
 bucket_type="${1}"
 file_to_list="${2}"
 additional_specifier="${3}"
+
+if ( [ "${file_to_list}" = "root" ] )
+then
+        file_to_list=""
+fi
 
 if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 then
@@ -193,5 +224,8 @@ then
         file_to_list=""
 fi
 
-${datastore_cmd}${file_to_list}  2>/dev/null | /usr/bin/awk '{print $NF}' | /usr/bin/awk -F'/' '{print $NF}' | /bin/sed '/^$/d'
+datastore_tool="`/bin/grep "^DATASTORETOOL:*" ${BUILD_HOME}/configuration/software.dat | /usr/bin/awk -F':' '{print $2}'`"
+
+${HOME}/services/datastore/operations/${datastore_tool}/PerformListFromDatastore.sh ${active_bucket}/${file_to_list}
+
 
