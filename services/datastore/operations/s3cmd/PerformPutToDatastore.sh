@@ -35,8 +35,6 @@
 
 set -e
 
-HOME="`/bin/cat /home/homedir.dat`"
-
 if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] || [ "${4}" = "" ]  )
 then
         /bin/echo "Error: 4 arguments are required."
@@ -49,9 +47,9 @@ place_to_put="$2"
 delete="$3"
 count="$4"
 
-BUILD_HOME="`/bin/cat /home/buildhome.dat`"
-CLOUDHOST="`${BUILD_HOME}/helpers/services/GetVariableValue.sh CLOUDHOST`"
-BUILD_IDENTIFIER="`${BUILD_HOME}/helpers/services/GetVariableValue.sh BUILD_IDENTIFIER`"
+HOME="`/bin/cat /home/homedir.dat`"
+CLOUDHOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'CLOUDHOST'`"
+BUILD_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDIDENTIFIER'`"
 
 if ( [ "${place_to_put}" = "root" ] )
 then
