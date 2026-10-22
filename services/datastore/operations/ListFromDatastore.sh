@@ -188,8 +188,8 @@ then
         active_bucket="${active_bucket}-wireguard-emailed-links"
 fi
 
-datastore_tool="`/bin/grep "^DATASTORETOOL:*" ${BUILD_HOME}/configuration/software.dat | /usr/bin/awk -F':' '{print $2}'`"
+DATASTORE_TOOL="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORETOOL" | /usr/bin/awk -F':' '{print $NF}'`"
 
-${HOME}/services/datastore/operations/${datastore_tool}/PerformListFromDatastore.sh ${active_bucket}/${file_to_list}
+${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformListFromDatastore.sh ${active_bucket}/${file_to_list}
 
 
