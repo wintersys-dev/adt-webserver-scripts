@@ -200,7 +200,7 @@ then
         active_bucket="${active_bucket}-wireguard-emailed-links"
 fi
 
-DATASTORE_TOOL="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORETOOL" | /usr/bin/awk -F':' '{print $NF}'`"
+DATASTORE_TOOL="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORETOOL" | /usr/bin/awk -F':' '{print $2}'`"
 
 if ( [ "${destination}" = "" ] )
 then
