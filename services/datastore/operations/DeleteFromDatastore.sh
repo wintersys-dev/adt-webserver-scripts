@@ -44,6 +44,7 @@
 #set -x
 set -e
 
+HOME="`/bin/cat /home/homedir.dat`"
 
 if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] )
 then
