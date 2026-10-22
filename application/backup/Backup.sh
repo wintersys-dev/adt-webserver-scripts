@@ -203,7 +203,7 @@ if ( [ -f ${HOME}/livebackup/applicationsourcecode.tar.gz ] )
 then
         if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}" "${period}${provider_id}"`" != "" ] )
         then
-                ${HOME}/services/datastore/operations/MoveDatastore.sh "backup" "${backup_file}" "${backup_file}.ARCHIVE.`/usr/bin/date +%F-%Hhr`" "distributed" "${period}${provider_id}"
+                ${HOME}/services/datastore/operations/MoveDatastoreObject.sh "backup" "${backup_file}" "${backup_file}.ARCHIVE.`/usr/bin/date +%F-%Hhr`" "distributed" "${period}${provider_id}"
         fi
 
         /bin/systemd-inhibit --why="Persisting sourcecode to datastore" ${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/livebackup/applicationsourcecode.tar.gz" "root" "distributed" "no" "${period}${provider_id}"
