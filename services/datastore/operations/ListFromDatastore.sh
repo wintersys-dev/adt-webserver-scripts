@@ -192,4 +192,10 @@ DATASTORE_TOOL="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORET
 
 ${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformListFromDatastore.sh ${active_bucket}/${file_to_list}
 
+if ( [ "$?" != "0" ] )
+then
+        /bin/echo "PerformListFromDatastore.sh returned an error code"
+        exit 1
+fi
+
 
