@@ -10,8 +10,8 @@ OBJECT_KEY="backups/file.large"
 FILE_TO_UPLOAD="/path/to/local/file.large"
 
 # Part size for splitting (Linode requires minimum 5MB per part, except for the last part)
-# 10M = 10 Megabytes. Adjust based on your connection and file size.
-PART_SIZE="10M" 
+# 1000M = 10 Megabytes. Adjust based on your connection and file size.
+PART_SIZE="1000M" 
 
 # Temporary directory to store split file chunks
 TMP_DIR="/tmp/linode_multipart_$$"
