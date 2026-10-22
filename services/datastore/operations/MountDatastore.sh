@@ -189,7 +189,7 @@ then
         active_bucket="${active_bucket}-wireguard-emailed-links"
 fi
 
-datastore_tool="`/bin/grep "^DATASTORETOOL:*" ${BUILD_HOME}/configuration/software.dat | /usr/bin/awk -F':' '{print $2}'`"
+DATASTORE_TOOL="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORETOOL" | /usr/bin/awk -F':' '{print $NF}'`"
 
 S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY'`"
 
@@ -200,12 +200,12 @@ count="1"
 
 if ( [ "${mode}" = "local" ] )
 then
-        ${HOME}/services/datastore/operations/PerformDatastoreMount.sh ${active_bucket} ${count}
+        ${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformDatastoreMount.sh ${active_bucket} ${count}
 elif ( [ "${mode}" = "distributed" ] )
 then
         while ( [ "${count}" -le "${no_tokens}" ] )
         do
-                ${HOME}/services/datastore/operations/PerformDatastoreMount.sh ${active_bucket} ${count}
+                ${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformDatastoreMount.sh ${active_bucket} ${count}
                 count="`/usr/bin/expr ${count} + 1`"
         done
 fi
