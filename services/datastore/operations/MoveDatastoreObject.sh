@@ -184,8 +184,9 @@ then
         active_bucket="${active_bucket}-wireguard-emailed-links"
 fi
 
-S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY'`"
 
+DATASTORE_TOOL="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORETOOL" | /usr/bin/awk -F':' '{print $NF}'`"
+S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY'`"
 no_tokens="`/bin/echo "${S3_ACCESS_KEY}" | /usr/bin/fgrep -o '|' | /usr/bin/wc -l`"
 no_tokens="`/usr/bin/expr ${no_tokens} + 1`"
 
@@ -193,12 +194,12 @@ count="1"
 
 if ( [ "${mode}" = "local" ] )
 then
-        ${HOME}/services/datastore/operations/PerformMoveDatastoreObject.sh ${active_bucket}/${original_object} ${active_bucket}/${new_object} ${count}
+        ${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformMoveDatastoreObject.sh ${active_bucket}/${original_object} ${active_bucket}/${new_object} ${count}
 elif ( [ "${mode}" = "distributed" ] )
 then
         while ( [ "${count}" -le "${no_tokens}" ] )
         do
-                ${HOME}/services/datastore/operations/PerformMoveDatastoreObject.sh ${active_bucket}/${original_object} ${active_bucket}/${new_object} ${count}
+                ${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformMoveDatastoreObject.sh ${active_bucket}/${original_object} ${active_bucket}/${new_object} ${count}
                 count="`/usr/bin/expr ${count} + 1`"
         done
 fi
