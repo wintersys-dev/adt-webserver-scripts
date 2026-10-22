@@ -35,6 +35,8 @@
 
 set -e
 
+HOME="`/bin/cat /home/homedir.dat`"
+
 if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] || [ "${4}" = "" ]  )
 then
         /bin/echo "Error: 4 arguments are required."
