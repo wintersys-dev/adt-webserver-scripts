@@ -56,7 +56,7 @@ echo "Initiating multipart upload..."
 INIT_RES=$(curl -s -X POST \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d "{\"name\": \"$OBJECT_KEY\", \"method\": \"POST\"}" \
+  -d '{"name": "$OBJECT_KEY", "method": "POST"}' \
   "$BASE_API")
 
 # The initiation API returns an uploadId if supported natively, or uses the standard S3-like init.
@@ -80,7 +80,7 @@ for ((i=0; i<TOTAL_PARTS; i++)); do
   URL_RES=$(curl -s -X POST \
     -H "Authorization: Bearer $TOKEN" \
     -H "Content-Type: application/json" \
-    -d "{\"name\": \"$OBJECT_KEY\", \"method\": \"PUT\", \"part_number\": $PART_NUM}" \
+    -d '{"name": "$OBJECT_KEY", "method": "PUT", "part_number": $PART_NUM}' \
     "$BASE_API")
 
   UPLOAD_URL=$(echo "$URL_RES" | jq -r '.url')
@@ -118,7 +118,7 @@ for ((i=0; i<TOTAL_PARTS; i++)); do
   if [ "$PART_NUM" -gt 1 ]; then
     PARTS_MANIFEST="$PARTS_MANIFEST,"
   fi
-  PARTS_MANIFEST="$PARTS_MANIFEST{\"part_number\":$PART_NUM,\"etag\":\"$ETAG\"}"
+  PARTS_MANIFEST="$PARTS_MANIFEST{'part_number':$PART_NUM,'etag':"'$ETAG'"}'
 done
 
 PARTS_MANIFEST="$PARTS_MANIFEST]"
@@ -134,7 +134,7 @@ echo "Completing multipart upload..."
 COMPLETE_RES=$(curl -s -X POST \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d "{\"name\": \"$OBJECT_KEY\", \"method\": \"POST\", \"parts\": $PARTS_MANIFEST}" \
+  -d '{"name": "'$OBJECT_KEY'", "method": "POST", "parts": '$PARTS_MANIFEST}'' \
   "$BASE_API")
 
 # Check success criteria
