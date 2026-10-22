@@ -41,6 +41,8 @@
 #set -x
 set -e
 
+HOME="`/bin/cat /home/homedir.dat`"
+
 if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] )
 then
         /bin/echo "Error: 3 arguments are required and 1 optional argument"
@@ -205,7 +207,7 @@ then
         destination="."
 fi
 
-${BUILD_HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformGetFromDatastore.sh ${active_bucket}/${file_to_get} ${destination}
+${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformGetFromDatastore.sh ${active_bucket}/${file_to_get} ${destination}
 
 if ( [ "$?" != "0" ] )
 then
