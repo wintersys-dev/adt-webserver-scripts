@@ -48,8 +48,6 @@ delete="$3"
 count="$4"
 
 HOME="`/bin/cat /home/homedir.dat`"
-CLOUDHOST="`${HOME}/utilities/config/ExtractConfigValue.sh 'CLOUDHOST'`"
-BUILD_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDIDENTIFIER'`"
 
 if ( [ "${place_to_put}" = "root" ] )
 then
