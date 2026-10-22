@@ -39,7 +39,7 @@ echo "Splitting file into ${PART_SIZE} chunks..."
 split -b "$PART_SIZE" -d -a 4 "$FILE_TO_UPLOAD" "${TMP_DIR}/chunk_"
 
 # Get the list of chunks created
-CHUNKS=($(ls ${TMP_DIR}/chunk_* 2>/dev/null))
+CHUNKS=$(ls ${TMP_DIR}/chunk_* 2>/dev/null)
 TOTAL_PARTS=${#CHUNKS[@]}
 
 if [ "$TOTAL_PARTS" -eq 0 ]; then
@@ -118,7 +118,7 @@ for ((i=0; i<TOTAL_PARTS; i++)); do
   if [ "$PART_NUM" -gt 1 ]; then
     PARTS_MANIFEST="$PARTS_MANIFEST,"
   fi
-  PARTS_MANIFEST="$PARTS_MANIFEST{'part_number':$PART_NUM,'etag':"'$ETAG'"}'
+  PARTS_MANIFEST="$PARTS_MANIFEST{'part_number':$PART_NUM,'etag':"'$ETAG'"}'"
 done
 
 PARTS_MANIFEST="$PARTS_MANIFEST]"
