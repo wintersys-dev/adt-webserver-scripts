@@ -46,10 +46,7 @@ fi
 datastore_to_mount="$1"
 count="${2}"
 
-BUILD_HOME="`/bin/cat /home/buildhome.dat`"
-
 host_base="`/bin/grep ^host_base /root/.s3cfg-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
-
 if ( [ "`/usr/bin/s3cmd --config=/root/.s3cfg-${count} --host=https://${host_base} ls s3://${datastore_to_mount} 2>/dev/null`" = "" ] )
 then
   /usr/bin/s3cmd --config=/root/.s3cfg-${count} --host=https://${host_base} mb s3://${datastore_to_mount}  2>&1 >/dev/null
