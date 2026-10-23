@@ -40,16 +40,16 @@ fi
 
 if ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 then
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "reverseproxyips" "no"
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "reverseproxypublicips" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "reverseproxyips/" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "reverseproxypublicips/" "no"
 elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "webserverips" "no"
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "webserverpublicips" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "webserverips/" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "webserverpublicips/" "no"
 elif ([ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 then
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "authenticatorip" "no"
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "authenticatorpublicip" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "authenticatorip/" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "authenticatorpublicip/" "no"
 fi
 
 if ( [ "${MULTI_REGION}" = "1" ] && [ ! -f ${HOME}/runtime/SHUTDOWN-INITIATED ] )
