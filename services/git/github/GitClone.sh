@@ -21,7 +21,7 @@
 #
 # Dependencies: Requires system access to /usr/bin/git
 ##################################################################################
-set -x 
+#set -x 
 set -e
 
 HOME="`/bin/cat /home/homedir.dat`"
