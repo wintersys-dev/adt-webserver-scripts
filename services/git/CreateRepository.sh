@@ -32,5 +32,4 @@ then
         authentication_token=":${repository_token}"
 fi
 
-
-${HOME}/services/git/${repository_provider}/CreateRepository.sh  "${repository_provider}" "${authentication_token}" "${repository_username}" "${repository_ownername}" "${repository_name}" 
+${HOME}/services/git/${repository_provider}/CreateRepository.sh  "${authentication_token}" "${repository_username}" "${repository_name}" 
