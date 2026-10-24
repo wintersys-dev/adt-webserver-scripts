@@ -23,7 +23,6 @@
 
 repository_username="${1}"
 repository_name="${2}"
-repository_token="${3}"
 
 
-/usr/bin/curl -X POST -v -u ${repository_username}:${repository_token} -H "Content-Type: application/json" https://api.bitbucket.org/2.0/repositories/${repository_username}/${repository_name} -d '{"scm": "git", "is_private": "true", "fork_policy": "no_public_forks" }'
+/usr/bin/curl -X POST -v -u ${repository_username}:${REPOSITORY_TOKEN} -H "Content-Type: application/json" https://api.bitbucket.org/2.0/repositories/${repository_username}/${repository_name} -d '{"scm": "git", "is_private": "true", "fork_policy": "no_public_forks" }'
