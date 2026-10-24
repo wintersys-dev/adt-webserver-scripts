@@ -1,5 +1,5 @@
 cd /opt
-${HOME}/services/git/GitClone.sh "github" "" "owasp-modsecurity" "ModSecurity" ""
+${HOME}/services/git/GitClone.sh "github" "" "owasp-modsecurity" "ModSecurity"
 cd ModSecurity/
 /usr/bin/git submodule init
 /usr/bin/git submodule update
@@ -9,9 +9,9 @@ make
 make install
 
 cd /opt
-${HOME}/services/git/GitClone.sh "github" "" "owasp-modsecurity" "ModSecurity-nginx" ""
+${HOME}/services/git/GitClone.sh "github" "" "owasp-modsecurity" "ModSecurity-nginx" 
 /bin/rm -rf /usr/share/modsecurity-crs
-${HOME}/services/git/GitClone.sh "github" "" "coreruleset" "coreruleset" ""
+${HOME}/services/git/GitClone.sh "github" "" "coreruleset" "coreruleset" 
 /bin/mv /opt/coreruleset /usr/local/modsecurity-crs
 /bin/mv /usr/local/modsecurity-crs/crs-setup.conf.example /usr/local/modsecurity-crs/crs-setup.conf
 /bin/mv /usr/local/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example /usr/local/modsecurity-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
