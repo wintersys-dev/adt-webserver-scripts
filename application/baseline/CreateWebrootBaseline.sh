@@ -69,6 +69,7 @@ WEBSITE_DISPLAY_NAME_UPPER="`/bin/echo ${WEBSITE_DISPLAY_NAME} | /usr/bin/tr '[:
 WEBSITE_DISPLAY_NAME_LOWER="`/bin/echo ${WEBSITE_DISPLAY_NAME} | /usr/bin/tr '[:upper:]' '[:lower:]'`"
 WEBSITE_DISPLAY_NAME_FIRST="`/bin/echo ${WEBSITE_DISPLAY_NAME_LOWER} | /bin/sed -e 's/\b\(.\)/\u\1/g'`"
 
+export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_USERNAME}  ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_TOKEN} 2>&1 | /bin/grep 'Repository not found'`" != "" ] )
 then
         if ( [ "${1}" = "" ] )
@@ -110,6 +111,7 @@ then
         /bin/echo "repository (${baseline_name}-webroot-sourcecode-baseline) found but its not empty. Please either empty the repository or delete it or rename it and allow this script to create a fresh one. Will exit now, please rerun me once this is actioned"
         exit 1
 fi
+unset REPOSITORY_TOKEN
 
 #${HOME}/application/customise/CustomiseBackupByApplication.sh
 
