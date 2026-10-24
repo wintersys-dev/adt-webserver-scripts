@@ -1,3 +1,34 @@
+#!/bin/sh
+# ==============================================================================
+# Script Name    : GitCloneWrapper.sh
+# Description    : A wrapper script that validates arguments, configures 
+#                  authentication tokens and branch parameters, and invokes an
+#                  underlying GitClone.sh service to clone a repository.
+# Author         : Peter Winter
+# Date Created   : 2021-10-24
+# ==============================================================================
+# Usage          : ./GitCloneWrapper.sh <repository_provider> \
+#                                       <repository_username> \
+#                                       <repository_ownername> \
+#                                       <repository_name> \
+#                                       <repository_token> \
+#                                       [repository_branch] \
+#                                       [destination_directory]
+#
+# Arguments      : $1 - repository_provider    (e.g., github, gitlab) [Required]
+#                  $2 - repository_username    (Git service username) [Required]
+#                  $3 - repository_ownername   (Repo owner/org name)  [Required]
+#                  $4 - repository_name        (Name of the repository)[Required]
+#                  $5 - repository_token       (Personal Access Token) [Required]
+#                  $6 - repository_branch      (Target branch to clone)[Optional]
+#                  $7 - destination_directory  (Local target path)    [Optional]
+#
+# Environment    : Depends on '/home/homedir.dat' existing and containing a 
+#                  valid absolute path used to locate the git service scripts.
+#
+# Exit Codes     : 0 - Success
+#                  1 - Invalid arguments or missing required parameters
+# ==============================================================================
 #set -x
 set -e
 
