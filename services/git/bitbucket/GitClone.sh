@@ -2,10 +2,9 @@
 
 branch_command="${1}"
 repository_provider="${2}"
-repository_token="${3}"
-repository_username="${4}"
-repository_ownername="${5}"
-repository_name="${6}"
-destination_directory="${7}"
+repository_username="${3}"
+repository_ownername="${4}"
+repository_name="${5}"
+destination_directory="${6}"
 
-/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${repository_token}@bitbucket.org/${repository_ownername}/${repository_name}.git  ${destination_directory}
+/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${REPOSITORY_TOKEN}@bitbucket.org/${repository_ownername}/${repository_name}.git  ${destination_directory}
