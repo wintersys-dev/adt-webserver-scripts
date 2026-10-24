@@ -42,10 +42,10 @@ if ( [ "${nginx_git_branch}" != "" ] )
 then
         if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:fork:f5'`" = "1" ] )
         then
-                ${HOME}/services/git/GitClone.sh "github" "" "nginx" "nginx" "" "${nginx_git_branch}"
+                ${HOME}/services/git/GitClone.sh "github" "" "nginx" "nginx" "${nginx_git_branch}"
         elif ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'NGINX:fork:free'`" = "1" ] )
         then
-                ${HOME}/services/git/GitClone.sh "github" "" "freenginx" "nginx" "" "${nginx_git_branch}"
+                ${HOME}/services/git/GitClone.sh "github" "" "freenginx" "nginx" "${nginx_git_branch}"
         fi
         cd nginx
 elif ( [ "${nginx_sourcecode_url}" != "" ] )
