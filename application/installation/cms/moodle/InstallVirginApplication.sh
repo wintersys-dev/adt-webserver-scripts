@@ -55,7 +55,7 @@ moodle_git_branch="`/bin/grep "^MOODLE:git-branch:" ${HOME}/runtime/application.
 
 if ( [ "${moodle_git_branch}" != "" ] )
 then
-        ${HOME}/services/git/GitClone.sh "github" "" "moodle" "moodle" "" "${moodle_git_branch}" "${webroot_directory}"
+        ${HOME}/services/git/GitClone.sh "github" "" "moodle" "moodle" "${moodle_git_branch}" "${webroot_directory}"
         /bin/chown -R www-data:www-data /var/www/html     
         
 else
