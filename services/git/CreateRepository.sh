@@ -25,11 +25,4 @@ repository_name="${2}"
 provider_name="${3}"
 repository_token="${4}"
 
-authentication_token=""
-
-if ( [ "${repository_token}" != "" ] )
-then
-        authentication_token=":${repository_token}"
-fi
-
-${HOME}/services/git/${repository_provider}/CreateRepository.sh  "${authentication_token}" "${repository_username}" "${repository_name}" 
+${HOME}/services/git/${repository_provider}/CreateRepository.sh  "${repository_token}" "${repository_username}" "${repository_name}" 
