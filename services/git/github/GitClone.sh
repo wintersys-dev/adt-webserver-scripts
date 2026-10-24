@@ -31,6 +31,9 @@ repository_ownername="${4}"
 repository_name="${5}"
 destination_directory="${6}"
 
-/usr/bin/git clone --depth 1 ${branch_command} -c http.extraheader="Authorization: Basic $(printf ":%s" "${REPOSITORY_TOKEN}" | base64)" "https://github.com/${repository_ownername}/${repository_name}.git" "${destination_directory}"
+
+auth=$(printf ":%s" "${REPOSITORY_TOKEN}")
+
+/usr/bin/git clone --depth 1 ${branch_command} -c http.extraheader="Authorization: Basic ${auth}" | base64)" "https://github.com/${repository_ownername}/${repository_name}.git" "${destination_directory}"
 
 #/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${REPOSITORY_TOKEN}@github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
