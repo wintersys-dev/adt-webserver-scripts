@@ -22,9 +22,9 @@
 
 HOME="`/bin/cat /home/homedir.dat`"
 
-repository_token="${1}"
-repository_username="${2}"
-repository_name="${3}"
+repository_username="${1}"
+repository_name="${2}"
+repository_token="${3}"
 
 APPLICATION_REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
 /usr/bin/curl --header "PRIVATE-TOKEN: ${repository_token}" -F "name=${repository_name}" https://gitlab.com/api/v3/projects
