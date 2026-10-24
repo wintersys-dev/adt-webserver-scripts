@@ -20,10 +20,9 @@
 #######################################################################################################
 #set -x
 
-repository_username="${1}"
-repository_name="${2}"
-provider_name="${3}"
-repository_password="${4}"
+authentication_token="${1}"
+repository_username="${2}"
+repository_name="${3}"
 
 
 /usr/bin/curl -u "${repository_username}:${repository_password}" https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
