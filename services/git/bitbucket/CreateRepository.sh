@@ -20,10 +20,10 @@
 #######################################################################################################
 #set -x
 
-repository_username="${1}"
-repository_name="${2}"
-provider_name="${3}"
-repository_password="${4}"
+
+authentication_token="${1}"
+repository_username="${2}"
+repository_name="${3}"
 
 
-/usr/bin/curl -X POST -v -u ${repository_username}:${repository_password} -H "Content-Type: application/json" https://api.bitbucket.org/2.0/repositories/${repository_username}/${repository_name} -d '{"scm": "git", "is_private": "true", "fork_policy": "no_public_forks" }'
+/usr/bin/curl -X POST -v -u ${repository_username}:${authentication_token} -H "Content-Type: application/json" https://api.bitbucket.org/2.0/repositories/${repository_username}/${repository_name} -d '{"scm": "git", "is_private": "true", "fork_policy": "no_public_forks" }'
