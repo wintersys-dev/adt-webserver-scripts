@@ -21,8 +21,10 @@
 #
 # Dependencies: Requires system access to /usr/bin/git
 ##################################################################################
-#set -x 
+set -x 
 set -e
+
+HOME="`/bin/cat /home/homedir.dat`"
 
 branch_command="${1}"
 repository_provider="${2}"
@@ -31,9 +33,21 @@ repository_ownername="${4}"
 repository_name="${5}"
 destination_directory="${6}"
 
+#Test this with a private repository
 
-auth=$(printf ":%s" "${REPOSITORY_TOKEN}")
 
-/usr/bin/git clone --depth 1 ${branch_command} -c http.extraheader="Authorization: Basic ${auth}" "https://github.com/${repository_ownername}/${repository_name}.git" "${destination_directory}"
+#APPLICATION_REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
+#export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
+
+if ( [ "${REPOSITORY_TOKEN}" != "" ] )
+then
+        auth=" -c http.extraheader='Authorization: Basic $(printf ":%s" "'${REPOSITORY_TOKEN}'")'"
+else
+        auth=""
+fi
+
+/usr/bin/git clone --depth 1 ${branch_command} ${auth} "https://github.com/${repository_ownername}/${repository_name}.git" "${destination_directory}"
+
+#/usr/bin/git clone --depth 1 ${branch_command} -c http.extraheader="Authorization: Basic ${auth}" "https://github.com/${repository_ownername}/${repository_name}.git" "${destination_directory}"
 
 #/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${REPOSITORY_TOKEN}@github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
