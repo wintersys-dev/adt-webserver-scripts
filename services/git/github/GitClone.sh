@@ -36,10 +36,11 @@ destination_directory="${6}"
 #APPLICATION_REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
 #export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 
-if ( [ "${REPOSITORY_TOKEN}" != "" ] )
-then
-        REPOSITORY_TOKEN=":${REPOSITORY_TOKEN}"
-fi
+#if ( [ "${REPOSITORY_TOKEN}" != "" ] )
+#then
+#        REPOSITORY_TOKEN=":${REPOSITORY_TOKEN}"
+#fi
 
+/usr/bin/git clone -c http.extraheader="AUTHORIZATION: basic $(printf '%s' "x-access-token:${REPOSITORY_TOKEN}" | base64 -w0)" --depth 1 ${branch_command} https://${repository_username}@github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
 
-/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${REPOSITORY_TOKEN}@github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
+#/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${REPOSITORY_TOKEN}@github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
