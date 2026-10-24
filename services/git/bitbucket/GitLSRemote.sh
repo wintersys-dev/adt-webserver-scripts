@@ -1,3 +1,6 @@
+${HOME}/services/git/${repository_provider}/GitClone.sh "${repository_username}" "${repository_ownername}" "${repository_name}" ${authentication_token}" 
+
+
 repository_username="${1}"
 repository_ownername="${2}"
 repository_name="${3}"
