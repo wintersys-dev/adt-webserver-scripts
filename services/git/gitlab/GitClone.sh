@@ -8,4 +8,6 @@ repository_ownername="${5}"
 repository_name="${6}"
 destination_directory="${7}"
 
+/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${repository_token}@gitlab.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
+
 
