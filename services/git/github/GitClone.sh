@@ -33,21 +33,13 @@ repository_ownername="${4}"
 repository_name="${5}"
 destination_directory="${6}"
 
-#Test this with a private repository
-
-
 #APPLICATION_REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
 #export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 
 if ( [ "${REPOSITORY_TOKEN}" != "" ] )
 then
-        auth=" -c http.extraheader='Authorization: Basic $(printf ":%s" "'${REPOSITORY_TOKEN}'")'"
-else
-        auth=""
+        REPOSITORY_TOKEN=":${REPOSITORY_TOKEN}"
 fi
 
-/usr/bin/git clone --depth 1 ${branch_command} ${auth} "https://github.com/${repository_ownername}/${repository_name}.git" "${destination_directory}"
 
-#/usr/bin/git clone --depth 1 ${branch_command} -c http.extraheader="Authorization: Basic ${auth}" "https://github.com/${repository_ownername}/${repository_name}.git" "${destination_directory}"
-
-#/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${REPOSITORY_TOKEN}@github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
+/usr/bin/git clone --depth 1 ${branch_command} https://${repository_username}${REPOSITORY_TOKEN}@github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
