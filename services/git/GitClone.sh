@@ -11,7 +11,6 @@
 #                                       <repository_username> \
 #                                       <repository_ownername> \
 #                                       <repository_name> \
-#                                       <repository_token> \
 #                                       [repository_branch] \
 #                                       [destination_directory]
 #
@@ -19,9 +18,8 @@
 #                  $2 - repository_username    (Git service username) [Required]
 #                  $3 - repository_ownername   (Repo owner/org name)  [Required]
 #                  $4 - repository_name        (Name of the repository)[Required]
-#                  $5 - repository_token       (Personal Access Token) [Required]
-#                  $6 - repository_branch      (Target branch to clone)[Optional]
-#                  $7 - destination_directory  (Local target path)    [Optional]
+#                  $5 - repository_branch      (Target branch to clone)[Optional]
+#                  $6 - destination_directory  (Local target path)    [Optional]
 #
 # Environment    : Depends on '/home/homedir.dat' existing and containing a 
 #                  valid absolute path used to locate the git service scripts.
@@ -66,9 +64,8 @@ repository_provider="${1}"
 repository_username="${2}"
 repository_ownername="${3}"
 repository_name="${4}"
-repository_token="${5}"
-repository_branch="${6}"
-destination_directory="${7}"
+repository_branch="${5}"
+destination_directory="${6}"
 
 authentication_token=""
 
@@ -86,7 +83,6 @@ else
         branch_command=" -b main "
 fi
 
-export REPOSITORY_TOKEN="${authentication_token}"
 
 ${HOME}/services/git/${repository_provider}/GitClone.sh "${branch_command}" "${repository_provider}" "${repository_username}" "${repository_ownername}" "${repository_name}" "${destination_directory}"
 
