@@ -52,29 +52,28 @@ status () {
 }
 
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] || [ "${4}" = "" ] || [ "${5}" = "" ] )
+if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ]  )
 then
-        status "Error: 5 arguments are required with 2 optional arguments"
-        status "Usage: $0 <repository_provider> <repository_username> <repository_ownername> <repository_name> <repository_token> <repository_branch> <destination_directory>"
+        status "Error: 3 arguments are required with 3 optional arguments"
+        status "Usage: $0 <repository_provider> <repository_ownername> <repository_name> <repository_token> [repository_username] [repository_branch] [destination_directory]"
         exit 1
 fi
 
-
 repository_provider="${1}"
-repository_username="${2}"
-repository_ownername="${3}"
-repository_name="${4}"
+repository_ownername="${2}"
+repository_name="${3}"
+repository_username="${4}"
 repository_branch="${5}"
 destination_directory="${6}"
 
-authentication_token=""
+#authentication_token=""
 
-if ( [ "${repository_token}" != "" ] )
-then
-        authentication_token=":${repository_token}"
-fi
+#if ( [ "${repository_token}" != "" ] )
+#then
+#        authentication_token=":${repository_token}"
+#fi
 
-branch_command=""
+#branch_command=""
 
 if ( [ "${repository_branch}" != "" ] )
 then
@@ -84,6 +83,6 @@ else
 fi
 
 
-${HOME}/services/git/${repository_provider}/GitClone.sh "${branch_command}" "${repository_provider}" "${repository_username}" "${repository_ownername}" "${repository_name}" "${destination_directory}"
+${HOME}/services/git/${repository_provider}/GitClone.sh "${repository_provider}"  "${repository_ownername}" "${repository_name}" "${repository_username}" "${branch_command}" "${destination_directory}"
 
 
