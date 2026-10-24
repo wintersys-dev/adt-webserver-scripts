@@ -35,6 +35,6 @@ then
         authentication_token=":${repository_token}"
 fi
 
-${HOME}/services/git/${repository_provider}/GitClone.sh "${repository_username}" "${repository_ownername}" "${repository_name}" "${authentication_token}" 
+${HOME}/services/git/${repository_provider}/LSRemote.sh "${repository_username}" "${repository_ownername}" "${repository_name}" "${authentication_token}" 
 
 
