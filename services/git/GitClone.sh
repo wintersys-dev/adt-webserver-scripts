@@ -69,6 +69,8 @@ branch_command=""
 if ( [ "${repository_branch}" != "" ] )
 then
         branch_command=" -b ${repository_branch} "
+else 
+        branch_command=" -b main "
 fi
 
 ${HOME}/services/git/${repository_provider}/GitClone.sh "${branch_command}" "${repository_provider}" "${authentication_token}" "${repository_username}" "${repository_ownername}" "${repository_name}" "${destination_directory}"
