@@ -22,7 +22,6 @@
 
 repository_username="${1}"
 repository_name="${2}"
-repository_token="${3}"
 
 
-/usr/bin/curl -u "${repository_username}:${repository_token}" https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
+/usr/bin/curl -u "${repository_username}:${REPOSITORY_TOKEN}" https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
