@@ -2,7 +2,7 @@
 ##################################################################################
 # Script Name : GitLSRemote.sh
 # Author      : Peter Winter
-# Date        : 13/06/2016
+# Date        : 24/10/2021
 # Description : This script serves as a wrapper to query a remote Git repository's
 #               references (refs/heads, tags, etc.) by setting up authentication
 #               and forwarding arguments to an underlying GitLSRemote.sh service.
