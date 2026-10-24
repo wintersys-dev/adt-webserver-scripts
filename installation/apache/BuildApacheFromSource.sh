@@ -64,10 +64,10 @@ apr_util_sha256_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "APACH
 if ( [ "${apache_git_branch}" != "" ] && [ "${apr_git_branch}" != "" ] && [ "${apr_util_git_branch}" != "" ] )
 then
         /usr/bin/git config --global advice.detachedHead false
-        ${HOME}/services/git/GitClone.sh "github" "" "apache" "httpd" "" "${apache_git_branch}"
+        ${HOME}/services/git/GitClone.sh "github" "" "apache" "httpd" "${apache_git_branch}"
         cd httpd
-        ${HOME}/services/git/GitClone.sh "github" "" "apache" "apr" "" "${apr_git_branch}" "srclib/apr"
-        ${HOME}/services/git/GitClone.sh "github" "" "apache" "apr-util" "" "${apr_util_git_branch}" "srclib/apr-util"
+        ${HOME}/services/git/GitClone.sh "github" "" "apache" "apr" "${apr_git_branch}" "srclib/apr"
+        ${HOME}/services/git/GitClone.sh "github" "" "apache" "apr-util" "${apr_util_git_branch}" "srclib/apr-util"
         ./buildconf
 elif ( [ "${apache_sourcecode_url}" != "" ] && ( [ "${apache_sha256_url}" != "" ] || [ "${apache_sha512_url}" != "" ] ) )
 then
