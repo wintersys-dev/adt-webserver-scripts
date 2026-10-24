@@ -1,6 +1,6 @@
 #!/bin/sh
 # ==============================================================================
-# Script Name    : GitCloneWrapper.sh
+# Script Name    : GitClone.sh
 # Description    : A wrapper script that validates arguments, configures 
 #                  authentication tokens and branch parameters, and invokes an
 #                  underlying GitClone.sh service to clone a repository.
