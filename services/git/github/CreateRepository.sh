@@ -1,0 +1,29 @@
+#!/bin/sh
+######################################################################################################
+# Author : Peter Winter
+# Date   : 13/07/2016
+# Description : This script creates a repository with our current git provider
+######################################################################################################
+# License Agreement:
+# This file is part of The Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+#######################################################################################################
+#######################################################################################################
+#set -x
+
+repository_username="${1}"
+repository_name="${2}"
+provider_name="${3}"
+repository_password="${4}"
+
+
+/usr/bin/curl -u "${repository_username}:${repository_password}" https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
