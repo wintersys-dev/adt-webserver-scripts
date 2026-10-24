@@ -26,5 +26,5 @@ repository_username="${1}"
 repository_name="${2}"
 repository_token="${3}"
 
-APPLICATION_REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
-/usr/bin/curl --header "PRIVATE-TOKEN: ${repository_token}" -F "name=${repository_name}" https://gitlab.com/api/v3/projects
+/usr/bin/curl --request POST --header "PRIVATE-TOKEN: ${repository_token}" --header "Content-Type: application/json" --data '{"name": "'${repository_name}'"}' https://gitlab.com/api/v4/projects
+
