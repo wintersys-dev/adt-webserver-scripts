@@ -81,7 +81,9 @@ then
         ${HOME}/application/installation/InstallVirginApplication.sh
 elif ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "${BUILD_ARCHIVE_CHOICE}" = "baseline" ] )
 then
+        export APPLICATION_REPOSITORY_TOKEN
         ${HOME}/services/git/GitClone.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_USERNAME} ${APPLICATION_REPOSITORY_OWNER} ${APPLICATION_BASELINE_SOURCECODE_REPOSITORY} ${APPLICATION_REPOSITORY_TOKEN} "main" "."        
+        unset APPLICATION_REPOSITORY_TOKEN
         ${HOME}/application/branding/ApplyApplicationBranding.sh
 elif ( [ "`/bin/echo 'hourly daily weekly monthly bimonthly' | /bin/grep ${BUILD_ARCHIVE_CHOICE}`" != "" ] )
 then
