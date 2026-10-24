@@ -1,8 +1,26 @@
 #!/bin/sh
 ##################################################################################
-# Author : Peter Winter
-# Date   : 13/06/2016
-# Description : This script will clone a repository from git
+# Script Name : GitLSRemote.sh
+# Author      : Peter Winter
+# Date        : 13/06/2016
+# Description : This script serves as a wrapper to query a remote Git repository's
+#               references (refs/heads, tags, etc.) by setting up authentication
+#               and forwarding arguments to an underlying GitLSRemote.sh service.
+#
+# Usage       : ./GitLSRemoteWrapper.sh <repository_provider> 
+#                                        <repository_username> 
+#                                        <repository_ownername> 
+#                                        <repository_name> 
+#                                        [repository_token]
+#
+# Arguments   : $1 - repository_provider  (e.g., github, gitlab)  [Required]
+#               $2 - repository_username  (Git service username)  [Required]
+#               $3 - repository_ownername (Repo owner or org name) [Required]
+#               $4 - repository_name      (Name of the repository) [Required]
+#               $5 - repository_token     (Personal Access Token)  [Optional]
+#
+# Requirements: Requires a valid home path defined inside '/home/homedir.dat'
+#               to locate the internal Git service scripts.
 ##################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
@@ -15,10 +33,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
-######################################################################################
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ######################################################################################
 #set -x
+set -e
+
 
 HOME="`/bin/cat /home/homedir.dat`"
 
