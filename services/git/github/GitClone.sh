@@ -26,10 +26,11 @@ set -e
 
 HOME="`/bin/cat /home/homedir.dat`"
 
-branch_command="${1}"
-repository_provider="${2}"
+
+repository_provider="${1}"
+repository_ownername="${2}"
 repository_username="${3}"
-repository_ownername="${4}"
+branch_command="${4}"
 repository_name="${5}"
 destination_directory="${6}"
 
