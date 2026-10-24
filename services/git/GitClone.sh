@@ -88,6 +88,6 @@ fi
 
 export REPOSITORY_TOKEN="${authentication_token}"
 
-${HOME}/services/git/${repository_provider}/GitClone.sh "${branch_command}" "${repository_provider}" "${authentication_token}" "${repository_username}" "${repository_ownername}" "${repository_name}" "${destination_directory}"
+${HOME}/services/git/${repository_provider}/GitClone.sh "${branch_command}" "${repository_provider}" "${repository_username}" "${repository_ownername}" "${repository_name}" "${destination_directory}"
 
 
