@@ -23,18 +23,14 @@
 repository_username="${1}"
 repository_name="${2}"
 provider_name="${3}"
-repository_password="${4}"
+repository_token="${4}"
 
-if ( [ "${provider_name}" = "bitbucket" ] )
+authentication_token=""
+
+if ( [ "${repository_token}" != "" ] )
 then
-	/usr/bin/curl -X POST -v -u ${repository_username}:${repository_password} -H "Content-Type: application/json" https://api.bitbucket.org/2.0/repositories/${repository_username}/${repository_name} -d '{"scm": "git", "is_private": "true", "fork_policy": "no_public_forks" }'
+        authentication_token=":${repository_token}"
 fi
-if ( [ "${provider_name}" = "github" ] )
-then
-	/usr/bin/curl -u "${repository_username}:${repository_password}" https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
-fi
-if ( [ "${provider_name}" = "gitlab" ] )
-then
-	APPLICATION_REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
-	/usr/bin/curl --header "PRIVATE-TOKEN: ${APPLICATION_REPOSITORY_TOKEN}" -F "name=${repository_name}" https://gitlab.com/api/v3/projects
-fi
+
+
+${HOME}/services/git/${repository_provider}/CreateRepository.sh  "${repository_provider}" "${authentication_token}" "${repository_username}" "${repository_ownername}" "${repository_name}" 
