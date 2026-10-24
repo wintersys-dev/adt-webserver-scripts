@@ -43,7 +43,7 @@ lighttpd_sha512_url="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "LIGHT
 if ( [ "${lighttpd_git_branch}" != "" ] )
 then
     /usr/bin/git config --global advice.detachedHead false
-    ${HOME}/services/git/GitClone.sh "github" "" "lighttpd" "lighttpd1.4" "" "${lighttpd_git_branch}"
+    ${HOME}/services/git/GitClone.sh "github" "" "lighttpd" "lighttpd1.4" "${lighttpd_git_branch}"
 elif ( [ "${lighttpd_sourcecode_url}" != "" ] )
 then
         /usr/bin/wget ${lighttpd_sourcecode_url}
