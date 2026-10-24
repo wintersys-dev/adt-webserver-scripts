@@ -1,31 +1,16 @@
 #!/bin/sh
-##################################################################################
-# Script Name : GitClone.sh
-# Description : Executes a shallow Git clone operation (depth = 1) for a specific 
-#               GitHub repository using an authenticated HTTPS URL and custom
-#               branch/destination configurations.
-#
-# Usage       : ./GitCloneExecution.sh "<branch_command>" \
-#                                      <repository_provider> \
-#                                      <repository_username> \
-#                                      <repository_ownername> \
-#                                      <repository_name> \
-#                                      <destination_directory>
-#
-# Arguments   : $1 - branch_command         (e.g., "-b main" or empty string)
-#               $2 - repository_provider     (Expected to be "github")
-#               $3 - repository_username     (GitHub account username)
-#               $4 - repository_ownername    (Repository owner or organization name)
-#               $5 - repository_name         (Target repository name)
-#               $6 - destination_directory   (Local path for the cloned repo)
-#
-# Dependencies: Requires system access to /usr/bin/git
-##################################################################################
-#set -x 
+
+#set -x
 set -e
 
 HOME="`/bin/cat /home/homedir.dat`"
 
+if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ]  )
+then
+        status "Error: 3 arguments are required with 3 optional arguments"
+        status "Usage: $0 <repository_provider> <repository_ownername> <repository_name>  [repository_username] [repository_branch] [destination_directory]"
+        exit 1
+fi
 
 repository_provider="${1}"
 repository_ownername="${2}"
