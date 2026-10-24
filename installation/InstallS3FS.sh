@@ -71,7 +71,7 @@ do
 			then
 				${install_command} build-essential git libfuse-dev libcurl4-openssl-dev libxml2-dev automake libtool ${tail_options}
 				${install_command} pkg-config libssl-dev libfuse3-dev ${tail_options}
-				${HOME}/services/git/GitClone.sh "github" "" "s3fs-fuse" "s3fs-fuse" ""			
+				${HOME}/services/git/GitClone.sh "github" "" "s3fs-fuse" "s3fs-fuse"			
 				cd s3fs-fuse/
 				./autogen.sh
 				./configure --prefix=/usr --with-openssl 
@@ -95,7 +95,7 @@ do
           		#  ${install_command} mime-support
             	${install_command} build-essential git libfuse-dev libcurl4-openssl-dev libxml2-dev automake libtool ${tail_options}
 				${install_command} pkg-config libssl-dev libfuse3-dev ${tail_options}
-				${HOME}/services/git/GitClone.sh "github" "" "s3fs-fuse" "s3fs-fuse" ""			
+				${HOME}/services/git/GitClone.sh "github" "" "s3fs-fuse" "s3fs-fuse" 		
 				cd s3fs-fuse/
 				./autogen.sh
 				./configure --prefix=/usr --with-openssl 
