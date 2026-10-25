@@ -52,7 +52,7 @@ fi
 
 repository_ownername="${1}"
 repository_name="${2}"
-branch_command="${3}"
+repository_branch="${3}"
 destination_directory="${4}"
 repository_username="${5}"
 
@@ -67,7 +67,7 @@ EOF
 #if I need a .netrc file for curl (for example) I construct a custom file name and use the custom file so there is no clash
 chmod 600 ${HOME}/.netrc
 
-/usr/bin/git clone --depth 1 ${branch_command} https://github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
+/usr/bin/git clone --depth 1 --branch ${repository_branch} https://github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
 
 error_code="$?"
 /bin/rm ${HOME}/.netrc
