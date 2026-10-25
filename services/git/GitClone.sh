@@ -1,32 +1,26 @@
 #!/bin/sh
-# ==============================================================================
-# Script Name    : GitClone.sh
-# Description    : A wrapper script that validates arguments, configures 
-#                  authentication tokens and branch parameters, and invokes an
-#                  underlying GitClone.sh service to clone a repository.
-# Author         : Peter Winter
-# Date Created   : 2021-10-24
-# ==============================================================================
-# Usage          : ./GitCloneWrapper.sh <repository_provider> \
-#                                       <repository_username> \
-#                                       <repository_ownername> \
-#                                       <repository_name> \
-#                                       [repository_branch] \
-#                                       [destination_directory]
-#
-# Arguments      : $1 - repository_provider    (e.g., github, gitlab) [Required]
-#                  $2 - repository_username    (Git service username) [Required]
-#                  $3 - repository_ownername   (Repo owner/org name)  [Required]
-#                  $4 - repository_name        (Name of the repository)[Required]
-#                  $5 - repository_branch      (Target branch to clone)[Optional]
-#                  $6 - destination_directory  (Local target path)    [Optional]
-#
-# Environment    : Depends on '/home/homedir.dat' existing and containing a 
-#                  valid absolute path used to locate the git service scripts.
-#
-# Exit Codes     : 0 - Success
-#                  1 - Invalid arguments or missing required parameters
 ##################################################################################
+# SCRIPT      : GitClone.sh
+# AUTHOR      : Peter Winter
+# DATE        : 13/06/2021
+# VERSION     : 1.0.0
+# DESCRIPTION : This script acts as an orchestration passes cloning requests
+#               to the appropriate service provider
+#
+# INTERFACE   : $0 <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory> [repository_username]
+#
+# PARAMETERS  :
+#   $1 - repository_provider  : Hosting vendor string (e.g., github, gitlab)
+#   $2 - repository_ownername : Organization or profile namespace account name
+#   $3 - repository_name      : Case-sensitive project target repository name
+#   $4 - repository_branch    : Which branch  to clone
+#   $5 - destination_directory: The desination directory to clone to
+#   $6 - repository_username  : (Optional) Account credential token/user for auth
+#
+# CONFIGURATION DEPENDENCIES:
+#   - /home/buildhome.dat     : Must contain absolute path to build directory
+#   - Sub-driver wrapper path : ${BUILD_HOME}/services/git/<provider>/GitClone.sh
+#######################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
@@ -38,7 +32,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+######################################################################################
 ######################################################################################
 #set -x
 set -e
@@ -72,3 +67,9 @@ then
 fi
 
 ${HOME}/services/git/${repository_provider}/GitClone.sh "${repository_ownername}" "${repository_name}" "${branch_command}" "${destination_directory}" "${repository_username}"
+
+if ( [ "$?" != "0" ] )
+then
+        status "GitClone.sh exited with an error code"
+        exit 1
+fi
