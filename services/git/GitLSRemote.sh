@@ -1,27 +1,25 @@
 #!/bin/sh
 ##################################################################################
-# Script Name : GitLSRemote.sh
-# Author      : Peter Winter
-# Date        : 24/10/2021
-# Description : This script serves as a wrapper to query a remote Git repository's
-#               references (refs/heads, tags, etc.) by setting up authentication
-#               and forwarding arguments to an underlying GitLSRemote.sh service.
+# SCRIPT      : GitLSRemote.sh
+# AUTHOR      : Peter Winter
+# DATE        : 13/06/2021
+# VERSION     : 1.0.0
+# DESCRIPTION : This script acts detects if a named repository exists for the given
+#               provider and owner
 #
-# Usage       : ./GitLSRemoteWrapper.sh <repository_provider> 
-#                                        <repository_username> 
-#                                        <repository_ownername> 
-#                                        <repository_name> 
-#                                        [repository_token]
+# INTERFACE   : $0 <provider> <owner_name> <repo_name> [auth_username]
 #
-# Arguments   : $1 - repository_provider  (e.g., github, gitlab)  [Required]
-#               $2 - repository_username  (Git service username)  [Required]
-#               $3 - repository_ownername (Repo owner or org name) [Required]
-#               $4 - repository_name      (Name of the repository) [Required]
-#               $5 - repository_token     (Personal Access Token)  [Optional]
+# PARAMETERS  :
+#   $1 - repository_provider  : Hosting vendor string (e.g., github, gitlab)
+#   $2 - repository_ownername : Organization or profile namespace account name
+#   $3 - repository_name      : Case-sensitive project target repository name
+#   $4 - repository_username  : (Optional) Account credential token/user for auth
 #
-# Requirements: Requires a valid home path defined inside '/home/homedir.dat'
-#               to locate the internal Git service scripts.
-##################################################################################
+# CONFIGURATION DEPENDENCIES:
+#   - /home/buildhome.dat     : Must contain absolute path to build directory
+#   - Sub-driver wrapper path : ${BUILD_HOME}/services/git/<provider>/GitLSRemote.sh
+#
+######################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
@@ -33,12 +31,20 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-######################################################################################
+# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+#####################################################################################
+#####################################################################################
 #set -x
 set -e
 
 HOME="`/bin/cat /home/homedir.dat`"
+
+if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] )
+then
+        /bin/echo "Error: 3 arguments are required and 1 optional argumment"
+        /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> [repository_username]"
+        exit 1
+fi
 
 repository_provider="${1}"
 repository_username="${2}"
@@ -46,3 +52,9 @@ repository_name="${3}"
 repository_ownername="${4}"
 
 ${HOME}/services/git/${repository_provider}/GitLSRemote.sh "${repository_username}" "${repository_ownername}" "${repository_name}" 
+
+if ( [ "$?" != "0" ] )
+then
+        /bin/echo "GitLSRemote.sh returned an error code"
+        exit 1
+fi
