@@ -57,10 +57,6 @@ destination_directory="${4}"
 repository_username="${5}"
 
 
-#take this out and pass it through export from the highest level
-#APPLICATION_REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
-#export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
-
 cat << EOF > ${HOME}/.netrc
 machine github.com
 login ${repository_username}
@@ -73,5 +69,14 @@ chmod 600 ${HOME}/.netrc
 
 /usr/bin/git clone --depth 1 ${branch_command} https://github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
 
+error_code="$?"
 /bin/rm ${HOME}/.netrc
+
+if ( [ "${error_code}" != "0" ] )
+then
+        status "git clone exited with error code ${error_code}"
+        exit 1
+fi
+
+
 
