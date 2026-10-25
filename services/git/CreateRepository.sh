@@ -20,9 +20,8 @@
 #######################################################################################################
 #set -x
 
-repository_username="${1}"
+repository_provider="${1}"
 repository_name="${2}"
-repository_provider="${3}"
-repository_token="${4}"
+repository_username="${3}"
 
-${HOME}/services/git/${provider_name}/CreateRepository.sh  "${repository_username}" "${repository_name}" "${repository_token}"
+${HOME}/services/git/${repository_provider}/CreateRepository.sh  "${repository_username}" "${repository_name}" 
