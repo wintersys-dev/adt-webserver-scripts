@@ -48,3 +48,9 @@ repository_name="${2}"
 repository_username="${3}"
 
 ${HOME}/services/git/${repository_provider}/CreateRepository.sh  "${repository_username}" "${repository_name}" 
+
+if ( [ "$?" != "0" ] )
+then
+        /bin/echo "CreateRepository.sh exited with an error code"
+        exit 1
+fi
