@@ -19,12 +19,13 @@
 #######################################################################################################
 #######################################################################################################
 #set -x
+set -e
 
 repository_username="${1}"
 repository_name="${2}"
 
 cat << EOF > ${HOME}/.netrc
-machine github.com
+machine api.github.com
 login ${repository_username}
 password ${REPOSITORY_TOKEN}
 EOF
@@ -33,7 +34,7 @@ EOF
 #if I need a .netrc file for curl (for example) I construct a custom file name and use the custom file so there is no clash
 chmod 600 ${HOME}/.netrc
 
-/usr/bin/curl https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
+/usr/bin/curl --netrc https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
 
 /bin/rm ${HOME}/.netrc
 
