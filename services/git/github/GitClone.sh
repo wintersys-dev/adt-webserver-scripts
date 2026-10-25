@@ -45,8 +45,8 @@ HOME="`/bin/cat /home/homedir.dat`"
 
 if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] || [ "${4}" = "" ] )
 then
-        status "Error: 4 arguments are required with 1 optional argument"
-        status "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory> [repository_username]"
+        /bin/echo "Error: 4 arguments are required with 1 optional argument"
+        /bin/echo "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory> [repository_username]"
         exit 1
 fi
 
