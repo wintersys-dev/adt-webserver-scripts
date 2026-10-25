@@ -40,17 +40,11 @@ set -e
 
 HOME="`/bin/cat /home/homedir.dat`"
 
-status () {
-        /bin/echo "${1}" | /usr/bin/tee /dev/fd/3 2>/dev/null
-        script_name="`/bin/echo ${0} | /usr/bin/awk -F'/' '{print $NF}'`"
-        /bin/echo "${script_name}: ${1}" | /usr/bin/tee -a /dev/fd/4 2>/dev/null
-}
-
 
 if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] || [ "${4}" = "" ] || [ "${5}" = "" ]  )
 then
-        status "Error: 5 arguments are required with 1 optional argument"
-        status "Usage: $0 <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory> [repository_username]"
+        /bin/echo "Error: 5 arguments are required with 1 optional argument"
+        /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory> [repository_username]"
         exit 1
 fi
 
@@ -70,6 +64,6 @@ ${HOME}/services/git/${repository_provider}/GitClone.sh "${repository_ownername}
 
 if ( [ "$?" != "0" ] )
 then
-        status "GitClone.sh exited with an error code"
+        /bin/echo "GitClone.sh exited with an error code"
         exit 1
 fi
