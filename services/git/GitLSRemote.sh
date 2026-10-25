@@ -38,22 +38,11 @@
 #set -x
 set -e
 
-
 HOME="`/bin/cat /home/homedir.dat`"
 
 repository_provider="${1}"
 repository_username="${2}"
-repository_ownername="${3}"
-repository_name="${4}"
-repository_token="${5}"
+repository_name="${3}"
+repository_ownername="${4}"
 
-authentication_token=""
-
-if ( [ "${repository_token}" != "" ] )
-then
-        authentication_token=":${repository_token}"
-fi
-
-${HOME}/services/git/${repository_provider}/GitLSRemote.sh "${repository_username}" "${repository_ownername}" "${repository_name}" "${authentication_token}" 
-
-
+${HOME}/services/git/${repository_provider}/GitLSRemote.sh "${repository_username}" "${repository_ownername}" "${repository_name}" 
