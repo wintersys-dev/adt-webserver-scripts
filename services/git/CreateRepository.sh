@@ -1,9 +1,22 @@
 #!/bin/sh
-######################################################################################################
-# Author : Peter Winter
-# Date   : 13/07/2016
-# Description : This script creates a repository with our current git provider
-######################################################################################################
+##################################################################################
+# SCRIPT      : repo_create_router.sh
+# AUTHOR      : Peter Winter
+# DATE        : 13/07/2016
+# VERSION     : 1.0.0
+# DESCRIPTION : This script acts as an validates and orchestrates repository creation
+#               requests to the designated platform-specific implementation.
+#
+# INTERFACE   : $0 <provider> <repo_name> <auth_username>
+#
+# PARAMETERS  :
+#   $1 - repository_provider  : Hosting vendor string (e.g., github, gitlab)
+#   $2 - repository_name      : Name string of the target repository to create
+#   $3 - repository_username  : Administrative account username for authentication
+#
+# CONFIGURATION DEPENDENCIES:
+#   - Sub-driver wrapper path : ${HOME}/services/git/<provider>/CreateRepository.sh
+#######################################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
