@@ -23,5 +23,4 @@
 repository_username="${1}"
 repository_name="${2}"
 
-
 /usr/bin/curl -u "${repository_username}:${REPOSITORY_TOKEN}" https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
