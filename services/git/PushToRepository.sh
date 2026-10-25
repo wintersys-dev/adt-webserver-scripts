@@ -1,6 +1,55 @@
 #!/bin/sh
+##################################################################################
+# SCRIPT      : repo_init_push.sh
+# AUTHOR      : Peter Winter
+# DATE        : 25/10/2026
+# VERSION     : 1.0.0
+# DESCRIPTION : This script initializes a local Git workspace, sets the default 
+#               branch to main, stages all files including the .gitattributes, 
+#               and pushes a baseline commit to a remote repository provider.
+#               It handles dynamic URL resolution and secure .netrc authentication.
+#
+# INTERFACE   : $0 <repository_provider> <repository_owner> <repository_name> <repository_username>
+#
+# PARAMETERS  :
+#   $1 - repository_provider : Hosting vendor string (e.g., github, gitlab)
+#   $2 - repository_owner    : Organization or profile namespace account name
+#   $3 - repository_name     : Case-sensitive project target repository name
+#   $4 - repository_username : Account user profile identity for auth configuration
+#
+# ENVIRONMENT VARIABLES:
+#   - REPOSITORY_TOKEN       : Must be exported in the shell for authentication
+#
+# CONFIGURATION DEPENDENCIES:
+#   - /home/homedir.dat      : Must contain absolute path to user home directory
+#   - ${HOME}/.netrc         : Managed temporarily during runtime (Chmod 600)
+#   - URL Endpoint           : ${HOME}/services/git/<provider>/GetProviderURL.sh
+#######################################################################################
+# License Agreement:
+# This file is part of The Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+#####################################################################################
+#####################################################################################
+#set -x
+set -e
 
 HOME="`/bin/cat /home/homedir.dat`"
+
+if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] )
+then
+        status "Error: 3 arguments are required and 1 optional argument"
+        status "Usage: $0 <repository_provider> <repository_owner> <repository_name> [repository_username]"
+        exit 1
+fi
 
 repository_provider="${1}"
 repository_owner="${2}"
@@ -26,4 +75,11 @@ provider_url="`${HOME}/services/git/${repository_provider}/GetProviderURL.sh`"
 /usr/bin/git add --all -f
 /usr/bin/git commit -m "Baseline Baby"
 /usr/bin/git push -u origin main
+error_code="$?"
 /bin/rm ${HOME}/.netrc
+
+if ( [ "${error_code}" != "0" ] )
+then
+        /bin/echo "git push exited with error code ${error_code}"
+        exit 1
+fi
