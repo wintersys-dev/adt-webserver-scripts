@@ -51,7 +51,7 @@ repository_username="${2}"
 repository_name="${3}"
 repository_ownername="${4}"
 
-${HOME}/services/git/${repository_provider}/GitLSRemote.sh "${repository_username}" "${repository_ownername}" "${repository_name}" 
+${HOME}/services/git/${repository_provider}/GitLSRemote.sh  "${repository_ownername}" "${repository_name}" "${repository_username}"
 
 if ( [ "$?" != "0" ] )
 then
