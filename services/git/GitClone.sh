@@ -55,12 +55,7 @@ repository_branch="${4}"
 destination_directory="${5}"
 repository_username="${6}"
 
-if ( [ "${repository_branch}" != "" ] )
-then
-        branch_command=" -b ${repository_branch} "
-fi
-
-${HOME}/services/git/${repository_provider}/GitClone.sh "${repository_ownername}" "${repository_name}" "${branch_command}" "${destination_directory}" "${repository_username}"
+${HOME}/services/git/${repository_provider}/GitClone.sh "${repository_ownername}" "${repository_name}" "${repository_branch}" "${destination_directory}" "${repository_username}"
 
 if ( [ "$?" != "0" ] )
 then
