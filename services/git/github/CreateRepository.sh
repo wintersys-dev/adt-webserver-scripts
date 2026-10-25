@@ -23,4 +23,17 @@
 repository_username="${1}"
 repository_name="${2}"
 
-/usr/bin/curl -u "${repository_username}:${REPOSITORY_TOKEN}" https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
+cat << EOF > ${HOME}/.netrc
+machine github.com
+login ${repository_username}
+password ${REPOSITORY_TOKEN}
+EOF
+
+#I only use the .netrc file for git commands and I construct it and remove it every time I want to use it
+#if I need a .netrc file for curl (for example) I construct a custom file name and use the custom file so there is no clash
+chmod 600 ${HOME}/.netrc
+
+/usr/bin/curl https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
+
+/bin/rm ${HOME}/.netrc
+
