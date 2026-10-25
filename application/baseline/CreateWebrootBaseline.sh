@@ -1,10 +1,41 @@
 #!/bin/sh
-################################################################################################
-# Description: You can use this script to manually generate a new baseline for your webroot
+##################################################################################
+# SCRIPT      : generate_webroot_baseline.sh
+# AUTHOR      : Peter Winter
+# DATE        : 12/07/2021
+# VERSION     : 1.0.0
+# DESCRIPTION : This script automates the creation and backup provisioning of a 
+#               clean webroot source code baseline. It interactive validates 
+#               target Git repositories, strips domain-specific deployment 
+#               branding assets, excludes configured paths, and pushes the 
+#               resulting footprint to a structured remote baseline repository.
 #
-# Author: Peter Winter
-# Date :  9/4/2016
-#################################################################################################
+# INTERFACE   : $0 [baseline_identifier]
+#
+# PARAMETERS  :
+#   $1 - baseline_name        : (Optional) Namespace slug for the baseline (e.g., mysocialnetwork).
+#                               If omitted, the script prompts the user interactively.
+#
+# INTERACTIVE INPUTS:
+#   - Application Validation Confirmation (Enter)
+#   - Baseline Namespace Identifier String
+#   - Dynamic Remote Repository Auto-Creation Option (Y/y)
+#
+# CONFIGURATION DEPENDENCIES:
+#   - /home/homedir.dat       : Must contain absolute path to user home directory
+#   - ${HOME}/runtime/application.dat: Stores WEBROOT_DIRECTORY and EXCLUDE_FROM_BASELINE properties
+#   - Internal Utilities      : ExtractConfigValue.sh, GitLSRemote.sh, CreateRepository.sh, 
+#                               RemoveApplicationBranding.sh, PushToRepository.sh
+#
+# ENVIRONMENT VARIABLES:
+#   - REPOSITORY_TOKEN        : Set internally derived from extracted configuration values
+#
+# FILE SYSTEM SIDE EFFECTS:
+#   - Wipes and rebuilds contents of `${HOME}/backups/*`
+#   - Deletes existing local `${HOME}/.git` contexts if discovered
+#   - Copies assets out of `/var/www/html/*` for processing stages
+#
+#########################################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
@@ -47,7 +78,10 @@ fi
 
 /bin/echo "Creating baseline of your webroot"
 
-/bin/rm -r ${HOME}/backups/* 2>/dev/null
+if ( [ "`/bin/ls -a ${HOME}/backups | /usr/bin/wc -l`" -gt "2" ] )
+then
+        /bin/rm -r ${HOME}/backups/* 2>/dev/null
+fi
 
 if ( [ -d ${HOME}/.git ] )
 then
@@ -80,6 +114,7 @@ then
                 then
                         /bin/echo "Creating a new repository"
                         ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
+                        #the system needs to cool down
                         /bin/sleep 10
                         if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Repository not found'`" = "" ] )
                         then
@@ -93,6 +128,7 @@ then
                 fi
         else
                 ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
+                #the system needs to cool down
                 /bin/sleep 10
                 if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Repository not found'`" = "" ] )
                 then
@@ -113,9 +149,11 @@ then
 fi
 unset REPOSITORY_TOKEN
 
-#${HOME}/application/customise/CustomiseBackupByApplication.sh
+if ( [ ! -d ${HOME}/backups/${baseline_name} ] )
+then
+        /bin/mkdir -p ${HOME}/backups/${baseline_name}
+fi
 
-/bin/mkdir -p ${HOME}/backups/${baseline_name}
 cd ${HOME}/backups/${baseline_name}
 
 /bin/cp -r /var/www/html/* .
@@ -145,7 +183,12 @@ fi
 
 /bin/cp ${HOME}/services/git/gitattributes .gitattributes
 . ${HOME}/application/branding/RemoveApplicationBranding.sh
-/bin/rm -r ./.git
+
+if ( [ -d ./.git ] )
+then
+        /bin/rm -r ./.git
+fi
+
 /usr/bin/find ${HOME}/backups/${baseline_name} -type d -name .git -exec /bin/rm -rf {} \;
 
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
@@ -163,6 +206,8 @@ else
         /bin/echo "==================================================================================================================================="
 fi
 
-/bin/rm -r ${HOME}/backups/${baseline_name}/*
+if ( [ "`/bin/ls -a ${HOME}/backups/${baseline_name} | /usr/bin/wc -l`" -gt "2" ] )
+then
+        /bin/rm -r ${HOME}/backups/${baseline_name}/*
+fi
 
-exit 0
