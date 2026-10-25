@@ -150,9 +150,10 @@ fi
 
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 ${HOME}/services/git/PushToRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
+error_code="$?"
 unset REPOSITORY_TOKEN
 
-if ( [ "$?" != "0" ] )
+if ( [ "${error_code}" != "0" ] )
 then
         /bin/echo "Failed to generate baseline...is your application repository authorisation token valid and set correctly?"
 else
