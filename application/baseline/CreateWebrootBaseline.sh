@@ -148,7 +148,9 @@ fi
 /bin/rm -r ./.git
 /usr/bin/find ${HOME}/backups/${baseline_name} -type d -name .git -exec /bin/rm -rf {} \;
 
+export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 ${HOME}/services/git/PushToRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
+unset REPOSITORY_TOKEN
 
 if ( [ "$?" != "0" ] )
 then
