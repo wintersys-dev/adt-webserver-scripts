@@ -18,23 +18,12 @@ EOF
 #if I need a .netrc file for curl (for example) I construct a custom file name and use the custom file so there is no clash
 chmod 600 ${HOME}/.netrc
 
-/usr/bin/git clone --depth 1 ${branch_command} https://github.com/${repository_ownername}/${repository_name}.git  ${destination_directory}
-
-/bin/rm ${HOME}/.netrc
-
-
 /usr/bin/git init
-
 /usr/bin/git branch -M main
-
 provider_url="`${HOME}/services/git/${repository_provider}/GetProviderURL.sh`"
-
 /usr/bin/git remote add origin https://${provider_url}/${repository_owner}/${repository_name}
-
 /usr/bin/git add .gitattributes
-
 /usr/bin/git add --all -f
-
 /usr/bin/git commit -m "Baseline Baby"
-
 /usr/bin/git push -u origin main
+/bin/rm ${HOME}/.netrc
