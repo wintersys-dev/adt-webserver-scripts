@@ -1,8 +1,30 @@
 #!/bin/sh
-######################################################################################################
-# Author : Peter Winter
-# Date   : 13/07/2016
-# Description : This script creates a repository with our current git provider
+##################################################################################
+# SCRIPT      : CreateRepository.sh (GitHub Provider)
+# AUTHOR      : Peter Winter
+# DATE        : 13/07/2021
+# VERSION     : 1.0.0
+# DESCRIPTION : This script programmatically creates a new private repository on 
+#               GitHub via its REST API using curl. It manages a temporary 
+#               `.netrc` file locally to authenticate the API request securely.
+#
+# INTERFACE   : $0 <auth_username> <repo_name>
+#
+# PARAMETERS  :
+#   $1 - repository_username  : Administrative GitHub username profile identification
+#   $2 - repository_name      : The string name of the target repository to initialize
+#
+# ENVIRONMENT VARIABLES:
+#   - REPOSITORY_TOKEN        : Must be exported in the shell for API authentication
+#
+# CONFIGURATION DEPENDENCIES:
+#   - ${HOME}/.netrc          : Managed temporarily during runtime (Chmod 600)
+#
+# LICENSE AGREEMENT:
+#   This file is part of The Agile Deployment Toolkit.
+#   Licensed under the GNU General Public License v3 or later.
+# ################################################################################
+
 ######################################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
@@ -36,5 +58,13 @@ chmod 600 ${HOME}/.netrc
 
 /usr/bin/curl --netrc https://api.github.com/user/repos -d '{"name":"'${repository_name}'","private":"true"}'
 
+error_code="$?"
 /bin/rm ${HOME}/.netrc
+
+if ( [ "${error_code}" != "0" ] )
+then
+        status "curl request to api.github.com/user/repos exited with error code ${error_code}"
+        exit 1
+fi
+
 
