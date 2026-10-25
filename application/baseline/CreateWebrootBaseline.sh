@@ -147,30 +147,8 @@ fi
 . ${HOME}/application/branding/RemoveApplicationBranding.sh
 /bin/rm -r ./.git
 /usr/bin/find ${HOME}/backups/${baseline_name} -type d -name .git -exec /bin/rm -rf {} \;
-/usr/bin/git init
 
-/usr/bin/git branch -M main
-
-REPOSITORY_PROVIDER="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER' | /bin/sed 's/_/ /g'`"
-
-if ( [ "${REPOSITORY_PROVIDER}" = "bitbucket" ] )
-then
-        /usr/bin/git remote add origin https://${APPLICATION_REPOSITORY_USERNAME}:${APPLICATION_REPOSITORY_TOKEN}@bitbucket.org/${APPLICATION_REPOSITORY_OWNER}/${baseline_name}-webroot-sourcecode-baseline.git
-elif ( [ "${REPOSITORY_PROVIDER}" = "github" ] )
-then
-        /usr/bin/git remote add origin https://${APPLICATION_REPOSITORY_USERNAME}:${APPLICATION_REPOSITORY_TOKEN}@github.com/${APPLICATION_REPOSITORY_OWNER}/${baseline_name}-webroot-sourcecode-baseline.git
-elif ( [ "${REPOSITORY_PROVIDER}" = "gitlab" ] )
-then
-        /usr/bin/git remote add origin https://${APPLICATION_REPOSITORY_USERNAME}:${APPLICATION_REPOSITORY_TOKEN}@gitlab.com/${APPLICATION_REPOSITORY_OWNER}/${baseline_name}-webroot-sourcecode-baseline.git
-fi
-
-/usr/bin/git add .gitattributes
-
-/usr/bin/git add --all -f
-
-/usr/bin/git commit -m "Baseline Baby"
-
-/usr/bin/git push -u origin main
+${HOME}/services/git/PushToRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
 
 if ( [ "$?" != "0" ] )
 then
