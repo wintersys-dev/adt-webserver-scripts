@@ -82,7 +82,7 @@ then
 elif ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:baseline`" = "1" ] && [ "${BUILD_ARCHIVE_CHOICE}" = "baseline" ] )
 then
         export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
-        ${HOME}/services/git/GitClone.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_USERNAME} ${APPLICATION_REPOSITORY_OWNER} ${APPLICATION_BASELINE_SOURCECODE_REPOSITORY} ${APPLICATION_REPOSITORY_TOKEN} "main" "."        
+        ${HOME}/services/git/GitClone.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${APPLICATION_BASELINE_SOURCECODE_REPOSITORY}  "main" "."  ${APPLICATION_REPOSITORY_USERNAME}
         unset REPOSITORY_TOKEN
         ${HOME}/application/branding/ApplyApplicationBranding.sh
 elif ( [ "`/bin/echo 'hourly daily weekly monthly bimonthly' | /bin/grep ${BUILD_ARCHIVE_CHOICE}`" != "" ] )
