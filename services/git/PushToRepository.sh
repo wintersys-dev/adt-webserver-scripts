@@ -1,5 +1,7 @@
 #!/bin/sh
 
+HOME="`/bin/cat /home/homedir.dat`"
+
 repository_provider="${1}"
 repository_owner="${2}"
 repository_name="${3}"
