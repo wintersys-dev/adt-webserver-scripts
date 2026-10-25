@@ -1,6 +1,6 @@
 #!/bin/sh
 ##################################################################################
-# SCRIPT      : repo_create_router.sh
+# SCRIPT      : CreateRepository.sh
 # AUTHOR      : Peter Winter
 # DATE        : 13/07/2016
 # VERSION     : 1.0.0
@@ -32,6 +32,16 @@
 #######################################################################################################
 #######################################################################################################
 #set -x
+set -e
+
+HOME="`/bin/cat /home/homedir.dat`"
+
+if ( [ "${1}" = "" ] || [ "${2}" = "" ] )
+then
+        /bin/echo "Error: 2 arguments are required and 1 optional argumment"
+        /bin/echo "Usage: $0 <repository_provider> <repository_name> [repository_username]"
+        exit 1
+fi
 
 repository_provider="${1}"
 repository_name="${2}"
