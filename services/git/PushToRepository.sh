@@ -1,6 +1,6 @@
 #!/bin/sh
 ##################################################################################
-# SCRIPT      : repo_init_push.sh
+# SCRIPT      : PushToRepository.sh
 # AUTHOR      : Peter Winter
 # DATE        : 25/10/2026
 # VERSION     : 1.0.0
