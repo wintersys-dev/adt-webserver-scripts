@@ -9,7 +9,7 @@
 #               and pushes a baseline commit to a remote repository provider.
 #               It handles dynamic URL resolution and secure .netrc authentication.
 #
-# INTERFACE   : $0 <repository_provider> <repository_owner> <repository_name> <repository_username>
+# INTERFACE   : $0 <repository_provider> <repository_owner> <repository_name> [repository_username]
 #
 # PARAMETERS  :
 #   $1 - repository_provider : Hosting vendor string (e.g., github, gitlab)
