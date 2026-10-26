@@ -68,7 +68,7 @@ EOF
 chmod 600 ${HOME}/.netrc
 
 
-trap '/bin/rm -f "${HOME}/.netrc"; /bin/echo "Script failed on line $LINENO"; exit 1' ERR
+trap '/bin/rm -f "${HOME}/.netrc"; /bin/echo "PushToRepository.sh failed on line $LINENO"; exit 1' ERR
 
 
 /usr/bin/git init
