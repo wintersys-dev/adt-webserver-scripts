@@ -67,9 +67,17 @@ EOF
 #if I need a .netrc file for curl (for example) I construct a custom file name and use the custom file so there is no clash
 chmod 600 ${HOME}/.netrc
 
+handle_exit() {
+        exit_status=$?
 
-trap '/bin/rm -f "${HOME}/.netrc"; /bin/echo "PushToRepository.sh failed on line $LINENO"; exit 1' ERR
+        if ( [ "$exit_status" -ne "0" ] )
+        then
+                echo "Error: Script ($0) aborted unexpectedly with status $exit_status" >&2
+        fi
+        rm -f "${HOME}/.netrc"
+}
 
+trap handle_exit EXIT
 
 /usr/bin/git init
 /usr/bin/git branch -M main
@@ -79,5 +87,4 @@ provider_url="`${HOME}/services/git/${repository_provider}/GetProviderURL.sh`"
 /usr/bin/git add --all -f
 /usr/bin/git commit -m "Baseline Baby"
 /usr/bin/git push -u origin main
-/bin/rm ${HOME}/.netrc
 
