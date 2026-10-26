@@ -67,75 +67,17 @@ EOF
 #if I need a .netrc file for curl (for example) I construct a custom file name and use the custom file so there is no clash
 chmod 600 ${HOME}/.netrc
 
+
+trap '/bin/rm -f "${HOME}/.netrc"; /bin/echo "Script failed on line $LINENO"; exit 1' ERR
+
+
 /usr/bin/git init
-
-error_code="$?"
-
-if ( [ "${error_code}" != "0" ] )
-then
-        /bin/rm ${HOME}/.netrc
-        /bin/echo "git init exited with error code ${error_code}"
-        exit 1
-fi
-
 /usr/bin/git branch -M main
-
-error_code="$?"
-
-if ( [ "${error_code}" != "0" ] )
-then
-        /bin/rm ${HOME}/.netrc
-        /bin/echo "git branch exited with error code ${error_code}"
-        exit 1
-fi
 provider_url="`${HOME}/services/git/${repository_provider}/GetProviderURL.sh`"
-
 /usr/bin/git remote add origin https://${provider_url}/${repository_owner}/${repository_name}
-error_code="$?"
-
-if ( [ "${error_code}" != "0" ] )
-then
-        /bin/rm ${HOME}/.netrc
-        /bin/echo "git remote add exited with error code ${error_code}"
-        exit 1
-fi
 /usr/bin/git add .gitattributes
-
-error_code="$?"
-
-if ( [ "${error_code}" != "0" ] )
-then
-        /bin/rm ${HOME}/.netrc
-        /bin/echo "git add exited with error code ${error_code}"
-        exit 1
-fi
-
 /usr/bin/git add --all -f
-error_code="$?"
-
-if ( [ "${error_code}" != "0" ] )
-then
-        /bin/rm ${HOME}/.netrc
-        /bin/echo "git add exited with error code ${error_code}"
-        exit 1
-fi
-
 /usr/bin/git commit -m "Baseline Baby"
-error_code="$?"
-
-if ( [ "${error_code}" != "0" ] )
-then
-        /bin/rm ${HOME}/.netrc
-        /bin/echo "git commit exited with error code ${error_code}"
-        exit 1
-fi
-
 /usr/bin/git push -u origin main
-error_code="$?"
 /bin/rm ${HOME}/.netrc
 
-if ( [ "${error_code}" != "0" ] )
-then
-        /bin/echo "git push exited with error code ${error_code}"
-        exit 1
-fi
