@@ -22,7 +22,6 @@
 
 BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
 
-
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDOS:ubuntu`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDOS:debian`" = "1" ] )
 then
 	${HOME}/installation/UpdateAndUpgrade.sh ${BUILDOS}
@@ -32,8 +31,6 @@ for script in `/usr/bin/find ${HOME}/runtime/installedsoftware/ -name "*.sh" -pr
 do
 	/bin/sh ${HOME}/installation/${script} ${BUILDOS}
 done
-
-${HOME}/utilities/software/UpdateInfrastructure.sh
 
 /usr/sbin/shutdown -r now
 
