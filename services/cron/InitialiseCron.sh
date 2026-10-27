@@ -246,7 +246,6 @@ fi
 #/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/application/configuration/InstallConfigurationByApplication.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/housekeeping/CleanupAtReboot.sh" >> /var/spool/cron/crontabs/root
 /bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/processing/GetIP.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "@reboot export HOME=${HOME} && ${HOME}/utilities/software/UpdateInfrastructure.sh" >>/var/spool/cron/crontabs/root
 /bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh reboot" >> /var/spool/cron/crontabs/root
 /bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/status/LoadMonitoring.sh 'reboot'" >> /var/spool/cron/crontabs/root
 
