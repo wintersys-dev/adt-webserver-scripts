@@ -52,7 +52,7 @@
 
 set -e
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] || [ "${4}" = "" ]  )
+if [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] || [ "${4}" = "" ] 
 then
         /bin/echo "Error: 4 arguments are required."
         /bin/echo "Usage: $0 <file_to_put> <place_to_put> <delete> <count>"
@@ -64,34 +64,34 @@ place_to_put="$2"
 delete="$3"
 count="$4"
 
-HOME="`/bin/cat /home/homedir.dat`"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-place_to_put="`/bin/echo ${place_to_put} | /bin/sed 's|root$||'`"
+place_to_put="$(/bin/echo ${place_to_put} | /bin/sed 's|root$||')"
 
-if ( [ ! -d  ${HOME}/runtime/datastore_workarea ] )
+if [ ! -d  ${HOME}/runtime/datastore_workarea ]
 then
         /bin/mkdir -p  ${HOME}/runtime/datastore_workarea
 fi
 
-if ( [ ! -f ${file_to_put} ] )
+if  [ ! -f ${file_to_put} ] 
 then
         #if there is no file on the file system we can assume that we are being used as a marker like an IP address, so create out own marker file
         /bin/touch  ${HOME}/runtime/datastore_workarea/${file_to_put}
         file_to_put="${HOME}/runtime/datastore_workarea/${file_to_put}"
 fi
 
-host_base="`/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
+host_base="$(/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')" 
 /usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} copy ${file_to_put} s3:${place_to_put}  2>/dev/null
 
-if ( [ "$?" != "0" ] )
+if [ "$?" != "0" ]
 then
         /bin/echo "Failed to put ${file_to_put} to s3://${place_to_put}"
         exit 1
 fi
 
-if ( [ "${delete}" = "yes" ] )
+if [ "${delete}" = "yes" ]
 then
-        if ( [ -f ${file_to_put} ] )
+        if [ -f ${file_to_put} ]
         then
                 /bin/rm ${file_to_put}
         fi
