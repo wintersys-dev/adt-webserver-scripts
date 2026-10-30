@@ -48,7 +48,7 @@
 
 set -e
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] )
+if [ "${1}" = "" ] || [ "${2}" = "" ]
 then
         /bin/echo "Error: 2 arguments are required."
         /bin/echo "Usage: $0 <file_to_delete> <count>"
@@ -58,19 +58,17 @@ fi
 file_to_delete="${1}"
 count="${2}"
 
-#file_to_delete="`/bin/echo ${file_to_delete} | /bin/sed 's/\*$//g'`"
-
 recursive=""
-if ( [ "`/bin/echo ${file_to_delete} | /bin/grep 'root$'`" != "" ] )
+if ( [ "$(/bin/echo ${file_to_delete} | /bin/grep 'root$')" != "" ] )
 then
-  file_to_delete="`/bin/echo ${file_to_delete} | /bin/sed "s/root$//g"`"
+  file_to_delete="$(/bin/echo ${file_to_delete} | /bin/sed "s/root$//g")"
   recursive="--recursive"
 fi
 
-host_base="`/bin/grep ^host_base /root/.s3cfg-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
+host_base="$(/bin/grep ^host_base /root/.s3cfg-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')" 
 /usr/bin/s3cmd ${recursive} --force  --config=/root/.s3cfg-${count} --host=https://${host_base} del s3://${file_to_delete} 2>/dev/null
 
-if ( [ "$?" != "0" ] )
+if [ "$?" != "0" ]
 then
         /bin/echo "Failed to delete file ${file_to_delete} from datastore"
         exit 1
