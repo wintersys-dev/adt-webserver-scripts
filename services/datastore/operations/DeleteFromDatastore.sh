@@ -55,9 +55,9 @@
 #set -x
 set -e
 
-HOME="`/bin/cat /home/homedir.dat`"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] )
+if [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ]
 then
         /bin/echo "Error: 3 arguments are required and 1 optional argument"
         /bin/echo "Usage: $0 <bucket_type> <file_to_delete> <mode> <additional_specifier>"
@@ -69,156 +69,156 @@ file_to_delete="${2}"
 mode="${3}"
 additional_specifier="${4}"
 
-if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+if  [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] 
 then
-        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL'`"
-        DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHDNSCHOICE'`"
+        WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHSERVERURL')"
+        DNS_CHOICE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHDNSCHOICE')"
 
 else
-        WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-        DNS_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'DNSCHOICE'`"
+        WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
+        DNS_CHOICE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'DNSCHOICE')"
 fi
 
-SSL_GENERATION_SERVICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSLGENERATIONSERVICE'`"
-SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
-TOKEN="`/bin/echo ${SERVER_USER} | /usr/bin/fold -w 4 | /usr/bin/head -n 1 | /usr/bin/tr '[:upper:]' '[:lower:]'`"
+SSL_GENERATION_SERVICE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SSLGENERATIONSERVICE')"
+SERVER_USER="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER')"
+TOKEN="$(/bin/echo ${SERVER_USER} | /usr/bin/fold -w 4 | /usr/bin/head -n 1 | /usr/bin/tr '[:upper:]' '[:lower:]')"
 
-if ( [ "${bucket_type}" = "ssl" ] )
+if [ "${bucket_type}" = "ssl" ] 
 then
-        if ( [ "${SSL_GENERATION_SERVICE}" = "LETSENCRYPT" ] )
+        if [ "${SSL_GENERATION_SERVICE}" = "LETSENCRYPT" ]
         then
                 service_token="lets"
-        elif ( [ "${SSL_GENERATION_SERVICE}" = "ZEROSSL" ] )
+        elif [ "${SSL_GENERATION_SERVICE}" = "ZEROSSL" ]
         then
                 service_token="zero" 
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')"
         active_bucket="${active_bucket}-${DNS_CHOICE}-${service_token}-ssl"
-elif ( [ "${bucket_type}" = "multi-region" ] )
+elif [ "${bucket_type}" = "multi-region" ]
 then
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-multi-region"
-elif ( [ "${bucket_type}" = "webroot-sync" ] )
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')-multi-region"
+elif [ "${bucket_type}" = "webroot-sync" ]
 then
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-webroot-sync-tunnel`/bin/echo ${additional_specifier} | /bin/sed 's:/:-:g'`"
-elif ( [ "${bucket_type}" = "config-sync" ] )
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-webroot-sync-tunnel`/bin/echo ${additional_specifier} | /bin/sed 's:/:-:g')"
+elif [ "${bucket_type}" = "config-sync" ]
 then
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-config-sync-tunnel`/bin/echo ${additional_specifier} | /bin/sed 's:/:-:g'`"
-elif ( [ "${bucket_type}" = "config" ] )
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-config-sync-tunnel`/bin/echo ${additional_specifier} | /bin/sed 's:/:-:g')"
+elif [ "${bucket_type}" = "config" ]
 then
-        active_bucket="`/bin/echo "${WEBSITE_URL}"-config | /bin/sed 's/\./-/g'`-${TOKEN}"
+        active_bucket="$(/bin/echo "${WEBSITE_URL}"-config | /bin/sed 's/\./-/g')-${TOKEN}"
 elif ( [ "${bucket_type}" = "asset" ] )
 then
-        active_bucket="`/bin/echo "${WEBSITE_URL}-assets-${additional_specifier}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g'`"
-elif ( [ "${bucket_type}" = "backup" ] )
+        active_bucket="$(/bin/echo "${WEBSITE_URL}-assets-${additional_specifier}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g')"
+elif  [ "${bucket_type}" = "backup" ]
 then
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-${additional_specifier}"
-elif ( [ "${bucket_type}" = "auth" ] )
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')-${additional_specifier}"
+elif  [ "${bucket_type}" = "auth" ] 
 then
         active_bucket="authip-adt-allowed-${additional_specifier}"
-elif ( [ "${bucket_type}" = "dbaas" ] )
+elif  [ "${bucket_type}" = "dbaas" ] 
 then
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')"
         active_bucket="${active_bucket}-${DNS_CHOICE}-dbaas"
-elif ( [ "${bucket_type}" = "snap" ] )
+elif  [ "${bucket_type}" = "snap" ] 
 then
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')"
         active_bucket="${active_bucket}-${DNS_CHOICE}-snap"
-elif ( [ "${bucket_type}" = "firewall-auth-laptop-ips" ] )
+elif  [ "${bucket_type}" = "firewall-auth-laptop-ips" ] 
 then
-        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        if  [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] 
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-firewall-auth-laptop-ips"
-elif ( [ "${bucket_type}" = "firewall-emailed-links" ] )
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')-firewall-auth-laptop-ips"
+elif  [ "${bucket_type}" = "firewall-emailed-links" ] 
 then
-        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        if ( [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] )
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')"
         active_bucket="${active_bucket}-firewall-emailed-links"
-elif ( [ "${bucket_type}" = "whitelist-auth-laptop-ips" ] )
+elif  [ "${bucket_type}" = "whitelist-auth-laptop-ips" ] 
 then
-        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        if  [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] 
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-whitelist-auth-laptop-ips"
-elif ( [ "${bucket_type}" = "whitelist-emailed-links" ] )
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')-whitelist-auth-laptop-ips"
+elif [ "${bucket_type}" = "whitelist-emailed-links" ] 
 then
-        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        if [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ]
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')"
         active_bucket="${active_bucket}-whitelist-emailed-links"
-elif ( [ "${bucket_type}" = "basic-auth-credentials" ] )
+elif  [ "${bucket_type}" = "basic-auth-credentials" ]
 then
-        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        if ( [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] )
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`-basic-auth-credentials" 
-elif ( [ "${bucket_type}" = "wire-guard" ] )
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')-basic-auth-credentials" 
+elif [ "${bucket_type}" = "wire-guard" ]
 then
-        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        if ( [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] )
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')"
         active_bucket="${active_bucket}-wireguard"
-elif ( [ "${bucket_type}" = "wire-guard-emails" ] )
+elif [ "${bucket_type}" = "wire-guard-emails" ]
 then
-        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        if [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ]
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')"
         active_bucket="${active_bucket}-wireguard-emails"
-elif ( [ "${bucket_type}" = "wire-guard-emailed-links" ] )
+elif [ "${bucket_type}" = "wire-guard-emailed-links" ]
 then
-        if ( [ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
+        if [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ]
         then
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
-                WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+                WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL')"
         fi
-        active_bucket="`/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g'`"
+        active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')"
         active_bucket="${active_bucket}-wireguard-emailed-links"
 fi
 
-DATASTORE_TOOL="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORETOOL" | /usr/bin/awk -F':' '{print $2}'`"
+DATASTORE_TOOL="$(${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORETOOL" | /usr/bin/awk -F':' '{print $2}')"
 
-S3_ACCESS_KEY="`${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY'`"
+S3_ACCESS_KEY="$(${HOME}/utilities/config/ExtractConfigValue.sh 'S3ACCESSKEY')"
 
-no_tokens="`/bin/echo "${S3_ACCESS_KEY}" | /usr/bin/fgrep -o '|' | /usr/bin/wc -l`"
-no_tokens="`/usr/bin/expr ${no_tokens} + 1`"
+no_tokens="$(/bin/echo "${S3_ACCESS_KEY}" | /usr/bin/fgrep -o '|' | /usr/bin/wc -l)"
+no_tokens="$(/usr/bin/expr ${no_tokens} + 1)"
 
 count="1"
 
-if ( [ "${mode}" = "local" ] )
+if [ "${mode}" = "local" ]
 then
         ${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformDeleteFromDatastore.sh ${active_bucket}/${file_to_delete} ${count}
-elif ( [ "${mode}" = "distributed" ] )
+elif [ "${mode}" = "distributed" ]
 then
-        while ( [ "${count}" -le "${no_tokens}" ] )
+        while [ "${count}" -le "${no_tokens}" ]
         do
                 ${HOME}/services/datastore/operations/${DATASTORE_TOOL}/PerformDeleteFromDatastore.sh ${active_bucket}/${file_to_delete} ${count}
-                count="`/usr/bin/expr ${count} + 1`"
+                count="$(/usr/bin/expr ${count} + 1)"
         done
 fi
