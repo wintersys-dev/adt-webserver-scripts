@@ -46,7 +46,7 @@
 #set -x
 set -e
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] )
+if [ "${1}" = "" ] || [ "${2}" = "" ]
 then
         /bin/echo "Error: 2 arguments are required."
         /bin/echo "Usage: $0 <file_to_delete> <count>"
@@ -57,16 +57,16 @@ file_to_delete="${1}"
 count="${2}"
 
 rmdirs=""
-if ( [ "`/bin/echo ${file_to_delete} | /bin/grep 'root$'`" != "" ] )
+if [ "$(/bin/echo ${file_to_delete} | /bin/grep 'root$')" != "" ]
 then
-  file_to_delete="`/bin/echo ${file_to_delete} | /bin/sed "s/root$//g"`"
+  file_to_delete="$(/bin/echo ${file_to_delete} | /bin/sed "s/root$//g")"
   rmdirs="--rmdirs"
 fi
 
-host_base="`/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /bin/grep "^endpoint" | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`"
+host_base="$(/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /bin/grep "^endpoint" | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')"
 /usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} delete s3:${file_to_delete} ${rmdirs} 2>/dev/null
 
-if ( [ "$?" != "0" ] )
+if [ "$?" != "0" ]
 then
         /bin/echo "Failed to delete file ${file_to_delete} from datastore"
         exit 1
