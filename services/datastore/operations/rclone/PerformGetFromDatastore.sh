@@ -46,7 +46,7 @@
 #set -x
 set -e
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] )
+if [ "${1}" = "" ] || [ "${2}" = "" ]
 then
         /bin/echo "Error: 2 arguments are required."
         /bin/echo "Usage: $0 <file_to_get> <destination>"
@@ -56,10 +56,10 @@ fi
 file_to_get="${1}"
 destination="${2}"
 
-host_base="`/bin/grep ^endpoint /root/.config/rclone/rclone.conf-1 | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
+host_base="$(/bin/grep ^endpoint /root/.config/rclone/rclone.conf-1 | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')" 
 /usr/bin/rclone --config /root/.config/rclone/rclone.conf-1 --s3-endpoint ${host_base}  copy s3:${file_to_get} ${destination}  2>/dev/null
 
-if ( [ "$?" != "0" ] )
+if [ "$?" != "0" ]
 then
         /bin/echo "Failed to get file ${file_to_get} from datastore"
         exit 1
