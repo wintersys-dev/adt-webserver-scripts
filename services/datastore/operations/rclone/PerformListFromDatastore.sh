@@ -45,7 +45,7 @@
 #set -x
 set -e
 
-if ( [ "${1}" = "" ] )
+if [ "${1}" = "" ]
 then
         /bin/echo "Error: 1 argument is required."
         /bin/echo "Usage: $0 <file_to_list>"
@@ -54,12 +54,12 @@ fi
 
 file_to_list="${1}"
 
-file_to_list="`/bin/echo ${file_to_list} | tr -d '*'`"
+file_to_list="$(/bin/echo ${file_to_list} | tr -d '*')"
 
-host_base="`/bin/grep ^endpoint /root/.config/rclone/rclone.conf-1 | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`"
+host_base="$(/bin/grep ^endpoint /root/.config/rclone/rclone.conf-1 | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')"
 /usr/bin/rclone --config /root/.config/rclone/rclone.conf-1 --s3-endpoint ${host_base} ls s3:${file_to_list} | awk '{print $NF}'| sed 's|s3://||' | awk -F'/' '{print $NF}' 2>/dev/null
 
-if ( [ "$?" != "0" ] )
+if [ "$?" != "0" ]
 then
         /bin/echo "Failed to list file ${file_to_list} from datastore"
         exit 1
