@@ -1,37 +1,35 @@
 #!/bin/sh
-#########################################################################################
-# Author: Peter Winter
-# Date :  9/4/2021
-# Tool/Script: Automated S3 Datastore Mounting/Creation utility
-# Author:      Peter Winter
-# Date:        9/4/2021
-# Suite:       The Agile Deployment Toolkit
-# 
-# Description: This script automates the mounting of an S3 datastore
+###################################################################################
+# @file        PerformDatastoreMount.sh
+# @brief       Automated S3 Datastore Creation and Workspace Initialization Driver.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     2.0
 #
-# Arguments:
-#              $1 - <datastore_to_mount> : Datastore to be mounted
-#              $2 - <count>              : Integer ID used to select the rclone config profile.
+# @details     This script automates backend volume initialization for target cloud
+#              datastores using s3cmd. It resolves endpoint configurations from dynamic 
+#              s3cmd profile allocations, executes diagnostic availability checks, and 
+#              provisions the required bucket infrastructure if it does not already 
+#              exist in the target object storage backend.
 #
-# Requirements:
-#              - /usr/bin/s3cmd installed and accessible.
-#              - A valid profile located at /root/.config/rclone/rclone.conf-${count}
-#              - Standard output/logging routes configured on File Descriptors 3 and 4.
-##########################################################################################
-# License Agreement:
-# This file is part of The Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-#########################################################################################
-#########################################################################################
+# @param       $1  [Required] Target datastore directory or S3 bucket name namespace.
+# @param       $2  [Required] Integer configuration ID used to select the targeted s3cmd profile suffix.
+#
+# @env         None explicitly sourced from top-level environment registers.
+#
+# @dependencies
+#              - /usr/bin/s3cmd storage integration command-line software utility.
+#              - /root/.s3cfg-${count} targeted cluster registration file.
+#              - Standard core utilities: grep, awk, sed.
+#
+# @security    
+#              - Asserts explicit file path checking against s3cmd config targets to mitigate file descriptor corruption.
+#              - Suppresses standard error and standard output during health checks to prevent leak vectors.
+#              - Implements strict validation and defensive typing architectures to prevent unhandled state execution.
+#
+# @exit        0  Success: Target bucket exists or was successfully created in the S3 backend.
+# @exit        1  Failure: Missing parameters, unavailable dependencies, or s3cmd driver failures.
+###################################################################################
 #set -x
 
 set -e
