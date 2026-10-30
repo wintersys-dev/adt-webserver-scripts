@@ -42,7 +42,7 @@ then
     HOME="$(/bin/cat /home/homedir.dat)"
 fi
 
-if [ ! -d ${HOME}/logs/datastore ] )
+if [ ! -d ${HOME}/logs/datastore ]
 then
     /bin/mkdir -p ${HOME}/logs/datastore
 fi
