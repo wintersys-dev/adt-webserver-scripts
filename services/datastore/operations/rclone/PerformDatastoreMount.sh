@@ -57,11 +57,11 @@ fi
 datastore_to_mount="$1"
 count="${2}"
 
-host_base="$(/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')" 
+host_base="$(/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} 2>/dev/null | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')" 
 
 if [ "$(/usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} ls s3: 2>/dev/null)" = "" ]
 then
-        /usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} mkdir s3:${datastore_to_mount} 
+        /usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} mkdir s3:${datastore_to_mount}  2>/dev/null
         if ( [ "$?" != "0" ] )
         then
                 /bin/echo "Failed to mount bucket s3://${datastore_to_mount}"
