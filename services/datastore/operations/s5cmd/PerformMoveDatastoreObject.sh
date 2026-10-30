@@ -49,7 +49,7 @@
 set -e
 
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] )
+if [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ]
 then
         /bin/echo "Error: 3 arguments are required."
         /bin/echo "Usage: $0 <original_object> <new_object> <count>"
@@ -60,10 +60,10 @@ original_object="$1"
 new_object="$2"
 count="$3"
 
-host_base="`/bin/grep ^host_base /root/.s5cfg-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
+host_base="$(/bin/grep ^host_base /root/.s5cfg-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')" 
 /usr/bin/s5cmd --credentials-file /root/.s5cfg-${count} --endpoint-url https://${host_base} mv s3://${original_object} s3://${new_object}  2>/dev/null
 
-if ( [ "$?" != "0" ] )
+if [ "$?" != "0" ]
 then
         /bin/echo "Failed to move object ${original_object} to object ${new_object}"
         exit 1
