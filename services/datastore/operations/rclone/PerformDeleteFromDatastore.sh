@@ -1,23 +1,34 @@
 #!/bin/sh 
-####################################################################################
-# Author: Peter Winter
-# Date :  9/4/2021
-# Tool/Script: Automated S3 Utility to delete a file in the datastore
-# Author:      Peter Winter
-# Date:        9/4/2021
-# Suite:       The Agile Deployment Toolkit
-# 
-# Description: This script automates the deletion of a specific file from a datastore
+###################################################################################
+# @file        PerformDeleteFromDatastore.sh
+# @brief       Automated S3 Datastore Object Purging & Empty Directory Removal Driver.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
 #
-# Arguments:
-#              $1 - <file_to_delete>     : File held in the datastore to be deleted
-#              $2 - <count>              : Integer ID used to select the rclone config profile.
+# @details     This script automates low-level data removal operations inside targeted
+#              cloud datastores. It parses endpoints directly from partitioned rclone
+#              profile configurations, processes special 'root' overrides for tree 
+#              wipes, and commands the underlying storage layout engine to delete objects
+#              and prune unmapped parent directory trees safely.
 #
-# Requirements:
-#              - /usr/bin/rclone installed and accessible.
-#              - A valid profile located at /root/.config/rclone/rclone.conf-${count}
-#              - Standard output/logging routes configured on File Descriptors 3 and 4.
-#######################################################################################
+# @param       $1  [Required] S3 bucket target pathway and the specific object key to delete.
+# @param       $2  [Required] Integer configuration ID used to select the targeted rclone profile suffix.
+#
+# @env         None explicitly sourced from top-level environment registers.
+#
+# @dependencies
+#              - /usr/bin/rclone storage integration engine software utility.
+#              - /root/.config/rclone/rclone.conf-${count} targeted cluster registration file.
+#
+# @security    
+#              - Restricts validation actions strictly to isolated tenant access keys inside config spaces.
+#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent malicious search path injection.
+#
+# @exit        0  Success: Target object successfully purged from the datastore namespace.
+# @exit        1  Failure: Missing mandatory parameters or rclone execution driver failure.
+###################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
