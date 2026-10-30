@@ -1,22 +1,39 @@
 #!/bin/sh
-#########################################################################################
-# Author: Peter Winter
-# Date :  9/4/2021
-# Suite:       The Agile Deployment Toolkit
-# 
-# Description: This script  will put a file from the local filesystem to the datastore
+###################################################################################
+# @file        PerformPutToDatastore.sh
+# @brief       Automated Local Payload Ingestion & S3 Datastore Storage Driver.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
 #
-# Arguments:
-#              $1 - <file_to_put>         : File on the local filesystem
-#              $2 - <place_to_put>        : Location to put the file in the datastore
-#              $3 - <delete>              : Whether to delete file $1 or not
-#              $4 - <count>               : Integer used to identify config file
+# @details     This script automates low-level data ingress operations by transferring
+#              local files or virtual metadata payloads to targeted cloud datastores 
+#              using s5cmd. It resolves S3 endpoints from a dynamic configuration registry 
+#              using a numbered index system. The utility features automatic workspace creation 
+#              and placeholder marker file fallback routines, alongside an optional 
+#              post-upload source sanitation mechanism.
 #
-# Requirements:
-#              - /usr/bin/s5cmd installed and accessible.
-#              - A valid profile located at /root/.config/rclone/rclone.conf-${count}
-#              - Standard output/logging routes configured on File Descriptors 3 and 4.
-##########################################################################################
+# @param       $1  [Required] Local file system path of the source payload file to ingest.
+# @param       $2  [Required] S3 bucket target location pathway to write the payload.
+# @param       $3  [Required] Post-upload local sanitation flag ("yes" to purge source, "no" to retain).
+# @param       $4  [Required] Integer configuration ID used to select the targeted s5cmd profile suffix.
+#
+# @env         None explicitly sourced from top-level environment registers.
+#
+# @dependencies
+#              - /home/homedir.dat configuration file tracking the active application root path.
+#              - /usr/bin/s5cmd high-performance storage integration software utility.
+#              - /root/.s5cfg-${count} targeted credentials and cluster configuration file.
+#
+# @security    
+#              - Restricts validation actions strictly to isolated tenant access keys inside config spaces.
+#              - Safely caps directory tracking mutations by scrubbing trailing "root" overrides from the S3 namespace.
+#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent malicious search path injection.
+#
+# @exit        0  Success: Local payload safely transmitted and synchronized with the S3 datastore destination.
+# @exit        1  Failure: Missing mandatory parameters or s5cmd execution driver failure.
+###################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
