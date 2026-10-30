@@ -106,7 +106,7 @@ then
 elif [ "${bucket_type}" = "config" ]
 then
         active_bucket="$(/bin/echo "${WEBSITE_URL}"-config | /bin/sed 's/\./-/g')-${TOKEN}"
-elif ( [ "${bucket_type}" = "asset" ] )
+elif [ "${bucket_type}" = "asset" ]
 then
         active_bucket="$(/bin/echo "${WEBSITE_URL}-assets-${additional_specifier}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g')"
 elif  [ "${bucket_type}" = "backup" ]
@@ -134,7 +134,7 @@ then
         active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')-firewall-auth-laptop-ips"
 elif  [ "${bucket_type}" = "firewall-emailed-links" ] 
 then
-        if ( [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] )
+        if [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ]
         then
                 WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
@@ -163,7 +163,7 @@ then
         active_bucket="${active_bucket}-whitelist-emailed-links"
 elif  [ "${bucket_type}" = "basic-auth-credentials" ]
 then
-        if ( [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] )
+        if [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ]
         then
                 WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
@@ -172,7 +172,7 @@ then
         active_bucket="$(/bin/echo ${WEBSITE_URL} | /bin/sed 's/\./-/g')-basic-auth-credentials" 
 elif [ "${bucket_type}" = "wire-guard" ]
 then
-        if ( [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ] )
+        if [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ]
         then
                 WEBSITE_URL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURLORIGINAL')"
         else
