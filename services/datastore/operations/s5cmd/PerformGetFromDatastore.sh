@@ -1,23 +1,34 @@
 #!/bin/sh 
-####################################################################################
-# Author: Peter Winter
-# Date :  9/4/2021
-# Tool/Script: Automated S3 Datastore utility to obtain a file from the datastore
-# Author:      Peter Winter
-# Date:        9/4/2021
-# Suite:       The Agile Deployment Toolkit
-# 
-# Description: This script automates the deletion of a specific file from the datastore
+###################################################################################
+# @file        PerformGetFromDatastore.sh
+# @brief       Automated S3 Datastore Object Retrieval and Local Ingestion Driver.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
 #
-# Arguments:
-#              $1 - <file_to_get>     : File in a datastore to get
-#              $2 - <destination>     : The local directory to place the file
+# @details     This script automates low-level file download and transfer tasks from
+#              managed cloud datastores to local file system targets using s5cmd.
+#              It extracts target cloud endpoint parameters from the primary s5cmd
+#              credentials profile, configures single-node high-performance data pipes, 
+#              and copies the requested remote object cleanly into the destination path.
 #
-# Requirements:
-#              - /usr/bin/s5cmd installed and accessible.
-#              - A valid profile located at /root/.config/rclone/rclone.conf-1
-#              - Standard output/logging routes configured on File Descriptors 3 and 4.
-#######################################################################################
+# @param       $1  [Required] S3 bucket target pathway and the specific object key to pull.
+# @param       $2  [Required] Local directory path or target file name destination for the download.
+#
+# @env         None explicitly sourced from top-level environment registers.
+#
+# @dependencies
+#              - /usr/bin/s5cmd high-performance storage integration software utility.
+#              - /root/.s5cfg-1 base primary cluster registration credentials file.
+#
+# @security    
+#              - Restricts validation actions strictly to isolated tenant access keys inside config spaces.
+#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent malicious search path injection.
+#
+# @exit        0  Success: Cloud object securely retrieved and copied to local workspace destinations.
+# @exit        1  Failure: Missing mandatory parameters or s5cmd execution driver failure.
+###################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
