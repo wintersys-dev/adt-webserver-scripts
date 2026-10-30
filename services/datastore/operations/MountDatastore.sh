@@ -1,31 +1,43 @@
 #!/bin/sh
-#####################################################################################
-# Tool/Script: Context-Aware S3 Datastore Provisioning and Mounting Utility
-# Author:      Peter Winter
-# Date :       9/4/2021
-# Suite:       The Agile Deployment Toolkit
-# 
-# Description: This script automates datastore mounting and initialization tasks 
+###################################################################################
+# @file        MountDatastore.sh
+# @brief       Context-Aware S3 Datastore Provisioning and Mounting Utility.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
+#
+# @details     This script automates datastore mounting and initialization tasks 
 #              across multi-mode cloud infrastructures. It dynamically parses and 
 #              constructs target S3 bucket names based on structural types. 
-#              It handles standard execution paths via a 
-#              single standalone endpoint ("local" mode) or distributes operations 
-#              concurrently across multi-region configurations ("distributed" mode).
+#              It handles standard execution paths via a single standalone endpoint 
+#              ("local" mode) or distributes operations concurrently across 
+#              multi-region configurations ("distributed" mode).
 #
-# Arguments:
-#              $1 - <bucket_type>            : Target category classification.
-#              $2 - <mode>                   : Topology routine selection. Valid values:
-#                                              "local"       -> Single target datastore evaluation.
-#                                              "distributed" -> Multi-token configuration fanout loop.
-#              $3 - [additional_specifier]   : Optional contextual tracking suffix string used for 
-#                                              asset paths, target sub-directories, or unique node tags.
+# @param       $1  [Required] The target category classification bucket type string.
+# @param       $2  [Required] Topology routine selection ("local" or "distributed").
+# @param       $3  [Optional] Contextual tracking suffix string used for asset paths, target sub-directories, or unique node tags.
 #
-# Environmental Dependencies:
-#              - /home/buildhome.dat containing valid application root pathway tracking string.
-#              - Toolkit helpers: GetVariableValue.sh script infrastructure for variable evaluations.
-#              - Environment registers: S3_ACCESS_KEY, WEBSITE_URL, DNS_CHOICE, SERVER_USER, 
-#                                       SSL_GENERATION_SERVICE configuration states.
-#####################################################################################
+# @env         HOME                    Sourced application root tracking pathway string.
+# @env         S3_ACCESS_KEY           Access token configurations used for fanout loops.
+# @env         WEBSITE_URL             Primary base domain identifier mapping out schemas.
+# @env         DNS_CHOICE              Configuration flag used to tag platform routing options.
+# @env         SSL_GENERATION_SERVICE  Target backend token logic router (LETSENCRYPT/ZEROSSL).
+# @env         SERVER_USER             Base tracking string used to generate local tokens.
+#
+# @dependencies
+#              - /home/homedir.dat configuration file tracking the active application root path.
+#              - ExtractConfigValue.sh system service wrapper infrastructure for lookup evaluations.
+#              - ExtractBuildStyleValues.sh configuration parser for active software parameters.
+#              - PerformDatastoreMount.sh storage initialization driver executed by software parameters.
+#
+# @security    
+#              - Requires isolation of S3_ACCESS_KEY environment arrays containing active tokens.
+#              - Filters system platform usernames via narrow truncation to minimize information exposure.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent hijack exploits.
+#
+# @exit        0  Success: Datastore evaluation and target mounting completed successfully.
+# @exit        1  Failure: Missing mandatory arguments or mismatched input states.
+###################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
