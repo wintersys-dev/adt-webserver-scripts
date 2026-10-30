@@ -48,7 +48,7 @@
 
 set -e
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] )
+if [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ]
 then
         /bin/echo "Error: 3 arguments are required."
         /bin/echo "Usage: $0 <original_object> <new_object> <count>"
@@ -59,10 +59,10 @@ original_object="$1"
 new_object="$2"
 count="$3"
 
-host_base="`/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
+host_base="$(/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')" 
 /usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} moveto s3:${original_object} s3:${new_object}  2>/dev/null
 
-if ( [ "$?" != "0" ] )
+if [ "$?" != "0" ]
 then
         /bin/echo "Failed to move object ${original_object} to object ${new_object}"
         exit 1
