@@ -1,23 +1,33 @@
 #!/bin/sh
-#########################################################################################
-# Author: Peter Winter
-# Date :  9/4/2021
-# Tool/Script: Automated S3 Datastore Mounting/Creation utility
-# Author:      Peter Winter
-# Date:        9/4/2021
-# Suite:       The Agile Deployment Toolkit
-# 
-# Description: This script automates the mounting of an S3 datastore
+###################################################################################
+# @file        PerformDatastoreMount.sh
+# @brief       Automated S3 Datastore Creation and Workspace Initialization Driver.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
 #
-# Arguments:
-#              $1 - <datastore_to_mount> : Datastore to be mounted
-#              $2 - <count>              : Integer ID used to select the rclone config profile.
+# @details     This script automates backend volume initialization for target cloud
+#              datastores. It resolves endpoint layout settings from dynamic rclone
+#              profile allocations, runs structural availability checks, and provisions
+#              the required bucket structure inside target S3 object storage targets.
 #
-# Requirements:
-#              - /usr/bin/rclone installed and accessible.
-#              - A valid profile located at /root/.config/rclone/rclone.conf-${count}
-#              - Standard output/logging routes configured on File Descriptors 3 and 4.
-##########################################################################################
+# @param       $1  [Required] Target datastore directory or S3 bucket name namespace.
+# @param       $2  [Required] Integer configuration ID used to select the targeted rclone profile suffix.
+#
+# @env         None explicitly sourced from top-level environment registers.
+#
+# @dependencies
+#              - /usr/bin/rclone storage integration engine software utility.
+#              - /root/.config/rclone/rclone.conf-${count} targeted cluster registration file.
+#
+# @security    
+#              - Restricts validation actions strictly to isolated tenant access keys inside config spaces.
+#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
+#              - Relies on absolute binaries (/bin, /usr/bin) to circumvent malicious search path injection.
+#
+# @exit        0  Success: Target bucket exists or was successfully created in the S3 backend.
+# @exit        1  Failure: Missing mandatory parameters or rclone was unable to provision the datastore.
+###################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
