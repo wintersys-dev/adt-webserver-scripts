@@ -47,7 +47,7 @@
 set -e
 
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] )
+if [ "${1}" = "" ] || [ "${2}" = "" ]
 then
         /bin/echo "Error: 2 arguments are required."
         /bin/echo "Usage: $0 <datastore_to_mount> <count>"
@@ -57,9 +57,9 @@ fi
 datastore_to_mount="$1"
 count="${2}"
 
-host_base="`/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g'`" 
+host_base="$(/bin/grep ^endpoint /root/.config/rclone/rclone.conf-${count} | /usr/bin/awk -F'=' '{print  $NF}' | /bin/sed 's/ //g')" 
 
-if ( [ "`/usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} ls s3: 2>/dev/null`" = "" ] )
+if ( [ "$(/usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} ls s3: 2>/dev/null)" = "" ] )
 then
         /usr/bin/rclone --config /root/.config/rclone/rclone.conf-${count} --s3-endpoint ${host_base} mkdir s3:${datastore_to_mount} 
         if ( [ "$?" != "0" ] )
