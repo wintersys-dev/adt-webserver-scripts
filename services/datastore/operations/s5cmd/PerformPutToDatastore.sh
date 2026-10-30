@@ -1,5 +1,4 @@
 #!/bin/sh
-#!/bin/sh
 ###################################################################################
 # @file        PerformPutToDatastore.sh
 # @brief       Automated Local Payload Ingestion & S3 Datastore Storage Driver.
@@ -41,10 +40,6 @@ set -e
 if [ -f /home/homedir.dat ]
 then
     HOME="$(/bin/cat /home/homedir.dat)"
-else
-    /bin/echo "Error: /home/homedir.dat missing."
-    log_error "Configuration file /home/homedir.dat is missing."
-    exit 1
 fi
 
 if [ ! -d ${HOME}/logs/datastore ] )
