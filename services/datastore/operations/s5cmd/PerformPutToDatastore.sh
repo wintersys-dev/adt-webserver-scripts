@@ -1,6 +1,42 @@
 #!/bin/sh
+#!/bin/sh
+###################################################################################
+# @file        PerformPutToDatastore.sh
+# @brief       Automated Local Payload Ingestion & S3 Datastore Storage Driver.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
+#
+# @details     This script automates low-level data ingress operations by transferring
+#              local files or virtual metadata payloads to targeted cloud datastores 
+#              using s5cmd. It resolves S3 endpoints from a dynamic configuration registry 
+#              using a numbered index system. The utility features automatic workspace creation 
+#              and placeholder marker file fallback routines, alongside an optional 
+#              post-upload source sanitation mechanism.
+#
+# @param       $1  [Required] Local file system path of the source payload file to ingest.
+# @param       $2  [Required] S3 bucket target location pathway to write the payload.
+# @param       $3  [Required] Post-upload local sanitation flag ("yes" to purge source, "no" to retain).
+# @param       $4  [Required] Integer configuration ID used to select the targeted s5cmd profile suffix.
+#
+# @env         None explicitly sourced from top-level environment registers.
+#
+# @dependencies
+#              - /home/homedir.dat configuration file tracking the active application root path.
+#              - /usr/bin/s5cmd high-performance storage integration software utility.
+#              - /root/.s5cfg-${count} targeted credentials and cluster configuration file.
+#
+# @security    
+#              - Restricts validation actions strictly to isolated tenant access keys inside config spaces.
+#              - Safely caps directory tracking mutations by scrubbing trailing "root" overrides from the S3 namespace.
+#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent malicious search path injection.
+#
+# @exit        0  Success: Local payload safely transmitted and synchronized with the S3 datastore destination.
+# @exit        1  Failure: Missing mandatory parameters or s5cmd execution driver failure.
+###################################################################################
+#set -x
 set -e
-
 
 if [ -f /home/homedir.dat ]
 then
@@ -11,10 +47,13 @@ else
     exit 1
 fi
 
-# Configuration: Set your log file location here
+if [ ! -d ${HOME}/logs/datastore ] )
+then
+    /bin/mkdir -p ${HOME}/logs/datastore
+fi
+
 LOG_FILE="${HOME}/logs/datastore/datastore_activity.log"
 
-# Function to write errors safely
 log_error() {
     /bin/echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >> "$LOG_FILE" 2>/dev/null || true
 }
