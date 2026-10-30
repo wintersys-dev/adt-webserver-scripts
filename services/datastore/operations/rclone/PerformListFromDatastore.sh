@@ -1,17 +1,33 @@
 #!/bin/sh 
-####################################################################################
-# Author: Peter Winter
-# Date :  9/4/2021
-# Description: Automated S3 Object Content Listing and Parsing Utility.
-#              This utility extracts the storage endpoint configuration from rclone,
-#              queries the target S3 path, and reads back object metadata. It passes
-#              the raw endpoint output through text parsing streams to isolate and 
-#              print individual target file basenames cleanly to the environment.
-# Parameters:
-#              - <file_to_list>: Target S3 bucket path or file pattern to inspect.
-# Requirements:
-#              - Active rclone configuration asset located at /root/.config/rclone/rclone.conf-1
-#######################################################################################
+###################################################################################
+# @file        PerformListFromDatastore.sh
+# @brief       Automated S3 Datastore Object Content Listing and Parsing Driver.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
+#
+# @details     This script automates low-level item inspection within targeted cloud
+#              datastores. It extracts the storage endpoint configuration from standard
+#              rclone profile records, queries the target S3 path, and reads back object 
+#              metadata. It passes the raw endpoint output through filtering text parsing 
+#              streams to isolate and print individual target file basenames cleanly.
+#
+# @param       $1  [Required] Target S3 bucket pathway or file pattern to inspect.
+#
+# @env         None explicitly sourced from top-level environment registers.
+#
+# @dependencies
+#              - /usr/bin/rclone storage integration engine software utility.
+#              - /root/.config/rclone/rclone.conf-1 base primary cluster registration file.
+#
+# @security    
+#              - Strips global wildcard assets (`*`) from target inputs to limit unexpected pattern extraction.
+#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent malicious search path injection.
+#
+# @exit        0  Success: Target path successfully interrogated and structural objects listed.
+# @exit        1  Failure: Missing mandatory parameters or rclone execution driver failure.
+###################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
