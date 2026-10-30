@@ -1,10 +1,12 @@
 #!/bin/sh
-#####################################################################################
-# Author: Peter Winter
-# Date :  9/4/2021
-# Suite:  The Agile Deployment Toolkit
-# 
-# Description: This script automates uploading individual files or asset directories 
+###################################################################################
+# @file        PutToDatastore.sh
+# @brief       Context-Aware S3 Datastore Object & Asset Upload Utility.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
+#
+# @details     This script automates uploading individual files or asset directories 
 #              to managed cloud datastores. It dynamically constructs naming 
 #              topologies for target S3 buckets based on specific system profiles. It passes the 
 #              payload to an underlying script execution engine with an optional 
@@ -12,25 +14,34 @@
 #              endpoint ("local") or propagating sequentially across multi-node 
 #              distributed regional clusters ("distributed").
 #
-# Arguments:
-#              $1 - <bucket_type>            : Target category classification. 
-#              $2 - <file_to_put>            : Absolute or relative local pathway of the file to upload.
-#              $3 - <place_to_put>           : Target destination folder path within the bucket. Passing 
-#                                              "root" resets this to an empty base value.
-#              $4 - <mode>                   : Topology routine selection. Valid values:
-#                                              "local"       -> Single target datastore evaluation.
-#                                              "distributed" -> Multi-token configuration fanout loop.
-#              $5 - <delete>                 : Operational switch flag (e.g., true/false or 1/0) indicating 
-#                                              whether to purge the local source file after a success.
-#              $6 - [additional_specifier]   : Optional contextual tracking suffix string used for 
-#                                              asset paths, target sub-directories, or unique node tags.
+# @param       $1  [Required] The target category classification bucket type string.
+# @param       $2  [Required] Absolute or relative local pathway of the file to upload.
+# @param       $3  [Required] Target destination folder path within the bucket. Passing "root" resets this to an empty base value.
+# @param       $4  [Required] Topology routine selection ("local" or "distributed").
+# @param       $5  [Required] Operational switch flag indicating whether to purge the local source file after a success.
+# @param       $6  [Optional] Contextual tracking suffix string used for asset paths, target sub-directories, or unique node tags.
 #
-# Environmental Dependencies:
-#              - /home/buildhome.dat containing valid application root pathway tracking string.
-#              - Toolkit helpers: GetVariableValue.sh script infrastructure for variable evaluations.
-#              - Environment registers: S3_ACCESS_KEY, WEBSITE_URL, DNS_CHOICE, SERVER_USER, 
-#                                       SSL_GENERATION_SERVICE configuration states.
-#####################################################################################
+# @env         HOME                    Sourced application root tracking pathway string.
+# @env         S3_ACCESS_KEY           Access token configurations used for fanout loops.
+# @env         WEBSITE_URL             Primary base domain identifier mapping out schemas.
+# @env         DNS_CHOICE              Configuration flag used to tag platform routing options.
+# @env         SSL_GENERATION_SERVICE  Target backend token logic router (LETSENCRYPT/ZEROSSL).
+# @env         SERVER_USER             Base tracking string used to generate local tokens.
+#
+# @dependencies
+#              - /home/homedir.dat configuration file tracking the active application root path.
+#              - ExtractConfigValue.sh system service wrapper infrastructure for lookup evaluations.
+#              - ExtractBuildStyleValues.sh configuration parser for active software parameters.
+#              - PerformPutToDatastore.sh data ingest driver selected by software parameters.
+#
+# @security    
+#              - Requires isolation of S3_ACCESS_KEY environment arrays containing active tokens.
+#              - Forces a static "no" delete state during distributed loops to prevent race conditions or premature file wiping.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent hijack exploits.
+#
+# @exit        0  Success: Local binary/payload securely delivered to targeted datastore nodes.
+# @exit        1  Failure: Missing arguments or downstream upload driver runtime faults.
+###################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
