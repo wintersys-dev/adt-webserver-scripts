@@ -1,26 +1,35 @@
 #!/bin/sh
-######################################################################################
-# Tool/Script: Automated S3 Object Relocation and Renaming Utility
-# Author:      Peter Winter
-# Date:        9/4/2021
-# Suite:       The Agile Deployment Toolkit
-# 
-# Description: This script automates moving or renaming objects within an S3 cloud 
-#              datastore using the rclone CLI tool. By resolving storage endpoints 
-#              dynamically from numbered profile configurations, it handles file 
-#              relocation natively on the remote storage layer without downloading 
-#              files locally.
+###################################################################################
+# @file        PerformMoveDatastoreObject.sh
+# @brief       Automated S3 Datastore Object Relocation & Server-Side Renaming Driver.
+# @author      Peter Winter
+# @date        09/04/2021
+# @version     1.0
 #
-# Arguments:
-#              $1 - <original_object> : Source object path within the S3 bucket.
-#              $2 - <new_object>      : Target destination object path or new filename.
-#              $3 - <count>           : Integer ID used to select the rclone config profile.
+# @details     This script automates low-level file relocation and renaming tasks 
+#              natively inside managed cloud datastores using s5cmd. By resolving 
+#              storage endpoints dynamically from partitioned configuration files, it 
+#              handles object transformation directly on the remote cloud storage layer, 
+#              bypassing the need to download or buffer data locally.
 #
-# Requirements:
-#              - /usr/bin/s5cmd installed and accessible.
-#              - A valid profile located at /root/.config/rclone/rclone.conf-\${count}
-#              - Standard output/logging routes configured on File Descriptors 3 and 4.
-######################################################################################
+# @param       $1  [Required] Source object path and key namespace within the S3 bucket.
+# @param       $2  [Required] Target destination path or new filename key within the S3 bucket.
+# @param       $3  [Required] Integer configuration ID used to select the targeted s5cmd profile suffix.
+#
+# @env         None explicitly sourced from top-level environment registers.
+#
+# @dependencies
+#              - /usr/bin/s5cmd high-performance storage integration software utility.
+#              - /root/.s5cfg-${count} targeted credentials and cluster configuration file.
+#
+# @security    
+#              - Restricts validation actions strictly to isolated tenant access keys inside config spaces.
+#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent malicious search path injection.
+#
+# @exit        0  Success: Server-side object relocation or renaming completed successfully.
+# @exit        1  Failure: Missing mandatory parameters or s5cmd execution driver failure.
+###################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
