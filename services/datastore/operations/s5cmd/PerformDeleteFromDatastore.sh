@@ -57,7 +57,7 @@ then
     /bin/mkdir -p ${HOME}/logs/datastore
 fi
 
-LOG_FILE="${HOME}/logs/datastore/datastore_activity.log"
+LOG_FILE="${HOME}/runtime/logs/datastore/DeleteFromDatastore.log"
 
 log_error() {
     /bin/echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >> "$LOG_FILE" 2>/dev/null || true
