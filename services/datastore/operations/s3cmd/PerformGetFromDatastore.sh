@@ -46,17 +46,23 @@
 #set -x
 set -e
 
-if [ -f /home/homedir.dat ]
+# Sourced application root tracking pathway string
+if [ -r /home/homedir.dat ]
 then
-    HOME="$(/bin/cat /home/homedir.dat)"
+        HOME="$(/bin/cat /home/homedir.dat)"
+else
+        /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
+        exit 1
 fi
 
-if [ ! -d ${HOME}/logs/datastore ]
+# Ensure logging directory structure exists safely
+if [ ! -d "${HOME}/runtime/logs/datastore" ]
 then
-    /bin/mkdir -p ${HOME}/logs/datastore
+        /bin/mkdir -p "${HOME}/runtime/logs/datastore"
 fi
 
-LOG_FILE="${HOME}/logs/datastore/datastore_activity.log"
+# Define log file destination path
+LOG_FILE="${HOME}/runtime/logs/datastore/GetFromDatastore.log"
 
 log_error() {
     /bin/echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >> "$LOG_FILE" 2>/dev/null || true
