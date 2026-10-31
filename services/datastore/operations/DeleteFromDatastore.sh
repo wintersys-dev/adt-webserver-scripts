@@ -4,17 +4,57 @@
 # @brief       Context-Aware S3 Datastore Object Purging & Sync Node Deletion Utility.
 # @author      Peter Winter
 # @date        09/04/2021
-# @version     2.2 (Refactored, Secured & Logger Added)
+# @version     1.0
 #
 # @details     This script automates object or deployment file deletion across multi-mode
 #              cloud datastores. It dynamically constructs naming topologies for target S3
 #              buckets based on specific bucket classifications and handles execution 
 #              in either a single-region environment ("local") or maps a multi-node
 #              propagation loop across distributed regional storage setups ("distributed").
+#
+# @param       $1  [Required] The target category classification bucket type string.
+# @param       $2  [Required] The specific file name or relative object pathway to purge.
+# @param       $3  [Required] Topology routine selection ("local" or "distributed").
+# @param       $4  [Optional] Contextual tracking suffix string for paths or unique node tags.
+#
+# @env         HOME                    Sourced application root tracking pathway string.
+# @env         S3_ACCESS_KEY           Access token configurations used for fanout loops.
+# @env         WEBSITE_URL             Primary base domain identifier mapping out schemas.
+# @env         DNS_CHOICE              Configuration flag used to tag platform routing options.
+# @env         SSL_GENERATION_SERVICE  Target backend token logic router (LETSENCRYPT/ZEROSSL).
+# @env         SERVER_USER             Base tracking string used to generate local tokens.
+#
+# @dependencies
+#              - /home/homedir.dat configuration file tracking the active application root path.
+#              - ExtractConfigValue.sh system service wrapper infrastructure for lookup evaluations.
+#              - ExtractBuildStyleValues.sh configuration parser for active software parameters.
+#              - PerformDeleteFromDatastore.sh data removal driver selected by software parameters.
+#
+# @security    
+#              - Requires isolation of S3_ACCESS_KEY environment arrays containing active tokens.
+#              - Filters system platform usernames via narrow truncation to minimize information exposure.
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent hijack exploits.
+#
+# @exit        0  Success: Datastore evaluation and target deletion completed successfully.
+# @exit        1  Failure: Missing mandatory arguments or mismatched input states.
 ###################################################################################
+# License Agreement:
+# This file is part of The Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+######################################################################################
+######################################################################################
+#set -x
 set -e
 
-# Sourced application root tracking pathway string
 if [ -r /home/homedir.dat ]
 then
         HOME="$(/bin/cat /home/homedir.dat)"
@@ -23,8 +63,13 @@ else
         exit 1
 fi
 
+if [ ! -d ${HOME}/runtime/logs/datastore ]
+then
+        /bin/mkdir -p ${HOME}/runtime/logs/datastore
+fi
+
 # Define log file destination path
-LOG_FILE="/var/log/DeleteFromDatastore.log"
+LOG_FILE="${HOME}/runtime/logs/datastore/DeleteFromDatastore.log"
 
 # Unified error reporting handler that writes to syslog/log file and stderr
 log_error()
