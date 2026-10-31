@@ -209,6 +209,9 @@ case "${bucket_type}" in
                         active_bucket="${url_hyphenated_alt}-wireguard-emailed-links"
                 fi
                 ;;
+        "ad-hoc")
+                active_bucket="${additional_specifier}"
+                ;;
 esac
 
 # Ensure a bucket parsing rule matched
