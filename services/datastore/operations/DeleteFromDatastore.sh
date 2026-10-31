@@ -167,9 +167,9 @@ case "${bucket_type}" in
                 # Handle special hostname-override evaluations cleanly via mapped routing paths
                 if /bin/echo "${HOSTNAME_VAL}" | /bin/grep -q '\-auth-'
                 then
-                        WEBSITE_URL_ALT="$("${HOME_DIR}/utilities/config/ExtractConfigValue.sh" 'WEBSITEURLORIGINAL')"
+                        WEBSITE_URL_ALT="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'WEBSITEURLORIGINAL')"
                 else
-                        WEBSITE_URL_ALT="$("${HOME_DIR}/utilities/config/ExtractConfigValue.sh" 'WEBSITEURL')"
+                        WEBSITE_URL_ALT="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'WEBSITEURL')"
                 fi
                 url_hyphenated_alt="$(/bin/echo "${WEBSITE_URL_ALT}" | /bin/sed 's/\./-/g')"
                 
