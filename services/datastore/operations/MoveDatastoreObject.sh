@@ -73,7 +73,7 @@ then
 fi
 
 # Define log file destination path
-LOG_FILE="${HOME}/runtime/logs/datastore/DeleteFromDatastore.log"
+LOG_FILE="${HOME}/runtime/logs/datastore/MoveDatastoreObject.log"
 
 # Unified error reporting handler that writes to syslog/log file and stderr
 log_error()
