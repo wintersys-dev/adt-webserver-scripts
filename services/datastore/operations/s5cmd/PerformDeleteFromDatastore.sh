@@ -47,16 +47,20 @@
 #set -x
 set -e
 
-if [ -f /home/homedir.dat ]
+if [ -r /home/homedir.dat ]
 then
-    HOME="$(/bin/cat /home/homedir.dat)"
+        HOME="$(/bin/cat /home/homedir.dat)"
+else
+        /bin/echo "Application root configuration file missing at /home/homedir.dat"
+        exit 1
 fi
 
-if [ ! -d ${HOME}/logs/datastore ]
+if [ ! -d ${HOME}/runtime/logs/datastore ]
 then
-    /bin/mkdir -p ${HOME}/logs/datastore
+        /bin/mkdir -p ${HOME}/runtime/logs/datastore
 fi
 
+# Define log file destination path
 LOG_FILE="${HOME}/runtime/logs/datastore/DeleteFromDatastore.log"
 
 log_error() {
