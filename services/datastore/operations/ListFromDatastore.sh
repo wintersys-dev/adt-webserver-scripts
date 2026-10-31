@@ -4,16 +4,55 @@
 # @brief       Context-Aware S3 Datastore Object & Sub-Path Metadata Listing Utility.
 # @author      Peter Winter
 # @date        09/04/2021
-# @version     2.0 (Refactored, Secured & Logger Added)
+# @version     1.0
 #
 # @details     This script automates individual file or sub-path listing tasks within 
 #              managed cloud datastores. It dynamically resolves naming topologies for 
 #              target S3 buckets based on specific system classifications. This 
 #              inspecting operation executes strictly against your primary, first-order 
 #              datastore instance, skipping replication chain loops to read metadata directly.
+#
+# @param       $1  [Required] The target category classification bucket type string.
+# @param       $2  [Required] Name or relative pathway of the specific object/directory to inspect. Passing "root" resets this value to empty.
+# @param       $3  [Optional] Contextual tracking suffix string used for asset paths, target sub-directories, or unique node tags.
+#
+# @env         HOME                    Sourced application root tracking pathway string.
+# @env         S3_ACCESS_KEY           Access token configurations used for fanout loops.
+# @env         WEBSITE_URL             Primary base domain identifier mapping out schemas.
+# @env         DNS_CHOICE              Configuration flag used to tag platform routing options.
+# @env         SSL_GENERATION_SERVICE  Target backend token logic router (LETSENCRYPT/ZEROSSL).
+# @env         SERVER_USER             Base tracking string used to generate local tokens.
+#
+# @dependencies
+#              - /home/homedir.dat configuration file tracking the active application root path.
+#              - ExtractConfigValue.sh system service wrapper infrastructure for lookup evaluations.
+#              - ExtractBuildStyleValues.sh configuration parser for active software parameters.
+#              - PerformListFromDatastore.sh data inspection driver selected by software parameters.
+#
+# @security    
+#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent hijack exploits.
+#              - Prevents structural directory leaks by handling targeted "root" string parameter overrides.
+#              - Reads bucket structural metadata directly to avoid exposing multi-node data mutations.
+#
+# @exit        0  Success: Datastore structural inspection and item listing completed successfully.
+# @exit        1  Failure: Missing mandatory arguments, unexpected data state, or driver runtime exceptions.
 ###################################################################################
-set -e
+# License Agreement:
+# This file is part of The Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+####################################################################################
 #set -x
+set -e
 
 # Sourced application root tracking pathway string
 if [ -r /home/homedir.dat ]
