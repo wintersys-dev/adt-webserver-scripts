@@ -127,6 +127,13 @@ then
 fi
 
 ${HOME}/services/security/firewall/ufw/InitialiseFirewall.sh
+
+status="$?"
+if "${status}" = "10" ] )
+then
+	initialised="1"
+fi
+
 ${HOME}/services/security/firewall/ufw/KnickersUp.sh
 ${HOME}/services/security/firewall/ufw/DenyAuthenticator.sh
 ${HOME}/services/security/firewall/ufw/AllowWireguard.sh
