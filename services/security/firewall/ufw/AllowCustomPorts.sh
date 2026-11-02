@@ -51,3 +51,11 @@ then
 	done
 fi
 
+# Exit with status 10 if updated, otherwise exit with 0
+if [ "$updated" -eq 1 ]
+then
+        exit 10
+else
+        exit 0
+fi
+
