@@ -29,6 +29,7 @@ SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
 VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
+firewall="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}'`"
 
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FAIL2BAN" | /usr/bin/awk -F':' '{print $NF}'`" = "active" ] )
 then
@@ -109,7 +110,7 @@ then
         ${HOME}/utilities/processing/RunServiceCommand.sh "ssh" restart
 fi
 
-${HOME}/services/security/firewall/ufw/InitialiseFirewall.sh
+${HOME}/services/security/firewall/${firewall}/InitialiseFirewall.sh
 
 status="$?"
 if [ "${status}" = "10" ]
@@ -117,27 +118,27 @@ then
         initialised="1"
 fi
 
-${HOME}/services/security/firewall/ufw/KnickersUp.sh
-${HOME}/services/security/firewall/ufw/DenyAuthenticator.sh
-${HOME}/services/security/firewall/ufw/AllowWireguard.sh
+${HOME}/services/security/firewall/${firewall}/KnickersUp.sh
+${HOME}/services/security/firewall/${firewall}/DenyAuthenticator.sh
+${HOME}/services/security/firewall/${firewall}/AllowWireguard.sh
 status="$?"
 if [ "${status}" = "10" ]
 then
         updated="1"
 fi
-${HOME}/services/security/firewall/ufw/AllowBuildMachine.sh
+${HOME}/services/security/firewall/${firewall}/AllowBuildMachine.sh
 status="$?"
 if [ "${status}" = "10" ]
 then
         updated="1"
 fi
-${HOME}/services/security/firewall/ufw/AllowVPC.sh
+${HOME}/services/security/firewall/${firewall}/AllowVPC.sh
 status="$?"
 if [ "${status}" = "10" ]
 then
         updated="1"
 fi
-${HOME}/services/security/firewall/ufw/AllowCustomPorts.sh
+${HOME}/services/security/firewall/${firewall}/AllowCustomPorts.sh
 status="$?"
 if [ "${status}" = "10" ]
 then
