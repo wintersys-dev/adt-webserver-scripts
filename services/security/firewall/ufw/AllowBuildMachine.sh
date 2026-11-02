@@ -5,6 +5,8 @@ export HOME="`/bin/cat /home/homedir.dat`"
 BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
 SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
 
+updated="0"
+
 if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDMACHINEVPC:0`" = "1" ] )
 then
 	    if ( [ "`/usr/sbin/ufw status | /bin/grep  "${SSH_PORT}.*ALLOW.*${BUILD_MACHINE_IP}"`" = "" ] )
