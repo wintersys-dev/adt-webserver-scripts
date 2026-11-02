@@ -1,3 +1,7 @@
+
+HOME="`/bin/cat /home/homedir.dat`"
+VPC_IP_RANGE="`${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE'`"
+
 initialised="0"
 
 if ( [ ! -f ${HOME}/runtime/FIREWALL-INITIALISED ] )
