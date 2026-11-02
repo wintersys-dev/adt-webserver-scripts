@@ -1,4 +1,4 @@
-updated="0"
+
 
 #Because authenticator machines are more public facing that the other machines in our architecture we want to block ssh requests 
 #to our infrastructure that originate from authenticator machines as they are slightly more vulnerable than our core infratructure machines.
