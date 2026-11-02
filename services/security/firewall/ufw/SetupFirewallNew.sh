@@ -137,9 +137,29 @@ fi
 ${HOME}/services/security/firewall/ufw/KnickersUp.sh
 ${HOME}/services/security/firewall/ufw/DenyAuthenticator.sh
 ${HOME}/services/security/firewall/ufw/AllowWireguard.sh
+status="$?"
+if "${status}" = "10" ] )
+then
+	updated="1"
+fi
 ${HOME}/services/security/firewall/ufw/AllowBuildMachine.sh
+status="$?"
+if "${status}" = "10" ] )
+then
+	updated="1"
+fi
 ${HOME}/services/security/firewall/ufw/AllowVPC.sh
+status="$?"
+if "${status}" = "10" ] )
+then
+	updated="1"
+fi
 ${HOME}/services/security/firewall/ufw/AllowCustomPorts.sh
-${HOME}/services/security/firewall/ufw/ReloadFirewall.sh
+status="$?"
+if "${status}" = "10" ] )
+then
+	updated="1"
+fi
+${HOME}/services/security/firewall/ufw/ReloadFirewall.sh ${updated} ${initialised}
 
 
