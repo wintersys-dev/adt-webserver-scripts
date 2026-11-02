@@ -1,3 +1,5 @@
+HOME="`/bin/cat /home/homedir.dat`"
+
 if ( [ -f ${HOME}/runtime/firewall.dat ] )
 then
 	if ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
