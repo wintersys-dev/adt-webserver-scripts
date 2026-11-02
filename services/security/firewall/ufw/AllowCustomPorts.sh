@@ -2,6 +2,8 @@ set -x
 
 HOME="`/bin/cat /home/homedir.dat`"
 
+NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
+
 openness=""
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}'`" = "limit" ] )
 then
