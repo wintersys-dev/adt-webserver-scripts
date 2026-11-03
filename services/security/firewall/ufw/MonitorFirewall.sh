@@ -69,7 +69,7 @@ fi
 
 if [ "$(/usr/sbin/ufw status | /bin/grep 'inactive')" != "" ]
 then
-        public_ip="$(${BUILD_HOME}/utilities/processing/GetPublicIP.sh)"
+        public_ip="$(${HOME}/utilities/processing/GetPublicIP.sh)"
         
         ${HOME}/services/email/SendEmail.sh \
                 "FIREWALL (ufw) INACTIVE" \
