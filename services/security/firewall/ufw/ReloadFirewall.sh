@@ -46,18 +46,17 @@
 
 set -e
 
-if [ -z "${1}" ] || [ -z "${2}" ]
+if [ -z "${1}" ]
 then
-        /bin/echo "Usage: ${0} <updated: 0|1> <initialised: 0|1>"
+        /bin/echo "Usage: ${0} <updated: 0|1>"
         exit 1
 fi
 
 updated="${1}"
-initialised="${2}"
 
 HOME="$(/bin/cat /home/homedir.dat)"
 
-if [ "${updated}" = "1" ] || [ "${initialised}" = "1" ]
+if [ "${updated}" = "1" ] 
 then
         /usr/sbin/ufw -f enable
         /usr/sbin/ufw reload
