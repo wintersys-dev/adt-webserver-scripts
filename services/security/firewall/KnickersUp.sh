@@ -16,7 +16,7 @@
 # @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractBuildStyleValues.sh parsing library evaluating software style patterns.
 #              - KnickersUp.sh engine-specific lockdown module selected by parameters.
 #
