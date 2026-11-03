@@ -1,6 +1,6 @@
 #!/bin/sh
 ###################################################################################
-# @file        MonitorFirewallWrapper.sh
+# @file        MonitorFirewall.sh
 # @brief       Context-Aware Firewall Monitoring Execution Abstraction Wrapper.
 # @author      Peter Winter
 # @date        09/04/2021
@@ -13,10 +13,10 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractBuildStyleValues.sh parsing library evaluating software style patterns.
 #              - MonitorFirewall.sh engine-specific tracking module selected by parameters.
 #
