@@ -14,10 +14,10 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
 #              - /usr/sbin/ufw system Uncomplicated Firewall management application binary.
 #              - /usr/bin/sudo system administrative privilege escalation interface wrapper.
@@ -48,15 +48,15 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-SERVER_USER_PASSWORD="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSERPASSWORD')"
+SERVER_USER_PASSWORD="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSERPASSWORD')"
 
-if [ ! -f ${BUILD_HOME}/runtime/KNICKERS_ARE_UP ]
+if [ ! -f ${HOME}/runtime/KNICKERS_ARE_UP ]
 then
         /bin/echo "${SERVER_USER_PASSWORD}" | /usr/bin/sudo -S /usr/sbin/ufw default deny incoming
         /bin/sleep 10
         /bin/echo "${SERVER_USER_PASSWORD}" | /usr/bin/sudo -S /usr/sbin/ufw default allow outgoing
-        /bin/touch ${BUILD_HOME}/runtime/KNICKERS_ARE_UP
+        /bin/touch ${HOME}/runtime/KNICKERS_ARE_UP
 fi
 
