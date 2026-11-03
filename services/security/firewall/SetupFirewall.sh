@@ -149,6 +149,13 @@ fi
 
 ${HOME}/services/security/firewall/${firewall}/KnickersUp.sh
 ${HOME}/services/security/firewall/${firewall}/DenyAuthenticator.sh
+
+${HOME}/services/security/firewall/${firewall}/AllowCustomPorts.sh
+if [ "$?" = "10" ]
+then
+        updated="1"
+fi
+
 ${HOME}/services/security/firewall/${firewall}/AllowWireguard.sh
 
 if [ "$?" = "10" ]
@@ -163,12 +170,6 @@ then
 fi
 
 ${HOME}/services/security/firewall/${firewall}/AllowVPC.sh
-if [ "$?" = "10" ]
-then
-        updated="1"
-fi
-
-${HOME}/services/security/firewall/${firewall}/AllowCustomPorts.sh
 if [ "$?" = "10" ]
 then
         updated="1"
