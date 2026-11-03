@@ -15,10 +15,10 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - CheckConfigValue.sh boolean validation mechanism verifying firewall targets.
 #              - ListFromDatastore.sh data object wrapper pulling live installation markers.
 #              - GetPublicIP.sh tracking helper utility deriving node egress bindings.
@@ -50,9 +50,9 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-if [ "$(${BUILD_HOME}/utilities/config/CheckConfigValue.sh ACTIVEFIREWALLS:1)" = "0" ] && [ "$(${BUILD_HOME}/utilities/config/CheckConfigValue.sh ACTIVEFIREWALLS:3)" = "0" ]
+if [ "$(${HOME}/utilities/config/CheckConfigValue.sh ACTIVEFIREWALLS:1)" = "0" ] && [ "$(${HOME}/utilities/config/CheckConfigValue.sh ACTIVEFIREWALLS:3)" = "0" ]
 then
         exit 0
 fi
@@ -62,7 +62,7 @@ then
         exit 0
 fi
 
-if [ "$(${BUILD_HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "INSTALLED_SUCCESSFULLY")" = "" ]
+if [ "$(${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "INSTALLED_SUCCESSFULLY")" = "" ]
 then
         exit 0
 fi
@@ -71,13 +71,13 @@ if [ "$(/usr/sbin/ufw status | /bin/grep 'inactive')" != "" ]
 then
         public_ip="$(${BUILD_HOME}/utilities/processing/GetPublicIP.sh)"
         
-        ${BUILD_HOME}/services/email/SendEmail.sh \
+        ${HOME}/services/email/SendEmail.sh \
                 "FIREWALL (ufw) INACTIVE" \
                 "Just so you know, your firewall is inactive on machine ${public_ip}. The machine may still be initialising after a reboot, which can take some minutes, but if these messages continue indefinitely, then you need to look into why the firewall is inactive." \
                 "ERROR"
                 
-        if [ -f ${BUILD_HOME}/runtime/FIREWALL-ACTIVE ]
+        if [ -f ${HOME}/runtime/FIREWALL-ACTIVE ]
         then
-                /bin/rm "${BUILD_HOME}/runtime/FIREWALL-ACTIVE"
+                /bin/rm "${HOME}/runtime/FIREWALL-ACTIVE"
         fi
 fi
