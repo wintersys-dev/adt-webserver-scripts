@@ -7,5 +7,7 @@ then
   ${HOME}/utilities/processing/RunServiceCommand.sh netfilter-persistent save
 fi
 
-/bin/touch ${HOME}/runtime/FIREWALL-ACTIVE
-
+if ( [ "`${HOME}/utilities/processing/RunServiceCommand.sh status iptables.service | /bin/grep 'running' | /bin/grep 'active'`" != "" ] )
+then
+  /bin/touch ${HOME}/runtime/FIREWALL-ACTIVE
+fi
