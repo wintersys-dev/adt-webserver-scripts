@@ -13,7 +13,7 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
 #              - /home/buildhome.dat configuration file tracking the active application root path.
@@ -45,9 +45,9 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-firewall_type="$(${BUILD_HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}')"
+firewall_type="$(${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}')"
 
-${BUILD_HOME}/services/security/firewall/${firewall_type}/KnickersUp.sh
+${HOME}/services/security/firewall/${firewall_type}/KnickersUp.sh
 
