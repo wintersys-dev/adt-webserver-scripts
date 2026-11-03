@@ -46,7 +46,6 @@
 
 set -e
 
-# Usage verification checks for mandatory positional parameters
 if [ -z "${1}" ] || [ -z "${2}" ]
 then
         /bin/echo "Usage: ${0} <updated: 0|1> <initialised: 0|1>"
