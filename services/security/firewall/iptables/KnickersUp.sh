@@ -66,7 +66,15 @@ then
         /usr/sbin/ip6tables -P INPUT DROP
         /usr/sbin/ip6tables -P FORWARD DROP
         /usr/sbin/ip6tables -P OUTPUT DROP
-        /usr/sbin/netfilter-persistent save
+     #   /usr/sbin/netfilter-persistent save
         /bin/touch ${HOME}/runtime/KNICKERS_ARE_UP
+        updated="1"
+fi
+
+if [ "${updated}" = "1" ]
+then
+        exit 10
+else
+        exit 0
 fi
 
