@@ -49,6 +49,7 @@ set -e
 
 HOME="$(/bin/cat /home/homedir.dat)"
 
+updated="0"
 if [ "$(/usr/bin/hostname | /bin/grep '\-auth\-')" = "" ]
 then
         authenticator_ip="$(${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorip/*" | /usr/bin/tr '\n' ' ')"
@@ -57,12 +58,21 @@ then
         if [ "${authenticator_ip}" != "" ]
         then
                 /usr/sbin/ufw deny from ${authenticator_ip}
+                updated="1"
         fi
 
         if [ "${authenticator_public_ip}" != "" ]
         then
                 /usr/sbin/ufw deny from ${authenticator_public_ip}
+                updated="1"
         fi
+fi
+
+if [ "${updated}" = "1" ]
+then
+        exit 10
+else
+        exit 0
 fi
 
 
