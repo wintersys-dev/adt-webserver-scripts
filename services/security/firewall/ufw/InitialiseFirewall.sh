@@ -14,10 +14,10 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
 #              - /usr/sbin/ufw system Uncomplicated Firewall management application binary.
 #
@@ -47,14 +47,14 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
-VPC_IP_RANGE="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE')"
+HOME="$(/bin/cat /home/homedir.dat)"
+VPC_IP_RANGE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE')"
 
 initialised="0"
 
-if [ ! -f ${BUILD_HOME}/runtime/FIREWALL-INITIALISED ]
+if [ ! -f ${HOME}/runtime/FIREWALL-INITIALISED ]
 then
-        if [ ! -f ${BUILD_HOME}/runtime/FIREWALL-ACTIVE ]
+        if [ ! -f ${HOME}/runtime/FIREWALL-ACTIVE ]
         then
                 /usr/bin/yes | /usr/sbin/ufw reset
                 
