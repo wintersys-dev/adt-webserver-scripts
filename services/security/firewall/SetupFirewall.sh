@@ -141,7 +141,7 @@ initialised="0"
 updated="0"
 
 set +e
-${BUILD_HOME}/services/security/firewall/${firewall}/InitialiseFirewall.sh
+${HOME}/services/security/firewall/${firewall}/InitialiseFirewall.sh
 if [ "$?" = "10" ]
 then
         initialised="1"
