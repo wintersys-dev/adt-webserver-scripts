@@ -14,10 +14,10 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
 #              - /usr/sbin/iptables system netfilter kernel rule table configuration application binary.
 #
@@ -47,10 +47,10 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-SSH_PORT="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT')"
-VPC_IP_RANGE="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE')"
+SSH_PORT="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT')"
+VPC_IP_RANGE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE')"
 updated="0"
 
 if [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${VPC_IP_RANGE}.*${SSH_PORT}.*ACCEPT")" = "" ]
