@@ -15,10 +15,10 @@
 # @param       $1  updated      Flag (0 or 1) indicating if custom access rules changed.
 # @param       $2  initialised  Flag (0 or 1) indicating if a factory clear just completed.
 #
-# @env         BUILD_HOME       Sourced application root tracking pathway string.
+# @env         HOME       Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - /usr/sbin/ufw system Uncomplicated Firewall management application binary.
 #
 # @security    
@@ -56,7 +56,7 @@ fi
 updated="${1}"
 initialised="${2}"
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
 if [ "${updated}" = "1" ] || [ "${initialised}" = "1" ]
 then
@@ -66,6 +66,6 @@ fi
 
 if [ "$(/usr/sbin/ufw status | /bin/grep 'inactive')" = "" ]
 then
-        /bin/touch "${BUILD_HOME}/runtime/FIREWALL-ACTIVE"
+        /bin/touch "${HOME}/runtime/FIREWALL-ACTIVE"
 fi
 
