@@ -16,10 +16,10 @@
 # @param       $1  updated      Flag (0 or 1) indicating if custom access rules changed.
 # @param       $2  initialised  Flag (0 or 1) indicating if a factory clear just completed.
 #
-# @env         BUILD_HOME       Sourced application root tracking pathway string.
+# @env         HOME       Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - RunServiceCommand.sh host process abstraction wrapping system service states.
 #
 # @security    
@@ -57,17 +57,17 @@ fi
 updated="${1}"
 initialised="${2}"
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
 if [ "${updated}" = "1" ] || [ "${initialised}" = "1" ]
 then
-        ${BUILD_HOME}/utilities/processing/RunServiceCommand.sh restart netfilter-persistent
-        ${BUILD_HOME}/utilities/processing/RunServiceCommand.sh netfilter-persistent save
+        ${HOME}/utilities/processing/RunServiceCommand.sh restart netfilter-persistent
+        ${HOME}/utilities/processing/RunServiceCommand.sh netfilter-persistent save
 fi
 
-if [ "$(${BUILD_HOME}/utilities/processing/RunServiceCommand.sh status iptables.service | /bin/grep 'running' | /bin/grep 'active')" != "" ]
+if [ "$(${HOME}/utilities/processing/RunServiceCommand.sh status iptables.service | /bin/grep 'running' | /bin/grep 'active')" != "" ]
 then
-        /bin/touch "${BUILD_HOME}/runtime/FIREWALL-ACTIVE"
+        /bin/touch "${HOME}/runtime/FIREWALL-ACTIVE"
 fi
 
 fi
