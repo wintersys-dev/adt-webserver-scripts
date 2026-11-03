@@ -83,6 +83,8 @@ then
 
         initialised="1"
         /bin/touch ${HOME}/runtime/FIREWALL-INITIALISED 
+else
+        initialised="1"
 fi
 
 if [ "${initialised}" = "1" ]
