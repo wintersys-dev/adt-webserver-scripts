@@ -14,10 +14,10 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
 #              - ExtractBuildStyleValues.sh parsing library evaluating software style patterns.
 #              - /usr/sbin/ufw system Uncomplicated Firewall management application binary.
@@ -49,12 +49,12 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-NO_REVERSE_PROXIES="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES')"
+NO_REVERSE_PROXIES="$(${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES')"
 
 openness=""
-if [ "$(${BUILD_HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}')" = "limit" ]
+if [ "$(${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}')" = "limit" ]
 then
         openness="limit"
 else
@@ -67,18 +67,18 @@ then
 fi
 
 updated="0"
-if [ -f ${BUILD_HOME}/runtime/firewall.dat ]
+if [ -f ${HOME}/runtime/firewall.dat ]
 then
         ports=""
         if [ "$(/usr/bin/hostname | /bin/grep '\-rp-')" != "" ]
         then
-                ports="$(/bin/grep "^REVERSEPROXYPORTS" ${BUILD_HOME}/runtime/firewall.dat | /bin/sed 's/REVERSEPROXYPORTS://g')"
+                ports="$(/bin/grep "^REVERSEPROXYPORTS" ${HOME}/runtime/firewall.dat | /bin/sed 's/REVERSEPROXYPORTS://g')"
         elif [ "$(/usr/bin/hostname | /bin/grep '^ws-')" != "" ]
         then
-                ports="$(/bin/grep "^WEBSERVERPORTS" ${BUILD_HOME}/runtime/firewall.dat | /bin/sed 's/WEBSERVERPORTS://g')"
+                ports="$(/bin/grep "^WEBSERVERPORTS" ${HOME}/runtime/firewall.dat | /bin/sed 's/WEBSERVERPORTS://g')"
         elif [ "$(/usr/bin/hostname | /bin/grep '\-auth-')" != "" ]
         then
-                ports="$(/bin/grep "^AUTHENTICATORPORTS" ${BUILD_HOME}/runtime/firewall.dat | /bin/sed 's/AUTHENTICATORPORTS://g')"
+                ports="$(/bin/grep "^AUTHENTICATORPORTS" ${HOME}/runtime/firewall.dat | /bin/sed 's/AUTHENTICATORPORTS://g')"
         fi
 
         for port_token in ${ports}
