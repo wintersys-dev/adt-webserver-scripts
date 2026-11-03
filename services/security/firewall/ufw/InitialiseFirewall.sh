@@ -58,7 +58,6 @@ then
         then
                 /usr/bin/yes | /usr/sbin/ufw reset
                 
-                # Check rule existence before pruning to avoid error status flags breaking set -e
                 if /usr/sbin/ufw status | /bin/grep -q "22/tcp"
                 then
                         /usr/sbin/ufw delete allow 22/tcp
