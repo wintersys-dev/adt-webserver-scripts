@@ -64,7 +64,7 @@ then
                 fi
 
                 /usr/sbin/ufw logging off
-                VPC_IP_RANGE="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE')"
+                VPC_IP_RANGE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE')"
                 ip_addresses="$(/usr/sbin/ufw status | /bin/grep "^443" | /bin/grep -v "${VPC_IP_RANGE}" | /bin/grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")"
 
                 for ip_address in ${ip_addresses}
@@ -74,7 +74,7 @@ then
 
                 /usr/sbin/ufw reload
                 initialised="1"
-                /bin/touch ${BUILD_HOME}/runtime/FIREWALL-INITIALISED 
+                /bin/touch ${HOME}/runtime/FIREWALL-INITIALISED 
         fi
 fi
 
