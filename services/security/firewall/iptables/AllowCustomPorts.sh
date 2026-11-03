@@ -14,7 +14,7 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
 #              - /home/buildhome.dat configuration file tracking the active application root path.
@@ -49,11 +49,11 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
-NO_REVERSE_PROXIES="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES')"
+HOME="$(/bin/cat /home/homedir.dat)"
+NO_REVERSE_PROXIES="$(${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES')"
 
-limit="$(${BUILD_HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}')"
-limit_burst="$(${BUILD_HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $4}')"
+limit="$(${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}')"
+limit_burst="$(${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $4}')"
 
 if [ "${limit}" = "" ] || [ "${limit_burst}" = "" ]
 then
@@ -73,7 +73,7 @@ then
 fi
 
 updated="0"
-if [ -f ${BUILD_HOME}/runtime/firewall.dat ]
+if [ -f ${HOME}/runtime/firewall.dat ]
 then
         ports=""
         if [ "$(/usr/bin/hostname | /bin/grep '\-rp-')" != "" ]
