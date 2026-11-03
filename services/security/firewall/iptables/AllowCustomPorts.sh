@@ -3,17 +3,24 @@ set -x
 HOME="`/bin/cat /home/homedir.dat`"
 NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
 
-openness=""
-if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}'`" = "limit" ] )
+limit="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $3}'`"
+limit_burst=""
+limit_burst="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $4}'`"
+if ( [ "${limit}" = "" ] || [ "${limit_burst}" = "" ] )
 then
-	openness="limit"
+	limited="off"
 else
-	openness="allow"
+	if ( [ "${limit}" -eq "${limit}" 2>/dev/null ] && [ "${limit_burst}" -eq "${limit_burst}" 2>/dev/null ] )
+	then
+		limited="on"
+	else
+		limited="off"
+	fi
 fi
-
+		
 if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] && [ "${NO_REVERSE_PROXIES}" != "0" ] )
 then
-	openness="allow"
+	limited="off"
 fi
 
 updated="0"
