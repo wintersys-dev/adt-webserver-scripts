@@ -13,10 +13,10 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
 #              - CheckConfigValue.sh boolean validation mechanism verifying network targets.
 #              - /usr/sbin/ufw system Uncomplicated Firewall management application binary.
@@ -46,14 +46,14 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-BUILD_MACHINE_IP="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP')"
-SSH_PORT="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT')"
+BUILD_MACHINE_IP="$(${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP')"
+SSH_PORT="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT')"
 
 updated="0"
 
-if [ "$(${BUILD_HOME}/utilities/config/CheckConfigValue.sh BUILDMACHINEVPC:0)" = "1" ]
+if [ "$(${HOME}/utilities/config/CheckConfigValue.sh BUILDMACHINEVPC:0)" = "1" ]
 then
         if [ "$(/usr/sbin/ufw status | /bin/grep "${SSH_PORT}.*ALLOW.*${BUILD_MACHINE_IP}")" = "" ]
         then
