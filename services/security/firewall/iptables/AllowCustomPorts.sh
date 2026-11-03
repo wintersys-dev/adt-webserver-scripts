@@ -45,8 +45,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ######################################################################################
 ######################################################################################
-#set -x
-
+set -x
 set -e
 
 HOME="$(/bin/cat /home/homedir.dat)"
@@ -66,7 +65,7 @@ else
                 limited="off"
         fi
 fi
-                
+
 if [ "$(/usr/bin/hostname | /bin/grep '^ws-')" != "" ] && [ "${NO_REVERSE_PROXIES}" != "0" ]
 then
         limited="off"
@@ -97,19 +96,26 @@ then
                 then
                         port="$(/bin/echo "${port_token}" | /usr/bin/awk -F'|' '{print $1}')"
                         ip_address="$(/bin/echo "${port_token}" | /usr/bin/awk -F'|' '{print $4}')"
-                        
+
                         if [ "$(/bin/echo "${port_token}" | /usr/bin/awk -F'|' '{print $6}')" = "DELETE" ]
                         then
                                 delete="yes"
                         fi
                 fi
-
-                if ( [ "${ip_address}" = "0.0.0.0/0" ] )
+                cloudflare="0"
+                if [ "${ip_address}" = "cloudflare" ] 
                 then
-                        ip_address=""
+                        cloudflare="1"
                 fi
 
-                if [ "${ip_address}" = "cloudflare" ]
+                ip_address_grep="${ip_address}"
+
+                if [ "${ip_address}" = "0.0.0.0/0" ]
+                then
+                        ip_address_grep=""
+                fi
+
+                if [ "${cloudflare}" = "1" ]
                 then
                         for ip in $(/usr/bin/curl -s https://cloudflare.com)
                         do
@@ -128,7 +134,7 @@ then
                                         updated="1"
                                 fi
                         done
-                elif [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${ip_address}.*${port}.*ACCEPT")" = "" ] && [ "${delete}" != "yes" ]
+                elif [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${ip_address_grep}.*${port}.*ACCEPT")" = "" ] && [ "${delete}" != "yes" ]
                 then
                         if [ "${limited}" = "on" ]
                         then
@@ -143,7 +149,7 @@ then
                         fi    
                         updated="1"
                 else
-                        if [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${ip_address}.*${port}.*ACCEPT")" != "" ] && [ "${delete}" = "yes" ]
+                        if [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${ip_address_grep}.*${port}.*ACCEPT")" != "" ] && [ "${delete}" = "yes" ]
                         then
                                 if [ "${limited}" = "on" ]
                                 then
