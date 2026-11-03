@@ -104,6 +104,11 @@ then
                         fi
                 fi
 
+                if ( [ "${ip_address}" = "0.0.0.0/0" ] )
+                then
+                        ip_address=""
+                fi
+
                 if [ "${ip_address}" = "cloudflare" ]
                 then
                         for ip in $(/usr/bin/curl -s https://cloudflare.com)
@@ -123,7 +128,7 @@ then
                                         updated="1"
                                 fi
                         done
-                elif [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${ip_address}.${port}.*ACCEPT")" = "" ] && [ "${delete}" != "yes" ]
+                elif [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${ip_address}.*${port}.*ACCEPT")" = "" ] && [ "${delete}" != "yes" ]
                 then
                         if [ "${limited}" = "on" ]
                         then
@@ -138,7 +143,7 @@ then
                         fi    
                         updated="1"
                 else
-                        if [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${ip_address}.${port}.*ACCEPT")" != "" ] && [ "${delete}" = "yes" ]
+                        if [ "$(/usr/sbin/iptables --list-rules | /bin/grep "${ip_address}.*${port}.*ACCEPT")" != "" ] && [ "${delete}" = "yes" ]
                         then
                                 if [ "${limited}" = "on" ]
                                 then
