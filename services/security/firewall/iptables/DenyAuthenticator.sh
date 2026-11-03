@@ -16,7 +16,7 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
 #              - /home/buildhome.dat configuration file tracking the active application root path.
@@ -49,12 +49,12 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
 if [ "$(/usr/bin/hostname | /bin/grep '\-auth\-')" = "" ]
 then
-        authenticator_ip="$(${BUILD_HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorip/*" | /usr/bin/tr '\n' ' ')"
-        authenticator_public_ip="$(${BUILD_HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorpublicip/*" | /usr/bin/tr '\n' ' ')"
+        authenticator_ip="$(${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorip/*" | /usr/bin/tr '\n' ' ')"
+        authenticator_public_ip="$(${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorpublicip/*" | /usr/bin/tr '\n' ' ')"
 
         if [ "${authenticator_ip}" != "" ]
         then
