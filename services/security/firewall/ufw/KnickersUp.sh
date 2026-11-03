@@ -51,6 +51,7 @@ set -e
 HOME="$(/bin/cat /home/homedir.dat)"
 
 SERVER_USER_PASSWORD="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSERPASSWORD')"
+updated="0"
 
 if [ ! -f ${HOME}/runtime/KNICKERS_ARE_UP ]
 then
@@ -58,5 +59,13 @@ then
         /bin/sleep 10
         /bin/echo "${SERVER_USER_PASSWORD}" | /usr/bin/sudo -S /usr/sbin/ufw default allow outgoing
         /bin/touch ${HOME}/runtime/KNICKERS_ARE_UP
+        updated="1"
+fi
+
+if [ "${updated}" = "1" ]
+then
+        exit 10
+else
+        exit 0
 fi
 
