@@ -73,7 +73,7 @@ then
         /usr/sbin/ip6tables -A INPUT -i lo -j ACCEPT
         /usr/sbin/ip6tables -A OUTPUT -o lo -j ACCEPT
 
-        VPC_IP_RANGE="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE')"
+        VPC_IP_RANGE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'VPCIPRANGE')"
         ip_addresses="$(/usr/sbin/iptables -L INPUT -n | /bin/grep "443$" | /bin/grep -v "${VPC_IP_RANGE}" | /bin/grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")"
         
         for ip_address in ${ip_addresses}
@@ -82,7 +82,7 @@ then
         done
         
         initialised="1"
-        /bin/touch ${BUILD_HOME}/runtime/FIREWALL-INITIALISED 
+        /bin/touch ${HOME}/runtime/FIREWALL-INITIALISED 
 fi
 
 if [ "${initialised}" = "1" ]
