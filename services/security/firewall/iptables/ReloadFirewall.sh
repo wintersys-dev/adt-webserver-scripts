@@ -7,7 +7,5 @@ then
   ${HOME}/utilities/processing/RunServiceCommand.sh netfilter-persistent save
 fi
 
-if ( [ "`/usr/bin/ufw status | /bin/grep 'inactive'`" = "" ] )
-then
-  /bin/touch ${HOME}/runtime/FIREWALL-ACTIVE
-fi
+/bin/touch ${HOME}/runtime/FIREWALL-ACTIVE
+
