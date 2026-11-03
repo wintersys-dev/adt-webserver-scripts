@@ -17,7 +17,7 @@
 # @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
 #              - /usr/sbin/iptables system netfilter kernel rule table configuration application binary.
 #
