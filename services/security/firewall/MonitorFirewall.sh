@@ -49,6 +49,6 @@ HOME="$(/bin/cat /home/homedir.dat)"
 
 firewall_type="$(${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}')"
 
-${BUILD_HOME}/services/security/firewall/${firewall_type}/MonitorFirewall.sh
+${HOME}/services/security/firewall/${firewall_type}/MonitorFirewall.sh
 
 
