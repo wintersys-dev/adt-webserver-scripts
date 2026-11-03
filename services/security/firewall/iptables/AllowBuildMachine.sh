@@ -1,3 +1,11 @@
+export HOME="`/bin/cat /home/homedir.dat`"
+
+
+BUILD_MACHINE_IP="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP'`"
+SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
+
+updated="0"
+
 if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep "${BUILD_MACHINE_IP}.*${SSH_PORT}.*ACCEPT"`" = "" ] )
 then
   /usr/sbin/iptables -A INPUT -s ${BUILD_MACHINE_IP}/32 -p tcp --dport ${SSH_PORT} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
