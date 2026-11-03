@@ -15,10 +15,10 @@
 #
 # @param       None
 #
-# @env         BUILD_HOME              Sourced application root tracking pathway string.
+# @env         HOME              Sourced application root tracking pathway string.
 #
 # @dependencies
-#              - /home/buildhome.dat configuration file tracking the active application root path.
+#              - /home/homedir.dat configuration file tracking the active application root path.
 #              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
 #              - /usr/sbin/iptables system netfilter kernel rule table configuration application binary.
 #              - /usr/sbin/ip6tables system IPv6 netfilter kernel rule table configuration application binary.
@@ -50,11 +50,11 @@
 
 set -e
 
-BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+HOME="$(/bin/cat /home/homedir.dat)"
 
-SERVER_USER_PASSWORD="$(${BUILD_HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSERPASSWORD')"
+SERVER_USER_PASSWORD="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSERPASSWORD')"
 
-if [ ! -f ${BUILD_HOME}/runtime/KNICKERS_ARE_UP ]
+if [ ! -f ${HOME}/runtime/KNICKERS_ARE_UP ]
 then
         /usr/sbin/iptables -I INPUT -m state --state ESTABLISHED -j ACCEPT
         /usr/sbin/iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j DROP
@@ -67,6 +67,6 @@ then
         /usr/sbin/ip6tables -P FORWARD DROP
         /usr/sbin/ip6tables -P OUTPUT DROP
         /usr/sbin/netfilter-persistent save
-        /bin/touch ${BUILD_HOME}/runtime/KNICKERS_ARE_UP
+        /bin/touch ${HOME}/runtime/KNICKERS_ARE_UP
 fi
 
