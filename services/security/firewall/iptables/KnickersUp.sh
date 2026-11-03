@@ -53,6 +53,7 @@ set -e
 HOME="$(/bin/cat /home/homedir.dat)"
 
 SERVER_USER_PASSWORD="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSERPASSWORD')"
+updated="0"
 
 if [ ! -f ${HOME}/runtime/KNICKERS_ARE_UP ]
 then
