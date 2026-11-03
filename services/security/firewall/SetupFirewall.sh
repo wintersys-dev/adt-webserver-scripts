@@ -134,7 +134,7 @@ fi
 
 if [ "${updated_ssh}" = "1" ]
 then
-        ${BUILD_HOME}/utilities/processing/RunServiceCommand.sh "ssh" restart
+        ${HOME}/utilities/processing/RunServiceCommand.sh "ssh" restart
 fi
 
 initialised="0"
