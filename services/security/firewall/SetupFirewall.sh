@@ -144,7 +144,9 @@ set +e
 ${HOME}/services/security/firewall/${firewall}/InitialiseFirewall.sh
 if [ "$?" = "10" ]
 then
-        initialised="1"
+        exit
+else
+        ${HOME}/services/security/firewall/${firewall}/ReloadFirewall.sh "1"
 fi
 
 ${HOME}/services/security/firewall/${firewall}/KnickersUp.sh
@@ -176,5 +178,5 @@ then
 fi
 set -e
 
-${HOME}/services/security/firewall/${firewall}/ReloadFirewall.sh "${updated}" "${initialised}"
+${HOME}/services/security/firewall/${firewall}/ReloadFirewall.sh "${updated}"
 
