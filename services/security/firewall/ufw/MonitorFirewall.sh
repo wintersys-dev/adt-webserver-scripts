@@ -71,10 +71,7 @@ if [ "$(/usr/sbin/ufw status | /bin/grep 'inactive')" != "" ]
 then
         public_ip="$(${HOME}/utilities/processing/GetPublicIP.sh)"
         
-        ${HOME}/services/email/SendEmail.sh \
-                "FIREWALL (ufw) INACTIVE" \
-                "Just so you know, your firewall is inactive on machine ${public_ip}. The machine may still be initialising after a reboot, which can take some minutes, but if these messages continue indefinitely, then you need to look into why the firewall is inactive." \
-                "ERROR"
+        ${HOME}/services/email/SendEmail.sh "FIREWALL (ufw) INACTIVE" "Just so you know, your firewall is inactive on machine ${public_ip}. The machine may still be initialising after a reboot, which can take some minutes, but if these messages continue indefinitely, then you need to look into why the firewall is inactive." "ERROR"
                 
         if [ -f ${HOME}/runtime/FIREWALL-ACTIVE ]
         then
