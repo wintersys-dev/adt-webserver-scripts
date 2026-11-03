@@ -137,16 +137,13 @@ then
         ${HOME}/utilities/processing/RunServiceCommand.sh "ssh" restart
 fi
 
-initialised="0"
 updated="0"
 
 set +e
 ${HOME}/services/security/firewall/${firewall}/InitialiseFirewall.sh
 if [ "$?" = "10" ]
 then
-        exit
-else
-        ${HOME}/services/security/firewall/${firewall}/ReloadFirewall.sh "1"
+        updated="1"
 fi
 
 ${HOME}/services/security/firewall/${firewall}/KnickersUp.sh
