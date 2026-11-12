@@ -1,0 +1,103 @@
+Here are the SQL schemas and the LogDeltaEvent.sh helper script supporting both MySQL/MariaDB and PostgreSQL, designed to read your cloud-init database credentials and integrate with Wintersys ADT.
+
+1. Database Table Schemas
+
+Run the appropriate schema once during your database provisioning or end-of-build seeding step.
+
+MySQL / MariaDB Schema
+
+sql
+CREATE TABLE IF NOT EXISTS adt_delta_events (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    event_type VARCHAR(16) NOT NULL,
+    object_key VARCHAR(512) NOT NULL,
+    source_ip VARCHAR(45) NOT NULL,
+    created_at BIGINT UNSIGNED NOT NULL,
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+Use code with caution.
+
+PostgreSQL Schema
+
+sql
+CREATE TABLE IF NOT EXISTS adt_delta_events (
+    id BIGSERIAL PRIMARY KEY,
+    event_type VARCHAR(16) NOT NULL,
+    object_key VARCHAR(512) NOT NULL,
+    source_ip VARCHAR(45) NOT NULL,
+    created_at BIGINT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_adt_delta_created_at ON adt_delta_events (created_at);
+Use code with caution.
+
+2. LogDeltaEvent.sh Helper Script
+
+Save this script to ${HOME}/utilities/database/LogDeltaEvent.sh and make it executable (chmod +x). It loads your local cloud-init database credentials file, escapes single quotes to prevent SQL syntax issues, and inserts the delta event row.
+bash
+#!/bin/sh
+#####################################################################################
+# Description: Logs a filesystem delta archive or deletion log event into MySQL/MariaDB
+# or PostgreSQL using local cloud-init database credentials.
+# Usage: LogDeltaEvent.sh <event_type> <object_key> <source_ip>
+#####################################################################################
+
+event_type="${1}"
+object_key="${2}"
+source_ip="${3}"
+
+if [ -z "${event_type}" ] || [ -z "${object_key}" ] || [ -z "${source_ip}" ]; then
+    exit 1
+fi
+
+# Load credentials injected via cloud-init (adjust path if using database_descriptor.dat)
+CREDS_FILE="/root/.adt_db_creds"
+if [ -f "${CREDS_FILE}" ]; then
+    . "${CREDS_FILE}"
+else
+    exit 1
+fi
+
+# Expected variables from CREDS_FILE:
+# DB_ENGINE ("mysql", "mariadb", or "postgres")
+# DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS
+
+created_at="`/usr/bin/date +%s`"
+
+# Escape any single quotes in paths
+safe_type="`/bin/echo "${event_type}" | /bin/sed "s/'/''/g"`"
+safe_key="`/bin/echo "${object_key}" | /bin/sed "s/'/''/g"`"
+safe_ip="`/bin/echo "${source_ip}" | /bin/sed "s/'/''/g"`"
+
+sql_query="INSERT INTO adt_delta_events (event_type, object_key, source_ip, created_at) VALUES ('${safe_type}', '${safe_key}', '${safe_ip}', ${created_at});"
+
+case "${DB_ENGINE}" in
+    mysql|mariadb)
+        MYSQL_PWD="${DB_PASS}" /usr/bin/mysql \
+            -h "${DB_HOST}" \
+            -P "${DB_PORT:-3306}" \
+            -u "${DB_USER}" \
+            "${DB_NAME}" \
+            -e "${sql_query}"
+        ;;
+    postgres|postgresql)
+        PGPASSWORD="${DB_PASS}" /usr/bin/psql \
+            -h "${DB_HOST}" \
+            -p "${DB_PORT:-5432}" \
+            -U "${DB_USER}" \
+            -d "${DB_NAME}" \
+            -v ON_ERROR_STOP=1 \
+            -q -c "${sql_query}"
+        ;;
+    *)
+        exit 1
+        ;;
+esac
+Use code with caution.
+
+How It Fits Together
+
+• Zero S3 Polling: Whenever a node uploads an additions tarball or deletions log via PutToDatastore.sh, it immediately writes a lightweight row containing the exact S3 object_key and source_ip.
+• Self-Filtering on Peer Nodes: Peer webservers store their last processed event ID in /var/run/adt_last_delta_id and run SELECT id, event_type, object_key FROM adt_delta_events WHERE id > $LAST_ID AND source_ip != '$MY_IP' ORDER BY id ASC. This prevents nodes from re-downloading their own uploads while fetching every peer delta in exact chronological order.
+• Easy Table Housekeeping: Because created_at is indexed as a Unix epoch integer, you can run a simple daily cleanup query (DELETE FROM adt_delta_events WHERE created_at < UNIX_TIMESTAMP() - 86400;) so the table stays tiny in memory.
+Would you like me to write the incoming peer-node consumer script that queries adt_delta_events, downloads the listed S3 archive, and extracts or deletes the files locally?
