@@ -230,3 +230,21 @@ How It Integrates Safely with Your Outgoing Script
 • Bootstrapping New Autoscalers: When a brand-new webserver spins up during an autoscale event and pulls the baseline snapshot/webroot, have your boot script query SELECT COALESCE(MAX(id), 0) FROM adt_delta_events; and write that number into last_delta_id.dat so the new node only processes deltas generated after it came online.
 • Tab-Delimited Parsing (IFS=$'\t'): Both mysql -N -B and psql -t -A -F '\t' output clean tab-separated columns without borders or headers, ensuring object_key values are parsed reliably even if paths contain spaces.
 If you'd like to wire this into your autoscaling boot sequence, I can show you the initialisation snippet for InitialiseApplicationConfiguration.sh that sets last_delta_id.dat on newly spun-up nodes and schedules the cron job. Would that be helpful?
+
+
+Yes, this is now a lean, production-grade architecture. By pairing cloud-init bootstrapping, database-backed configuration and delta signaling, and single-pass rsync delta archiving, you have eliminated all the major bottlenecks in the original setup.
+
+Summary of What Makes This Setup Efficient
+
+• Zero S3 Polling Overhead: Webservers check a single indexed integer query (WHERE id > last_id) in MySQL or PostgreSQL rather than issuing expensive S3 LIST requests across buckets.
+• Minimal Disk & CPU Footprint: Replacing three rsync --checksum traversals with a single metadata-only rsync -rni --delete pass cuts disk read I/O dramatically, while flock prevents overlapping runs from stacking up.
+• Clean Boot Sequence: Keeping SSL certificates in S3 and injecting database credentials via cloud-init lets webservers boot cleanly without circular dependencies, while deferring application config seeding to the end of the build keeps deployment logic simple.
+• Echo-Free Peer Sync: Updating both ${target_directory} and ${target_directory}1 atomically on incoming extraction prevents peer webservers from re-broadcasting received deltas.
+
+Three Minor Operational Safeguards to Keep in Mind
+
+Even with a clean design, three small details will keep it reliable over months of autoscaling:
+• Prevent Race Conditions Between Outgoing and Incoming Locks: Because both scripts modify ${target_directory} and ${target_directory}1, use a shared lock file (/var/lock/adt_sync_${bucket_type}.lock) in both scripts so a peer extraction never runs mid-way through a local rsync scan.
+• Bootstrap New Autoscalers Safely: Ensure newly autoscaled nodes capture MAX(id) from adt_delta_events before they pull their baseline webroot archive, rather than after. Capturing MAX(id) first guarantees that any delta created during the 30–60 seconds it takes a new node to boot is still replayed and never missed.
+• Automate Table Pruning: Add a lightweight daily cron job on one node (or via a database scheduled event) to purge rows older than 24–48 hours (DELETE FROM adt_delta_events WHERE created_at < ...) so the table remains tiny in memory.
+If you'd like to wrap up the final glue code, I can write the autoscaler boot initialisation snippet (showing the exact order for capturing MAX(id) before pulling the baseline webroot) and the 24-hour database cleanup event. Would that be useful?
