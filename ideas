@@ -1,0 +1,108 @@
+Because the Wintersys Agile Deployment Toolkit (ADT) is split across four separate repositories (build-client, autoscaler, webserver, and database), keeping shared folders—such as helpers/services/, services/datastore/drivers/, or provider API wrappers—identical across all four repos prevents silent drift.
+You have three clean ways to automate this synchronisation, ranging from zero-infrastructure Git workflows to CI/CD automation.
+
+Option 1: GitHub Actions / GitLab CI Fan-Out (Recommended)
+
+If you host your four forked repositories on GitHub or GitLab, the cleanest approach is to designate one repository as the source of truth (either build-client or a dedicated adt-shared repo) and have a CI workflow automatically open pull requests or push updates to the other repositories whenever shared paths change.
+
+How It Works
+
+1. Trigger on path changes: Configure a workflow in build-client to trigger whenever files inside shared paths (e.g. helpers/services/** or services/datastore/drivers/**) are pushed to main.
+2. Sync to target repos: The runner checks out autoscaler, webserver, and database using a Personal Access Token (PAT) or Deploy Key, copies the updated files over, and commits them directly (or opens a PR).
+
+Example GitHub Actions Workflow (.github/workflows/sync-shared.yml)
+
+yaml
+name: Sync Shared ADT Scripts
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'helpers/services/**'
+      - 'services/datastore/drivers/**'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo:
+          - your-org/agile-infrastructure-autoscaler
+          - your-org/agile-infrastructure-webserver
+          - your-org/agile-infrastructure-database
+    steps:
+      - name: Checkout source (build-client)
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repo }}
+          token: ${{ secrets.REPO_SYNC_TOKEN }}
+          path: target
+
+      - name: Sync shared directories
+        run: |
+          mkdir -p target/helpers/services target/services/datastore/drivers
+          rsync -av --delete source/helpers/services/ target/helpers/services/
+          rsync -av --delete source/services/datastore/drivers/ target/services/datastore/drivers/
+
+      - name: Commit and push if changed
+        working-directory: target
+        run: |
+          git config user.name "adt-sync-bot"
+          git config user.email "bot@://github.com"
+          git add helpers/services services/datastore/drivers
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: sync shared scripts from build-client (${{ github.sha }})"
+            git push
+          fi
+Use code with caution.
+• Pros: Newly booted nodes cloning autoscaler, webserver, or database via cloud-init always receive self-contained, up-to-date scripts without needing extra Git flags (--recurse-submodules) in userdata.
+• Cons: Requires storing a repository write token in CI secrets.
+
+Option 2: git subtree (Zero External CI Required)
+
+If you do not want to rely on GitHub Actions or external CI runners, git subtree lets you pull or push a shared subdirectory across local clones of your four repositories while keeping each repository completely self-contained on GitHub/GitLab.
+
+How It Works
+
+1. Create a lightweight fifth repository (adt-common) containing only your shared scripts (helpers/services/, drivers/database/, etc.).
+2. Link it as a subtree inside each of the four ADT repositories:sh
+# Run once inside each of the 4 repos
+git remote add adt-common git@github.com:your-org/adt-common.git
+git subtree add --prefix=services/datastore/drivers adt-common main --squash
+Use code with caution.
+3. Sync updates with a single local shell script (sync_all_repos.sh):
+Whenever you update adt-common, run a small local POSIX script across your four local checkouts:sh
+#!/bin/sh
+set -e
+
+for repo in build-client autoscaler webserver database
+do
+        cd "/path/to/repos/${repo}"
+        git checkout main
+        git pull origin main
+        git subtree pull --prefix=services/datastore/drivers adt-common main --squash -m "Sync shared datastore drivers"
+        git push origin main
+done
+Use code with caution.
+• Pros: Zero CI setup; every repository still contains real files (unlike git submodule, which breaks git archive or shallow git clone calls inside ADT's cloud-init scripts).
+• Cons: Must be triggered manually by running your local sync script after pushing to adt-common.
+
+Option 3: Build-Time Payload Injection (Zero Git Syncing)
+
+If you want to avoid syncing repositories altogether, keep your refactored shared scripts only inside build-client, and have the build machine package them into a tarball during provisioning.
+1. When build-client provisions the database, autoscaler, or webserver (or when the autoscaler spawns a new webserver), include a base64-encoded tarball of ${BUILD_HOME}/shared_overrides/ inside the cloud-init userdata (or copy it over via scp right after the SSH callback arrives).
+2. Unpack it directly over ${HOME}/ on the target node before the node's bootstrap scripts execute.
+• Pros: True single source of truth—you edit a script once on the build machine and every node immediately runs that exact version.
+• Cons: Slightly increases cloud-init userdata size (keep the override archive under ~16 KB to stay well within cloud provider userdata limits).
+
+Which Should You Pick?
+
+• Use Option 1 (GitHub Actions fan-out) if you already host your forks on GitHub and want automatic hands-free syncing on every commit.
+• Use Option 2 (git subtree) if you want pure Git tooling with zero CI tokens or external dependencies.
+Which Git host do you use for your forks (GitHub, GitLab, or self-hosted Gitea/Forgejo), and which directories do you want to keep synchronised across the four repos?
