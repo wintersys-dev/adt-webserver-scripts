@@ -101,3 +101,132 @@ How It Fits Together
 • Self-Filtering on Peer Nodes: Peer webservers store their last processed event ID in /var/run/adt_last_delta_id and run SELECT id, event_type, object_key FROM adt_delta_events WHERE id > $LAST_ID AND source_ip != '$MY_IP' ORDER BY id ASC. This prevents nodes from re-downloading their own uploads while fetching every peer delta in exact chronological order.
 • Easy Table Housekeeping: Because created_at is indexed as a Unix epoch integer, you can run a simple daily cleanup query (DELETE FROM adt_delta_events WHERE created_at < UNIX_TIMESTAMP() - 86400;) so the table stays tiny in memory.
 Would you like me to write the incoming peer-node consumer script that queries adt_delta_events, downloads the listed S3 archive, and extracts or deletes the files locally?
+
+
+Here is the incoming peer-node consumer script (ProcessIncomingDeltas.sh). It queries adt_delta_events for any new records created by other servers, downloads the exact S3 archive or deletion log via ADT's GetFromDatastore.sh, applies the changes locally to both ${target_directory} and ${target_directory}1, and advances a local high-water mark ID.
+
+ProcessIncomingDeltas.sh (Incoming Peer-Node Consumer)
+
+Save this script to ${HOME}/services/datastore/operations/ProcessIncomingDeltas.sh (or alongside your existing incoming sync scripts) and make it executable (chmod +x).
+bash
+#!/bin/sh
+#####################################################################################
+# Description: Polls adt_delta_events in MySQL/MariaDB or PostgreSQL for new delta
+# archives/deletion logs from peer servers, downloads them via GetFromDatastore.sh,
+# and applies them locally to both the live webroot and shadow directory.
+# Usage: ProcessIncomingDeltas.sh <target_directory> <bucket_type>
+#####################################################################################
+
+target_directory="${1}"
+bucket_type="${2}"
+
+if [ -z "${target_directory}" ] || [ -z "${bucket_type}" ]; then
+    exit 1
+fi
+
+# Prevent overlapping executions on the consumer side
+lock_file="/var/lock/adt_incoming_${bucket_type}.lock"
+exec 8>"${lock_file}"
+if ! /usr/bin/flock -n 8; then
+    exit 0
+fi
+
+# Load credentials injected via cloud-init
+CREDS_FILE="/root/.adt_db_creds"
+if [ -f "${CREDS_FILE}" ]; then
+    . "${CREDS_FILE}"
+else
+    exit 1
+fi
+
+machine_ip="`${HOME}/utilities/processing/GetIP.sh`"
+state_dir="${HOME}/runtime/filesystem_sync/${bucket_type}/incoming"
+/bin/mkdir -p "${state_dir}/additions" "${state_dir}/deletions"
+
+last_id_file="${state_dir}/last_delta_id.dat"
+if [ -f "${last_id_file}" ]; then
+    last_id="`/bin/cat "${last_id_file}"`"
+else
+    last_id="0"
+fi
+
+# Query only events newer than last_id and NOT originated by this machine
+sql_query="SELECT id, event_type, object_key FROM adt_delta_events WHERE id > ${last_id} AND source_ip != '${machine_ip}' ORDER BY id ASC;"
+
+events=""
+case "${DB_ENGINE}" in
+    mysql|mariadb)
+        events="`MYSQL_PWD="${DB_PASS}" /usr/bin/mysql \
+            -h "${DB_HOST}" \
+            -P "${DB_PORT:-3306}" \
+            -u "${DB_USER}" \
+            -N -B \
+            "${DB_NAME}" \
+            -e "${sql_query}"`"
+        ;;
+    postgres|postgresql)
+        events="`PGPASSWORD="${DB_PASS}" /usr/bin/psql \
+            -h "${DB_HOST}" \
+            -p "${DB_PORT:-5432}" \
+            -U "${DB_USER}" \
+            -d "${DB_NAME}" \
+            -t -A -F '	' \
+            -c "${sql_query}"`"
+        ;;
+    *)
+        exit 1
+        ;;
+esac
+
+# Exit cleanly if there are no new deltas
+if [ -z "${events}" ]; then
+    exit 0
+fi
+
+# Process each event sequentially in chronological order
+/bin/echo "${events}" | while IFS='	' read -r event_id event_type object_key; do
+    if [ -z "${event_id}" ] || [ -z "${object_key}" ]; then
+        continue
+    fi
+
+    filename="`/usr/bin/basename "${object_key}"`"
+
+    if [ "${event_type}" = "additions" ]; then
+        local_tar="${state_dir}/additions/${filename}"
+        ${HOME}/services/datastore/operations/GetFromDatastore.sh "${bucket_type}" "${object_key}" "${local_tar}"
+
+        if [ -f "${local_tar}" ]; then
+            # Extract directly to absolute paths (populates both target_directory and target_directory1)
+            /usr/bin/tar -xzpf "${local_tar}" -C / --same-owner --same-permissions
+            /bin/rm -f "${local_tar}"
+        fi
+
+    elif [ "${event_type}" = "deletions" ]; then
+        local_log="${state_dir}/deletions/${filename}"
+        ${HOME}/services/datastore/operations/GetFromDatastore.sh "${bucket_type}" "${object_key}" "${local_log}"
+
+        if [ -f "${local_log}" ]; then
+            while IFS= read -r del_path; do
+                if [ -n "${del_path}" ] && [ -f "${del_path}" ]; then
+                    /bin/rm -f "${del_path}"
+                fi
+            done < "${local_log}"
+            /bin/rm -f "${local_log}"
+        fi
+    fi
+
+    # Update high-water mark after each successful event
+    /bin/echo "${event_id}" > "${last_id_file}"
+done
+
+# Clean up any empty directories left behind by deletions
+/usr/bin/find "${target_directory}" -mindepth 1 -type d -empty -delete 2>/dev/null
+/usr/bin/find "${target_directory}1" -mindepth 1 -type d -empty -delete 2>/dev/null
+Use code with caution.
+
+How It Integrates Safely with Your Outgoing Script
+
+• Prevents Sync Loops (target_directory1 Alignment): Because the outgoing script packs both ${target_directory}/${rel_path} and ${target_directory}1/${rel_path} into the archive (and logs both in deletions), extracting to / updates the live webroot and the peer's local shadow directory simultaneously. When the peer's own outgoing rsync pass runs next, it sees zero differences and never re-broadcasts the same delta.
+• Bootstrapping New Autoscalers: When a brand-new webserver spins up during an autoscale event and pulls the baseline snapshot/webroot, have your boot script query SELECT COALESCE(MAX(id), 0) FROM adt_delta_events; and write that number into last_delta_id.dat so the new node only processes deltas generated after it came online.
+• Tab-Delimited Parsing (IFS=$'\t'): Both mysql -N -B and psql -t -A -F '\t' output clean tab-separated columns without borders or headers, ensuring object_key values are parsed reliably even if paths contain spaces.
+If you'd like to wire this into your autoscaling boot sequence, I can show you the initialisation snippet for InitialiseApplicationConfiguration.sh that sets last_delta_id.dat on newly spun-up nodes and schedules the cron job. Would that be helpful?
