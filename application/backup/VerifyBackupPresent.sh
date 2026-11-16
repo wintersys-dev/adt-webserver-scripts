@@ -36,7 +36,7 @@ fi
 
 cd ${HOME}/backupverification
 
-${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "applicationsourcecode.tar.gz" "." "${period}"
+${HOME}/services/datastore/operations/GetFromDatastore.sh "backup-webroot" "applicationsourcecode.tar.gz" "." "${period}"
 /bin/tar xvfz ${HOME}/backupverification/applicationsourcecode.tar.gz
 
 if ( [ "`/bin/ls ${HOME}/backupverification/XXXXXX-DO_NOT_REMOVE`" = "" ] )
