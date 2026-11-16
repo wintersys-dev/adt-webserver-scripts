@@ -64,6 +64,38 @@ log_error() {
     /bin/echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >> "$LOG_FILE" 2>/dev/null || true
 }
 
+# Execute a command up to max_attempts times with a short sleep between failures
+retry_command()
+{
+        max_attempts=5
+        sleep_interval=3
+        attempt=1
+
+        while true
+        do
+                set +e
+                "$@"
+                exit_code="$?"
+                set -e
+
+                if [ "${exit_code}" -eq 0 ]
+                then
+                        return 0
+                fi
+
+                if [ "${attempt}" -ge "${max_attempts}" ]
+                then
+                        status "Error: Datastore command failed after ${max_attempts} attempts (exit code ${exit_code})."
+                        return "${exit_code}"
+                fi
+
+                status "Warning: Datastore command failed (attempt ${attempt}/${max_attempts}). Retrying in ${sleep_interval}s..."
+                attempt="$(/usr/bin/expr "${attempt}" + 1)"
+                /bin/sleep "${sleep_interval}"
+        done
+}
+
+
 if [ -z "$1" ]
 then
     /bin/echo "Error: 1 argument is required."
@@ -87,7 +119,7 @@ fi
 host_base=$(/usr/bin/grep ^endpoint "$cfg_file" | /usr/bin/awk -F'=' '{print $NF}' | /usr/bin/tr -d ' ')
 
 set +e
-/usr/bin/rclone --config "$cfg_file" --s3-endpoint "$host_base" ls "s3:${file_to_list}" 2>/dev/null | /usr/bin/awk '{print $NF}' | /bin/sed 's|s3://||' | /usr/bin/awk -F'/' '{print $NF}'
+retry_command /usr/bin/rclone --config "$cfg_file" --s3-endpoint "$host_base" ls "s3:${file_to_list}" 2>/dev/null | /usr/bin/awk '{print $NF}' | /bin/sed 's|s3://||' | /usr/bin/awk -F'/' '{print $NF}'
 rclone_status=$?
 set -e
 
