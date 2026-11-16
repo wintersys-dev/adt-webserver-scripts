@@ -65,6 +65,38 @@ log_error() {
     /bin/echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >> "$LOG_FILE" 2>/dev/null || true
 }
 
+# Execute a command up to max_attempts times with a short sleep between failures
+retry_command()
+{
+        max_attempts=5
+        sleep_interval=3
+        attempt=1
+
+        while true
+        do
+                set +e
+                "$@"
+                exit_code="$?"
+                set -e
+
+                if [ "${exit_code}" -eq 0 ]
+                then
+                        return 0
+                fi
+
+                if [ "${attempt}" -ge "${max_attempts}" ]
+                then
+                        status "Error: Datastore command failed after ${max_attempts} attempts (exit code ${exit_code})."
+                        return "${exit_code}"
+                fi
+
+                status "Warning: Datastore command failed (attempt ${attempt}/${max_attempts}). Retrying in ${sleep_interval}s..."
+                attempt="$(/usr/bin/expr "${attempt}" + 1)"
+                /bin/sleep "${sleep_interval}"
+        done
+}
+
+
 if [ -z "$1" ] || [ -z "$2" ]
 then
     /bin/echo "Error: 2 arguments are required."
@@ -96,9 +128,9 @@ fi
 set +e
 if [ -n "$rmdirs" ]
 then
-    /usr/bin/rclone --config "$cfg_file" --s3-endpoint "$host_base" delete "s3:${file_to_delete}" --rmdirs >/dev/null 2>&1
+    retry_command /usr/bin/rclone --config "$cfg_file" --s3-endpoint "$host_base" delete "s3:${file_to_delete}" --rmdirs >/dev/null 2>&1
 else
-    /usr/bin/rclone --config "$cfg_file" --s3-endpoint "$host_base" delete "s3:${file_to_delete}" >/dev/null 2>&1
+    retry_command /usr/bin/rclone --config "$cfg_file" --s3-endpoint "$host_base" delete "s3:${file_to_delete}" >/dev/null 2>&1
 fi
 rclone_status=$?
 set -e
