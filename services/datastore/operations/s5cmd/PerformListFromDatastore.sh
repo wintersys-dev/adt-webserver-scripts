@@ -66,6 +66,38 @@ log_error() {
     /bin/echo "[$(/bin/date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >> "$LOG_FILE" 2>/dev/null || true
 }
 
+# Execute a command up to max_attempts times with a short sleep between failures
+retry_command()
+{
+        max_attempts=5
+        sleep_interval=3
+        attempt=1
+
+        while true
+        do
+                set +e
+                "$@"
+                exit_code="$?"
+                set -e
+
+                if [ "${exit_code}" -eq 0 ]
+                then
+                        return 0
+                fi
+
+                if [ "${attempt}" -ge "${max_attempts}" ]
+                then
+                        status "Error: Datastore command failed after ${max_attempts} attempts (exit code ${exit_code})."
+                        return "${exit_code}"
+                fi
+
+                status "Warning: Datastore command failed (attempt ${attempt}/${max_attempts}). Retrying in ${sleep_interval}s..."
+                attempt="$(/usr/bin/expr "${attempt}" + 1)"
+                /bin/sleep "${sleep_interval}"
+        done
+}
+
+
 status () {
     /bin/echo "${1}" | /usr/bin/tee /dev/fd/3 2>/dev/null
     script_name="`/bin/echo ${0} | /usr/bin/awk -F'/' '{print $NF}'`"
@@ -93,7 +125,7 @@ fi
 host_base=$(/usr/bin/grep ^host_base "$cfg_file" | /usr/bin/awk -F'=' '{print $NF}' | /usr/bin/tr -d ' ')
 
 set +e
-/usr/bin/s5cmd --credentials-file "$cfg_file" --endpoint-url "https://${host_base}" ls "s3://${file_to_list}" 2>/dev/null | /usr/bin/awk '{print $NF}'
+retry_command /usr/bin/s5cmd --credentials-file "$cfg_file" --endpoint-url "https://${host_base}" ls "s3://${file_to_list}" 2>/dev/null | /usr/bin/awk '{print $NF}'
 s5cmd_status=$?
 set -e
 
