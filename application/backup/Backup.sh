@@ -90,7 +90,7 @@ then
 fi
 
 #Mount the datastore that we are going to write the backup to
-${HOME}/services/datastore/operations/MountDatastore.sh "backup" "distributed" "${period}${provider_id}"
+${HOME}/services/datastore/operations/MountDatastore.sh "backup-webroot" "distributed" "${period}${provider_id}"
 
 if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
 then
@@ -98,9 +98,9 @@ then
 fi
 
 
-if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "time_backup_written" "${period}${provider_id}"`" != "" ] )
+if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup-webroot" "time_backup_written" "${period}${provider_id}"`" != "" ] )
 then
-        ${HOME}/services/datastore/operations/GetFromDatastore.sh "backup" "time_backup_written" "${HOME}/runtime/datastore_workarea" "${period}"
+        ${HOME}/services/datastore/operations/GetFromDatastore.sh "backup-webroot" "time_backup_written" "${HOME}/runtime/datastore_workarea" "${period}"
 fi
 
 if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
@@ -200,12 +200,12 @@ fi
 #Write the backup to the datastore
 if ( [ -f ${HOME}/livebackup/applicationsourcecode.tar.gz ] )
 then
-        if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup" "${backup_file}" "${period}${provider_id}"`" != "" ] )
+        if ( [ "`${HOME}/services/datastore/operations/ListFromDatastore.sh "backup-webroot" "${backup_file}" "${period}${provider_id}"`" != "" ] )
         then
-                ${HOME}/services/datastore/operations/MoveDatastoreObject.sh "backup" "${backup_file}" "${backup_file}.ARCHIVE.`/usr/bin/date +%F-%Hhr`" "distributed" "${period}${provider_id}"
+                ${HOME}/services/datastore/operations/MoveDatastoreObject.sh "backup-webroot" "${backup_file}" "${backup_file}.ARCHIVE.`/usr/bin/date +%F-%Hhr`" "distributed" "${period}${provider_id}"
         fi
 
-        /bin/systemd-inhibit --why="Persisting sourcecode to datastore" ${HOME}/services/datastore/operations/PutToDatastore.sh "backup" "${HOME}/livebackup/applicationsourcecode.tar.gz" "root" "distributed" "no" "${period}${provider_id}"
+        /bin/systemd-inhibit --why="Persisting sourcecode to datastore" ${HOME}/services/datastore/operations/PutToDatastore.sh "backup-webroot" "${HOME}/livebackup/applicationsourcecode.tar.gz" "root" "distributed" "no" "${period}${provider_id}"
         /bin/rm -r ${HOME}/livebackup
 fi
 
