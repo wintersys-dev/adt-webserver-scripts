@@ -144,7 +144,7 @@ case "${bucket_type}" in
         "asset")
                 active_bucket="$(/bin/echo "${WEBSITE_URL}-assets-${additional_specifier}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g')"
                 ;;
-        "backup")
+        "backup-webroot")
                 active_bucket="${url_hyphenated}-${additional_specifier}"
                 ;;
         "auth")
