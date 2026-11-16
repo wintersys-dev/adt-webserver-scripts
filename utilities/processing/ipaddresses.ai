@@ -1,0 +1,22 @@
+
+#the network manager technique works  but it is not portable so here is what AI suggestes
+
+if [ -x /usr/sbin/ip ]
+then
+        IP_BIN="/usr/sbin/ip"
+else
+        IP_BIN="/sbin/ip"
+fi
+
+private_ip="$("${IP_BIN}" -4 route get 1.1.1.1 2>/dev/null | /usr/bin/awk '{for (i=1; i<=NF; i++) if ($i == "src") { print $(i+1); exit }}')"
+
+public_ip=""
+for endpoint in "https://ipify.org" "https://icanhazip.com" "https://ifconfig.me" "https://amazonaws.com"
+do
+        candidate="$(/usr/bin/curl -4 -fsS --connect-timeout 3 --max-time 5 "${endpoint}" 2>/dev/null | /usr/bin/tr -d '[:space:]')"
+        if /bin/echo "${candidate}" | /usr/bin/grep -Eq '^((25[0-5]|2[0-4][0-9]|?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|?[0-9][0-9]?)$'
+        then
+                public_ip="${candidate}"
+                break
+        fi
+done
