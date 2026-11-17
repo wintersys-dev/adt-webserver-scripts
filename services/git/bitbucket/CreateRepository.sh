@@ -13,12 +13,10 @@
 #:   $2         [Required] Target repository name to create
 #:
 #: Environment:
-#:   BUILD_HOME       Resolved automatically from /home/buildhome.dat
+#:   HOME       Resolved automatically from /home/homedir.dat
 #:   REPOSITORY_TOKEN Bitbucket Workspace/Repository Access Token with repository:write scope
 #:
 #: Dependencies:
-#:   - /home/buildhome.dat
-#:   - LogStatusMessages.sh
 #:   - External binaries: cat, echo, grep, cut, sed, tr, jq, curl
 #:
 #: Exit Codes:
@@ -49,21 +47,6 @@ then
         /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
         exit 0
 fi
-
-# Resolve the toolkit root directory from the system tracking file
-if [ -r /home/buildhome.dat ]
-then
-        BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
-else
-        /bin/echo "Application root configuration file missing at /home/buildhome.dat" >&2
-        exit 1
-fi
-
-# Route status log entries to the centralized logging utility
-status()
-{
-        "${BUILD_HOME}/helpers/services/LogStatusMessages.sh" "${1}" 2>/dev/null
-}
 
 # Validate required positional arguments and authentication token
 if [ -z "${1}" ] || [ -z "${2}" ]
