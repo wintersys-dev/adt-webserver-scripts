@@ -1,21 +1,20 @@
 #!/bin/sh
 #: Name:        GitLSRemote.sh
-#: Purpose:     Probes a remote Bitbucket repository and classifies its state as "full", "empty", or "none".
+#: Purpose:     Probes a remote Bitbucket Cloud repository and classifies its state as "full", "empty", or "none".
 #: Author:      Peter Winter
 #: Date:        17/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitLSRemote.sh "<repository_ownername>" "<repository_name>" ["<repository_username>"]
+#: Usage:       GitLSRemote.sh "<workspace_id>" "<repository_name>"
 #:              GitLSRemote.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Required] Bitbucket workspace or individual account namespace
+#:   $1         [Required] Target Bitbucket workspace ID or account namespace (e.g. agiledeployer)
 #:   $2         [Required] Case-sensitive slug/name of the target Bitbucket repository
-#:   $3         [Optional] Bitbucket username associated with REPOSITORY_TOKEN (defaults to x-token-auth)
 #:
 #: Environment:
 #:   HOME             Resolved automatically from /home/homedir.dat
-#:   REPOSITORY_TOKEN Optional Bitbucket access token or app password for private repository authentication
+#:   REPOSITORY_TOKEN Optional Bitbucket Workspace Access Token for private repository authentication
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
@@ -39,9 +38,7 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
-
 # Exit immediately if any command exits with a non-zero status
-#set -x
 set -e
 
 # Render self-extracting help documentation when -h or --help is supplied
@@ -60,27 +57,22 @@ else
         exit 1
 fi
 
-# Validate minimum required positional arguments
+# Validate required positional arguments
 if [ -z "${1}" ] || [ -z "${2}" ]
 then
-        /bin/echo "Error: 2 arguments are required and 1 optional argument." >&2
-        /bin/echo "Usage: $0 <repository_ownername> <repository_name> [repository_username]" >&2
+        /bin/echo "Error: Both workspace ID and repository name arguments are required." >&2
+        /bin/echo "Usage: $0 <workspace_id> <repository_name>" >&2
         exit 1
 fi
 
-repository_ownername="${1}"
+workspace_id="${1}"
 repository_name="${2}"
-repository_username="${3}"
-
-# Default to Bitbucket's standard token login identifier if no explicit username was provided
-if [ -z "${repository_username}" ]
-then
-        repository_username="x-token-auth"
-fi
 
 # Construct temporary .netrc with restricted permissions and guaranteed cleanup on exit
 netrc_file="${HOME}/.netrc"
 trap '/bin/rm -f "${netrc_file}"' EXIT
+
+REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
 
 if [ -n "${REPOSITORY_TOKEN}" ]
 then
@@ -88,16 +80,17 @@ then
                 umask 077
                 /bin/cat << EOF > "${netrc_file}"
 machine bitbucket.org
-login ${repository_username}
+login x-bitbucket-api-token-auth
 password ${REPOSITORY_TOKEN}
 EOF
-        )
-        /bin/chmod 600 "${netrc_file}"
+)
+/bin/chmod 600 "${netrc_file}"
 fi
+
 
 # Assemble target Bitbucket repository URL from split components
 git_host="bitbucket.org"
-repo_url="https://${git_host}/${repository_ownername}/${repository_name}.git"
+repo_url="https://${git_host}/${workspace_id}/${repository_name}.git"
 
 # Perform non-interactive remote repository lookup and capture exit code safely
 set +e
@@ -105,25 +98,18 @@ remote_refs="$(GIT_TERMINAL_PROMPT=0 /usr/bin/git ls-remote "${repo_url}" 2>/dev
 error_code="$?"
 set -e
 
-if [ "${error_code}" -ne 0 ]
-then
-        /bin/echo "none"
-        exit 0
-fi
+tmp_dir="$(/usr/bin/mktemp -d)"
+trap '/bin/rm -rf "${tmp_dir}" "${netrc_file}"' EXIT
 
-# Check for a valid 40-character lowercase hex SHA-1 HEAD reference
-head_ref="$(printf '%s\n' "${remote_refs}" | /usr/bin/grep -E '^[0-9a-f]{40}[[:space:]]+HEAD$' || true)"
-
-if [ -n "${head_ref}" ]
+if GIT_TERMINAL_PROMPT=0 /usr/bin/git clone --depth 1 --filter=blob:none --no-checkout "${repo_url}" "${tmp_dir}" >/dev/null 2>&1 
 then
-        /bin/echo "full"
+        tracked_files="$(/usr/bin/git -C "${tmp_dir}" ls-tree -r --name-only HEAD 2>/dev/null)"
+        if [ -n "${tracked_files}" ] 
+        then
+                echo "full"
+        else
+                echo "empty"
+        fi
 else
-        /bin/echo "empty"
+        echo "none"
 fi
-
-exit 0
-
-
-printf '%s\n' "${remote_refs}" | /usr/bin/grep 'HEAD'
-
-exit 0
