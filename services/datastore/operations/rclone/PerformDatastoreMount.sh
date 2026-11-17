@@ -117,7 +117,7 @@ fi
 host_base=$(/usr/bin/grep ^endpoint "$cfg_file" | /usr/bin/awk -F'=' '{print $NF}' | /usr/bin/tr -d ' ')
 
 set +e
-check_output=$(/usr/bin/rclone --config "$cfg_file" --s3-endpoint "$host_base" ls s3: 2>/dev/null)
+check_output="$(retry_command /usr/bin/rclone --config "$cfg_file" --s3-endpoint "$host_base" ls s3: 2>/dev/null)"
 check_status=$?
 
 if [ $check_status -ne 0 ] || [ -z "$check_output" ]
