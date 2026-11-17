@@ -50,7 +50,7 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 #######################################################################################################
 #######################################################################################################
-#set -x
+set -x
 
 HOME="`/bin/cat /home/homedir.dat`"
 
@@ -104,7 +104,7 @@ WEBSITE_DISPLAY_NAME_LOWER="`/bin/echo ${WEBSITE_DISPLAY_NAME} | /usr/bin/tr '[:
 WEBSITE_DISPLAY_NAME_FIRST="`/bin/echo ${WEBSITE_DISPLAY_NAME_LOWER} | /bin/sed -e 's/\b\(.\)/\u\1/g'`"
 
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
-if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Repository not found'`" != "" ] )
+if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Error'`" != "" ] )
 then
         if ( [ "${1}" = "" ] )
         then
@@ -116,7 +116,7 @@ then
                         ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
                         #the system needs to cool down
                         /bin/sleep 10
-                        if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Repository not found'`" = "" ] )
+                        if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Error'`" = "" ] )
                         then
                                 /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
                                 /bin/echo "Press <enter> to continue"
@@ -130,7 +130,7 @@ then
                 ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
                 #the system needs to cool down
                 /bin/sleep 10
-                if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Repository not found'`" = "" ] )
+                if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Error'`" = "" ] )
                 then
                         /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
                 else
