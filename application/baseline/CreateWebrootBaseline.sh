@@ -116,11 +116,13 @@ then
                         ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
                         #the system needs to cool down
                         /bin/sleep 10
-                        if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Error'`" = "" ] )
+                        if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1  | Error`" = "" ] )
                         then
-                                /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
-                                /bin/echo "Press <enter> to continue"
-                                read x
+                                if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1  | Error: No HEAD reference found for`" = "" ] )
+                                then
+                                        /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
+                                        /bin/echo "Press <enter> to continue"
+                                fi
                         else
                                 /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) not created I will need to exit"
                                 exit 1
@@ -142,7 +144,7 @@ elif ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER
 then
         /bin/echo "Suitable repo (${baseline_name}-webroot-sourcecode-baseline) found, press <enter> to continue"
         read x
-elif ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1`" != "" ] )
+elif ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | Error: No HEAD reference found for`" = "" ] )
 then
         /bin/echo "repository (${baseline_name}-webroot-sourcecode-baseline) found but its not empty. Please either empty the repository or delete it or rename it and allow this script to create a fresh one. Will exit now, please rerun me once this is actioned"
         exit 1
@@ -190,6 +192,7 @@ then
 fi
 
 /usr/bin/find ${HOME}/backups/${baseline_name} -type d -name .git -exec /bin/rm -rf {} \;
+
 
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 ${HOME}/services/git/PushToRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
