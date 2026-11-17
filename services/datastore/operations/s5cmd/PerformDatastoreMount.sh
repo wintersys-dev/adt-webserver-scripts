@@ -119,7 +119,8 @@ fi
 host_base=$(/usr/bin/grep ^host_base "$cfg_file" | /usr/bin/awk -F'=' '{print $NF}' | /usr/bin/tr -d ' ')
 
 set +e
-check_output=$(/usr/bin/s5cmd --credentials-file "$cfg_file" --endpoint-url "https://${host_base}" ls "s3://${datastore_to_mount}" 2>/dev/null)
+
+check_output="$(retry_command /usr/bin/s5cmd --credentials-file "$cfg_file" --endpoint-url "https://${host_base}" ls "s3://${datastore_to_mount}" 2>/dev/null)"
 check_status=$?
 
 if [ $check_status -ne 0 ] || [ -z "$check_output" ]
