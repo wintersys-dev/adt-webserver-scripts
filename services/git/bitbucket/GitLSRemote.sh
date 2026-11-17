@@ -5,12 +5,13 @@
 #: Date:        17/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitLSRemote.sh "<workspace_id>" "<repository_name>"
+#: Usage:       GitLSRemote.sh "<workspace_id>" "<repository_name> <repository_username>"
 #:              GitLSRemote.sh [-h|--help]
 #:
 #: Parameters:
 #:   $1         [Required] Target Bitbucket workspace ID or account namespace (e.g. agiledeployer)
 #:   $2         [Required] Slug/name of the target Bitbucket repository
+#:   $3         [Required] username of the target Bitbucket repository
 #:
 #: Environment:
 #:   HOME             Resolved automatically from /home/homedir.dat
@@ -62,15 +63,16 @@ else
 fi
 
 # Validate required positional arguments
-if [ -z "${1}" ] || [ -z "${2}" ]
+if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
 then
-        /bin/echo "Error: Both workspace ID and repository name arguments are required." >&2
-        /bin/echo "Usage: $0 <workspace_id> <repository_name>" >&2
+        /bin/echo "Error: workspace ID and repository name and repository_username arguments are required." >&2
+        /bin/echo "Usage: $0 <workspace_id> <repository_name> <repository_username>" >&2
         exit 1
 fi
 
 workspace_id="${1}"
 repository_name="${2}"
+repository_username="${3}"
 repo_slug="$(/bin/echo "${repository_name}" | /usr/bin/tr '[:upper:]' '[:lower:]')"
 
 # Construct temporary .netrc with restricted permissions and guaranteed cleanup on exit
@@ -78,9 +80,16 @@ netrc_file="${HOME}/.netrc"
 tmp_dir=""
 trap '/bin/rm -rf "${tmp_dir}" "${netrc_file}"' EXIT
 
-if [ -z "${REPOSITORY_TOKEN}" ] && [ -x "${HOME}/utilities/config/ExtractConfigValue.sh" ]
+# Extract Bitbucket API token from toolkit configuration if not already exported
+if [ -z "${REPOSITORY_TOKEN}" ]
 then
         REPOSITORY_TOKEN="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'APPLICATIONREPOSITORYTOKEN')"
+fi
+
+if [ -z "${REPOSITORY_TOKEN}" ]
+then
+        /bin/echo "Error: REPOSITORY_TOKEN is empty. Export REPOSITORY_TOKEN or configure APPLICATIONREPOSITORYTOKEN." >&2
+        exit 1
 fi
 
 if [ -n "${REPOSITORY_TOKEN}" ]
@@ -98,7 +107,7 @@ fi
 
 # Assemble target Bitbucket repository URL from split components
 git_host="bitbucket.org"
-repo_url="https://${git_host}/${workspace_id}/${repo_slug}.git"
+repo_url="https://${git_host}/${repository_username}/${repo_slug}.git"
 
 # Step 1: Perform non-interactive remote ref lookup
 set +e
