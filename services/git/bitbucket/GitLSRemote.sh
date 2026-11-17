@@ -39,6 +39,7 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
+set -x
 
 # Exit immediately if any command exits with a non-zero status
 set -e
@@ -91,8 +92,8 @@ machine bitbucket.org
 login x-bitbucket-api-token-auth
 password ${REPOSITORY_TOKEN}
 EOF
-        )
-        /bin/chmod 600 "${netrc_file}"
+)
+/bin/chmod 600 "${netrc_file}"
 fi
 
 # Assemble target Bitbucket repository URL from split components
@@ -108,7 +109,6 @@ set -e
 # Non-zero exit indicates the repository does not exist or access was denied
 if [ "${error_code}" -ne 0 ]
 then
-        /bin/echo "none"
         exit 0
 fi
 
