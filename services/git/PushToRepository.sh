@@ -44,14 +44,13 @@ set -e
 
 HOME="`/bin/cat /home/homedir.dat`"
 
-if ( [ "${1}" = "" ] || [ "${2}" = "" ] || [ "${3}" = "" ] )
+if ( [ "${1}" = "" ] || [ "${2}" = "" ] )
 then
-        /bin/echo "Error: 3 arguments are required and 1 optional argument"
-        /bin/echo "Usage: $0 <repository_provider> <repository_owner> <repository_name> [repository_username]"
+        /bin/echo "Error: 2 arguments are required and 1 optional argument"
+        /bin/echo "Usage: $0 <repository_owner> <repository_name> [repository_username]"
         exit 1
 fi
 
-repository_provider="${1}"
 repository_owner="${2}"
 repository_name="${3}"
 repository_username="${4}"
@@ -82,7 +81,7 @@ trap handle_exit EXIT
 /usr/bin/git init
 /usr/bin/git branch -M main
 provider_url="`${HOME}/services/git/${repository_provider}/GetProviderURL.sh`"
-/usr/bin/git remote add origin https://${provider_url}/${repository_owner}/${repository_name}
+/usr/bin/git remote add origin https://github.com/${repository_owner}/${repository_name}
 /usr/bin/git add .gitattributes
 /usr/bin/git add --all -f
 /usr/bin/git commit -m "Baseline Baby"
