@@ -1,12 +1,12 @@
 #!/bin/sh
-#: Name:        generate_webroot_baseline.sh
+#: Name:        CreateWebrootBaseline.sh
 #: Purpose:     Extracts the active webroot, strips custom branding and excluded paths, and pushes a clean baseline to Git.
 #: Author:      Peter Winter
 #: Date:        17/11/2026
 #: Version:     1.0
 #:
-#: Usage:       generate_webroot_baseline.sh ["<baseline_name>"]
-#:              generate_webroot_baseline.sh [-h|--help]
+#: Usage:       CreateWebrootBaseline.sh ["<baseline_name>"]
+#:              CreateWebrootBaseline.sh [-h|--help]
 #:
 #: Parameters:
 #:   $1         [Optional] Unique baseline identifier (prompts interactively if omitted)
@@ -44,7 +44,6 @@
 ####################################################################################
 
 # Exit immediately if any command exits with a non-zero status
-#set -x
 set -e
 
 # Render self-extracting help documentation when -h or --help is supplied
@@ -117,7 +116,6 @@ WEBSITE_DISPLAY_NAME_FIRST="$(/bin/echo "${WEBSITE_DISPLAY_NAME_LOWER}" | /bin/s
 
 # Verify or provision the target remote baseline repository
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
-
 repo_status="$("${HOME}/services/git/GitLSRemote.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}")"
 
 case "${repo_status}" in
@@ -232,13 +230,13 @@ fi
 
 if [ -f "${HOME}/services/git/gitattributes" ]
 then
-/bin/cp "${HOME}/services/git/gitattributes" .gitattributes
+        /bin/cp "${HOME}/services/git/gitattributes" .gitattributes
 fi
 
 . "${HOME}/application/branding/RemoveApplicationBranding.sh"
 /usr/bin/find "${backup_dir}" -type d -name .git -prune -exec /bin/rm -rf {} +
 
-Push baseline source code to the remote Git repository
+#Push baseline source code to the remote Git repository
 
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 set +e
@@ -247,17 +245,17 @@ error_code="$?"
 set -e
 unset REPOSITORY_TOKEN
 
-Clean up temporary staging workspace
+#Clean up temporary staging workspace
 
 cd "${HOME}"
 if [ -d "${backup_dir}" ]
 then
-/bin/rm -rf "${backup_dir}"
+        /bin/rm -rf "${backup_dir}"
 fi
 if [ "${error_code}" -ne 0 ]
 then
-/bin/echo "Error: Failed to push baseline to ${target_repo}. Verify your application repository authorisation token." >&2
-exit 1
+        /bin/echo "Error: Failed to push baseline to ${target_repo}. Verify your application repository authorisation token." >&2
+        exit 1
 fi
 /bin/echo ""
 /bin/echo "==================================================================================================================================="
