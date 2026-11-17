@@ -5,13 +5,12 @@
 #: Date:        17/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitLSRemote.sh "<workspace_id>" "<repository_name> <repository_username>"
+#: Usage:       GitLSRemote.sh "<workspace_id>" "<repository_name>"
 #:              GitLSRemote.sh [-h|--help]
 #:
 #: Parameters:
 #:   $1         [Required] Target Bitbucket workspace ID or account namespace (e.g. agiledeployer)
 #:   $2         [Required] Slug/name of the target Bitbucket repository
-#:   $3         [Required] username of the target Bitbucket repository
 #:
 #: Environment:
 #:   HOME             Resolved automatically from /home/homedir.dat
@@ -40,7 +39,6 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
-set -x
 
 # Exit immediately if any command exits with a non-zero status
 set -e
@@ -63,16 +61,15 @@ else
 fi
 
 # Validate required positional arguments
-if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
+if [ -z "${1}" ] || [ -z "${2}" ]
 then
-        /bin/echo "Error: workspace ID and repository name and repository_username arguments are required." >&2
-        /bin/echo "Usage: $0 <workspace_id> <repository_name> <repository_username>" >&2
+        /bin/echo "Error: Both workspace ID and repository name arguments are required." >&2
+        /bin/echo "Usage: $0 <workspace_id> <repository_name>" >&2
         exit 1
 fi
 
 workspace_id="${1}"
 repository_name="${2}"
-repository_username="${3}"
 repo_slug="$(/bin/echo "${repository_name}" | /usr/bin/tr '[:upper:]' '[:lower:]')"
 
 # Construct temporary .netrc with restricted permissions and guaranteed cleanup on exit
@@ -80,16 +77,9 @@ netrc_file="${HOME}/.netrc"
 tmp_dir=""
 trap '/bin/rm -rf "${tmp_dir}" "${netrc_file}"' EXIT
 
-# Extract Bitbucket API token from toolkit configuration if not already exported
-if [ -z "${REPOSITORY_TOKEN}" ]
+if [ -z "${REPOSITORY_TOKEN}" ] && [ -x "${HOME}/utilities/config/ExtractConfigValue.sh" ]
 then
         REPOSITORY_TOKEN="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'APPLICATIONREPOSITORYTOKEN')"
-fi
-
-if [ -z "${REPOSITORY_TOKEN}" ]
-then
-        /bin/echo "Error: REPOSITORY_TOKEN is empty. Export REPOSITORY_TOKEN or configure APPLICATIONREPOSITORYTOKEN." >&2
-        exit 1
 fi
 
 if [ -n "${REPOSITORY_TOKEN}" ]
@@ -101,27 +91,22 @@ machine bitbucket.org
 login x-bitbucket-api-token-auth
 password ${REPOSITORY_TOKEN}
 EOF
-)
-/bin/chmod 600 "${netrc_file}"
+        )
+        /bin/chmod 600 "${netrc_file}"
 fi
 
 # Assemble target Bitbucket repository URL from split components
 git_host="bitbucket.org"
-repo_url="https://${git_host}/${repository_username}/${repo_slug}.git"
+repo_url="https://${git_host}/${workspace_id}/${repo_slug}.git"
 
-# Step 1: Perform non-interactive remote ref lookup
-set +e
-remote_refs="$(GIT_TERMINAL_PROMPT=0 /usr/bin/git -c credential.helper= ls-remote "${repo_url}" 2>/dev/null)"
-error_code="$?"
-set -e
-
-# Non-zero exit indicates the repository does not exist or access was denied
-if [ "${error_code}" -ne 0 ]
+# Step 1: Perform non-interactive remote ref lookup (immune to set -e via 'if !')
+if ! remote_refs="$(GIT_TERMINAL_PROMPT=0 /usr/bin/git -c credential.helper= ls-remote "${repo_url}" 2>/dev/null)"
 then
+        /bin/echo "none"
         exit 0
 fi
 
-# Zero refs indicates a brand-new repository with 0 commits (must exit before git clone/ls-tree)
+# Zero refs indicates a brand-new repository with 0 commits
 if [ -z "${remote_refs}" ]
 then
         /bin/echo "empty"
