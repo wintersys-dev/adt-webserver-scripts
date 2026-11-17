@@ -229,3 +229,38 @@ then
 fi
 
 # Attach gitattributes, strip domain-specific branding, and purge any nested .git metadata
+
+if [ -f "${HOME}/services/git/gitattributes" ]
+then
+/bin/cp "${HOME}/services/git/gitattributes" .gitattributes
+fi
+
+. "${HOME}/application/branding/RemoveApplicationBranding.sh"
+/usr/bin/find "${backup_dir}" -type d -name .git -prune -exec /bin/rm -rf {} +
+
+Push baseline source code to the remote Git repository
+
+export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
+set +e
+"${HOME}/services/git/PushToRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}"
+error_code="$?"
+set -e
+unset REPOSITORY_TOKEN
+
+Clean up temporary staging workspace
+
+cd "${HOME}"
+if [ -d "${backup_dir}" ]
+then
+/bin/rm -rf "${backup_dir}"
+fi
+if [ "${error_code}" -ne 0 ]
+then
+/bin/echo "Error: Failed to push baseline to ${target_repo}. Verify your application repository authorisation token." >&2
+exit 1
+fi
+/bin/echo ""
+/bin/echo "==================================================================================================================================="
+/bin/echo "Baseline complete. Verify repository ${target_repo} on ${APPLICATION_REPOSITORY_PROVIDER} for user: ${APPLICATION_REPOSITORY_USERNAME}"
+/bin/echo "==================================================================================================================================="
+exit 0
