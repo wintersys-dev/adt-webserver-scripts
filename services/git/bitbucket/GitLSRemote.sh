@@ -10,16 +10,17 @@
 #:
 #: Parameters:
 #:   $1         [Required] Target Bitbucket workspace ID or account namespace (e.g. agiledeployer)
-#:   $2         [Required] Case-sensitive slug/name of the target Bitbucket repository
+#:   $2         [Required] Slug/name of the target Bitbucket repository
 #:
 #: Environment:
 #:   HOME             Resolved automatically from /home/homedir.dat
-#:   REPOSITORY_TOKEN Optional Bitbucket Workspace Access Token for private repository authentication
+#:   REPOSITORY_TOKEN Resolved from ExtractConfigValue.sh ('APPLICATIONREPOSITORYTOKEN') if not exported
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
 #:   - ${HOME}/.netrc (created transiently with mode 600 and removed on exit)
-#:   - External binaries: cat, echo, grep, cut, chmod, rm, git
+#:   - External binaries: cat, echo, grep, cut, tr, chmod, rm, mktemp, git
 #:
 #: Exit Codes:
 #:   0          Repository probe completed; emits "full", "empty", or "none" on stdout
@@ -38,6 +39,7 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
+
 # Exit immediately if any command exits with a non-zero status
 set -e
 
@@ -48,10 +50,11 @@ then
         exit 0
 fi
 
-# Resolve the toolkit root directory from the server tracking file
+# Resolve and export the toolkit root directory from the server tracking file
 if [ -r /home/homedir.dat ]
 then
         HOME="$(/bin/cat /home/homedir.dat)"
+        export HOME
 else
         /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
         exit 1
@@ -67,12 +70,17 @@ fi
 
 workspace_id="${1}"
 repository_name="${2}"
+repo_slug="$(/bin/echo "${repository_name}" | /usr/bin/tr '[:upper:]' '[:lower:]')"
 
 # Construct temporary .netrc with restricted permissions and guaranteed cleanup on exit
 netrc_file="${HOME}/.netrc"
-trap '/bin/rm -f "${netrc_file}"' EXIT
+tmp_dir=""
+trap '/bin/rm -rf "${tmp_dir}" "${netrc_file}"' EXIT
 
-REPOSITORY_TOKEN="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN'`"
+if [ -z "${REPOSITORY_TOKEN}" ] && [ -x "${HOME}/utilities/config/ExtractConfigValue.sh" ]
+then
+        REPOSITORY_TOKEN="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'APPLICATIONREPOSITORYTOKEN')"
+fi
 
 if [ -n "${REPOSITORY_TOKEN}" ]
 then
@@ -83,33 +91,48 @@ machine bitbucket.org
 login x-bitbucket-api-token-auth
 password ${REPOSITORY_TOKEN}
 EOF
-)
-/bin/chmod 600 "${netrc_file}"
+        )
+        /bin/chmod 600 "${netrc_file}"
 fi
-
 
 # Assemble target Bitbucket repository URL from split components
 git_host="bitbucket.org"
-repo_url="https://${git_host}/${workspace_id}/${repository_name}.git"
+repo_url="https://${git_host}/${workspace_id}/${repo_slug}.git"
 
-# Perform non-interactive remote repository lookup and capture exit code safely
+# Step 1: Perform non-interactive remote ref lookup
 set +e
-remote_refs="$(GIT_TERMINAL_PROMPT=0 /usr/bin/git ls-remote "${repo_url}" 2>/dev/null)"
+remote_refs="$(GIT_TERMINAL_PROMPT=0 /usr/bin/git -c credential.helper= ls-remote "${repo_url}" 2>/dev/null)"
 error_code="$?"
 set -e
 
-tmp_dir="$(/usr/bin/mktemp -d)"
-trap '/bin/rm -rf "${tmp_dir}" "${netrc_file}"' EXIT
-
-if GIT_TERMINAL_PROMPT=0 /usr/bin/git clone --depth 1 --filter=blob:none --no-checkout "${repo_url}" "${tmp_dir}" >/dev/null 2>&1 
+# Non-zero exit indicates the repository does not exist or access was denied
+if [ "${error_code}" -ne 0 ]
 then
-        tracked_files="$(/usr/bin/git -C "${tmp_dir}" ls-tree -r --name-only HEAD 2>/dev/null)"
-        if [ -n "${tracked_files}" ] 
+        /bin/echo "none"
+        exit 0
+fi
+
+# Zero refs indicates a brand-new repository with 0 commits (must exit before git clone/ls-tree)
+if [ -z "${remote_refs}" ]
+then
+        /bin/echo "empty"
+        exit 0
+fi
+
+# Step 2: Repository has commit history; perform treeless shallow clone to check for files at HEAD
+tmp_dir="$(/usr/bin/mktemp -d)"
+
+if GIT_TERMINAL_PROMPT=0 /usr/bin/git -c credential.helper= clone --depth 1 --filter=blob:none --no-checkout "${repo_url}" "${tmp_dir}" >/dev/null 2>&1
+then
+        tracked_files="$(/usr/bin/git -C "${tmp_dir}" ls-tree -r --name-only HEAD 2>/dev/null || true)"
+        if [ -n "${tracked_files}" ]
         then
-                echo "full"
+                /bin/echo "full"
         else
-                echo "empty"
+                /bin/echo "empty"
         fi
 else
-        echo "none"
+        /bin/echo "none"
 fi
+
+exit 0
