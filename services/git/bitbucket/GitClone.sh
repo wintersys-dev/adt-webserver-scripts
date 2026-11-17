@@ -13,7 +13,7 @@
 #:   $2         [Required] Case-sensitive slug/name of the target Bitbucket repository
 #:   $3         [Required] Target branch name to clone
 #:   $4         [Required] Destination directory path to clone into
-#:   $5         [Optional] Bitbucket username associated with REPOSITORY_TOKEN (defaults to x-token-auth)
+#:   $5         [Required] Bitbucket username associated with REPOSITORY_TOKEN 
 #:
 #: Environment:
 #:   HOME             Resolved automatically from /home/homedir.dat
@@ -63,10 +63,10 @@ else
 fi
 
 # Validate minimum required positional arguments
-if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ] || [ -z "${4}" ]
+if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ] || [ -z "${4}" ] || [ -z "${5}" ]
 then
-        /bin/echo "Error: 4 arguments are required with 1 optional argument." >&2
-        /bin/echo "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory> [repository_username]" >&2
+        /bin/echo "Error: 5 arguments are required ." >&2
+        /bin/echo "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory> <repository_username>" >&2
         exit 1
 fi
 
@@ -91,7 +91,7 @@ then
                 umask 077
                 /bin/cat << EOF > "${netrc_file}"
 machine bitbucket.org
-login ${repository_username}
+login ${repository_ownername}
 password ${REPOSITORY_TOKEN}
 EOF
         )
@@ -100,7 +100,7 @@ fi
 
 # Assemble Bitbucket repository URL from split components
 git_host="bitbucket.org"
-repo_url="https://${git_host}/${repository_ownername}/${repository_name}.git"
+repo_url="https://${git_host}/${repository_username}/${repository_name}.git"
 
 # Perform branch-specific shallow clone and capture exit code safely
 set +e
