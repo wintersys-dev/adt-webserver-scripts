@@ -104,7 +104,8 @@ WEBSITE_DISPLAY_NAME_LOWER="`/bin/echo ${WEBSITE_DISPLAY_NAME} | /usr/bin/tr '[:
 WEBSITE_DISPLAY_NAME_FIRST="`/bin/echo ${WEBSITE_DISPLAY_NAME_LOWER} | /bin/sed -e 's/\b\(.\)/\u\1/g'`"
 
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
-if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Error'`" != "" ] )
+
+if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}`" = "none" ] )
 then
         if ( [ "${1}" = "" ] )
         then
@@ -116,13 +117,10 @@ then
                         ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
                         #the system needs to cool down
                         /bin/sleep 10
-                        if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1  | Error`" = "" ] )
+                        if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}`"  = "empty" ] )
                         then
-                                if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1  | Error: No HEAD reference found for`" = "" ] )
-                                then
-                                        /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
-                                        /bin/echo "Press <enter> to continue"
-                                fi
+                                /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
+                                /bin/echo "Press <enter> to continue"
                         else
                                 /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) not created I will need to exit"
                                 exit 1
@@ -132,7 +130,7 @@ then
                 ${HOME}/services/git/CreateRepository.sh ${APPLICATION_REPOSITORY_PROVIDER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}
                 #the system needs to cool down
                 /bin/sleep 10
-                if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | /bin/grep 'Error'`" = "" ] )
+                if ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}`" = "empty" ] )
                 then
                         /bin/echo "Repository (${baseline_name}-webroot-sourcecode-baseline) successfully created"
                 else
@@ -140,11 +138,11 @@ then
                         exit 1
                 fi
         fi
-elif ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1`" = "" ] )
+elif ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}`" = "empty" ] )
 then
         /bin/echo "Suitable repo (${baseline_name}-webroot-sourcecode-baseline) found, press <enter> to continue"
         read x
-elif ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME} 2>&1 | Error: No HEAD reference found for`" = "" ] )
+elif ( [ "`${HOME}/services/git/GitLSRemote.sh ${APPLICATION_REPOSITORY_PROVIDER} ${APPLICATION_REPOSITORY_OWNER} ${baseline_name}-webroot-sourcecode-baseline ${APPLICATION_REPOSITORY_USERNAME}`" = "full" ] )
 then
         /bin/echo "repository (${baseline_name}-webroot-sourcecode-baseline) found but its not empty. Please either empty the repository or delete it or rename it and allow this script to create a fresh one. Will exit now, please rerun me once this is actioned"
         exit 1
