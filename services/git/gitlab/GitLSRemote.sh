@@ -10,10 +10,11 @@
 #:
 #: Parameters:
 #:   $1         [Required] GitLab username, group, or subgroup namespace path
-#:   $2         [Required] Target GitLab project/repository slug
+#:   $2         [Required] Target GitLab project/repository path slug
 #:
 #: Environment:
-#:   HOME       Resolved automatically from /home/homedir.dat
+#:   HOME             Resolved automatically from /home/homedir.dat
+#:   REPOSITORY_TOKEN Resolved from ExtractConfigValue.sh ('APPLICATIONREPOSITORYTOKEN') if not exported
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
@@ -75,7 +76,10 @@ netrc_file="${HOME}/.netrc"
 tmp_dir=""
 trap '/bin/rm -rf "${tmp_dir}" "${netrc_file}"' EXIT
 
-REPOSITORY_TOKEN="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'APPLICATIONREPOSITORYTOKEN')"
+if [ -z "${REPOSITORY_TOKEN}" ] && [ -x "${HOME}/utilities/config/ExtractConfigValue.sh" ]
+then
+        REPOSITORY_TOKEN="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'APPLICATIONREPOSITORYTOKEN')"
+fi
 
 if [ -n "${REPOSITORY_TOKEN}" ]
 then
@@ -107,7 +111,7 @@ then
         exit 0
 fi
 
-# Zero refs indicates a brand-new repository with zero commits
+# Zero refs indicates a brand-new repository with 0 commits (must exit before git clone/ls-tree)
 if [ -z "${remote_refs}" ]
 then
         /bin/echo "empty"
@@ -119,7 +123,7 @@ tmp_dir="$(/usr/bin/mktemp -d)"
 
 if GIT_TERMINAL_PROMPT=0 /usr/bin/git -c credential.helper= clone --depth 1 --filter=blob:none --no-checkout "${repo_url}" "${tmp_dir}" >/dev/null 2>&1
 then
-        tracked_files="$(/usr/bin/git -C "${tmp_dir}" ls-tree -r --name-only HEAD 2>/dev/null)"
+        tracked_files="$(/usr/bin/git -C "${tmp_dir}" ls-tree -r --name-only HEAD 2>/dev/null || true)"
         if [ -n "${tracked_files}" ]
         then
                 /bin/echo "full"
@@ -131,3 +135,4 @@ else
 fi
 
 exit 0
+
