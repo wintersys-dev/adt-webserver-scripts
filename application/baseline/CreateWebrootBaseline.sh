@@ -78,10 +78,10 @@ fi
 
 /bin/echo "Creating baseline of your webroot"
 
-if ( [ "`/bin/ls -a ${HOME}/backups | /usr/bin/wc -l`" -gt "2" ] )
-then
-        /bin/rm -r ${HOME}/backups/* 2>/dev/null
-fi
+#if ( [ "`/bin/ls -a ${HOME}/backups | /usr/bin/wc -l`" -gt "2" ] )
+#then
+#        /bin/rm -r ${HOME}/backups/* 2>/dev/null
+#fi
 
 if ( [ -d ${HOME}/.git ] )
 then
@@ -207,8 +207,10 @@ else
         /bin/echo "==================================================================================================================================="
 fi
 
-if ( [ "`/bin/ls -a ${HOME}/backups/${baseline_name} | /usr/bin/wc -l`" -gt "2" ] )
+if [ -d ${HOME}/backups/${baseline_name} ] )
 then
-        /bin/rm -r ${HOME}/backups/${baseline_name}/*
+        /bin/rm -r ${HOME}/backups/${baseline_name}
 fi
+
+
 
