@@ -80,7 +80,7 @@ trap handle_exit EXIT
 
 /usr/bin/git init
 /usr/bin/git branch -M main
-provider_url="`${HOME}/services/git/${repository_provider}/GetProviderURL.sh`"
+provider_url="`${HOME}/services/git/github/GetProviderURL.sh`"
 /usr/bin/git remote add origin https://github.com/${repository_owner}/${repository_name}
 /usr/bin/git add .gitattributes
 /usr/bin/git add --all -f
