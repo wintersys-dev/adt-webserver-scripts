@@ -96,7 +96,7 @@ then
 fi
 
 encoded_project="$(/bin/echo "${repository_ownername}/${repository_name}" | /usr/bin/sed 's/\//%2F/g')"
-commits_endpoint="https://gitlab.com{encoded_project}/repository/commits"
+commits_endpoint="api_base="https://gitlab.com/api/v4/${encoded_project}/repository/commits"
 
 # Build the batch commit actions array in a single stream (supports text and binary files via base64)
 actions_json="$(
@@ -142,5 +142,5 @@ then
         exit 1
 fi
 
-/bin/echo "https://gitlab.com{repository_ownername}/${repository_name}.git"
+/bin/echo "https://gitlab.com/${repository_ownername}/${repository_name}.git"
 exit 0
