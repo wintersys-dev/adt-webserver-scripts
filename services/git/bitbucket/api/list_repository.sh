@@ -1,53 +1,5 @@
 #!/bin/sh
-###################################################################################
-# @file        list_repository.sh
-# @brief       Checks a single Bitbucket repository state ("full", "empty", or "none") via API.
-# @author      Peter Winter
-# @date        18/11/2026
-# @version     1.0
-#
-# @details     This script retrieves the Bitbucket authentication token and Atlassian
-#              account email from the toolkit configuration, validates the target
-#              owner and repository parameters, builds the Bitbucket v2.0 REST API
-#              endpoint URLs, pipes netrc credentials into curl via /dev/stdin to
-#              prevent disk writes or process tree exposure, and queries the
-#              repository and commits endpoints to determine whether the repository
-#              has commits ("full"), exists with no commits ("empty"), or does not
-#              exist ("none").
-#
-# @param       $1  [Required] The Bitbucket workspace or repository owner name.
-# @param       $2  [Required] The name/slug of the repository to inspect.
-#
-# @env         HOME              Path to the toolkit core framework layout directory.
-# @env         REPOSITORY_TOKEN  The Bitbucket API access token.
-# @env         ATLASSIAN_EMAIL   The Atlassian account email used for API login.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - external dependencies: cat, curl, cut, echo, grep, jq, sed
-#
-# @security    
-#              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Uses --netrc-file /dev/stdin to avoid writing secrets to disk or exposing them in ps.
-#              - Quotes variable interpolations thoroughly to trap space-injection hazards.
-#
-# @exit        0  Success: Repository state ("full", "empty", or "none") printed to stdout.
-# @exit        *  Failure: Missing arguments, layout faults, missing credentials, or auth/API error.
-##################################################################################
-# License Agreement:
-# This file is part of The Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
-#set -x
+
 set -e
 
 if [ -r /home/homedir.dat ]
