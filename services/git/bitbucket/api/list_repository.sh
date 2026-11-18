@@ -1,4 +1,46 @@
 #!/bin/sh
+#: Name:        list_repository.sh
+#: Purpose:     Checks a Bitbucket repository state ("full", "empty", or "none") via REST API.
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       list_repository.sh <repository_ownername> <repository_name>
+#:
+#: Parameters:
+#:   $1         [Required] The Bitbucket workspace or repository owner name.
+#:   $2         [Required] The name/slug of the repository to inspect.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - External binaries: cat, curl, cut, echo, grep, jq, sed
+#:
+#: Exit Codes:
+#:   0          Repository state ("full", "empty", or "none") printed to stdout
+#:   1          Missing arguments, layout faults, missing credentials, or unexpected HTTP code
+#:   401        Unauthorized (invalid or expired APPLICATIONREPOSITORYTOKEN or email)
+#:   403        Forbidden (token lacks permissions to inspect target repository)
+#:   429        Rate Limit Exceeded
+#:   500        Bitbucket Gateway or Remote Server Exception (5xx)
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+
 
 set -e
 
