@@ -1,32 +1,33 @@
 #!/bin/sh
 ###################################################################################
-# @file        check_repository.sh
-# @brief       Inspects a Bitbucket Git repository state ("full", "empty", or "none").
+# @file        list_repository.sh
+# @brief       Checks a single Bitbucket Git repository state ("full", "empty", or "none") via netrc.
 # @author      Peter Winter
 # @date        18/11/2026
 # @version     1.0
 #
 # @details     This script retrieves the Bitbucket authentication token from the
-#              toolkit configuration, validates the target repository owner and name,
-#              injects Basic authentication headers via GIT_CONFIG_COUNT environment
-#              variables to prevent process-tree exposure, and runs git ls-remote
-#              to determine whether the repository has commits ("full"), exists with
-#              no commits ("empty"), or does not exist ("none").
+#              toolkit configuration, validates the target username, owner, and
+#              repository parameters, writes ephemeral mode-0600 netrc credentials
+#              inside an isolated temporary directory cleaned on exit, and runs
+#              git ls-remote to determine whether the repository has commits ("full"),
+#              exists with no commits ("empty"), or does not exist ("none").
 #
-# @param       $1  [Required] The Bitbucket workspace or repository owner name.
-# @param       $2  [Required] The name/slug of the repository to inspect.
+# @param       $1  [Required] The Bitbucket authentication username.
+# @param       $2  [Required] The Bitbucket workspace or repository owner name.
+# @param       $3  [Required] The name/slug of the repository to inspect.
 #
 # @env         HOME              Path to the toolkit core framework layout directory.
 # @env         REPOSITORY_TOKEN  The Bitbucket API access token or App Password.
 #
 # @dependencies
 #              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - external dependencies: base64, cat, echo, git, grep, printf
+#              - external dependencies: cat, chmod, echo, git, grep, mktemp, rm
 #
 # @security    
 #              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Passes Authorization headers via GIT_CONFIG_* env vars instead of URLs or CLI args.
-#              - Unsets GIT_CONFIG_* variables immediately after execution.
+#              - Isolates netrc credentials in a mode-0600 ephemeral directory cleaned via trap.
+#              - Keeps credentials completely out of CLI arguments, URLs, and process trees.
 #
 # @exit        0  Success: Repository state ("full", "empty", or "none") printed to stdout.
 # @exit        *  Failure: Missing arguments, layout faults, or missing credentials.
@@ -54,15 +55,16 @@ else
         exit 1
 fi
 
-if [ -z "${1}" ] || [ -z "${2}" ]
+if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
 then
-        /bin/echo "Error: Repository owner name and repository name arguments are required." >&2
-        /bin/echo "Usage: $0 <repository_ownername> <repository_name>" >&2
+        /bin/echo "Error: Repository username, owner name, and repository name arguments are required." >&2
+        /bin/echo "Usage: $0 <repository_username> <repository_ownername> <repository_name>" >&2
         exit 1
 fi
 
-repository_ownername="${1}"
-repository_name="${2}"
+repository_username="${1}"
+repository_ownername="${2}"
+repository_name="${3}"
 
 set +e
 REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'REPOSITORY_TOKEN')"
@@ -74,28 +76,29 @@ then
         exit 1
 fi
 
-# Encode credentials safely using x-bitbucket-api-token-auth
-encoded_auth="$(/usr/bin/printf '%s' "x-bitbucket-api-token-auth:${REPOSITORY_TOKEN}" | /usr/bin/base64 -w0)"
+# Create an isolated, restrictive temporary directory for .netrc so Git can read it
+netrc_dir="$(/bin/mktemp -d)"
+/bin/chmod 0700 "${netrc_dir}"
 
-if [ -z "${encoded_auth}" ]
-then
-        /bin/echo "Error: Failed to encode Bitbucket authentication header." >&2
-        exit 1
-fi
+cleanup() {
+        /bin/rm -rf "${netrc_dir}"
+}
+trap cleanup EXIT INT TERM
 
-# Export transient Git HTTP header configuration to avoid exposing tokens in process trees
-export GIT_CONFIG_COUNT=1
-export GIT_CONFIG_KEY_0="http.extraheader"
-export GIT_CONFIG_VALUE_0="Authorization: Basic ${encoded_auth}"
-export GIT_TERMINAL_PROMPT=0
+/bin/cat <<EOF > "${netrc_dir}/.netrc"
+machine bitbucket.org
+login ${repository_username}
+password ${REPOSITORY_TOKEN}
+EOF
+/bin/chmod 0600 "${netrc_dir}/.netrc"
+
+# Scrub token from environment before invoking git
+unset REPOSITORY_TOKEN
 
 set +e
-ls_output="$(/usr/bin/git ls-remote "https://bitbucket.org{repository_ownername}/${repository_name}.git" 2>/dev/null)"
+ls_output="$(HOME="${netrc_dir}" GIT_TERMINAL_PROMPT=0 /usr/bin/git ls-remote "https://bitbucket.org{repository_ownername}/${repository_name}.git" 2>/dev/null)"
 git_status="$?"
 set -e
-
-# Immediately scrub sensitive environment variables
-unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 GIT_TERMINAL_PROMPT encoded_auth REPOSITORY_TOKEN
 
 if [ "${git_status}" -ne 0 ]
 then
@@ -111,3 +114,4 @@ else
 fi
 
 exit 0
+
