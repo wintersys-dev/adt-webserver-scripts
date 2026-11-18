@@ -80,7 +80,7 @@ then
 fi
 
 encoded_project="$(/bin/echo "${repository_ownername}/${repository_name}" | /usr/bin/sed 's/\//%2F/g')"
-api_base="https://gitlab.com"
+api_base="https://gitlab.com/api/v4"
 project_endpoint="${api_base}/projects/${encoded_project}"
 
 set +e
