@@ -93,7 +93,8 @@ trap cleanup EXIT INT TERM
 
 # URL-encode slashes in owner/project path for GitLab v4 API
 encoded_project="$(/bin/echo "${repository_ownername}/${repository_name}" | /usr/bin/sed 's/\//%2F/g')"
-api_base="https://gitlab.com"
+#api_base="https://gitlab.com"
+api_base="https://gitlab.com/api/v4"
 endpoint_url="${api_base}/projects/${encoded_project}/repository/archive.tar.gz?sha=${branch}"
 
 set +e
