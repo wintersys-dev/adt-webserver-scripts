@@ -91,7 +91,7 @@ fi
 
 # Delegate clone operation to the provider-specific sub-driver
 set +e
-"${provider_script}" "${repository_provider}" "${repository_ownername}" "${repository_name}" "${repository_branch}" "${destination_directory}"
+"${provider_script}" "${repository_ownername}" "${repository_name}" "${repository_branch}" "${destination_directory}"
 exit_code="$?"
 set -e
 
