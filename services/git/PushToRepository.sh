@@ -1,5 +1,5 @@
 #!/bin/sh
-#: Name:        GitPushToRepsitory.sh
+#: Name:        PushToRepository.sh
 #: Purpose:     Orchestrates repository push operations across configured Git providers.
 #: Author:      Peter Winter
 #: Date:        18/11/2026
