@@ -1,29 +1,28 @@
 #!/bin/sh
 #: Name:        CreateRepository.sh
-#: Purpose:     Provisions a new private GitLab repository/project via the GitLab REST API v4.
+#: Purpose:     Creates a new private GitLab project and outputs its HTTPS clone URL.
 #: Author:      Peter Winter
-#: Date:        17/11/2026
+#: Date:        18/11/2026
 #: Version:     1.0
 #:
-#: Usage:       CreateRepository.sh "<repository_namespace>" "<repository_name>"
-#:              CreateRepository.sh [-h|--help]
+#: Usage:       CreateRepository.sh <repository_owner> <repository_name>
 #:
 #: Parameters:
-#:   $1         [Required] GitLab username, group, or subgroup namespace path
-#:   $2         [Required] Target GitLab project/repository name to create
+#:   $1         [Required] The GitLab username or group path (repository owner).
+#:   $2         [Required] The name/slug of the project to create.
 #:
 #: Environment:
-#:   HOME             Resolved automatically from /home/homedir.dat
-#:   REPOSITORY_TOKEN Resolved from ExtractConfigValue.sh ('APPLICATIONREPOSITORYTOKEN') if not exported
+#:   HOME       Resolved automatically from /home/homedir.dat
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
-#:   - External binaries: cat, echo, grep, cut, sed, tr, jq, curl
+#:   - ${HOME}/runtime/software.dat
+#:   - ${HOME}/services/git/gitlab/${orchestration_tool}/create_repository.sh
+#:   - External binaries: awk, cat, echo, jq, tr
 #:
 #: Exit Codes:
-#:   0          Private GitLab repository created successfully
-#:   1          Missing arguments, missing config/token, namespace lookup failure, or non-2xx API status
+#:   0          Project created cleanly and HTTPS clone URL printed to stdout
+#:   1          Missing arguments, layout faults, configuration errors, worker failure, or clone URL parse error
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -39,153 +38,63 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
-# Exit immediately if any command exits with a non-zero status
 set -e
 
-# Render self-extracting help documentation when -h or --help is supplied
-if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
-then
-        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
-        exit 0
-fi
-
-# Resolve and export the toolkit root directory from the server tracking file
 if [ -r /home/homedir.dat ]
 then
         HOME="$(/bin/cat /home/homedir.dat)"
-        export HOME
 else
-        /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
+        /bin/echo "Application framework configuration file missing at /home/homedir.dat" >&2
         exit 1
 fi
 
-# Validate required positional arguments
+# Input validation
 if [ -z "${1}" ] || [ -z "${2}" ]
 then
-        /bin/echo "Error: Both repository namespace and repository name arguments are required." >&2
-        /bin/echo "Usage: $0 <repository_namespace> <repository_name>" >&2
+        /bin/echo "Error: Repository owner and repository name arguments are required." >&2
+        /bin/echo "Usage: $0 <repository_owner> <repository_name>" >&2
         exit 1
 fi
 
-repository_namespace="${1}"
+repository_owner="${1}"
 repository_name="${2}"
-repo_slug="$(/bin/echo "${repository_name}" | /usr/bin/tr '[:upper:]' '[:lower:]')"
 
-# Extract GitLab access token from toolkit configuration if not already exported
-if [ -z "${REPOSITORY_TOKEN}" ]
+software_file="${HOME}/runtime/software.dat"
+if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
 then
-        REPOSITORY_TOKEN="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'APPLICATIONREPOSITORYTOKEN')"
-fi
-
-if [ -z "${REPOSITORY_TOKEN}" ]
-then
-        /bin/echo "Error: APPLICATIONREPOSITORYTOKEN must be configured or exported." >&2
+        /bin/echo "Error: Cannot read software configuration file at ${software_file}" >&2
         exit 1
 fi
 
-# Assemble base API endpoint from split components
-api_sub="gitlab"
-api_domain="com"
-api_base="https://${api_sub}.${api_domain}/api/v4"
+orchestration_tool="$(/usr/bin/awk -F':' '/^ORCHESTRATION_TOOL:/ {print $NF}' "${software_file}" 2>/dev/null | /bin/tr -d ' ')"
 
-# Resolve numeric namespace_id so group and subgroup targets are honoured
-encoded_ns="$(/bin/echo "${repository_namespace}" | /usr/bin/sed 's/\//%2F/g')"
+if [ -z "${orchestration_tool}" ]
+then
+        /bin/echo "Error: ORCHESTRATION_TOOL not found in ${software_file}" >&2
+        exit 1
+fi
+
+# Temporary disable set -e to evaluate curl transaction pipeline failures manually
 set +e
-NS_RESPONSE=$(/bin/echo "Authorization: Bearer ${REPOSITORY_TOKEN}" | /usr/bin/curl -H @- -s -X GET "${api_base}/namespaces/${encoded_ns}" -H "Accept: application/json" -w "\nHTTP_STATUS:%{http_code}")
-ns_curl_status="$?"
-set -e
-
-if [ "${ns_curl_status}" -ne 0 ]
-then
-        /bin/echo "Error: curl namespace lookup failed with exit code ${ns_curl_status}." >&2
-        exit 1
-fi
-
-NS_HTTP_CODE=$(/bin/echo "${NS_RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
-NS_BODY=$(/bin/echo "${NS_RESPONSE}" | /usr/bin/sed '/HTTP_STATUS:/d')
-
-if [ "${NS_HTTP_CODE}" != "200" ]
-then
-        /bin/echo "Error ${NS_HTTP_CODE}: Could not resolve GitLab namespace '${repository_namespace}'." >&2
-        /bin/echo "API Response: ${NS_BODY}" >&2
-        exit 1
-fi
-
-namespace_id="$(/bin/echo "${NS_BODY}" | /usr/bin/jq -r '.id // empty' 2>/dev/null)"
-
-if [ -z "${namespace_id}" ]
-then
-        /bin/echo "Error: Failed to extract numeric ID for namespace '${repository_namespace}'." >&2
-        exit 1
-fi
-
-# Construct the GitLab project creation JSON payload safely via jq
-repo_payload="$(/usr/bin/jq -n -c \
-        --arg name "${repository_name}" \
-        --arg path "${repo_slug}" \
-        --argjson ns_id "${namespace_id}" \
-        '{ name: $name, path: $path, namespace_id: $ns_id, visibility: "private", initialize_with_readme: false }' 2>/dev/null)"
-
-if [ -z "${repo_payload}" ]
-then
-        /bin/echo "Error: Failed to construct valid repository JSON payload." >&2
-        exit 1
-fi
-
-endpoint="${api_base}/projects"
-
-# Submit the project creation POST request with token passed securely via stdin
-set +e
-RESPONSE=$(/bin/echo "Authorization: Bearer ${REPOSITORY_TOKEN}" | /usr/bin/curl -H @- -s -X POST "${endpoint}" -H "Accept: application/json" -H "Content-Type: application/json" -d "${repo_payload}" -w "\nHTTP_STATUS:%{http_code}")
+response="$(${HOME}/services/git/gitlab/${orchestration_tool}/create_repository.sh "${repository_owner}" "${repository_name}")"
 curl_status="$?"
 set -e
 
-if [ "${curl_status}" -ne 0 ]
+if [ "${curl_status}" -eq 0 ] && [ -n "${response}" ]
 then
-        /bin/echo "Error: curl request to ${endpoint} failed with exit code ${curl_status}." >&2
+        output="$(/bin/echo "${response}" | /usr/bin/jq -r '.http_url_to_repo // empty')"
+
+        if [ -z "${output}" ]
+        then
+                /bin/echo "Error: Project created, but no HTTPS clone URL found for ${repository_owner}/${repository_name}." >&2
+                exit 1
+        else
+                /bin/echo "${output}"
+        fi
+else
+        /bin/echo "Network request failed. Check your GitLab API token, owner, or project name." >&2
         exit 1
 fi
 
-# Separate the HTTP status code and JSON response body
-HTTP_CODE=$(/bin/echo "${RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
-RESPONSE_BODY=$(/bin/echo "${RESPONSE}" | /usr/bin/sed '/HTTP_STATUS:/d')
-
-# Evaluate HTTP status code and handle API errors explicitly
-case "${HTTP_CODE}" in
-        200|201)
-                /bin/echo "Success! Private GitLab repository '${repository_namespace}/${repo_slug}' created."
-                ;;
-        400)
-                /bin/echo "Error 400: Bad Request. Repository '${repo_slug}' may already exist or payload is invalid." >&2
-                /bin/echo "API Response: ${RESPONSE_BODY}" >&2
-                exit 1
-                ;;
-        401)
-                /bin/echo "Error 401: Unauthorized. Check APPLICATIONREPOSITORYTOKEN." >&2
-                exit 1
-                ;;
-        403)
-                /bin/echo "Error 403: Forbidden. Missing project creation permissions in '${repository_namespace}'." >&2
-                /bin/echo "API Response: ${RESPONSE_BODY}" >&2
-                exit 1
-                ;;
-        404)
-                /bin/echo "Error 404: Not Found. Namespace '${repository_namespace}' does not exist." >&2
-                exit 1
-                ;;
-        429)
-                /bin/echo "Error 429: Rate Limit Exceeded." >&2
-                exit 1
-                ;;
-        5*)
-                /bin/echo "Error ${HTTP_CODE}: GitLab Server Error." >&2
-                exit 1
-                ;;
-        *)
-                /bin/echo "Error ${HTTP_CODE}: Unexpected response." >&2
-                /bin/echo "API Response: ${RESPONSE_BODY}" >&2
-                exit 1
-                ;;
-esac
-
 exit 0
+
