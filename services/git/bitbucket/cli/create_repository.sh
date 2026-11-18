@@ -1,4 +1,42 @@
 #!/bin/sh
+#: Name:        create_repository.sh
+#: Purpose:     Redirects repository creation requests to the Bitbucket API worker.
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       create_repository.sh <repository_username> <repository_name>
+#:
+#: Parameters:
+#:   $1         [Required] The Bitbucket workspace or repository username.
+#:   $2         [Required] The name/slug of the repository to create.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/services/git/bitbucket/api/create_repository.sh
+#:   - External binaries: cat, echo
+#:
+#: Exit Codes:
+#:   0          Request delegated and repository created cleanly via API
+#:   1          Missing arguments, layout faults, or missing/non-executable API script
+#:   *          Bubbled exit code from ${HOME}/services/git/bitbucket/api/create_repository.sh
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
 
 set -e
 
