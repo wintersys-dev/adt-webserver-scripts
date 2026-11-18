@@ -5,15 +5,14 @@
 #: Date:        18/11/2026
 #: Version:     1.0
 #:
-#: Usage:       CloneRepository.sh <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>
+#: Usage:       CloneRepository.sh <repository_ownername> <repository_name> <repository_branch> <destination_directory>
 #:              CloneRepository.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Optional] The repository provider name (falls back to APPLICATIONREPOSITORYPROVIDER).
-#:   $2         [Optional] GitHub organisation or individual account namespace (falls back to APPLICATIONREPOSITORYOWNER).
-#:   $3         [Optional] Case-sensitive name of the target GitHub repository (falls back to APPLICATIONREPOSITORYNAME).
-#:   $4         [Optional] Target branch name to clone (defaults to "main").
-#:   $5         [Required] Local destination directory path to clone into.
+#:   $1         [Optional] GitHub organisation or individual account namespace (falls back to APPLICATIONREPOSITORYOWNER).
+#:   $2         [Optional] Case-sensitive name of the target GitHub repository (falls back to APPLICATIONREPOSITORYNAME).
+#:   $3         [Optional] Target branch name to clone (defaults to "main").
+#:   $4         [Required] Local destination directory path to clone into.
 #:
 #: Environment:
 #:   HOME       Resolved automatically from /home/homedir.dat
@@ -22,7 +21,7 @@
 #:   - /home/homedir.dat
 #:   - ${HOME}/runtime/software.dat
 #:   - ${HOME}/utilities/config/ExtractConfigValue.sh
-#:   - ${HOME}/services/git/${repository_provider}/${orchestration_tool}/clone_repository.sh
+#:   - ${HOME}/services/git/github/${orchestration_tool}/clone_repository.sh
 #:   - External binaries: awk, cat, cut, echo, grep, ls, tr
 #:
 #: Exit Codes:
@@ -43,7 +42,6 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
-#set -x
 set -e
 
 if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
@@ -61,17 +59,16 @@ else
 fi
 
 set +e
-repository_provider="${1:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}"
-repository_ownername="${2:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYOWNER')}"
-repository_name="${3:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYNAME')}"
-repository_branch="${4:-main}"
-destination_directory="${5}"
+repository_ownername="${1:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYOWNER')}"
+repository_name="${2:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYNAME')}"
+repository_branch="${3:-main}"
+destination_directory="${4}"
 set -e
 
-if [ -z "${repository_provider}" ] || [ -z "${repository_ownername}" ] || [ -z "${repository_name}" ] || [ -z "${repository_branch}" ] || [ -z "${destination_directory}" ]
+if [ -z "${repository_ownername}" ] || [ -z "${repository_name}" ] || [ -z "${repository_branch}" ] || [ -z "${destination_directory}" ]
 then
-        /bin/echo "Error: Repository provider, owner, name, branch, or destination directory could not be determined." >&2
-        /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>" >&2
+        /bin/echo "Error: Repository owner, name, branch, or destination directory could not be determined." >&2
+        /bin/echo "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory>" >&2
         exit 1
 fi
 
@@ -90,7 +87,7 @@ then
         exit 1
 fi
 
-worker_script="${HOME}/services/git/${repository_provider}/${orchestration_tool}/clone_repository.sh"
+worker_script="${HOME}/services/git/github/${orchestration_tool}/clone_repository.sh"
 
 if [ ! -x "${worker_script}" ]
 then
