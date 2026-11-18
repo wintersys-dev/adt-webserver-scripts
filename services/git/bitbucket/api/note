@@ -1,3 +1,0 @@
-need to remove BUILD_HOME
-status changed to echo
-and use Extract rather than GetVariable and take out paramenters
