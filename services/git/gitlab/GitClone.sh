@@ -1,32 +1,31 @@
 #!/bin/sh
-#: Name:        GitClone.sh
-#: Purpose:     Executes a branch-specific shallow Git clone from GitLab with optional scoped .netrc authentication.
+#: Name:        CloneRepository.sh
+#: Purpose:     Clones or downloads a remote GitLab project branch to a local path.
 #: Author:      Peter Winter
-#: Date:        17/11/2026
+#: Date:        18/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitClone.sh "<repository_ownername>" "<repository_name>" "<repository_branch>" "<destination_directory>" ["<repository_username>"]
-#:              GitClone.sh [-h|--help]
+#: Usage:       CloneRepository.sh <repository_ownername> <repository_name> <repository_branch> <destination_directory>
+#:              CloneRepository.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Required] GitLab group, subgroup path, or individual account namespace
-#:   $2         [Required] Case-sensitive name of the target GitLab repository
-#:   $3         [Required] Target branch name to clone
-#:   $4         [Required] Destination directory path to clone into
-#:   $5         [Optional] GitLab username associated with REPOSITORY_TOKEN (defaults to oauth2)
+#:   $1         [Required] The GitLab username or group path (repository owner).
+#:   $2         [Required] The name/slug of the GitLab project to clone.
+#:   $3         [Required] The target branch name to clone.
+#:   $4         [Required] The local destination directory path.
 #:
 #: Environment:
-#:   HOME             Resolved automatically from /home/homedir.dat
-#:   REPOSITORY_TOKEN Optional GitLab access token for private repository authentication
+#:   HOME       Resolved automatically from /home/homedir.dat
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/.netrc (created transiently with mode 600 and removed on exit)
-#:   - External binaries: cat, echo, grep, cut, chmod, rm, git
+#:   - ${HOME}/runtime/software.dat
+#:   - ${HOME}/services/git/gitlab/${orchestration_tool}/clone_repository.sh
+#:   - External binaries: awk, cat, cut, echo, grep, ls, tr
 #:
 #: Exit Codes:
-#:   0          Repository branch cloned successfully from GitLab
-#:   1          Missing required arguments, missing config file, or git clone failure
+#:   0          Project cloned cleanly and destination directory populated
+#:   1          Missing arguments, layout faults, configuration errors, or clone failure
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -42,31 +41,28 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
-# Exit immediately if any command exits with a non-zero status
 #set -x
 set -e
 
-# Render self-extracting help documentation when -h or --help is supplied
 if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
 then
         /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
         exit 0
 fi
 
-# Resolve the toolkit root directory from the server tracking file
 if [ -r /home/homedir.dat ]
 then
         HOME="$(/bin/cat /home/homedir.dat)"
 else
-        /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
+        /bin/echo "Application framework configuration file missing at /home/homedir.dat" >&2
         exit 1
 fi
 
-# Validate minimum required positional arguments
+# Input validation
 if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ] || [ -z "${4}" ]
 then
-        /bin/echo "Error: 4 arguments are required with 1 optional argument." >&2
-        /bin/echo "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory> [repository_username]" >&2
+        /bin/echo "Error: Missing required arguments." >&2
+        /bin/echo "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory>" >&2
         exit 1
 fi
 
@@ -74,46 +70,44 @@ repository_ownername="${1}"
 repository_name="${2}"
 repository_branch="${3}"
 destination_directory="${4}"
-repository_username="${5}"
 
-# Construct temporary .netrc with restricted permissions and guaranteed cleanup on exit
-netrc_file="${HOME}/.netrc"
-trap '/bin/rm -f "${netrc_file}"' EXIT
-
-if [ -n "${REPOSITORY_TOKEN}" ]
+software_file="${HOME}/runtime/software.dat"
+if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
 then
-        if [ -z "${repository_username}" ]
-        then
-                repository_username="oauth2"
-        fi
-
-        (
-                umask 077
-                /bin/cat << EOF > "${netrc_file}"
-machine gitlab.com
-login ${repository_username}
-password ${REPOSITORY_TOKEN}
-EOF
-        )
-        /bin/chmod 600 "${netrc_file}"
+        /bin/echo "Error: Cannot read software configuration file at ${software_file}" >&2
+        exit 1
 fi
 
-# Assemble GitLab repository URL from split components
-git_host="gitlab.com"
-repo_url="https://${git_host}/${repository_ownername}/${repository_name}.git"
+orchestration_tool="$(/usr/bin/awk -F':' '/^ORCHESTRATION_TOOL:/ {print $NF}' "${software_file}" 2>/dev/null | /bin/tr -d ' ')"
 
-# Perform branch-specific shallow clone and capture exit code safely
+if [ -z "${orchestration_tool}" ]
+then
+        /bin/echo "Error: ORCHESTRATION_TOOL not found in ${software_file}" >&2
+        exit 1
+fi
+
+worker_script="${HOME}/services/git/gitlab/${orchestration_tool}/clone_repository.sh"
+
+if [ ! -x "${worker_script}" ]
+then
+        /bin/echo "Error: Provider clone script not found or not executable at ${worker_script}" >&2
+        exit 1
+fi
+
+# Temporarily disable set -e to evaluate git transaction failures manually
 set +e
-/usr/bin/git clone --depth 1 --branch "${repository_branch}" "${repo_url}" "${destination_directory}"
-error_code="$?"
+output="$(${worker_script} "${repository_branch}" "${repository_ownername}" "${repository_name}" "${destination_directory}")"
+clone_status="$?"
 set -e
 
-/bin/rm -f "${netrc_file}"
-
-if [ "${error_code}" -ne 0 ]
+if [ "${clone_status}" -eq 0 ] && [ -d "${destination_directory}" ] && [ -n "$(/bin/ls -A "${destination_directory}")" ]
 then
-        /bin/echo "Error: git clone exited with error code ${error_code}." >&2
+        /bin/echo "${output}"
+else
+        /bin/echo "failed"
+        /bin/echo "Git clone failed for ${repository_ownername}/${repository_name}. Check your API token, branch, or project URL." >&2
         exit 1
 fi
 
 exit 0
+
