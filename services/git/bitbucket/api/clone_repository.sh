@@ -46,7 +46,7 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
-#set -x
+set -x
 set -e
 
 if [ -r /home/homedir.dat ]
@@ -90,17 +90,18 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+
 api_base="https://bitbucket.org"
 repo_endpoint="${repository_ownername}/${repository_name}/get/${branch}.tar.gz"
 
 set +e
-# Pipe netrc credentials via /dev/stdin to prevent disk writes or exposure in process trees
-HTTP_CODE=$(/bin/echo "machine bitbucket.org login "${ATLASSIAN_EMAIL}" password ${REPOSITORY_TOKEN}" | \
-        /usr/bin/curl -s -L --netrc-file /dev/stdin \
+HTTP_CODE=$(/usr/bin/printf 'user = "%s:%s"\n' "${ATLASSIAN_EMAIL}" "${REPOSITORY_TOKEN}" | \
+        /usr/bin/curl -s -L -K - \
         -o "${tmp_archive}" \
         -w "%{http_code}" \
         "${api_base}/${repo_endpoint}")
 set -e
+
 
 # Evaluate the HTTP response code using strict POSIX structural matching
 case "${HTTP_CODE}" in
