@@ -1,10 +1,10 @@
 #!/bin/sh
 ###################################################################################
-# @file        push_repository.sh
+# @file        push_to_repository.sh
 # @brief       Commits and pushes a local directory to Bitbucket via REST API (/src).
 # @author      Peter Winter
 # @date        18/11/2026
-# @version     1.3
+# @version     1.0
 #
 # @details     This script retrieves the Bitbucket authentication token from the
 #              toolkit configuration, validates the source directory, branch, and
