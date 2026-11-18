@@ -1,17 +1,17 @@
 #!/bin/sh
 ###################################################################################
-# @file        push_repository.sh
-# @brief       Commits and pushes a local directory to an existing Bitbucket repository.
+# @file        push_to_repository.sh
+# @brief       Commits and pushes a local directory to Bitbucket via Git CLI.
 # @author      Peter Winter
 # @date        18/11/2026
 # @version     1.0
 #
 # @details     This script retrieves the Bitbucket authentication token from the
 #              toolkit configuration, validates the source directory, branch, and
-#              target repository arguments, initialises Git if needed, stages and
-#              commits all directory content, writes ephemeral mode-0600 netrc
-#              credentials in an isolated temporary directory cleaned on exit, and
-#              pushes the branch to Bitbucket.
+#              target repository arguments, encodes credentials via pipe into
+#              GIT_CONFIG_COUNT environment variables so no temporary files touch
+#              disk or appear in process trees, initialises or updates the local
+#              Git repository, commits all files, and pushes to Bitbucket.
 #
 # @param       $1  [Required] Local source directory containing content to push.
 # @param       $2  [Required] Target branch name or "--branch <name>" flag.
@@ -20,19 +20,19 @@
 # @param       $5  [Required] The name/slug of the existing target repository.
 #
 # @env         HOME              Path to the toolkit core framework layout directory.
-# @env         REPOSITORY_TOKEN  The Bitbucket API access token or App Password.
+# @env         REPOSITORY_TOKEN  The Bitbucket API access token.
 #
 # @dependencies
 #              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - external dependencies: cat, chmod, echo, git, mktemp, rm, sed
+#              - external dependencies: base64, cat, echo, find, git, printf, sed
 #
 # @security    
 #              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Isolates netrc credentials in a mode-0600 ephemeral directory cleaned via trap.
-#              - Keeps credentials completely out of CLI arguments, URLs, and process trees.
+#              - Uses GIT_CONFIG_COUNT env vars so no netrc files touch disk and no secrets appear in ps.
+#              - Scrubs sensitive environment variables immediately after execution.
 #
-# @exit        0  Success: Directory content committed and pushed to remote repository.
-# @exit        *  Failure: Missing arguments, invalid directory, layout faults, or git push error.
+# @exit        0  Success: Directory files committed and pushed cleanly via Git CLI.
+# @exit        *  Failure: Missing arguments, empty directory, layout faults, or git error.
 ##################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
@@ -47,6 +47,7 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
+#set -x
 set -e
 
 if [ -r /home/homedir.dat ]
@@ -77,38 +78,43 @@ then
 fi
 
 set +e
-REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'REPOSITORY_TOKEN')"
+REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN')"
 set -e
 
 if [ -z "${REPOSITORY_TOKEN}" ]
 then
-        /bin/echo "Error: Failed to fetch required context variables (REPOSITORY_TOKEN)." >&2
+        /bin/echo "Error: Failed to fetch required context variables (APPLICATIONREPOSITORYTOKEN)." >&2
         exit 1
 fi
 
-# Create an isolated, restrictive temporary directory for .netrc so Git can read it
-netrc_dir="$(/bin/mktemp -d)"
-/bin/chmod 0700 "${netrc_dir}"
-
-cleanup() {
-        /bin/rm -rf "${netrc_dir}"
-}
-trap cleanup EXIT INT TERM
-
-/bin/cat <<EOF > "${netrc_dir}/.netrc"
-machine bitbucket.org
-login ${repository_username}
-password ${REPOSITORY_TOKEN}
-EOF
-/bin/chmod 0600 "${netrc_dir}/.netrc"
-
-# Scrub token from environment before invoking git
-unset REPOSITORY_TOKEN
-
 cd "${source_directory}"
 
+if [ -z "$(/usr/bin/find . -path './.git' -prune -o -type f -print)" ]
+then
+        /bin/echo "Error: No files found to push in ${source_directory}." >&2
+        exit 1
+fi
+
+# Encode credentials via pipe without writing any temporary files to disk
+encoded_auth="$(/usr/bin/printf '%s' "x-bitbucket-api-token-auth:${REPOSITORY_TOKEN}" | /usr/bin/base64 -w0)"
+unset REPOSITORY_TOKEN
+
+if [ -z "${encoded_auth}" ]
+then
+        /bin/echo "Error: Failed to encode Bitbucket authentication header." >&2
+        exit 1
+fi
+
+# Build the full Git remote URL beforehand
+git_base="https://bitbucket.org"
+remote_url="${git_base}/${repository_ownername}/${repository_name}.git"
+
+export GIT_CONFIG_COUNT=1
+export GIT_CONFIG_KEY_0="http.extraheader"
+export GIT_CONFIG_VALUE_0="Authorization: Basic ${encoded_auth}"
+export GIT_TERMINAL_PROMPT=0
+
 set +e
-# Initialise Git repository if not already initialised
 if [ ! -d "${source_directory}/.git" ]
 then
         /usr/bin/git init -b "${branch}" >/dev/null 2>&1
@@ -121,34 +127,31 @@ else
         /usr/bin/git checkout -B "${branch}" >/dev/null 2>&1
 fi
 
-# Ensure local commit identity is set inside the repository scope
 /usr/bin/git config user.name "${repository_username}"
 /usr/bin/git config user.email "${repository_username}@users.noreply.bitbucket.org"
 
-# Stage all files in the directory
 /usr/bin/git add -A
 
-# Commit staged changes if any exist (or if repository has no commits yet)
 if ! /usr/bin/git diff --cached --quiet || ! /usr/bin/git rev-parse --verify HEAD >/dev/null 2>&1
 then
         /usr/bin/git commit -m "Automated deployment push" >/dev/null 2>&1
         commit_status="$?"
         if [ "${commit_status}" -ne 0 ]
         then
+                unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 GIT_TERMINAL_PROMPT encoded_auth
                 /bin/echo "Error: Failed to commit changes in ${source_directory} (exit code: ${commit_status})." >&2
                 exit "${commit_status}"
         fi
 fi
 
-# Configure clean remote URL without embedded credentials
-remote_url="https://bitbucket.org{repository_ownername}/${repository_name}.git"
 /usr/bin/git remote remove origin >/dev/null 2>&1
 /usr/bin/git remote add origin "${remote_url}"
 
-# Push branch using isolated HOME so libcurl reads ${netrc_dir}/.netrc
-HOME="${netrc_dir}" GIT_TERMINAL_PROMPT=0 /usr/bin/git push -u origin "${branch}" >&2
+/usr/bin/git push -f -u origin "${branch}" >&2
 git_status="$?"
 set -e
+
+unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 GIT_TERMINAL_PROMPT encoded_auth
 
 if [ "${git_status}" -ne 0 ]
 then
