@@ -1,46 +1,5 @@
 #!/bin/sh
-###################################################################################
-# @file        create_repository.sh
-# @brief       Redirects repository creation requests to the Bitbucket API script.
-# @author      Peter Winter
-# @date        18/11/2026
-# @version     1.0
-#
-# @details     Because Bitbucket Cloud does not support creating remote repositories
-#              directly via native Git CLI commands, this wrapper intercepts
-#              repository creation calls and delegates execution cleanly to the
-#              API-backed create_repository.sh script using exec.
-#
-# @param       $1  [Required] The Bitbucket workspace or repository username.
-# @param       $2  [Required] The name/slug of the repository to create.
-#
-# @env         HOME  Path to the toolkit core framework layout directory.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - ${HOME}/services/git/bitbucket/api/create_repository.sh
-#              - external dependencies: cat, echo
-#
-# @security    
-#              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Uses exec with quoted positional parameters ("$@") to prevent argument injection.
-#
-# @exit        0  Success: Request delegated and repository created via API.
-# @exit        *  Failure: Missing arguments, missing API script, or API script exit code.
-##################################################################################
-# License Agreement:
-# This file is part of The Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
+
 set -e
 
 if [ -r /home/homedir.dat ]
