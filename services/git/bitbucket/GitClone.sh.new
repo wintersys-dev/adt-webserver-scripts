@@ -1,0 +1,149 @@
+#!/bin/sh
+#: Name:        CreateRepository.sh
+#: Purpose:     Provisions a new Git repository within the Bitbucket provider matrix.
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       CreateRepository.sh [repo_name] [visibility] [workspace]
+#:              CreateRepository.sh [-h|--help]
+#:
+#: Parameters:
+#:   $1         [Optional] Override for GIT_REPOSITORY from runtime context.
+#:   $2         [Optional] Repository visibility ("private" or "public", defaults to "private").
+#:   $3         [Optional] Override for GIT_WORKSPACE from runtime context.
+#:
+#: Environment:
+#:   BUILD_HOME Resolved automatically from /home/buildhome.dat
+#:
+#: Dependencies:
+#:   - /home/buildhome.dat
+#:   - LogStatusMessages.sh
+#:   - GetVariableValue.sh
+#:   - ${BUILD_HOME}/configuration/software.dat
+#:   - ${BUILD_HOME}/services/git/bitbucket/<orchestration_tool>/create_repository.sh
+#:   - External binaries: cat, echo, grep, cut, awk, sed, tr, jq
+#:
+#: Exit Codes:
+#:   0          Target Bitbucket repository successfully provisioned and verified
+#:   1          Missing context paths, input parameter errors, or API/CLI failures
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
+#set -x
+set -e
+
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
+then
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
+fi
+
+# Resolve the toolkit root directory from the system tracking file
+if [ -r /home/buildhome.dat ]
+then
+        BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+else
+        /bin/echo "Application framework configuration file missing at /home/buildhome.dat" >&2
+        exit 1
+fi
+
+# Route status log entries to the centralized logging utility
+status()
+{
+        "${BUILD_HOME}/helpers/services/LogStatusMessages.sh" "${1}"
+}
+
+# Retrieve the active Git provider choice and repository parameters from deployment context
+set +e
+GIT_CHOICE="$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_CHOICE)"
+raw_repo="${1:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_REPOSITORY)}"
+visibility="${2:-private}"
+workspace="${3:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_WORKSPACE)}"
+set -e
+
+if [ -z "${GIT_CHOICE}" ] || [ -z "${raw_repo}" ] || [ -z "${workspace}" ]
+then
+        status "Error: Failed to fetch required context variables (GIT_CHOICE, GIT_REPOSITORY, GIT_WORKSPACE)."
+        exit 1
+fi
+
+# Map visibility ("private" vs "public") to Bitbucket's boolean is_private field
+case "${visibility}" in
+        public|false)
+                is_private="false"
+                ;;
+        *)
+                is_private="true"
+                ;;
+esac
+
+# Sanitise repository slug for Bitbucket URL path rules
+repo_slug="$(/bin/echo "${raw_repo}" | /usr/bin/tr '[:upper:]' '[:lower:]' | /usr/bin/tr -cs 'a-z0-9_-' '-' | /usr/bin/sed 's/^-//;s/-$//')"
+
+# Read software.dat and resolve the active orchestration tool (cli or api)
+software_file="${BUILD_HOME}/configuration/software.dat"
+if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
+then
+        status "Error: Cannot read software configuration file at ${software_file}"
+        exit 1
+fi
+
+orchestration_tool="$(/usr/bin/awk -F':' '/^ORCHESTRATION_TOOL:/ {print $NF}' "${software_file}")"
+
+if [ -z "${orchestration_tool}" ]
+then
+        status "Error: ORCHESTRATION_TOOL not found in ${software_file}"
+        exit 1
+fi
+
+if [ ! -d "${BUILD_HOME}/services/git/${GIT_CHOICE}/${orchestration_tool}" ]
+then
+        orchestration_tool="api"
+fi
+
+# Build the JSON repository creation payload safely using jq
+json_payload="$(/usr/bin/jq -n \
+        --arg name "${raw_repo}" \
+        --argjson priv "${is_private}" \
+        '{scm: "git", name: $name, is_private: $priv}')"
+
+# Dispatch the repository creation request to the active orchestration wrapper
+set +e
+repo_response="$("${BUILD_HOME}/services/git/bitbucket/${orchestration_tool}/create_repository.sh" "${workspace}" "${repo_slug}" "${json_payload}")"
+repo_exit_code="$?"
+set -e
+
+if [ "${repo_exit_code}" -ne 0 ]
+then
+        status "Failed to create repository '${workspace}/${repo_slug}' on Bitbucket (exit code ${repo_exit_code})."
+        exit 1
+fi
+
+# Check the creation response for Bitbucket API error objects
+if /bin/echo "${repo_response}" | /usr/bin/jq -e 'type == "object" and has("error")' >/dev/null 2>&1
+then
+        repo_err_msg="$(/bin/echo "${repo_response}" | /usr/bin/jq -r '.error.message // "Unknown repository creation validation error."')"
+        status "Failed to create repository on Bitbucket. Provider Reason: ${repo_err_msg}"
+        exit 1
+fi
+
+# Extract HTTPS clone URL from response for confirmation logging
+clone_url="$(/bin/echo "${repo_response}" | /usr/bin/jq -r '.links.clone[] | select(.name=="https") | .href // empty' 2>/dev/null)"
+
+status "Bitbucket repository successfully created: ${workspace}/${repo_slug} [Private: ${is_private}] (${clone_url})"
+exit 0
