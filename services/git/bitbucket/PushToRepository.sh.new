@@ -1,0 +1,143 @@
+#!/bin/sh
+#: Name:        PushToRepository.sh
+#: Purpose:     Commits and pushes a local directory into the Bitbucket provider matrix,
+#:              defaulting to the Git CLI backend for reliability on large payloads while
+#:              supporting explicit REST API fallback/override.
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       PushToRepository.sh [source_dir] [branch] [commit_message] [workspace] [repo_slug] [cli|api]
+#:              PushToRepository.sh [-h|--help]
+#:
+#: Parameters:
+#:   $1         [Optional] Override for GIT_SOURCE_DIR from runtime context.
+#:   $2         [Optional] Override for GIT_BRANCH from runtime context (defaults to "main").
+#:   $3         [Optional] Commit message (defaults to "Initial deployment commit").
+#:   $4         [Optional] Override for GIT_WORKSPACE from runtime context.
+#:   $5         [Optional] Override for GIT_REPOSITORY from runtime context.
+#:   $6         [Optional] Force orchestration tool ("cli" or "api"). Defaults to "cli".
+#:
+#: Environment:
+#:   BUILD_HOME Resolved automatically from /home/buildhome.dat
+#:
+#: Dependencies:
+#:   - /home/buildhome.dat
+#:   - LogStatusMessages.sh
+#:   - GetVariableValue.sh
+#:   - ${BUILD_HOME}/services/git/bitbucket/<cli|api>/push_to_repository.sh
+#:   - External binaries: cat, echo, grep, cut, sed, tr
+#:
+#: Exit Codes:
+#:   0          Directory contents committed and pushed cleanly to Bitbucket
+#:   1          Missing context paths, input parameter errors, or push failure
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
+#set -x
+set -e
+
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
+then
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
+fi
+
+# Resolve the toolkit root directory from the system tracking file
+if [ -r /home/buildhome.dat ]
+then
+        BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+else
+        /bin/echo "Application framework configuration file missing at /home/buildhome.dat" >&2
+        exit 1
+fi
+
+# Route status log entries to the centralized logging utility
+status()
+{
+        "${BUILD_HOME}/helpers/services/LogStatusMessages.sh" "${1}"
+}
+
+# Fetch required values from deployment context (allowing optional CLI overrides)
+set +e
+source_dir="${1:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_SOURCE_DIR)}"
+branch="${2:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_BRANCH)}"
+commit_msg="${3:-Initial deployment commit}"
+workspace="${4:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_WORKSPACE)}"
+raw_repo="${5:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_REPOSITORY)}"
+push_tool="${6:-cli}"
+set -e
+
+branch="${branch:-main}"
+
+if [ -z "${source_dir}" ] || [ -z "${workspace}" ] || [ -z "${raw_repo}" ]
+then
+        status "Error: Failed to fetch required context variables (GIT_SOURCE_DIR, GIT_WORKSPACE, GIT_REPOSITORY)."
+        exit 1
+fi
+
+if [ ! -d "${source_dir}" ]
+then
+        status "Error: Source directory does not exist at ${source_dir}."
+        exit 1
+fi
+
+# Sanitise repository slug for Bitbucket URL path rules
+repo_slug="$(/bin/echo "${raw_repo}" | /usr/bin/tr '[:upper:]' '[:lower:]' | /usr/bin/tr -cs 'a-z0-9_-' '-' | /usr/bin/sed 's/^-//;s/-$//')"
+
+# Default directory pushes to 'cli' (git push) unless 'api' is explicitly requested
+case "${push_tool}" in
+        api|cli)
+                ;;
+        *)
+                push_tool="cli"
+                ;;
+esac
+
+target_script="${BUILD_HOME}/services/git/bitbucket/${push_tool}/push_to_repository.sh"
+
+if [ ! -x "${target_script}" ]
+then
+        status "Error: Bitbucket push script missing or not executable at ${target_script}."
+        exit 1
+fi
+
+# Dispatch the directory push request to the selected orchestration wrapper
+set +e
+"${target_script}" "${source_dir}" "${branch}" "${commit_msg}" "${workspace}" "${repo_slug}"
+push_exit_code="$?"
+set -e
+
+# If 'api' was explicitly requested and hit exit code 2 (size/file threshold exceeded),
+# automatically fall back to 'cli' so the deployment still succeeds cleanly
+if [ "${push_tool}" = "api" ] && [ "${push_exit_code}" -eq 2 ]
+then
+        status "API upload threshold exceeded for '${source_dir}'; automatically falling back to Git CLI push..."
+        set +e
+        "${BUILD_HOME}/services/git/bitbucket/cli/push_to_repository.sh" "${source_dir}" "${branch}" "${commit_msg}" "${workspace}" "${repo_slug}"
+        push_exit_code="$?"
+        set -e
+fi
+
+if [ "${push_exit_code}" -ne 0 ]
+then
+        status "Failed to push directory '${source_dir}' to Bitbucket repository '${workspace}/${repo_slug}' (exit code ${push_exit_code})."
+        exit 1
+fi
+
+status "Directory '${source_dir}' successfully pushed to Bitbucket: ${workspace}/${repo_slug} [${branch}] via ${push_tool}."
+exit 0
