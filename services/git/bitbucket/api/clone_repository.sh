@@ -87,23 +87,34 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-set +e
+#set +e
 # Open file descriptor 3 with netrc credentials in memory (no disk write)
-exec 3<<EOF
-machine bitbucket.org
-login x-bitbucket-api-token-auth
-password ${REPOSITORY_TOKEN}
-EOF
+#exec 3<<EOF
+#machine bitbucket.org
+#login x-bitbucket-api-token-auth
+#password ${REPOSITORY_TOKEN}
+#EOF
 
 # Download the branch archive via Bitbucket's archive endpoint, following redirects (-L)
-HTTP_CODE=$(/usr/bin/curl -s -L --netrc-file /dev/fd/3 \
+#HTTP_CODE=$(/usr/bin/curl -s -L --netrc-file /dev/fd/3 \
+#    -o "${tmp_archive}" \
+#    -w "%{http_code}" \
+#    "https://bitbucket.org{repository_ownername}/${repository_name}/get/${branch}.tar.gz")
+
+# Immediately close file descriptor 3
+#exec 3<&-
+#set -e
+
+
+set +e
+# Pipe netrc credentials via /dev/stdin to prevent disk writes or exposure in process trees
+HTTP_CODE=$(/bin/echo "machine bitbucket.org login x-bitbucket-api-token-auth password ${REPOSITORY_TOKEN}" | \
+    /usr/bin/curl -s -L --netrc-file /dev/stdin \
     -o "${tmp_archive}" \
     -w "%{http_code}" \
     "https://bitbucket.org{repository_ownername}/${repository_name}/get/${branch}.tar.gz")
-
-# Immediately close file descriptor 3
-exec 3<&-
 set -e
+
 
 # Evaluate the HTTP response code using strict POSIX structural matching
 case "${HTTP_CODE}" in
