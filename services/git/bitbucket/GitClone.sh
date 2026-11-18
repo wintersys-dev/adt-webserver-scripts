@@ -1,5 +1,5 @@
 #!/bin/sh
-#: Name:        CloneRepository.sh
+#: Name:        GitClone.sh
 #: Purpose:     Clones or downloads a remote Git repository branch to a local path.
 #: Author:      Peter Winter
 #: Date:        18/11/2026
@@ -8,11 +8,10 @@
 #: Usage:       CloneRepository.sh <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>
 #:
 #: Parameters:
-#:   $1         [Required] The repository provider name.
-#:   $2         [Required] The Bitbucket workspace or repository owner name.
-#:   $3         [Required] The name/slug of the repository to clone.
-#:   $4         [Required] The target branch name to clone.
-#:   $5         [Required] The local destination directory path.
+#:   $1         [Required] The Bitbucket workspace or repository owner name.
+#:   $2         [Required] The name/slug of the repository to clone.
+#:   $3         [Required] The target branch name to clone.
+#:   $4         [Required] The local destination directory path.
 #:
 #: Environment:
 #:   HOME       Resolved automatically from /home/homedir.dat
@@ -53,18 +52,17 @@ else
 fi
 
 # Input validation
-if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ] || [ -z "${4}" ] || [ -z "${5}" ]
+if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ] || [ -z "${4}" ] 
 then
         /bin/echo "Error: Missing required arguments." >&2
-        /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>" >&2
+        /bin/echo "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory>" >&2
         exit 1
 fi
 
-repository_provider="${1}"
-repository_ownername="${2}"
-repository_name="${3}"
-repository_branch="${4}"
-destination_directory="${5}"
+repository_ownername="${1}"
+repository_name="${2}"
+repository_branch="${3}"
+destination_directory="${4}"
 
 software_file="${HOME}/runtime/software.dat"
 if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
@@ -81,14 +79,7 @@ then
         exit 1
 fi
 
-repository_provider="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')"
-if [ -z "${repository_provider}" ]
-then
-        /bin/echo "Error: GIT provider  not found in ${software_file}" >&2
-        exit 1
-fi
-
-worker_script="${HOME}/services/git/${repository_provider}/${orchestration_tool}/clone_repository.sh"
+worker_script="${HOME}/services/git/bitbucket/${orchestration_tool}/clone_repository.sh"
 
 if [ ! -x "${worker_script}" ]
 then
