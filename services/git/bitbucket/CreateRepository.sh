@@ -74,13 +74,6 @@ then
         exit 1
 fi
 
-#git_provider="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')"
-#if [ -z "${git_provider}" ]
-#then
-#        /bin/echo "Error: GIT_PROVIDER not found in ${software_file}" >&2
-#        exit 1
-#fi
-
 # Temporary disable set -e to evaluate curl transaction pipeline failures manually
 set +e
 response="$(${HOME}/services/git/bitbucket/${orchestration_tool}/create_repository.sh "${repository_username}" "${repository_name}")"
