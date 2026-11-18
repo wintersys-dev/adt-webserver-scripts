@@ -1,4 +1,45 @@
 #!/bin/sh
+#: Name:        push_to_repository.sh
+#: Purpose:     Commits and force-pushes a local directory to Bitbucket via Git CLI.
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       push_to_repository.sh <source_directory> <branch> <repository_username> <repository_ownername> <repository_name>
+#:
+#: Parameters:
+#:   $1         [Required] Local source directory containing content to push.
+#:   $2         [Required] Target branch name or "--branch <name>" flag.
+#:   $3         [Required] The Bitbucket authentication username.
+#:   $4         [Required] The Bitbucket workspace or repository owner name.
+#:   $5         [Required] The name/slug of the existing target repository.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - External binaries: base64, cat, echo, find, git, printf, sed
+#:
+#: Exit Codes:
+#:   0          Directory files committed and force-pushed cleanly via Git CLI
+#:   1          Missing arguments, invalid or empty directory, layout faults, or missing credentials
+#:   *          Bubbled non-zero exit code from git commit or git push
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
 
 set -e
 
