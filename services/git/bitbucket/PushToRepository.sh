@@ -79,26 +79,29 @@ then
         exit 1
 fi
 
-# Resolve provider from software.dat if not explicitly provided
-if [ -z "${repository_provider}" ] || [ "${repository_provider}" = "default" ]
+software_file="${HOME}/runtime/software.dat"
+if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
 then
-        software_file="${HOME}/runtime/software.dat"
-        if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
-        then
-                /bin/echo "Error: Cannot read software configuration file at ${software_file}" >&2
-                exit 1
-        fi
-
-        repository_provider="$(/usr/bin/awk -F':' '/^GIT_PROVIDER:/ {print $NF}' "${software_file}" 2>/dev/null | /bin/tr -d ' ')"
-
-        if [ -z "${repository_provider}" ]
-        then
-                /bin/echo "Error: GIT_PROVIDER not found in ${software_file}" >&2
-                exit 1
-        fi
+        /bin/echo "Error: Cannot read software configuration file at ${software_file}" >&2
+        exit 1
 fi
 
-worker_script="${HOME}/services/git/${repository_provider}/push_repository.sh"
+orchestration_tool="$(/usr/bin/awk -F':' '/^ORCHESTRATION_TOOL:/ {print $NF}' "${software_file}" 2>/dev/null | /bin/tr -d ' ')"
+
+if [ -z "${orchestration_tool}" ]
+then
+        /bin/echo "Error: ORCHESTRATION_TOOL not found in ${software_file}" >&2
+        exit 1
+fi
+
+repository_provider="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')"
+if [ -z "${repository_provider}" ]
+then
+        /bin/echo "Error: GIT provider  not found in ${software_file}" >&2
+        exit 1
+fi
+
+worker_script="${HOME}/services/git/${repository_provider}/${orchestration_tool}/push_to_repository.sh"
 
 if [ ! -x "${worker_script}" ]
 then
