@@ -1,50 +1,5 @@
 #!/bin/sh
-###################################################################################
-# @file        list_repository.sh
-# @brief       Checks a single Bitbucket Git repository state ("full", "empty", or "none").
-# @author      Peter Winter
-# @date        18/11/2026
-# @version     1.0
-#
-# @details     This script retrieves the Bitbucket authentication token from the
-#              toolkit configuration, validates the target owner and repository
-#              parameters, injects Basic authentication headers via GIT_CONFIG_COUNT
-#              environment variables (encoded via pipe) to avoid creating temporary
-#              files on disk or exposing secrets in process trees, and runs git
-#              ls-remote to determine whether the repository is "full", "empty", or "none".
-#
-# @param       $1  [Required] The Bitbucket workspace or repository owner name.
-# @param       $2  [Required] The name/slug of the repository to inspect.
-#
-# @env         HOME              Path to the toolkit core framework layout directory.
-# @env         REPOSITORY_TOKEN  The Bitbucket API access token.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - external dependencies: base64, cat, echo, git, grep, printf
-#
-# @security    
-#              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Uses GIT_CONFIG_COUNT env vars so no netrc files touch disk and no secrets appear in ps.
-#              - Scrubs sensitive environment variables immediately after execution.
-#
-# @exit        0  Success: Repository state ("full", "empty", or "none") printed to stdout.
-# @exit        *  Failure: Missing arguments, layout faults, or missing credentials.
-##################################################################################
-# License Agreement:
-# This file is part of The Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
-#set -x
+
 set -e
 
 if [ -r /home/homedir.dat ]
