@@ -66,7 +66,7 @@ then
         exit 1
 fi
 
-repository_provider="${1}"
+repository_provider="${1:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}")
 repository_ownername="${2}"
 repository_name="${3}"
 
