@@ -68,17 +68,17 @@ repository_name="${3}"
 destination_directory="${4}"
 
 set +e
-REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'REPOSITORY_TOKEN')"
+REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN')"
 set -e
 
-if [ -z "${REPOSITORY_TOKEN}" ]
+if [ -z "${REPOSITORY_TOKEN}" ] 
 then
-        /bin/echo "Error: Failed to fetch required context variables (REPOSITORY_TOKEN)." >&2
+        /bin/echo "Error: Failed to fetch required context variable APPLICATIONREPOSITORYTOKEN ." >&2
         exit 1
 fi
 
-# Encode credentials safely using x-bitbucket-api-token-auth
 encoded_auth="$(/usr/bin/printf '%s' "x-bitbucket-api-token-auth:${REPOSITORY_TOKEN}" | /usr/bin/base64 -w0)"
+unset REPOSITORY_TOKEN
 
 if [ -z "${encoded_auth}" ]
 then
@@ -93,10 +93,10 @@ export GIT_CONFIG_VALUE_0="Authorization: Basic ${encoded_auth}"
 
 set +e
 /usr/bin/git clone \
-    --depth 1 \
-    --branch "${branch}" \
-    -- "https://bitbucket.org/${repository_ownername}/${repository_name}.git" \
-    "${destination_directory}" >&2
+        --depth 1 \
+        --branch "${branch}" \
+        -- "https://bitbucket.org/${repository_ownername}/${repository_name}.git" \
+        "${destination_directory}" >&2
 git_status="$?"
 set -e
 
