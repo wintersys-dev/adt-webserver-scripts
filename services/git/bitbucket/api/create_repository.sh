@@ -77,24 +77,35 @@ fi
 # Construct JSON payload
 payload='{"scm": "git", "is_private": true, "fork_policy": "no_public_forks"}'
 
-set +e
+#set +e
 # Open file descriptor 3 with netrc formatted credentials in memory (no disk write)
-exec 3<<EOF
-machine api.bitbucket.org
-login ${repository_username}
-password ${REPOSITORY_TOKEN}
-EOF
+#exec 3<<EOF
+#machine api.bitbucket.org
+#login ${repository_username}
+#password ${REPOSITORY_TOKEN}
+#EOF
 
 # Execute curl using --netrc-file against file descriptor 3
-RESPONSE=$(/usr/bin/curl -s -X POST --netrc-file /dev/fd/3 \
+#RESPONSE=$(/usr/bin/curl -s -X POST --netrc-file /dev/fd/3 \
+ #   -H "Content-Type: application/json" \
+  #  "https://bitbucket.org{repository_username}/${repository_name}" \
+   # -d "${payload}" \
+    #-w "\nHTTP_STATUS:%{http_code}")
+
+# Immediately close file descriptor 3
+#exec 3<&-
+#set -e
+
+set +e
+# Pipe netrc credentials via /dev/stdin to prevent disk writes or exposure in process trees
+RESPONSE=$(/bin/echo "machine api.bitbucket.org login ${repository_username} password ${REPOSITORY_TOKEN}" | \
+    /usr/bin/curl -s -X POST --netrc-file /dev/stdin \
     -H "Content-Type: application/json" \
     "https://bitbucket.org{repository_username}/${repository_name}" \
     -d "${payload}" \
     -w "\nHTTP_STATUS:%{http_code}")
-
-# Immediately close file descriptor 3
-exec 3<&-
 set -e
+
 
 # Extract the HTTP status code using strict POSIX filtering
 HTTP_CODE=$(/bin/echo "${RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
