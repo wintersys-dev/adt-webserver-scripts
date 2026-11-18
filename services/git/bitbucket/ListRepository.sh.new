@@ -1,0 +1,135 @@
+#!/bin/sh
+#: Name:        ListRepository.sh
+#: Purpose:     Queries a specific Bitbucket repository within the provider matrix and
+#:              outputs its state as "none", "empty", or "full".
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       ListRepository.sh [repo_slug] [workspace]
+#:              ListRepository.sh [-h|--help]
+#:
+#: Parameters:
+#:   $1         [Optional] Override for GIT_REPOSITORY from runtime context.
+#:   $2         [Optional] Override for GIT_WORKSPACE from runtime context.
+#:
+#: Environment:
+#:   BUILD_HOME Resolved automatically from /home/buildhome.dat
+#:
+#: Dependencies:
+#:   - /home/buildhome.dat
+#:   - LogStatusMessages.sh
+#:   - GetVariableValue.sh
+#:   - ${BUILD_HOME}/configuration/software.dat
+#:   - ${BUILD_HOME}/services/git/bitbucket/<orchestration_tool>/list_repository.sh
+#:   - External binaries: cat, echo, grep, cut, awk, sed, tr
+#:
+#: Output (stdout):
+#:   none       Repository does not exist
+#:   empty      Repository exists but has zero commits
+#:   full       Repository exists and contains at least one commit
+#:
+#: Exit Codes:
+#:   0          Repository state successfully determined and emitted to stdout
+#:   1          Missing context paths, invalid state output, or API/CLI failures
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
+#set -x
+set -e
+
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
+then
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
+fi
+
+# Resolve the toolkit root directory from the system tracking file
+if [ -r /home/buildhome.dat ]
+then
+        BUILD_HOME="$(/bin/cat /home/buildhome.dat)"
+else
+        /bin/echo "Application framework configuration file missing at /home/buildhome.dat" >&2
+        exit 1
+fi
+
+# Route status log entries strictly to stderr so stdout emits only none|empty|full
+status()
+{
+        "${BUILD_HOME}/helpers/services/LogStatusMessages.sh" "${1}" 2>/dev/null >&2
+}
+
+# Retrieve active Git provider choice and repository parameters from deployment context
+set +e
+GIT_CHOICE="$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_CHOICE)"
+raw_repo="${1:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_REPOSITORY)}"
+workspace="${2:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_WORKSPACE)}"
+set -e
+
+if [ -z "${GIT_CHOICE}" ] || [ -z "${raw_repo}" ] || [ -z "${workspace}" ]
+then
+        status "Error: Failed to fetch required context variables (GIT_CHOICE, GIT_REPOSITORY, GIT_WORKSPACE)."
+        exit 1
+fi
+
+# Sanitise repository slug for Bitbucket URL path rules
+repo_slug="$(/bin/echo "${raw_repo}" | /usr/bin/tr '[:upper:]' '[:lower:]' | /usr/bin/tr -cs 'a-z0-9_-' '-' | /usr/bin/sed 's/^-//;s/-$//')"
+
+# Read software.dat and resolve the active orchestration tool (cli or api)
+software_file="${BUILD_HOME}/configuration/software.dat"
+if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
+then
+        status "Error: Cannot read software configuration file at ${software_file}"
+        exit 1
+fi
+
+orchestration_tool="$(/usr/bin/awk -F':' '/^ORCHESTRATION_TOOL:/ {print $NF}' "${software_file}")"
+
+if [ -z "${orchestration_tool}" ]
+then
+        status "Error: ORCHESTRATION_TOOL not found in ${software_file}"
+        exit 1
+fi
+
+if [ ! -d "${BUILD_HOME}/services/git/${GIT_CHOICE}/${orchestration_tool}" ]
+then
+        orchestration_tool="api"
+fi
+
+# Dispatch the single-repository state check to the active orchestration wrapper
+set +e
+repo_state="$("${BUILD_HOME}/services/git/bitbucket/${orchestration_tool}/list_repository.sh" "${workspace}" "${repo_slug}")"
+list_exit_code="$?"
+set -e
+
+if [ "${list_exit_code}" -ne 0 ] || [ -z "${repo_state}" ]
+then
+        status "Failed to determine Bitbucket repository state for '${workspace}/${repo_slug}' (exit code ${list_exit_code})."
+        exit 1
+fi
+
+# Validate that the underlying wrapper emitted one of the expected state tokens
+case "${repo_state}" in
+        none|empty|full)
+                /bin/echo "${repo_state}"
+                exit 0
+                ;;
+        *)
+                status "Error: Unexpected repository state token '${repo_state}' returned for '${workspace}/${repo_slug}'."
+                exit 1
+                ;;
+esac
