@@ -1,30 +1,29 @@
 #!/bin/sh
-#: Name:        GitLSRemote.sh
-#: Purpose:     Probes a remote GitLab repository and classifies its state as "full", "empty", or "none".
+#: Name:        ListRepository.sh
+#: Purpose:     Checks whether a GitLab project is "full", "empty", or "none".
 #: Author:      Peter Winter
-#: Date:        17/11/2026
+#: Date:        18/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitLSRemote.sh "<repository_namespace>" "<repository_name>"
-#:              GitLSRemote.sh [-h|--help]
+#: Usage:       ListRepository.sh <repository_ownername> <repository_name>
+#:              ListRepository.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Required] GitLab username, group, or subgroup namespace path
-#:   $2         [Required] Target GitLab project/repository path slug
+#:   $1         [Required] The GitLab username or group path (repository owner).
+#:   $2         [Required] The name/slug of the GitLab project to inspect.
 #:
 #: Environment:
-#:   HOME             Resolved automatically from /home/homedir.dat
-#:   REPOSITORY_TOKEN Resolved from ExtractConfigValue.sh ('APPLICATIONREPOSITORYTOKEN') if not exported
+#:   HOME       Resolved automatically from /home/homedir.dat
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
-#:   - ${HOME}/.netrc (created transiently with mode 600 and removed on exit)
-#:   - External binaries: cat, echo, grep, cut, chmod, rm, mktemp, git
+#:   - ${HOME}/runtime/software.dat
+#:   - ${HOME}/services/git/gitlab/${orchestration_tool}/list_repository.sh
+#:   - External binaries: awk, cat, cut, echo, grep, tr
 #:
 #: Exit Codes:
-#:   0          Repository probe completed; emits "full", "empty", or "none" on stdout
-#:   1          Missing required arguments or unreadable /home/homedir.dat
+#:   0          Project state ("full", "empty", or "none") printed to stdout
+#:   1          Missing arguments, layout faults, configuration errors, or worker failure
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -40,99 +39,82 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
-# Exit immediately if any command exits with a non-zero status
+#set -x
 set -e
 
-# Render self-extracting help documentation when -h or --help is supplied
 if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
 then
         /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
         exit 0
 fi
 
-# Resolve and export the toolkit root directory from the server tracking file
 if [ -r /home/homedir.dat ]
 then
         HOME="$(/bin/cat /home/homedir.dat)"
-        export HOME
 else
-        /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
+        /bin/echo "Application framework configuration file missing at /home/homedir.dat" >&2
         exit 1
 fi
 
-# Validate required positional arguments
+# Input validation
 if [ -z "${1}" ] || [ -z "${2}" ]
 then
-        /bin/echo "Error: Both repository namespace and repository name arguments are required." >&2
-        /bin/echo "Usage: $0 <repository_namespace> <repository_name>" >&2
+        /bin/echo "Error: Repository owner name and repository name arguments are required." >&2
+        /bin/echo "Usage: $0 <repository_ownername> <repository_name>" >&2
         exit 1
 fi
 
-repository_namespace="${1}"
+repository_ownername="${1}"
 repository_name="${2}"
 
-# Construct temporary .netrc with restricted permissions and guaranteed cleanup on exit
-netrc_file="${HOME}/.netrc"
-tmp_dir=""
-trap '/bin/rm -rf "${tmp_dir}" "${netrc_file}"' EXIT
-
-if [ -z "${REPOSITORY_TOKEN}" ] && [ -x "${HOME}/utilities/config/ExtractConfigValue.sh" ]
+software_file="${HOME}/runtime/software.dat"
+if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
 then
-        REPOSITORY_TOKEN="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'APPLICATIONREPOSITORYTOKEN')"
+        /bin/echo "Error: Cannot read software configuration file at ${software_file}" >&2
+        exit 1
 fi
 
-if [ -n "${REPOSITORY_TOKEN}" ]
+orchestration_tool="$(/usr/bin/awk -F':' '/^ORCHESTRATION_TOOL:/ {print $NF}' "${software_file}" 2>/dev/null | /bin/tr -d ' ')"
+
+if [ -z "${orchestration_tool}" ]
 then
-        (
-                umask 077
-                /bin/cat << EOF > "${netrc_file}"
-machine gitlab.com
-login oauth2
-password ${REPOSITORY_TOKEN}
-EOF
-        )
-        /bin/chmod 600 "${netrc_file}"
+        /bin/echo "Error: ORCHESTRATION_TOOL not found in ${software_file}" >&2
+        exit 1
 fi
 
-# Assemble target GitLab repository URL from split components
-git_host="gitlab.com"
-repo_url="https://${git_host}/${repository_namespace}/${repository_name}.git"
+worker_script="${HOME}/services/git/gitlab/${orchestration_tool}/list_repository.sh"
 
-# Step 1: Perform non-interactive remote ref lookup
+if [ ! -x "${worker_script}" ]
+then
+        /bin/echo "Error: Provider repository check script not found or not executable at ${worker_script}" >&2
+        exit 1
+fi
+
+# Temporarily disable set -e to evaluate worker execution failures manually
 set +e
-remote_refs="$(GIT_TERMINAL_PROMPT=0 /usr/bin/git -c credential.helper= ls-remote "${repo_url}" 2>/dev/null)"
-error_code="$?"
+output="$(${worker_script} "${repository_ownername}" "${repository_name}")"
+worker_status="$?"
 set -e
 
-# Non-zero exit indicates the repository does not exist or access was denied
-if [ "${error_code}" -ne 0 ]
+if [ "${worker_status}" -eq 0 ] && [ -n "${output}" ]
 then
-        /bin/echo "none"
-        exit 0
-fi
-
-# Zero refs indicates a brand-new repository with 0 commits (must exit before git clone/ls-tree)
-if [ -z "${remote_refs}" ]
-then
-        /bin/echo "empty"
-        exit 0
-fi
-
-# Step 2: Repository has commit history; perform treeless shallow clone to check for files at HEAD
-tmp_dir="$(/usr/bin/mktemp -d)"
-
-if GIT_TERMINAL_PROMPT=0 /usr/bin/git -c credential.helper= clone --depth 1 --filter=blob:none --no-checkout "${repo_url}" "${tmp_dir}" >/dev/null 2>&1
-then
-        tracked_files="$(/usr/bin/git -C "${tmp_dir}" ls-tree -r --name-only HEAD 2>/dev/null || true)"
-        if [ -n "${tracked_files}" ]
-        then
-                /bin/echo "full"
-        else
-                /bin/echo "empty"
-        fi
+        case "${output}" in
+                full|empty|none)
+                        /bin/echo "${output}"
+                        exit 0
+                        ;;
+                *)
+                        /bin/echo "none"
+                        /bin/echo "Error: Unexpected repository state returned: ${output}" >&2
+                        exit 1
+                        ;;
+        esac
 else
         /bin/echo "none"
+        /bin/echo "Project check failed for ${repository_ownername}/${repository_name}. Check your API token or configuration." >&2
+        exit 1
 fi
 
 exit 0
+
 
