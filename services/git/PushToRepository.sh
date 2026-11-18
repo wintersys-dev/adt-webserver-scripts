@@ -1,46 +1,4 @@
 #!/bin/sh
-#: Name:        PushToRepository.sh
-#: Purpose:     Orchestrates repository push operations across configured Git providers.
-#: Author:      Peter Winter
-#: Date:        18/11/2026
-#: Version:     1.0
-#:
-#: Usage:       GitPush.sh <repository_provider> <repository_owner> <repository_name> [repository_username]
-#:              GitPush.sh [-h|--help]
-#:
-#: Parameters:
-#:   $1         [Required] The Git provider name (e.g. bitbucket, github, gitlab).
-#:   $2         [Required] The workspace or repository owner name.
-#:   $3         [Required] The name/slug of the target repository.
-#:   $4         [Optional] The repository authentication username.
-#:
-#: Environment:
-#:   HOME       Resolved automatically from /home/homedir.dat
-#:
-#: Dependencies:
-#:   - /home/homedir.dat
-#:   - ${HOME}/services/git/${repository_provider}/PushToRepository.sh
-#:   - External binaries: cat, echo, grep, cut
-#:
-#: Exit Codes:
-#:   0          Repository push delegated and completed cleanly by provider sub-driver
-#:   1          Missing arguments, layout faults, missing/non-executable sub-driver, or push failure
-###################################################################################
-# License Agreement:
-# This file is part of The Wintersys Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
-
-
 
 # Exit immediately if any command exits with a non-zero status
 #set -x
@@ -62,18 +20,22 @@ else
         exit 1
 fi
 
-# Validate minimum required positional arguments
-if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
+set +e
+source_directory="${1}"
+repository_name="${2}"
+repository_branch="${3}"
+repository_provider="${4:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}"
+repository_owner="${5:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYOWNER')}"
+repository_username="${6:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME')}"
+set -e
+
+# Verify that all required values are set from either arguments or config
+if [ -z "${repository_name}" ] || [ -z "${repository_provider}" ] || [ -z "${repository_owner}" ] || [ -z "${repository_username}" ]
 then
-        /bin/echo "Error: 3 arguments are required and 1 optional argument." >&2
-        /bin/echo "Usage: $0 <repository_provider> <repository_owner> <repository_name> [repository_username]" >&2
+        /bin/echo "Error: Repository name, provider, owner, or username could not be determined from arguments or config." >&2
+        /bin/echo "Usage: $0 <repository_name> <repository_provider> <repository_owner> <repository_username>" >&2
         exit 1
 fi
-
-repository_provider="${1}"
-repository_owner="${2}"
-repository_name="${3}"
-repository_username="${4}"
 
 # Verify provider sub-driver script exists and is executable before delegating
 provider_script="${HOME}/services/git/${repository_provider}/PushToRepository.sh"
@@ -92,7 +54,7 @@ fi
 
 # Delegate push operation to the provider-specific sub-driver
 set +e
-"${provider_script}" "${repository_owner}" "${repository_name}" "${repository_username}"
+"${provider_script}" "${repository_username}" "${repository_owner}" "${repository_name}" "${repository_branch}" "${source_directory}"
 exit_code="$?"
 set -e
 
