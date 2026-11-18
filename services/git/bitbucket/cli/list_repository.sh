@@ -13,9 +13,8 @@
 #              git ls-remote to determine whether the repository has commits ("full"),
 #              exists with no commits ("empty"), or does not exist ("none").
 #
-# @param       $1  [Required] The Bitbucket authentication username.
-# @param       $2  [Required] The Bitbucket workspace or repository owner name.
-# @param       $3  [Required] The name/slug of the repository to inspect.
+# @param       $1  [Required] The Bitbucket workspace or repository owner name.
+# @param       $2  [Required] The name/slug of the repository to inspect.
 #
 # @env         HOME              Path to the toolkit core framework layout directory.
 # @env         REPOSITORY_TOKEN  The Bitbucket API access token or App Password.
@@ -45,6 +44,7 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
+#set -x
 set -e
 
 if [ -r /home/homedir.dat ]
@@ -55,24 +55,23 @@ else
         exit 1
 fi
 
-if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
+if [ -z "${1}" ] || [ -z "${2}" ] 
 then
-        /bin/echo "Error: Repository username, owner name, and repository name arguments are required." >&2
-        /bin/echo "Usage: $0 <repository_username> <repository_ownername> <repository_name>" >&2
+        /bin/echo "Error: Repository owner name, and repository name arguments are required." >&2
+        /bin/echo "Usage: $0 <repository_ownername> <repository_name>" >&2
         exit 1
 fi
 
-repository_username="${1}"
-repository_ownername="${2}"
-repository_name="${3}"
+repository_ownername="${1}"
+repository_name="${2}"
 
 set +e
-REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'REPOSITORY_TOKEN')"
+REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN')"
 set -e
 
-if [ -z "${REPOSITORY_TOKEN}" ]
+if [ -z "${REPOSITORY_TOKEN}" ] 
 then
-        /bin/echo "Error: Failed to fetch required context variables (REPOSITORY_TOKEN)." >&2
+        /bin/echo "Error: Failed to fetch required context variables (APPLICATIONREPOSITORYTOKEN)." >&2
         exit 1
 fi
 
@@ -87,18 +86,15 @@ trap cleanup EXIT INT TERM
 
 /bin/cat <<EOF > "${netrc_dir}/.netrc"
 machine bitbucket.org
-login ${repository_username}
+login x-bitbucket-api-token-auth
 password ${REPOSITORY_TOKEN}
 EOF
 /bin/chmod 0600 "${netrc_dir}/.netrc"
 
-# Scrub token from environment before invoking git
 unset REPOSITORY_TOKEN
-"https://bitbucket.org{repository_ownername}/${repository_name}.git"
-
 
 set +e
-ls_output="$(HOME="${netrc_dir}" GIT_TERMINAL_PROMPT=0 /usr/bin/git ls-remote "https://api.bitbucket.org/2.0/repositories/${repository_ownername}/${repository_name}.git" 2>/dev/null)"
+ls_output="$(HOME="${netrc_dir}" GIT_TERMINAL_PROMPT=0 /usr/bin/git ls-remote "https://bitbucket.org/${repository_ownername}/${repository_name}.git" 2>/dev/null)"
 git_status="$?"
 set -e
 
