@@ -1,4 +1,45 @@
 #!/bin/sh
+#: Name:        GitClone.sh
+#: Purpose:     Orchestrates repository cloning across configured Git providers.
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       GitClone.sh <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>
+#:              GitClone.sh [-h|--help]
+#:
+#: Parameters:
+#:   $1         [Required] The Git provider name (e.g. bitbucket, github, gitlab).
+#:   $2         [Required] The workspace or repository owner name.
+#:   $3         [Required] The name/slug of the repository to clone.
+#:   $4         [Required] The target branch name to clone.
+#:   $5         [Required] The local destination directory path.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/services/git/${repository_provider}/GitClone.sh
+#:   - External binaries: cat, echo, grep, cut
+#:
+#: Exit Codes:
+#:   0          Repository cloned cleanly by provider sub-driver
+#:   1          Missing arguments, layout faults, missing/non-executable sub-driver, or clone failure
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
 
 # Exit immediately if any command exits with a non-zero status
 set -e
