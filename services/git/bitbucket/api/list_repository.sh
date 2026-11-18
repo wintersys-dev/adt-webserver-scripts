@@ -1,13 +1,13 @@
 #!/bin/sh
-#: Name:        check_repository.sh
-#: Purpose:     Checks whether a Bitbucket repository exists and classifies its
-#:              content state as "none", "empty", or "full" via REST API v2.0.
+#: Name:        get_repository.sh
+#: Purpose:     Checks a specific Bitbucket repository via REST API v2.0 using
+#:              transient .netrc authentication and outputs "none", "empty", or "full".
 #: Author:      Peter Winter
 #: Date:        18/11/2026
-#: Version:     1.0
+#: Version:     1.1
 #:
-#: Usage:       check_repository.sh [workspace] [repo_slug]
-#:              check_repository.sh [-h|--help]
+#: Usage:       get_repository.sh [workspace] [repo_slug]
+#:              get_repository.sh [-h|--help]
 #:
 #: Parameters:
 #:   $1         [Optional] Override for GIT_WORKSPACE from runtime context.
@@ -20,16 +20,17 @@
 #:   - /home/buildhome.dat
 #:   - LogStatusMessages.sh
 #:   - GetVariableValue.sh
-#:   - External binaries: cat, echo, grep, cut, sed, tr, curl, jq
+#:   - CreateTransientNetrc.sh
+#:   - External binaries: cat, echo, grep, cut, sed, tr, rm, curl, jq
 #:
 #: Output (stdout):
 #:   none       Repository does not exist (HTTP 404)
-#:   empty      Repository exists but has zero commits/content
+#:   empty      Repository exists but has zero commits
 #:   full       Repository exists and contains at least one commit
 #:
 #: Exit Codes:
-#:   0          Repository state successfully determined and emitted to stdout
-#:   *          Missing context variables, auth error, or unexpected API response
+#:   0          Repository state determined cleanly and emitted to stdout
+#:   *          Missing context variables, auth error, or unexpected API failure
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -70,36 +71,55 @@ status()
         "${BUILD_HOME}/helpers/services/LogStatusMessages.sh" "${1}" 2>/dev/null >&2
 }
 
-# Fetch required values from the active deployment context (allowing optional CLI overrides)
+# Ensure transient .netrc directory is always removed on exit
+netrc_dir=""
+cleanup()
+{
+        [ -n "${netrc_dir}" ] && /bin/rm -rf "${netrc_dir}"
+}
+trap cleanup EXIT
+
+# Fetch workspace and repository name from runtime context unless overridden via CLI
 set +e
 workspace="${1:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_WORKSPACE)}"
 raw_repo="${2:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_REPOSITORY)}"
-TOKEN="$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_TOKEN)"
 set -e
 
-if [ -z "${workspace}" ] || [ -z "${raw_repo}" ] || [ -z "${TOKEN}" ]
+if [ -z "${workspace}" ] || [ -z "${raw_repo}" ]
 then
-        status "Error: Failed to fetch required context variables (GIT_WORKSPACE, GIT_REPOSITORY, GIT_TOKEN)."
+        status "Error: Failed to fetch required context variables (GIT_WORKSPACE, GIT_REPOSITORY)."
         exit 1
 fi
 
 repo_slug="$(/bin/echo "${raw_repo}" | /usr/bin/tr '[:upper:]' '[:lower:]' | /usr/bin/tr -cs 'a-z0-9_-' '-' | /usr/bin/sed 's/^-//;s/-$//')"
 
-# Assemble endpoint from split components to prevent browser URL rewriting during copy-paste
+# Generate transient .netrc directory (automatically covers api.bitbucket.org)
+set +e
+netrc_dir="$("${BUILD_HOME}/helpers/services/CreateTransientNetrc.sh" "bitbucket")"
+netrc_exit=$?
+set -e
+
+if [ "${netrc_exit}" -ne 0 ] || [ -z "${netrc_dir}" ]
+then
+        status "Error: Failed to create transient .netrc authentication context."
+        exit 1
+fi
+
+# Assemble endpoint from split components
 api_sub="api"
 api_domain="bitbucket.org"
 api_path="2.0/repositories"
 repo_endpoint="https://${api_sub}.${api_domain}/${api_path}/${workspace}/${repo_slug}"
 
-# Step 1: Check whether the repository exists
+# Step 1: Check whether the target repository exists
 set +e
-REPO_CODE=$(/bin/echo "Authorization: Bearer ${TOKEN}" | /usr/bin/curl -H @- -s -o /dev/null -w "%{http_code}" "${repo_endpoint}")
+REPO_CODE=$(/usr/bin/curl --netrc-file "${netrc_dir}/.netrc" -s -o /dev/null -w "%{http_code}" "${repo_endpoint}")
 curl_exit=$?
 set -e
 
 if [ "${curl_exit}" -ne 0 ]
 then
-        status "Error: Network or curl failure checking Bitbucket repository ${workspace}/${repo_slug}."
+        status "Error: Network or curl failure checking repository ${workspace}/${repo_slug}."
         exit 1
 fi
 
@@ -109,15 +129,23 @@ case "${REPO_CODE}" in
                 exit 0
                 ;;
         200)
-                # Repository exists; proceed to check for commits/content
+                # Repository exists; proceed to check whether it has commits
                 ;;
-        401|403)
-                status "Error ${REPO_CODE}: Unauthorized or forbidden checking ${workspace}/${repo_slug}."
-                exit "${REPO_CODE}"
+        401)
+                status "Error 401: Unauthorized. Your Bitbucket GIT_TOKEN is invalid or has expired."
+                exit 401
+                ;;
+        403)
+                status "Error 403: Forbidden. Token lacks repository:read permissions for '${workspace}/${repo_slug}'."
+                exit 403
                 ;;
         429)
-                status "Error 429: Bitbucket API rate limit exceeded."
+                status "Error 429: Rate Limit Exceeded. Back off request frequency."
                 exit 429
+                ;;
+        5*)
+                status "Error ${REPO_CODE}: Bitbucket Gateway or Remote Server Exception."
+                exit 500
                 ;;
         *)
                 status "Error ${REPO_CODE}: Unexpected HTTP status checking repository existence."
@@ -125,17 +153,17 @@ case "${REPO_CODE}" in
                 ;;
 esac
 
-# Step 2: Repository exists (HTTP 200) — check whether any commits exist (pagelen=1)
+# Step 2: Repository exists (HTTP 200) — check for at least one commit (pagelen=1)
 commits_endpoint="${repo_endpoint}/commits?pagelen=1"
 
 set +e
-COMMITS_RESPONSE=$(/bin/echo "Authorization: Bearer ${TOKEN}" | /usr/bin/curl -H @- -s "${commits_endpoint}" -w "\nHTTP_STATUS:%{http_code}")
+COMMITS_RESPONSE=$(/usr/bin/curl --netrc-file "${netrc_dir}/.netrc" -s "${commits_endpoint}" -w "\nHTTP_STATUS:%{http_code}")
 commits_exit=$?
 set -e
 
 if [ "${commits_exit}" -ne 0 ]
 then
-        status "Error: Network failure checking commit history for ${workspace}/${repo_slug}."
+        status "Error: Network or curl failure checking commits for ${workspace}/${repo_slug}."
         exit 1
 fi
 
@@ -159,7 +187,9 @@ case "${COMMITS_CODE}" in
                 exit 0
                 ;;
         *)
-                status "Error ${COMMITS_CODE}: Unexpected HTTP status checking repository content."
+                status "Error ${COMMITS_CODE}: Unexpected HTTP status checking repository commits."
                 exit 1
                 ;;
 esac
+
+
