@@ -5,13 +5,11 @@
 #: Date:        17/11/2026
 #: Version:     1.0
 #:
-#: Usage:       CreateRepository.sh "<repository_provider>" "<repository_name>" ["<repository_username>"]
+#: Usage:       CreateRepository.sh "<repository_name>" 
 #:              CreateRepository.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Required] Hosting vendor identifier (e.g. github, gitlab, bitbucket)
-#:   $2         [Required] Target repository name to create
-#:   $3         [Optional] Administrative account username or workspace namespace for authentication
+#:   $1         [Required] Target repository name to create
 #:
 #: Environment:
 #:   HOME       Resolved automatically from /home/homedir.dat
@@ -60,16 +58,28 @@ else
 fi
 
 # Validate minimum required positional arguments
-if [ -z "${1}" ] || [ -z "${2}" ]
+if [ -z "${1}" ] 
 then
-        /bin/echo "Error: 2 arguments are required and 1 optional argument." >&2
-        /bin/echo "Usage: $0 <repository_provider> <repository_name> [repository_username]" >&2
+        /bin/echo "Error: 1 arguments is required" >&2
+        /bin/echo "Usage: $0 <repository_name>" >&2
         exit 1
 fi
 
-repository_provider="${1}"
-repository_name="${2}"
-repository_username="${3}"
+repository_name="${1}"
+
+set +e
+repository_username="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME')"
+repository_provider="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')"
+set -e
+
+# Verify that both required values are set from either arguments or config
+if [ -z "${repository_username}" ] || [ -z "${repository_name}" ]
+then
+        /bin/echo "Error: Repository username and repository name could not be determined from arguments or config." >&2
+        /bin/echo "Usage: $0 [repository_username] [repository_name]" >&2
+        exit 1
+fi
+
 
 # Verify provider sub-driver script exists and is executable before delegating
 provider_script="${HOME}/services/git/${repository_provider}/CreateRepository.sh"
