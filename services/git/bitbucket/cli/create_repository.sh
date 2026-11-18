@@ -1,15 +1,15 @@
 #!/bin/sh
 ###################################################################################
 # @file        create_repository.sh
-# @brief       Redirects repository creation requests to the Bitbucket API worker.
+# @brief       Redirects repository creation requests to the Bitbucket API script.
 # @author      Peter Winter
 # @date        18/11/2026
 # @version     1.0
 #
-# @details     Because Bitbucket Cloud does not support automatic repository
-#              provisioning via native Git push operations, this router script
-#              validates incoming repository creation requests and delegates execution
-#              directly to the API-backed create_repository.sh implementation.
+# @details     Because Bitbucket Cloud does not support creating remote repositories
+#              directly via native Git CLI commands, this wrapper intercepts
+#              repository creation calls and delegates execution cleanly to the
+#              API-backed create_repository.sh script using exec.
 #
 # @param       $1  [Required] The Bitbucket workspace or repository username.
 # @param       $2  [Required] The name/slug of the repository to create.
@@ -23,10 +23,10 @@
 #
 # @security    
 #              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Quotes all passed arguments ("$@") to prevent word-splitting or injection.
+#              - Uses exec with quoted positional parameters ("$@") to prevent argument injection.
 #
 # @exit        0  Success: Request delegated and repository created via API.
-# @exit        *  Failure: Missing configuration, missing API script, or API error code.
+# @exit        *  Failure: Missing arguments, missing API script, or API script exit code.
 ##################################################################################
 # License Agreement:
 # This file is part of The Agile Deployment Toolkit.
@@ -62,9 +62,8 @@ api_script="${HOME}/services/git/bitbucket/api/create_repository.sh"
 
 if [ ! -x "${api_script}" ]
 then
-        /bin/echo "Error: API repository creation script not found or not executable at ${api_script}" >&2
+        /bin/echo "Error: Target API script not found or not executable at ${api_script}" >&2
         exit 1
 fi
 
-# Replace current shell process with the API script, preserving all arguments and exit codes
 exec "${api_script}" "$@"
