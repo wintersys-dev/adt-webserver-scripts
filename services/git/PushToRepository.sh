@@ -1,45 +1,4 @@
 #!/bin/sh
-#: Name:        PushToRepository.sh
-#: Purpose:     Orchestrates repository push operations across configured Git providers.
-#: Author:      Peter Winter
-#: Date:        18/11/2026
-#: Version:     1.0
-#:
-#: Usage:       PushToRepository.sh <repository_name> [repository_provider] [repository_owner] [repository_username]
-#:              PushToRepository.sh [-h|--help]
-#:
-#: Parameters:
-#:   $1         [Required] The name/slug of the target repository.
-#:   $2         [Optional] The Git provider name (falls back to APPLICATIONREPOSITORYPROVIDER).
-#:   $3         [Optional] The workspace or repository owner name (falls back to APPLICATIONREPOSITORYOWNER).
-#:   $4         [Optional] The repository authentication username (falls back to APPLICATIONREPOSITORYUSERNAME).
-#:
-#: Environment:
-#:   HOME       Resolved automatically from /home/homedir.dat
-#:
-#: Dependencies:
-#:   - /home/homedir.dat
-#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
-#:   - ${HOME}/services/git/${repository_provider}/PushToRepository.sh
-#:   - External binaries: cat, echo, grep, cut
-#:
-#: Exit Codes:
-#:   0          Repository push delegated and completed cleanly by provider sub-driver
-#:   1          Missing arguments, layout faults, missing/non-executable sub-driver, or push failure
-###################################################################################
-# License Agreement:
-# This file is part of The Wintersys Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
 
 # Exit immediately if any command exits with a non-zero status
 #set -x
@@ -62,10 +21,12 @@ else
 fi
 
 set +e
-repository_name="${1}"
-repository_provider="${2:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}"
-repository_owner="${3:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYOWNER')}"
-repository_username="${4:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME')}"
+source_directory="${1}"
+repository_name="${2}"
+repository_branch="${2}"
+repository_provider="${3:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}"
+repository_owner="${4:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYOWNER')}"
+repository_username="${5:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME')}"
 set -e
 
 # Verify that all required values are set from either arguments or config
@@ -93,7 +54,7 @@ fi
 
 # Delegate push operation to the provider-specific sub-driver
 set +e
-"${provider_script}" "${repository_owner}" "${repository_name}" "${repository_username}"
+"${provider_script}" "${source_directory}" "${repository_name}" "${repository_branch}" "${repository_ownername}"  "${repository_username}"
 exit_code="$?"
 set -e
 
