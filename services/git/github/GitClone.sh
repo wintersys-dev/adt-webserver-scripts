@@ -1,32 +1,33 @@
 #!/bin/sh
-#: Name:        GitClone.sh
-#: Purpose:     Executes a branch-specific shallow Git clone from GitHub with optional scoped .netrc authentication.
+#: Name:        CloneRepository.sh
+#: Purpose:     Clones or downloads a GitHub repository branch to a local destination directory.
 #: Author:      Peter Winter
-#: Date:        17/11/2026
+#: Date:        18/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitClone.sh "<repository_ownername>" "<repository_name>" "<repository_branch>" "<destination_directory>" ["<repository_username>"]
-#:              GitClone.sh [-h|--help]
+#: Usage:       CloneRepository.sh <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>
+#:              CloneRepository.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Required] GitHub organisation or individual account namespace
-#:   $2         [Required] Case-sensitive name of the target GitHub repository
-#:   $3         [Required] Target branch name to clone
-#:   $4         [Required] Destination directory path to clone into
-#:   $5         [Optional] GitHub username associated with REPOSITORY_TOKEN (defaults to x-access-token)
+#:   $1         [Optional] The repository provider name (falls back to APPLICATIONREPOSITORYPROVIDER).
+#:   $2         [Optional] GitHub organisation or individual account namespace (falls back to APPLICATIONREPOSITORYOWNER).
+#:   $3         [Optional] Case-sensitive name of the target GitHub repository (falls back to APPLICATIONREPOSITORYNAME).
+#:   $4         [Optional] Target branch name to clone (defaults to "main").
+#:   $5         [Required] Local destination directory path to clone into.
 #:
 #: Environment:
-#:   HOME             Resolved automatically from /home/homedir.dat
-#:   REPOSITORY_TOKEN Optional personal access token for private repository authentication
+#:   HOME       Resolved automatically from /home/homedir.dat
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/.netrc (created transiently with mode 600 and removed on exit)
-#:   - External binaries: cat, echo, grep, cut, chmod, rm, git
+#:   - ${HOME}/runtime/software.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - ${HOME}/services/git/${repository_provider}/${orchestration_tool}/clone_repository.sh
+#:   - External binaries: awk, cat, cut, echo, grep, ls, tr
 #:
 #: Exit Codes:
-#:   0          Repository branch cloned successfully from GitHub
-#:   1          Missing required arguments, missing config file, or git clone failure
+#:   0          Repository cloned cleanly and destination directory path printed to stdout
+#:   1          Missing arguments, layout faults, configuration errors, or clone failure
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -42,81 +43,77 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
-# Exit immediately if any command exits with a non-zero status
 #set -x
 set -e
 
-# Render self-extracting help documentation when -h or --help is supplied
 if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
 then
         /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
         exit 0
 fi
 
-# Resolve the toolkit root directory from the server tracking file
 if [ -r /home/homedir.dat ]
 then
         HOME="$(/bin/cat /home/homedir.dat)"
 else
-        /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
+        /bin/echo "Application framework configuration file missing at /home/homedir.dat" >&2
         exit 1
 fi
 
-# Validate minimum required positional arguments
-if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ] || [ -z "${4}" ]
-then
-        /bin/echo "Error: 4 arguments are required with 1 optional argument." >&2
-        /bin/echo "Usage: $0 <repository_ownername> <repository_name> <repository_branch> <destination_directory> [repository_username]" >&2
-        exit 1
-fi
-
-repository_ownername="${1}"
-repository_name="${2}"
-repository_branch="${3}"
-destination_directory="${4}"
-repository_username="${5}"
-
-# Construct temporary .netrc with restricted permissions and guaranteed cleanup on exit
-netrc_file="${HOME}/.netrc"
-trap '/bin/rm -f "${netrc_file}"' EXIT
-
-if [ -n "${REPOSITORY_TOKEN}" ]
-then
-        if [ -z "${repository_username}" ]
-        then
-                repository_username="x-access-token"
-        fi
-
-        (
-                umask 077
-                /bin/cat << EOF > "${netrc_file}"
-machine github.com
-login ${repository_username}
-password ${REPOSITORY_TOKEN}
-EOF
-        )
-        /bin/chmod 600 "${netrc_file}"
-fi
-
-# Assemble GitHub repository URL from split components
-git_host="github.com"
-repo_url="https://${git_host}/${repository_ownername}/${repository_name}.git"
-
-# Perform branch-specific shallow clone and capture exit code safely
 set +e
-/usr/bin/git clone --depth 1 --branch "${repository_branch}" "${repo_url}" "${destination_directory}"
-error_code="$?"
+repository_provider="${1:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}"
+repository_ownername="${2:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYOWNER')}"
+repository_name="${3:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYNAME')}"
+repository_branch="${4:-main}"
+destination_directory="${5}"
 set -e
 
-/bin/rm -f "${netrc_file}"
-
-if [ "${error_code}" -ne 0 ]
+if [ -z "${repository_provider}" ] || [ -z "${repository_ownername}" ] || [ -z "${repository_name}" ] || [ -z "${repository_branch}" ] || [ -z "${destination_directory}" ]
 then
-        /bin/echo "Error: git clone exited with error code ${error_code}." >&2
+        /bin/echo "Error: Repository provider, owner, name, branch, or destination directory could not be determined." >&2
+        /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>" >&2
+        exit 1
+fi
+
+software_file="${HOME}/runtime/software.dat"
+if [ ! -f "${software_file}" ] || [ ! -r "${software_file}" ]
+then
+        /bin/echo "Error: Cannot read software configuration file at ${software_file}" >&2
+        exit 1
+fi
+
+orchestration_tool="$(/usr/bin/awk -F':' '/^ORCHESTRATION_TOOL:/ {print $NF}' "${software_file}" 2>/dev/null | /bin/tr -d ' ')"
+
+if [ -z "${orchestration_tool}" ]
+then
+        /bin/echo "Error: ORCHESTRATION_TOOL not found in ${software_file}" >&2
+        exit 1
+fi
+
+worker_script="${HOME}/services/git/${repository_provider}/${orchestration_tool}/clone_repository.sh"
+
+if [ ! -x "${worker_script}" ]
+then
+        /bin/echo "Error: Git clone script not found or not executable at ${worker_script}" >&2
+        exit 1
+fi
+
+set +e
+output="$(${worker_script} "${repository_branch}" "${repository_ownername}" "${repository_name}" "${destination_directory}")"
+clone_status="$?"
+set -e
+
+if [ "${clone_status}" -eq 0 ] && [ -d "${destination_directory}" ] && [ -n "$(/bin/ls -A "${destination_directory}")" ]
+then
+        /bin/echo "${output}"
+else
+        /bin/echo "failed"
+        /bin/echo "Git clone failed for ${repository_ownername}/${repository_name}. Check your API token, branch, or repository URL." >&2
         exit 1
 fi
 
 exit 0
+
 
 
 
