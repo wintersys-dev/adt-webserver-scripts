@@ -1,4 +1,47 @@
 #!/bin/sh
+#: Name:        create_repository.sh
+#: Purpose:     Creates a new private Bitbucket Git repository via REST API using netrc stdin.
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       create_repository.sh <repository_username> <repository_name>
+#:
+#: Parameters:
+#:   $1         [Required] The Bitbucket workspace or repository username.
+#:   $2         [Required] The name/slug of the repository to create.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - External binaries: cat, curl, cut, echo, grep, sed
+#:
+#: Exit Codes:
+#:   0          Repository created cleanly via API (HTTP 200/201)
+#:   1          Missing arguments, layout faults, missing credentials, or unexpected HTTP code
+#:   400        Bad Request (repository already exists or invalid payload syntax)
+#:   401        Unauthorized (invalid or expired APPLICATIONREPOSITORYTOKEN or email)
+#:   403        Forbidden (token lacks repository creation permissions in workspace)
+#:   404        Not Found (target workspace or user does not exist)
+#:   429        Rate Limit Exceeded
+#:   500        Bitbucket Gateway or Remote Server Exception (5xx)
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
 
 set -e
 
