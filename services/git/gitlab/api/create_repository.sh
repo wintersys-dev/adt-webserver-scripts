@@ -74,7 +74,7 @@ then
         exit 1
 fi
 
-api_base="https://gitlab.com"
+api_base="https://gitlab.com/api/v4"
 endpoint_url="${api_base}/projects"
 
 # Determine whether repository_owner is the authenticated user or a GitLab group
