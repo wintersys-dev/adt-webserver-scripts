@@ -71,7 +71,7 @@ status()
 
 # Fetch provider and token from runtime context unless overridden via arguments
 set +e
-raw_provider="${1:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_CHOICE)}"
+raw_provider="${1:-$("${BUILD_HOME}/services/git/GitProviderURL.sh")}"
 token="${2:-$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_TOKEN)}"
 custom_host="${3}"
 set -e
