@@ -74,14 +74,15 @@ then
         exit 1
 fi
 
-api_base="https://github.com"
+github_api_version="2026-03-10"
+api_base="https://api.github.com"
 
 # Determine whether repository_owner is the authenticated user or an organization
 set +e
 auth_user="$(/bin/echo "Authorization: Bearer ${REPOSITORY_TOKEN}" | \
         /usr/bin/curl -s -H @- \
         -H "Accept: application/vnd.github+json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -H "X-GitHub-Api-Version: ${github_api_version}" \
         "${api_base}/user" | /usr/bin/jq -r '.login // empty')"
 set -e
 
@@ -99,7 +100,7 @@ RESPONSE=$(/bin/echo "Authorization: Bearer ${REPOSITORY_TOKEN}" | \
         /usr/bin/curl -s -X POST -H @- \
         -H "Accept: application/vnd.github+json" \
         -H "Content-Type: application/json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -H "X-GitHub-Api-Version: ${github_api_version}" \
         "${endpoint_url}" \
         -d "${payload}" \
         -w "\nHTTP_STATUS:%{http_code}")
