@@ -79,7 +79,8 @@ then
         exit 1
 fi
 
-api_base="https://github.com"
+github_api_version="2026-03-10"
+api_base="https://api.github.com"
 repo_endpoint="${api_base}/repos/${repository_ownername}/${repository_name}"
 commits_endpoint="${repo_endpoint}/commits?per_page=1"
 
@@ -87,7 +88,7 @@ set +e
 REPO_RESPONSE=$(/bin/echo "Authorization: Bearer ${REPOSITORY_TOKEN}" | \
         /usr/bin/curl -s -H @- \
         -H "Accept: application/vnd.github+json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -H "X-GitHub-Api-Version: ${github_api_version}" \
         "${repo_endpoint}" \
         -w "\nHTTP_STATUS:%{http_code}")
 set -e
@@ -129,7 +130,7 @@ set +e
 COMMITS_RESPONSE=$(/bin/echo "Authorization: Bearer ${REPOSITORY_TOKEN}" | \
         /usr/bin/curl -s -H @- \
         -H "Accept: application/vnd.github+json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
+        -H "X-GitHub-Api-Version: ${github_api_version}" \
         "${commits_endpoint}" \
         -w "\nHTTP_STATUS:%{http_code}")
 set -e
