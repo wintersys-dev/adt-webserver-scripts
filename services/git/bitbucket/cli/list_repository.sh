@@ -94,9 +94,11 @@ EOF
 
 # Scrub token from environment before invoking git
 unset REPOSITORY_TOKEN
+"https://bitbucket.org{repository_ownername}/${repository_name}.git"
+
 
 set +e
-ls_output="$(HOME="${netrc_dir}" GIT_TERMINAL_PROMPT=0 /usr/bin/git ls-remote "https://bitbucket.org{repository_ownername}/${repository_name}.git" 2>/dev/null)"
+ls_output="$(HOME="${netrc_dir}" GIT_TERMINAL_PROMPT=0 /usr/bin/git ls-remote "https://api.bitbucket.org/2.0/repositories/${repository_ownername}/${repository_name}.git" 2>/dev/null)"
 git_status="$?"
 set -e
 
