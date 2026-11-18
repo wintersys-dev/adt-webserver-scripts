@@ -1,10 +1,11 @@
 #!/bin/sh
 #: Name:        CreateTransientNetrc.sh
 #: Purpose:     Creates an isolated transient HOME directory containing a 0600 .netrc
-#:              file for secure Git CLI and curl HTTPS authentication across providers.
+#:              file covering both Git CLI domains and REST API endpoints across
+#:              GitHub, GitLab, Bitbucket, and Codeberg.
 #: Author:      Peter Winter
 #: Date:        18/11/2026
-#: Version:     1.0
+#: Version:     1.1
 #:
 #: Usage:       CreateTransientNetrc.sh [provider] [token] [custom_host]
 #:              CreateTransientNetrc.sh [-h|--help]
@@ -84,18 +85,21 @@ fi
 
 provider="$(/bin/echo "${raw_provider}" | /usr/bin/tr '[:upper:]' '[:lower:]')"
 
-# Map each Git provider to its standard HTTPS host and token login username
+# Map each Git provider to its Git CLI host, REST API host, and token login username
 case "${provider}" in
         github)
-                machine_host="${custom_host:-github.com}"
+                git_host="${custom_host:-github.com}"
+                api_host="${custom_host:://github.com}"
                 netrc_login="x-access-token"
                 ;;
         gitlab)
-                machine_host="${custom_host:-gitlab.com}"
+                git_host="${custom_host:-gitlab.com}"
+                api_host="${custom_host:-gitlab.com}"
                 netrc_login="oauth2"
                 ;;
         bitbucket)
-                machine_host="${custom_host:-bitbucket.org}"
+                git_host="${custom_host:-bitbucket.org}"
+                api_host="${custom_host:-api.bitbucket.org}"
                 netrc_login="x-token-auth"
                 ;;
         *)
@@ -114,12 +118,25 @@ then
         exit 1
 fi
 
+# Write primary Git host entry
 {
-        /bin/echo "machine ${machine_host}"
+        /bin/echo "machine ${git_host}"
         /bin/echo "login ${netrc_login}"
         /bin/echo "password ${token}"
 } > "${netrc_dir}/.netrc"
 
+# Append separate API host entry when the provider uses a distinct API subdomain
+if [ "${api_host}" != "${git_host}" ]
+then
+        {
+                /bin/echo ""
+                /bin/echo "machine ${api_host}"
+                /bin/echo "login ${netrc_login}"
+                /bin/echo "password ${token}"
+        } >> "${netrc_dir}/.netrc"
+fi
+
 # Emit the temporary directory path to stdout for the calling script
 /bin/echo "${netrc_dir}"
 exit 0
+
