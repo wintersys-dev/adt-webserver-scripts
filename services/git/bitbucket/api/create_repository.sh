@@ -97,7 +97,7 @@ endpoint="https://${api_host}/${api_path}/${workspace}/${repo_slug}"
 
 # Generate transient .netrc directory scoped to api.bitbucket.org
 set +e
-netrc_dir="$("${BUILD_HOME}/services/git/CreateTransientNetRC.sh" "bitbucket" "" "${api_host}")"
+netrc_dir="$("${BUILD_HOME}/services/git/CreateTransientNetRC.sh")"
 netrc_exit=$?
 set -e
 
