@@ -1,49 +1,5 @@
 #!/bin/sh
-###################################################################################
-# @file        clone_repository.sh
-# @brief       Performs a shallow Git clone from Bitbucket using secure env headers.
-# @author      Peter Winter
-# @date        18/11/2026
-# @version     1.0
-#
-# @details     This script retrieves the Bitbucket authentication token from the
-#              toolkit configuration, validates target repository parameters, injects
-#              Basic authentication headers via GIT_CONFIG_COUNT environment variables
-#              to prevent process-tree exposure, and executes a shallow git clone.
-#
-# @param       $1  [Required] Target branch name or "--branch <name>" flag.
-# @param       $2  [Required] The Bitbucket workspace or repository owner name.
-# @param       $3  [Required] The name/slug of the repository to clone.
-# @param       $4  [Required] Local destination directory for the cloned repository.
-#
-# @env         HOME              Path to the toolkit core framework layout directory.
-# @env         REPOSITORY_TOKEN  The Bitbucket API access token or App Password.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - external dependencies: base64, cat, echo, git, printf, sed
-#
-# @security    
-#              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Passes Authorization headers via GIT_CONFIG_* env vars instead of CLI args.
-#              - Unsets GIT_CONFIG_* variables immediately after execution.
-#
-# @exit        0  Success: Repository cloned cleanly into destination directory.
-# @exit        *  Failure: Missing arguments, layout faults, or non-zero git exit code.
-##################################################################################
-# License Agreement:
-# This file is part of The Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
+
 set -e
 
 if [ -r /home/homedir.dat ]
