@@ -12,7 +12,6 @@
 #:   $1         [Required] Hosting vendor identifier (e.g. github, gitlab, bitbucket)
 #:   $2         [Required] Organisation or user namespace account name
 #:   $3         [Required] Case-sensitive target repository name
-#:   $4         [Optional] Account username or credential identifier for authenticated lookups
 #:
 #: Environment:
 #:   HOME       Resolved automatically from /home/homedir.dat
@@ -63,14 +62,13 @@ fi
 if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
 then
         /bin/echo "Error: 3 arguments are required and 1 optional argument." >&2
-        /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> [repository_username]" >&2
+        /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> " >&2
         exit 1
 fi
 
 repository_provider="${1}"
 repository_ownername="${2}"
 repository_name="${3}"
-repository_username="${4}"
 
 # Verify provider sub-driver script exists and is executable before delegating
 provider_script="${HOME}/services/git/${repository_provider}/GitLSRemote.sh"
