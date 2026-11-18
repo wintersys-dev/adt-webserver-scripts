@@ -77,19 +77,28 @@ then
 fi
 
 # Step 1: Verify whether the repository exists via Bitbucket v2.0 repository endpoint
-set +e
-exec 3<<EOF
-machine api.bitbucket.org
-login ${repository_username}
-password ${REPOSITORY_TOKEN}
-EOF
+#set +e
+#exec 3<<EOF
+#machine api.bitbucket.org
+#login ${repository_username}
+#password ${REPOSITORY_TOKEN}
+#EOF
 
-REPO_RESPONSE=$(/usr/bin/curl -s --netrc-file /dev/fd/3 \
+#REPO_RESPONSE=$(/usr/bin/curl -s --netrc-file /dev/fd/3 \
+#    "https://bitbucket.org{repository_ownername}/${repository_name}" \
+#    -w "\nHTTP_STATUS:%{http_code}")
+#
+#exec 3<&-
+#set -e
+
+# Step 1: Verify whether the repository exists via Bitbucket v2.0 repository endpoint
+set +e
+REPO_RESPONSE=$(/bin/echo "machine api.bitbucket.org login ${repository_username} password ${REPOSITORY_TOKEN}" | \
+    /usr/bin/curl -s --netrc-file /dev/stdin \
     "https://bitbucket.org{repository_ownername}/${repository_name}" \
     -w "\nHTTP_STATUS:%{http_code}")
-
-exec 3<&-
 set -e
+
 
 REPO_HTTP_CODE=$(/bin/echo "${REPO_RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
 REPO_BODY=$(/bin/echo "${REPO_RESPONSE}" | /usr/bin/sed '/HTTP_STATUS:/d')
@@ -126,19 +135,28 @@ case "${REPO_HTTP_CODE}" in
 esac
 
 # Step 2: Query the commits endpoint (pagelen=1) to distinguish "full" vs "empty"
-set +e
-exec 3<<EOF
-machine api.bitbucket.org
-login ${repository_username}
-password ${REPOSITORY_TOKEN}
-EOF
+#set +e
+#exec 3<<EOF
+#machine api.bitbucket.org
+#login ${repository_username}
+#password ${REPOSITORY_TOKEN}
+#EOF
 
-COMMITS_RESPONSE=$(/usr/bin/curl -s --netrc-file /dev/fd/3 \
+#COMMITS_RESPONSE=$(/usr/bin/curl -s --netrc-file /dev/fd/3 \
+#    "https://bitbucket.org{repository_ownername}/${repository_name}/commits?pagelen=1" \
+#    -w "\nHTTP_STATUS:%{http_code}")
+#
+#exec 3<&-
+#set -e
+
+# Step 2: Query the commits endpoint (pagelen=1) to distinguish "full" vs "empty"
+set +e
+COMMITS_RESPONSE=$(/bin/echo "machine api.bitbucket.org login ${repository_username} password ${REPOSITORY_TOKEN}" | \
+    /usr/bin/curl -s --netrc-file /dev/stdin \
     "https://bitbucket.org{repository_ownername}/${repository_name}/commits?pagelen=1" \
     -w "\nHTTP_STATUS:%{http_code}")
-
-exec 3<&-
 set -e
+
 
 COMMITS_HTTP_CODE=$(/bin/echo "${COMMITS_RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
 COMMITS_BODY=$(/bin/echo "${COMMITS_RESPONSE}" | /usr/bin/sed '/HTTP_STATUS:/d')
