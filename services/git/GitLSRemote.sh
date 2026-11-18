@@ -1,43 +1,5 @@
 #!/bin/sh
-#: Name:        GitLSRemote.sh
-#: Purpose:     Checks whether a remote repository exists by delegating to the configured Git provider sub-driver.
-#: Author:      Peter Winter
-#: Date:        17/11/2026
-#: Version:     1.0
-#:
-#: Usage:       GitLSRemote.sh "<repository_provider>" "<repository_ownername>" "<repository_name>" ["<repository_username>"]
-#:              GitLSRemote.sh [-h|--help]
-#:
-#: Parameters:
-#:   $1         [Required] Hosting vendor identifier (e.g. github, gitlab, bitbucket)
-#:   $2         [Required] Organisation or user namespace account name
-#:   $3         [Required] Case-sensitive target repository name
-#:
-#: Environment:
-#:   HOME       Resolved automatically from /home/homedir.dat
-#:
-#: Dependencies:
-#:   - /home/homedir.dat
-#:   - ${HOME}/services/git/<repository_provider>/GitLSRemote.sh
-#:   - External binaries: cat, echo, grep, cut
-#:
-#: Exit Codes:
-#:   0          Remote repository verified via provider sub-driver
-#:   1          Missing required arguments, missing config/provider script, or remote lookup failure
-###################################################################################
-# License Agreement:
-# This file is part of The Wintersys Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
+
 
 # Exit immediately if any command exits with a non-zero status
 set -e
