@@ -87,7 +87,7 @@ fi
 
 # Delegate remote repository check to the provider-specific sub-driver
 set +e
-"${provider_script}" "${repository_ownername}" "${repository_name}" "${repository_username}"
+"${provider_script}" "${repository_ownername}" "${repository_name}" 
 exit_code="$?"
 set -e
 
