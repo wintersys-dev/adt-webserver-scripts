@@ -1,18 +1,18 @@
 #!/bin/sh
 ########################################################################################
-# @file        CheckRepositoryStatus.sh
-# @brief       Checks whether a remote repository is "full", "empty", or "none".
+# @file        ListRepository.sh
+# @brief       Checks whether a single remote repository is "full", "empty", or "none".
 # @author      Peter Winter
 # @date        18/11/2026
 # @version     1.0
 #
 # @details     This driver script resolves the toolkit layout, reads the configured
-#              Git provider from software.dat, invokes the underlying check_repository.sh
-#              worker script, and prints "full" (exists with commits), "empty" (exists
+#              Git provider from software.dat, invokes the underlying list_repository.sh
+#              worker script, and returns "full" (exists with commits), "empty" (exists
 #              with no commits), or "none" (does not exist) to stdout.
 #
-# @param       $1  [Required] The repository username (retained for interface compatibility).
-# @param       $2  [Required] The repository owner or workspace name.
+# @param       $1  [Required] The repository authentication username.
+# @param       $2  [Required] The repository workspace or owner name.
 # @param       $3  [Required] The name/slug of the repository to inspect.
 #
 # @env         HOME  Path to the framework root directory (read from file).
@@ -24,7 +24,7 @@
 #
 # @security    
 #              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Delegates token retrieval and header injection to the isolated worker script.
+#              - Delegates netrc credential handling entirely to the isolated worker script.
 #              - Wraps execution statuses safely in localized variables.
 #
 # @exit        0  Success: Repository state ("full", "empty", or "none") printed to stdout.
@@ -81,7 +81,7 @@ then
         exit 1
 fi
 
-worker_script="${HOME}/services/git/${git_provider}/check_repository.sh"
+worker_script="${HOME}/services/git/${git_provider}/list_repository.sh"
 
 if [ ! -x "${worker_script}" ]
 then
@@ -91,7 +91,7 @@ fi
 
 # Temporary disable set -e to evaluate worker execution failures manually
 set +e
-output="$(${worker_script} "${repository_ownername}" "${repository_name}")"
+output="$(${worker_script} "${repository_username}" "${repository_ownername}" "${repository_name}")"
 worker_status="$?"
 set -e
 
@@ -115,3 +115,4 @@ else
 fi
 
 exit 0
+
