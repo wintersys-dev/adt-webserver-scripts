@@ -1,52 +1,5 @@
 #!/bin/sh
-###################################################################################
-# @file        clone_repository.sh
-# @brief       Downloads and extracts a Bitbucket repository branch via REST API.
-# @author      Peter Winter
-# @date        18/11/2026
-# @version     1.1
-#
-# @details     This script retrieves the Bitbucket authentication token from the
-#              toolkit configuration, validates target repository parameters, feeds
-#              credentials securely via an ephemeral netrc file descriptor (/dev/fd/3),
-#              downloads the branch tarball via Bitbucket's archive endpoint under a
-#              strict HTTP status monitoring block, and extracts it into the target
-#              destination directory without requiring a full Git history.
-#
-# @param       $1  [Required] Target branch name or "--branch <name>" flag.
-# @param       $2  [Required] The Bitbucket workspace or repository owner name.
-# @param       $3  [Required] The name/slug of the repository to download.
-# @param       $4  [Required] Local destination directory for the extracted files.
-#
-# @env         HOME              Path to the toolkit core framework layout directory.
-# @env         REPOSITORY_TOKEN  The Bitbucket API access token or App Password.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - external dependencies: cat, curl, cut, echo, grep, mkdir, mktemp, rm, sed, tar
-#
-# @security    
-#              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Uses --netrc-file /dev/fd/3 to avoid writing secrets to disk or exposing them in ps.
-#              - Quotes variable interpolations thoroughly to trap space-injection hazards.
-#
-# @exit        0  Success: Repository archive fetched and extracted cleanly.
-# @exit        *  Failure: Missing arguments, layout faults, extraction error, or non-2xx HTTP code.
-##################################################################################
-# License Agreement:
-# This file is part of The Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
-set -x
+
 set -e
 
 if [ -r /home/homedir.dat ]
