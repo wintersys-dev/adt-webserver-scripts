@@ -46,6 +46,7 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
+#set -x
 set -e
 
 if [ -r /home/homedir.dat ]
@@ -69,13 +70,15 @@ repository_ownername="${2}"
 repository_name="${3}"
 destination_directory="${4}"
 
+
 set +e
-REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'REPOSITORY_TOKEN')"
+REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN')"
+ATLASSIAN_EMAIL="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYEMAIL')"
 set -e
 
-if [ -z "${REPOSITORY_TOKEN}" ]
+if [ -z "${REPOSITORY_TOKEN}" ] || [ -z "${ATLASSIAN_EMAIL}" ]
 then
-        /bin/echo "Error: Failed to fetch required context variables (REPOSITORY_TOKEN)." >&2
+        /bin/echo "Error: Failed to fetch required context variables (APPLICATIONREPOSITORYTOKEN or APPLICATIONREPOSITORYEMAIL)." >&2
         exit 1
 fi
 
@@ -87,82 +90,65 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-#set +e
-# Open file descriptor 3 with netrc credentials in memory (no disk write)
-#exec 3<<EOF
-#machine bitbucket.org
-#login x-bitbucket-api-token-auth
-#password ${REPOSITORY_TOKEN}
-#EOF
-
-# Download the branch archive via Bitbucket's archive endpoint, following redirects (-L)
-#HTTP_CODE=$(/usr/bin/curl -s -L --netrc-file /dev/fd/3 \
-#    -o "${tmp_archive}" \
-#    -w "%{http_code}" \
-#    "https://bitbucket.org{repository_ownername}/${repository_name}/get/${branch}.tar.gz")
-
-# Immediately close file descriptor 3
-#exec 3<&-
-#set -e
-
+api_base="https://bitbucket.org"
+repo_endpoint="${repository_ownername}/${repository_name}/get/${branch}.tar.gz"
 
 set +e
 # Pipe netrc credentials via /dev/stdin to prevent disk writes or exposure in process trees
-HTTP_CODE=$(/bin/echo "machine bitbucket.org login x-bitbucket-api-token-auth password ${REPOSITORY_TOKEN}" | \
-    /usr/bin/curl -s -L --netrc-file /dev/stdin \
-    -o "${tmp_archive}" \
-    -w "%{http_code}" \
-    "https://bitbucket.org{repository_ownername}/${repository_name}/get/${branch}.tar.gz")
+HTTP_CODE=$(/bin/echo "machine bitbucket.org login "${ATLASSIAN_EMAIL}" password ${REPOSITORY_TOKEN}" | \
+        /usr/bin/curl -s -L --netrc-file /dev/stdin \
+        -o "${tmp_archive}" \
+        -w "%{http_code}" \
+        "${api_base}/${repo_endpoint}")
 set -e
-
 
 # Evaluate the HTTP response code using strict POSIX structural matching
 case "${HTTP_CODE}" in
-    200)
-        /bin/mkdir -p "${destination_directory}"
-        set +e
-        # Bitbucket archives wrap files in a top-level "<owner>-<repo>-<commit>/" folder; --strip-components=1 flattens it
-        /bin/tar -xzf "${tmp_archive}" -C "${destination_directory}" --strip-components=1 2>&1 >&2
-        tar_status="$?"
-        set -e
+        200)
+                /bin/mkdir -p "${destination_directory}"
+                set +e
+                # Bitbucket archives wrap files in a top-level "<owner>-<repo>-<commit>/" folder; --strip-components=1 flattens it
+                /bin/tar -xzf "${tmp_archive}" -C "${destination_directory}" --strip-components=1 2>&1 >&2
+                tar_status="$?"
+                set -e
 
-        if [ "${tar_status}" -ne 0 ]
-        then
-                /bin/echo "Error: Failed to extract repository archive into ${destination_directory}." >&2
+                if [ "${tar_status}" -ne 0 ]
+                then
+                        /bin/echo "Error: Failed to extract repository archive into ${destination_directory}." >&2
+                        exit 1
+                fi
+
+                /bin/echo "${destination_directory}"
+                exit 0
+                ;;
+        400)
+                /bin/echo "Error 400: Bad Request. Check branch or repository parameter syntax." >&2
+                exit 400
+                ;;
+        401)
+                /bin/echo "Error 401: Unauthorized. Your REPOSITORY_TOKEN is invalid or has expired." >&2
+                exit 401
+                ;;
+        403)
+                /bin/echo "Error 403: Forbidden. Token lacks read permissions for ${repository_ownername}/${repository_name}." >&2
+                exit 403
+                ;;
+        404)
+                /bin/echo "Error 404: Not Found. Repository ${repository_ownername}/${repository_name} or branch '${branch}' does not exist." >&2
+                exit 404
+                ;;
+        429)
+                /bin/echo "Error 429: Rate Limit Exceeded. Back off request frequency." >&2
+                exit 429
+                ;;
+        5*)
+                /bin/echo "Error ${HTTP_CODE}: Bitbucket Gateway or Remote Server Exception." >&2
+                exit 500
+                ;;
+        *)
+                /bin/echo "Error ${HTTP_CODE}: Remote endpoint refused connection or threw an unexpected code." >&2
                 exit 1
-        fi
-
-        /bin/echo "${destination_directory}"
-        exit 0
-        ;;
-    400)
-        /bin/echo "Error 400: Bad Request. Check branch or repository parameter syntax." >&2
-        exit 400
-        ;;
-    401)
-        /bin/echo "Error 401: Unauthorized. Your REPOSITORY_TOKEN is invalid or has expired." >&2
-        exit 401
-        ;;
-    403)
-        /bin/echo "Error 403: Forbidden. Token lacks read permissions for ${repository_ownername}/${repository_name}." >&2
-        exit 403
-        ;;
-    404)
-        /bin/echo "Error 404: Not Found. Repository ${repository_ownername}/${repository_name} or branch '${branch}' does not exist." >&2
-        exit 404
-        ;;
-    429)
-        /bin/echo "Error 429: Rate Limit Exceeded. Back off request frequency." >&2
-        exit 429
-        ;;
-    5*)
-        /bin/echo "Error ${HTTP_CODE}: Bitbucket Gateway or Remote Server Exception." >&2
-        exit 500
-        ;;
-    *)
-        /bin/echo "Error ${HTTP_CODE}: Remote endpoint refused connection or threw an unexpected code." >&2
-        exit 1
-        ;;
+                ;;
 esac
 
 exit 0
