@@ -1,51 +1,5 @@
 #!/bin/sh
-###################################################################################
-# @file        create_repository.sh
-# @brief       Creates a new private Bitbucket Git repository via API using netrc stdin.
-# @author      Peter Winter
-# @date        18/11/2026
-# @version     1.0
-#
-# @details     This script retrieves the Bitbucket authentication token and Atlassian
-#              account email from the toolkit configuration, validates the target
-#              username and repository name parameters, builds the Bitbucket v2.0
-#              REST API endpoint URL, pipes netrc credentials into curl via
-#              /dev/stdin to prevent disk writes or process tree exposure, and
-#              executes an authenticated curl POST request.
-#
-# @param       $1  [Required] The Bitbucket workspace or repository username.
-# @param       $2  [Required] The name/slug of the repository to create.
-#
-# @env         HOME              Path to the toolkit core framework layout directory.
-# @env         REPOSITORY_TOKEN  The Bitbucket API access token.
-# @env         ATLASSIAN_EMAIL   The Atlassian account email used for API login.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - external dependencies: cat, curl, cut, echo, grep, sed
-#
-# @security    
-#              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Uses --netrc-file /dev/stdin to avoid writing secrets to disk or exposing them in ps.
-#              - Quotes variable interpolations thoroughly to trap space-injection hazards.
-#
-# @exit        0  Success: Repository created cleanly (HTTP 200/201).
-# @exit        *  Failure: Missing arguments, layout faults, or a non-2xx status 
-#                 code thrown back by the remote endpoint or pipeline.
-##################################################################################
-# License Agreement:
-# This file is part of The Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
+
 set -e
 
 if [ -r /home/homedir.dat ]
