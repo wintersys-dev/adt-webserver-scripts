@@ -90,7 +90,11 @@ then
         exit 1
 fi
 
-repository_provider="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')"
+if [ -z "${repository_provider}" ]
+then
+        repository_provider="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')"
+fi
+
 if [ -z "${repository_provider}" ]
 then
         /bin/echo "Error: GIT provider  not found in ${software_file}" >&2
