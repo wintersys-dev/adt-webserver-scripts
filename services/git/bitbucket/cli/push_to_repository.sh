@@ -1,53 +1,5 @@
 #!/bin/sh
-###################################################################################
-# @file        push_to_repository.sh
-# @brief       Commits and pushes a local directory to Bitbucket via Git CLI.
-# @author      Peter Winter
-# @date        18/11/2026
-# @version     1.0
-#
-# @details     This script retrieves the Bitbucket authentication token from the
-#              toolkit configuration, validates the source directory, branch, and
-#              target repository arguments, encodes credentials via pipe into
-#              GIT_CONFIG_COUNT environment variables so no temporary files touch
-#              disk or appear in process trees, initialises or updates the local
-#              Git repository, commits all files, and pushes to Bitbucket.
-#
-# @param       $1  [Required] Local source directory containing content to push.
-# @param       $2  [Required] Target branch name or "--branch <name>" flag.
-# @param       $3  [Required] The Bitbucket authentication username.
-# @param       $4  [Required] The Bitbucket workspace or repository owner name.
-# @param       $5  [Required] The name/slug of the existing target repository.
-#
-# @env         HOME              Path to the toolkit core framework layout directory.
-# @env         REPOSITORY_TOKEN  The Bitbucket API access token.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active framework layout.
-#              - external dependencies: base64, cat, echo, find, git, printf, sed
-#
-# @security    
-#              - Hardens system-owned paths (/bin, /usr/bin) to eliminate executable hijack vectors.
-#              - Uses GIT_CONFIG_COUNT env vars so no netrc files touch disk and no secrets appear in ps.
-#              - Scrubs sensitive environment variables immediately after execution.
-#
-# @exit        0  Success: Directory files committed and pushed cleanly via Git CLI.
-# @exit        *  Failure: Missing arguments, empty directory, layout faults, or git error.
-##################################################################################
-# License Agreement:
-# This file is part of The Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
-#set -x
+
 set -e
 
 if [ -r /home/homedir.dat ]
