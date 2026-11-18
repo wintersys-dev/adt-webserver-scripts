@@ -1,9 +1,10 @@
 #!/bin/sh
 #: Name:        create_repository.sh
-#: Purpose:     Creates a new Git repository within a Bitbucket workspace via REST API v2.0.
+#: Purpose:     Creates a new Git repository within a Bitbucket workspace via REST API v2.0
+#:              using transient .netrc authentication.
 #: Author:      Peter Winter
 #: Date:        18/11/2026
-#: Version:     1.0
+#: Version:     1.1
 #:
 #: Usage:       create_repository.sh <workspace> <repo_slug> <json_payload>
 #:              create_repository.sh [-h|--help]
@@ -19,8 +20,8 @@
 #: Dependencies:
 #:   - /home/buildhome.dat
 #:   - LogStatusMessages.sh
-#:   - GetVariableValue.sh
-#:   - External binaries: cat, echo, grep, cut, sed, tr, curl, jq
+#:   - CreateTransientNetrc.sh
+#:   - External binaries: cat, echo, grep, cut, sed, tr, rm, curl, jq
 #:
 #: Exit Codes:
 #:   0          Bitbucket repository created cleanly
@@ -65,6 +66,14 @@ status()
         "${BUILD_HOME}/helpers/services/LogStatusMessages.sh" "${1}" 2>/dev/null >&2
 }
 
+# Ensure transient .netrc directory is always removed on exit
+netrc_dir=""
+cleanup()
+{
+        [ -n "${netrc_dir}" ] && /bin/rm -rf "${netrc_dir}"
+}
+trap cleanup EXIT
+
 # Validate that all required positional arguments were provided
 if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
 then
@@ -82,22 +91,33 @@ json_payload="${3}"
 api_sub="api"
 api_domain="bitbucket.org"
 api_path="2.0/repositories"
+api_host="${api_sub}.${api_domain}"
 
-endpoint="https://${api_sub}.${api_domain}/${api_path}/${workspace}/${repo_slug}"
+endpoint="https://${api_host}/${api_path}/${workspace}/${repo_slug}"
 
-# Retrieve the Bitbucket authentication token from the active deployment context
-TOKEN="$("${BUILD_HOME}/helpers/services/GetVariableValue.sh" GIT_TOKEN)"
+# Generate transient .netrc directory scoped to api.bitbucket.org
+set +e
+netrc_dir="$("${BUILD_HOME}/helpers/services/CreateTransientNetrc.sh" "bitbucket" "" "${api_host}")"
+netrc_exit=$?
+set -e
 
-if [ -z "${TOKEN}" ]
+if [ "${netrc_exit}" -ne 0 ] || [ -z "${netrc_dir}" ]
 then
-        status "Error: Failed to fetch required context variables (GIT_TOKEN)."
+        status "Error: Failed to create transient .netrc authentication context."
         exit 1
 fi
 
-# Submit the repository creation POST request with token passed securely via stdin
+# Submit the repository creation POST request using transient .netrc authentication
 set +e
-RESPONSE=$(/bin/echo "Authorization: Bearer ${TOKEN}" | /usr/bin/curl -H @- -s -X POST -H "Content-Type: application/json" -d "${json_payload}" "${endpoint}" -w "\nHTTP_STATUS:%{http_code}")
+RESPONSE=$(/usr/bin/curl --netrc-file "${netrc_dir}/.netrc" -s -X POST -H "Content-Type: application/json" -d "${json_payload}" "${endpoint}" -w "\nHTTP_STATUS:%{http_code}")
+curl_exit=$?
 set -e
+
+if [ "${curl_exit}" -ne 0 ]
+then
+        status "Error: Network or curl failure submitting repository creation request to ${endpoint}."
+        exit 1
+fi
 
 # Separate the HTTP status code and JSON response body
 HTTP_CODE=$(/bin/echo "${RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
@@ -142,3 +162,4 @@ case "${HTTP_CODE}" in
 esac
 
 exit 0
+
