@@ -61,7 +61,7 @@ fi
 # Validate minimum required positional arguments
 if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
 then
-        /bin/echo "Error: 3 arguments are required and 1 optional argument." >&2
+        /bin/echo "Error: 3 arguments are required" >&2
         /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> " >&2
         exit 1
 fi
