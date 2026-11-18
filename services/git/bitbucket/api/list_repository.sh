@@ -95,7 +95,7 @@ repo_slug="$(/bin/echo "${raw_repo}" | /usr/bin/tr '[:upper:]' '[:lower:]' | /us
 
 # Generate transient .netrc directory (automatically covers api.bitbucket.org)
 set +e
-netrc_dir="$("${BUILD_HOME}/helpers/services/CreateTransientNetrc.sh" "bitbucket")"
+netrc_dir="$("${BUILD_HOME}/services/git/CreateTransientNetRC.sh" "bitbucket")"
 netrc_exit=$?
 set -e
 
