@@ -90,7 +90,7 @@ export GIT_CONFIG_VALUE_0="Authorization: Basic ${encoded_auth}"
 export GIT_TERMINAL_PROMPT=0
 
 set +e
-ls_output="$(/usr/bin/git ls-remote "https://github.com{repository_ownername}/${repository_name}.git" 2>/dev/null)"
+ls_output="$(/usr/bin/git ls-remote "https://github.com/${repository_ownername}/${repository_name}.git" 2>/dev/null)"
 git_status="$?"
 set -e
 
