@@ -1,4 +1,49 @@
 #!/bin/sh
+#: Name:        clone_repository.sh
+#: Purpose:     Downloads and extracts a Bitbucket repository branch archive via HTTP API.
+#: Author:      Peter Winter
+#: Date:        18/11/2026
+#: Version:     1.0
+#:
+#: Usage:       clone_repository.sh <branch> <repository_ownername> <repository_name> <destination_directory>
+#:
+#: Parameters:
+#:   $1         [Required] Target branch name or "--branch <name>" flag.
+#:   $2         [Required] The Bitbucket workspace or repository owner name.
+#:   $3         [Required] The name/slug of the repository to download.
+#:   $4         [Required] Local destination directory for the extracted files.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - External binaries: cat, curl, echo, mkdir, mktemp, printf, rm, sed, tar
+#:
+#: Exit Codes:
+#:   0          Repository archive downloaded and extracted cleanly
+#:   1          Missing arguments, layout faults, extraction error, or unexpected HTTP code
+#:   400        Bad Request (invalid branch or repository parameter syntax)
+#:   401        Unauthorized (invalid or expired APPLICATIONREPOSITORYTOKEN or email)
+#:   403        Forbidden (token lacks read permissions for target repository)
+#:   404        Not Found (repository or branch does not exist)
+#:   429        Rate Limit Exceeded
+#:   500        Bitbucket Gateway or Remote Server Exception (5xx)
+###################################################################################
+# License Agreement:
+# This file is part of The Wintersys Agile Deployment Toolkit.
+# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
 
 set -e
 
