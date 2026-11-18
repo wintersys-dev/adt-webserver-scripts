@@ -95,14 +95,15 @@ then
         exit 1
 fi
 
-repo_endpoint="https://github.com/${repository_ownername}/${repository_name}"
+github_api_version="2026-03-10"
+repo_endpoint="https://api.github.com/${repository_ownername}/${repository_name}"
 
 github_api() {
         /bin/echo "Authorization: Bearer ${REPOSITORY_TOKEN}" | \
                 /usr/bin/curl -s -X "${1}" -H @- \
                 -H "Accept: application/vnd.github+json" \
                 -H "Content-Type: application/json" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
+                -H "X-GitHub-Api-Version: ${github_api_version}" \
                 "${2}" ${3:+-d "${3}"} -w "\n%{http_code}"
 }
 
