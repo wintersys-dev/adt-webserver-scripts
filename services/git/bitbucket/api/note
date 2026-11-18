@@ -1,0 +1,3 @@
+need to remove BUILD_HOME
+status 
+and use Extract rather than GetVariable
