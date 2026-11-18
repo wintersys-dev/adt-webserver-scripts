@@ -20,10 +20,10 @@
 #: Dependencies:
 #:   - /home/homedir.dat
 #:   - ${HOME}/utilities/config/ExtractConfigValue.sh
-#:   - External binaries: cat, curl, cut, echo, grep, mkdir, mktemp, rm, sed, tar
+#:   - External binaries: cat, curl, cut, echo, find, grep, mkdir, mktemp, rm, sed, tar, xargs
 #:
 #: Exit Codes:
-#:   0          Repository archive downloaded and extracted cleanly
+#:   0          Repository archive downloaded, extracted, and normalised to LF cleanly
 #:   1          Missing arguments, layout faults, extraction error, or unexpected HTTP code
 #:   401        Unauthorized (invalid or expired APPLICATIONREPOSITORYTOKEN)
 #:   403        Forbidden (token lacks read permissions for target repository)
@@ -99,7 +99,6 @@ set +e
 HTTP_CODE=$(/bin/echo "Authorization: Bearer ${REPOSITORY_TOKEN}" | \
         /usr/bin/curl -s -L -H @- \
         -H "Accept: application/vnd.github+json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
         -H "X-GitHub-Api-Version: ${github_api_version}" \
         -o "${tmp_archive}" \
         -w "%{http_code}" \
@@ -119,6 +118,9 @@ case "${HTTP_CODE}" in
                         /bin/echo "Error: Failed to extract repository archive into ${destination_directory}." >&2
                         exit 1
                 fi
+
+                # Normalise CRLF (^M) line endings to LF on extracted text files while skipping binary assets
+                /usr/bin/find "${destination_directory}" -type f -exec /usr/bin/grep -Il '' {} + | /usr/bin/xargs -r /bin/sed -i 's/\r$//'
 
                 /bin/echo "${destination_directory}"
                 exit 0
