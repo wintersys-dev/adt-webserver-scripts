@@ -1,41 +1,4 @@
 #!/bin/sh
-#: Name:        CreateRepository.sh
-#: Purpose:     Validates and orchestrates repository creation requests to the designated Git provider sub-driver.
-#: Author:      Peter Winter
-#: Date:        17/11/2026
-#: Version:     1.0
-#:
-#: Usage:       CreateRepository.sh "<repository_name>" 
-#:              CreateRepository.sh [-h|--help]
-#:
-#: Parameters:
-#:   $1         [Required] Target repository name to create
-#:
-#: Environment:
-#:   HOME       Resolved automatically from /home/homedir.dat
-#:
-#: Dependencies:
-#:   - /home/homedir.dat
-#:   - ${HOME}/services/git/<repository_provider>/CreateRepository.sh
-#:   - External binaries: cat, echo, grep, cut
-#:
-#: Exit Codes:
-#:   0          Repository created successfully via provider sub-driver
-#:   1          Missing required arguments, missing config/provider script, or sub-driver failure
-###################################################################################
-# License Agreement:
-# This file is part of The Wintersys Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
 
 # Exit immediately if any command exits with a non-zero status
 #set -x
@@ -60,23 +23,22 @@ fi
 # Validate minimum required positional arguments
 if [ -z "${1}" ] 
 then
-        /bin/echo "Error: 1 arguments is required" >&2
-        /bin/echo "Usage: $0 <repository_name>" >&2
+        /bin/echo "Error: 3 arguments are required" >&2
+        /bin/echo "Usage: $0 <repository_provider> <repository_username> <repository_name>" >&2
         exit 1
 fi
 
-repository_name="${1}"
-
 set +e
-repository_username="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME')"
-repository_provider="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')"
+repository_provider="${1:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}")
+repository_username="${1:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME')}")
+repository_name="${3}"
 set -e
 
 # Verify that both required values are set from either arguments or config
-if [ -z "${repository_username}" ] || [ -z "${repository_name}" ]
+if [ -z "${repository_provider}" ] || [ -z "${repository_username}" ] || [ -z "${repository_name}" ]
 then
-        /bin/echo "Error: Repository username and repository name could not be determined from arguments or config." >&2
-        /bin/echo "Usage: $0 [repository_username] [repository_name]" >&2
+        /bin/echo "Error: Repository provider or repository username or repository name could not be determined from arguments or config." >&2
+        /bin/echo "Usage: $0 [repository_provider] [repository_username] [repository_name]" >&2
         exit 1
 fi
 
