@@ -1,44 +1,5 @@
 #!/bin/sh
-#: Name:        PushToRepository.sh
-#: Purpose:     Validates and orchestrates baseline Git push requests to the designated Git provider sub-driver.
-#: Author:      Peter Winter
-#: Date:        17/11/2026
-#: Version:     1.0
-#:
-#: Usage:       PushToRepository.sh "<repository_provider>" "<repository_owner>" "<repository_name>" ["<repository_username>"]
-#:              PushToRepository.sh [-h|--help]
-#:
-#: Parameters:
-#:   $1         [Required] Hosting vendor identifier (e.g. github, gitlab, bitbucket)
-#:   $2         [Required] Organisation, workspace, or profile namespace account name
-#:   $3         [Required] Case-sensitive target repository name
-#:   $4         [Optional] Account username or credential identifier for authenticated pushes
-#:
-#: Environment:
-#:   HOME       Resolved automatically from /home/homedir.dat
-#:
-#: Dependencies:
-#:   - /home/homedir.dat
-#:   - ${HOME}/services/git/<repository_provider>/PushToRepository.sh
-#:   - External binaries: cat, echo, grep, cut
-#:
-#: Exit Codes:
-#:   0          Baseline commit pushed successfully via provider sub-driver
-#:   1          Missing required arguments, missing config/provider script, or sub-driver failure
-###################################################################################
-# License Agreement:
-# This file is part of The Wintersys Agile Deployment Toolkit.
-# The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# The Agile Deployment Toolkit is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-####################################################################################
+
 
 # Exit immediately if any command exits with a non-zero status
 #set -x
