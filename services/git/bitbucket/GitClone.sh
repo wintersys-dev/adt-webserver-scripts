@@ -46,7 +46,6 @@
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ########################################################################################
-#set -x
 set -e
 
 if [ -r /home/homedir.dat ]
@@ -109,7 +108,8 @@ output="$(${worker_script} "${branch_command}" "${repository_ownername}" "${repo
 clone_status="$?"
 set -e
 
-if [ "${clone_status}" -eq 0 ] && [ -d "${destination_directory}/.git" ]
+
+if [ "${clone_status}" -eq 0 ] && [ -d "${destination_directory}" ] && [ -n "$(/bin/ls -A "${destination_directory}")" ]
 then
         /bin/echo "${output}"
 else
