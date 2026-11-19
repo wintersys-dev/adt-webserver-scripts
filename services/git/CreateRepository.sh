@@ -1,29 +1,30 @@
 #!/bin/sh
-#: Name:        ListRepository.sh
-#: Purpose:     Orchestrates remote repository status checks across configured Git providers.
+#: Name:        CreateRepository.sh
+#: Purpose:     Orchestrates private repository creation across configured Git providers.
 #: Author:      Peter Winter
 #: Date:        18/11/2026
 #: Version:     1.0
 #:
-#: Usage:       ListRepository.sh <repository_provider> <repository_ownername> <repository_name>
-#:              ListRepository.sh [-h|--help]
+#: Usage:       CreateRepository.sh [repository_provider] [repository_username] <repository_name>
+#:              CreateRepository.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Required] The Git provider name (e.g. bitbucket, github, gitlab).
-#:   $2         [Required] The workspace or repository owner name.
-#:   $3         [Required] The name/slug of the repository to inspect.
+#:   $1         [Optional] The Git provider name (falls back to APPLICATIONREPOSITORYPROVIDER).
+#:   $2         [Optional] The workspace or repository username (falls back to APPLICATIONREPOSITORYUSERNAME).
+#:   $3         [Required] The name/slug of the repository to create.
 #:
 #: Environment:
 #:   HOME       Resolved automatically from /home/homedir.dat
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/services/git/${repository_provider}/ListRepository.sh
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - ${HOME}/services/git/${repository_provider}/CreateRepository.sh
 #:   - External binaries: cat, echo, grep, cut
 #:
 #: Exit Codes:
-#:   0          Repository check delegated and completed cleanly by provider sub-driver
-#:   1          Missing arguments, layout faults, missing/non-executable sub-driver, or check failure
+#:   0          Repository creation delegated and completed cleanly by provider sub-driver
+#:   1          Missing arguments, layout faults, missing/non-executable sub-driver, or creation failure
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -40,6 +41,7 @@
 ####################################################################################
 
 # Exit immediately if any command exits with a non-zero status
+#set -x
 set -e
 
 # Render self-extracting help documentation when -h or --help is supplied
@@ -58,20 +60,22 @@ else
         exit 1
 fi
 
-# Validate minimum required positional arguments
-if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]
+set +e
+repository_provider="${1:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}"
+repository_username="${2:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYUSERNAME')}"
+repository_name="${3}"
+set -e
+
+# Verify that all required values are set from either arguments or config
+if [ -z "${repository_provider}" ] || [ -z "${repository_username}" ] || [ -z "${repository_name}" ]
 then
-        /bin/echo "Error: 3 arguments are required" >&2
-        /bin/echo "Usage: $0 <repository_provider> <repository_ownername> <repository_name> " >&2
+        /bin/echo "Error: Repository provider, repository username, or repository name could not be determined from arguments or config." >&2
+        /bin/echo "Usage: $0 [repository_provider] [repository_username] <repository_name>" >&2
         exit 1
 fi
 
-repository_provider="${1:-$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')}"
-repository_ownername="${2}"
-repository_name="${3}"
-
 # Verify provider sub-driver script exists and is executable before delegating
-provider_script="${HOME}/services/git/${repository_provider}/ListRepository.sh"
+provider_script="${HOME}/services/git/${repository_provider}/CreateRepository.sh"
 
 if [ ! -f "${provider_script}" ]
 then
@@ -85,15 +89,15 @@ then
         exit 1
 fi
 
-# Delegate remote repository check to the provider-specific sub-driver
+# Delegate repository creation to the provider-specific sub-driver
 set +e
-"${provider_script}" "${repository_ownername}" "${repository_name}" 
+"${provider_script}" "${repository_username}" "${repository_name}"
 exit_code="$?"
 set -e
 
 if [ "${exit_code}" -ne 0 ]
 then
-        /bin/echo "Error: ${provider_script} returned error code ${exit_code}." >&2
+        /bin/echo "Error: ${provider_script} exited with error code ${exit_code}." >&2
         exit 1
 fi
 
