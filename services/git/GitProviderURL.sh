@@ -8,13 +8,11 @@
 #: Usage:       GitProviderURL.sh 
 #:              GitProviderURL.sh [-h|--help]
 #:
-#:
 #: Environment:
 #:   HOME       Resolved automatically from /home/homedir.dat
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/services/git/<repository_provider>/GitClone.sh
 #:   - External binaries: cat, echo, grep, cut
 #:
 #: Exit Codes:
