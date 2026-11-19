@@ -96,41 +96,42 @@ then
 fi
 
 encoded_project="$(/bin/echo "${repository_ownername}/${repository_name}" | /usr/bin/sed 's/\//%2F/g')"
-commits_endpoint="api_base="https://gitlab.com/api/v4/${encoded_project}/repository/commits"
+commits_endpoint="https://gitlab.com/api/v4/projects/${encoded_project}/repository/commits"
 
-# Build the batch commit actions array in a single stream (supports text and binary files via base64)
+
 actions_json="$(
         /usr/bin/find . -path './.git' -prune -o -type f -print | while IFS= read -r rel_path
-        do
-                clean_path="${rel_path#./}"
-                exec_flag="false"
-                [ -x "${clean_path}" ] && exec_flag="true"
-                b64_data="$(/usr/bin/base64 -w0 "${clean_path}")"
+do
+        clean_path="${rel_path#./}"
+        exec_flag="false"
+        [ -x "${clean_path}" ] && exec_flag="true"
+        b64_data="$(/usr/bin/base64 -w0 "${clean_path}")"
 
-                /usr/bin/jq -n \
-                        --arg path "${clean_path}" \
-                        --arg content "${b64_data}" \
-                        --argjson exec "${exec_flag}" \
-                        '{"action":"create","file_path":$path,"content":$content,"encoding":"base64","execute_filemode":$exec}'
-        done | /usr/bin/jq -s '.'
+        /usr/bin/jq -n \
+                --arg path "${clean_path}" \
+                --arg content "${b64_data}" \
+                --argjson exec "${exec_flag}" \
+                '{"action":"create","file_path":$path,"content":$content,"encoding":"base64","execute_filemode":$exec}'
+done | /usr/bin/jq -s '.'
 )"
 
 payload="$(/usr/bin/jq -n \
         --arg branch "${branch}" \
         --arg msg "Automated deployment push" \
         --arg name "${repository_username}" \
-        --arg email "${repository_username}@://gitlab.com" \
+        --arg email "${repository_username}@gitlab.com" \
         --argjson actions "${actions_json}" \
         '{"branch":$branch,"commit_message":$msg,"author_name":$name,"author_email":$email,"force":true,"actions":$actions}')"
 
 set +e
-RESPONSE=$(/bin/echo "PRIVATE-TOKEN: ${REPOSITORY_TOKEN}" | \
-        /usr/bin/curl -s -X POST -H @- \
+RESPONSE=$(printf '%s' "${payload}" | /usr/bin/curl -s -X POST \
+        -H "PRIVATE-TOKEN: ${REPOSITORY_TOKEN}" \
         -H "Content-Type: application/json" \
         "${commits_endpoint}" \
-        -d "${payload}" \
+        --data-binary @- \
         -w "\n%{http_code}")
 set -e
+
 
 HTTP_CODE="$(/bin/echo "${RESPONSE}" | /usr/bin/tail -n1)"
 RESPONSE_BODY="$(/bin/echo "${RESPONSE}" | /usr/bin/sed '$d')"
