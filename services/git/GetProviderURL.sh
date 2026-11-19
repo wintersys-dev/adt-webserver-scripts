@@ -1,12 +1,12 @@
 #!/bin/sh
-#: Name:        GitProviderURL.sh
+#: Name:        GetProviderURL.sh
 #: Purpose:     Resolves and executes the provider-specific GitProviderURL.sh sub-driver to retrieve the repository URL.
 #: Author:      Peter Winter
 #: Date:        17/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitProviderURL.sh
-#:              GitProviderURL.sh [-h|--help]
+#: Usage:       GetProviderURL.sh
+#:              GetProviderURL.sh [-h|--help]
 #:
 #: Environment:
 #:   HOME                 Resolved automatically from /home/homedir.dat
