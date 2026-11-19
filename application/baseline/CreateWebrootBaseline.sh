@@ -142,7 +142,7 @@ case "${repo_status}" in
                 if [ "${create_repo}" = "1" ]
                 then
                         /bin/echo "Creating new repository (${target_repo})..."
-                        "${HOME}/services/git/CreateRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}"
+                        "${HOME}/services/git/CreateRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_USERNAME}" "${target_repo}" 
                         # Allow remote provider API propagation cooldown
                         /bin/sleep 10
 
