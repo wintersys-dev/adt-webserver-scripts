@@ -1,12 +1,12 @@
 #!/bin/sh
-#: Name:        GitLSRemote.sh
+#: Name:        ListRepository.sh
 #: Purpose:     Orchestrates remote repository status checks across configured Git providers.
 #: Author:      Peter Winter
 #: Date:        18/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitLSRemote.sh <repository_provider> <repository_ownername> <repository_name>
-#:              GitLSRemote.sh [-h|--help]
+#: Usage:       ListRepository.sh <repository_provider> <repository_ownername> <repository_name>
+#:              ListRepository.sh [-h|--help]
 #:
 #: Parameters:
 #:   $1         [Required] The Git provider name (e.g. bitbucket, github, gitlab).
@@ -18,7 +18,7 @@
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/services/git/${repository_provider}/GitLSRemote.sh
+#:   - ${HOME}/services/git/${repository_provider}/ListRepository.sh
 #:   - External binaries: cat, echo, grep, cut
 #:
 #: Exit Codes:
