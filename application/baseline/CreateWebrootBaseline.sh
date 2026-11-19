@@ -142,7 +142,7 @@ case "${repo_status}" in
                 if [ "${create_repo}" = "1" ]
                 then
                         /bin/echo "Creating new repository (${target_repo})..."
-                        "${HOME}/services/git/CreateRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_USERNAME}" "${target_repo}" 
+                        "${HOME}/services/git/CreateRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_USERNAME}" "${target_repo}"
                         # Allow remote provider API propagation cooldown
                         /bin/sleep 10
 
@@ -240,7 +240,7 @@ fi
 
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 set +e
-"${HOME}/services/git/PushToRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}"
+"${HOME}/services/git/PushToRepository.sh" "${backup_dir}" "${target_repo}" "main" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${APPLICATION_REPOSITORY_USERNAME}"
 error_code="$?"
 set -e
 unset REPOSITORY_TOKEN
