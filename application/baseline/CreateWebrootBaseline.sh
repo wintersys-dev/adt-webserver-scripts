@@ -18,7 +18,7 @@
 #:   - /home/homedir.dat
 #:   - ${HOME}/runtime/application.dat
 #:   - ${HOME}/utilities/config/ExtractConfigValue.sh
-#:   - ${HOME}/services/git/GitLSRemote.sh
+#:   - ${HOME}/services/git/ListRepository.sh
 #:   - ${HOME}/services/git/CreateRepository.sh
 #:   - ${HOME}/services/git/PushToRepository.sh
 #:   - ${HOME}/services/git/gitattributes
@@ -116,7 +116,7 @@ WEBSITE_DISPLAY_NAME_FIRST="$(/bin/echo "${WEBSITE_DISPLAY_NAME_LOWER}" | /bin/s
 
 # Verify or provision the target remote baseline repository
 export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
-repo_status="$("${HOME}/services/git/GitLSRemote.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}")"
+repo_status="$("${HOME}/services/git/ListRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}")"
 
 case "${repo_status}" in
         none)
@@ -146,7 +146,7 @@ case "${repo_status}" in
                         # Allow remote provider API propagation cooldown
                         /bin/sleep 10
 
-                        verify_status="$("${HOME}/services/git/GitLSRemote.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}")"
+                        verify_status="$("${HOME}/services/git/ListRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}")"
                         if [ "${verify_status}" = "empty" ]
                         then
                                 /bin/echo "Repository (${target_repo}) successfully created."
