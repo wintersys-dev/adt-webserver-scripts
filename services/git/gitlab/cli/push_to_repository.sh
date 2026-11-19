@@ -127,7 +127,7 @@ else
 fi
 
 /usr/bin/git config user.name "${repository_username}"
-/usr/bin/git config user.email "${repository_username}@://gitlab.com"
+/usr/bin/git config user.email "${repository_username}@users.noreply.gitlab.com"
 
 /usr/bin/git add -A
 
