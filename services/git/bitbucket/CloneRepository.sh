@@ -1,5 +1,5 @@
 #!/bin/sh
-#: Name:        GitClone.sh
+#: Name:        CloneRepository.sh
 #: Purpose:     Clones or downloads a remote Git repository branch to a local path.
 #: Author:      Peter Winter
 #: Date:        18/11/2026
