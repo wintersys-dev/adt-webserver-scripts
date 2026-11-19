@@ -71,7 +71,7 @@ repository_ownername="${2}"
 repository_name="${3}"
 
 # Verify provider sub-driver script exists and is executable before delegating
-provider_script="${HOME}/services/git/${repository_provider}/GitLSRemote.sh"
+provider_script="${HOME}/services/git/${repository_provider}/ListRepository.sh"
 
 if [ ! -f "${provider_script}" ]
 then
