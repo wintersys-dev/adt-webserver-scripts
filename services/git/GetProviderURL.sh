@@ -55,8 +55,10 @@ else
         exit 1
 fi
 
+repository_provider="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYPROVIDER')"
+
 # Verify provider sub-driver script exists and is executable before delegating
-provider_script="${HOME}/services/git/${repository_provider}/GitProviderURL.sh"
+provider_script="${HOME}/services/git/${repository_provider}/GetProviderURL.sh"
 
 if [ ! -f "${provider_script}" ]
 then
