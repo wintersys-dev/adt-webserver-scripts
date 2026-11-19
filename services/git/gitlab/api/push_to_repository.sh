@@ -1,8 +1,8 @@
 #!/bin/sh
 #: Name:        push_to_repository.sh
-#: Purpose:     Commits and pushes a local directory to GitLab via REST API v4 (Commits API).
+#: Purpose:     Redirects repository push requests to the GitLab CLI worker.
 #: Author:      Peter Winter
-#: Date:        18/11/2026
+#: Date:        19/11/2026
 #: Version:     1.0
 #:
 #: Usage:       push_to_repository.sh <source_directory> <branch> <repository_username> <repository_ownername> <repository_name>
@@ -20,12 +20,13 @@
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
-#:   - External binaries: base64, cat, curl, cut, echo, find, grep, jq, sed, tail
+#:   - ${HOME}/services/git/gitlab/cli/push_to_repository.sh
+#:   - External binaries: cat, cut, echo, grep
 #:
 #: Exit Codes:
-#:   0          Directory files committed and pushed cleanly via GitLab API (HTTP 201)
-#:   1          Missing arguments, invalid or empty directory, layout faults, missing credentials, or API error
+#:   0          Request delegated and directory pushed cleanly via CLI
+#:   1          Missing arguments, layout faults, or missing/non-executable CLI script
+#:   *          Bubbled exit code from ${HOME}/services/git/gitlab/cli/push_to_repository.sh
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -38,10 +39,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+# along with The Wintersys Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
-#set -x
 set -e
 
 if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
@@ -65,83 +65,12 @@ then
         exit 1
 fi
 
-source_directory="${1}"
-branch="$(/bin/echo "${2}" | /usr/bin/sed 's/^--branch[[:space:]]*//')"
-repository_username="${3}"
-repository_ownername="${4}"
-repository_name="${5}"
+cli_script="${HOME}/services/git/gitlab/cli/push_to_repository.sh"
 
-if [ ! -d "${source_directory}" ]
+if [ ! -x "${cli_script}" ]
 then
-        /bin/echo "Error: Source directory does not exist at ${source_directory}." >&2
+        /bin/echo "Error: Target CLI script not found or not executable at ${cli_script}" >&2
         exit 1
 fi
 
-set +e
-REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATIONREPOSITORYTOKEN')"
-set -e
-
-if [ -z "${REPOSITORY_TOKEN}" ]
-then
-        /bin/echo "Error: Failed to fetch required context variables (APPLICATIONREPOSITORYTOKEN)." >&2
-        exit 1
-fi
-
-cd "${source_directory}"
-
-if [ -z "$(/usr/bin/find . -path './.git' -prune -o -type f -print)" ]
-then
-        /bin/echo "Error: No files found to push in ${source_directory}." >&2
-        exit 1
-fi
-
-encoded_project="$(/bin/echo "${repository_ownername}/${repository_name}" | /usr/bin/sed 's/\//%2F/g')"
-commits_endpoint="https://gitlab.com/api/v4/projects/${encoded_project}/repository/commits"
-
-
-actions_json="$(
-        /usr/bin/find . -path './.git' -prune -o -type f -print | while IFS= read -r rel_path
-do
-        clean_path="${rel_path#./}"
-        exec_flag="false"
-        [ -x "${clean_path}" ] && exec_flag="true"
-        b64_data="$(/usr/bin/base64 -w0 "${clean_path}")"
-
-        /usr/bin/jq -n \
-                --arg path "${clean_path}" \
-                --arg content "${b64_data}" \
-                --argjson exec "${exec_flag}" \
-                '{"action":"create","file_path":$path,"content":$content,"encoding":"base64","execute_filemode":$exec}'
-done | /usr/bin/jq -s '.'
-)"
-
-payload="$(/usr/bin/jq -n \
-        --arg branch "${branch}" \
-        --arg msg "Automated deployment push" \
-        --arg name "${repository_username}" \
-        --arg email "${repository_username}@gitlab.com" \
-        --argjson actions "${actions_json}" \
-        '{"branch":$branch,"commit_message":$msg,"author_name":$name,"author_email":$email,"force":true,"actions":$actions}')"
-
-set +e
-RESPONSE=$(printf '%s' "${payload}" | /usr/bin/curl -s -X POST \
-        -H "PRIVATE-TOKEN: ${REPOSITORY_TOKEN}" \
-        -H "Content-Type: application/json" \
-        "${commits_endpoint}" \
-        --data-binary @- \
-        -w "\n%{http_code}")
-set -e
-
-
-HTTP_CODE="$(/bin/echo "${RESPONSE}" | /usr/bin/tail -n1)"
-RESPONSE_BODY="$(/bin/echo "${RESPONSE}" | /usr/bin/sed '$d')"
-
-if [ "${HTTP_CODE}" != "201" ]
-then
-        /bin/echo "Error ${HTTP_CODE}: GitLab API commit push failed for ${repository_ownername}/${repository_name}." >&2
-        /bin/echo "API Detail: ${RESPONSE_BODY}" >&2
-        exit 1
-fi
-
-/bin/echo "https://gitlab.com/${repository_ownername}/${repository_name}.git"
-exit 0
+exec "${cli_script}" "$@"
