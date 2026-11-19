@@ -1,12 +1,12 @@
 #!/bin/sh
-#: Name:        GitClone.sh
+#: Name:        CloneRepository.sh
 #: Purpose:     Orchestrates repository cloning across configured Git providers.
 #: Author:      Peter Winter
 #: Date:        18/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitClone.sh <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>
-#:              GitClone.sh [-h|--help]
+#: Usage:       CloneRepository.sh <repository_provider> <repository_ownername> <repository_name> <repository_branch> <destination_directory>
+#:              CloneRepository.sh [-h|--help]
 #:
 #: Parameters:
 #:   $1         [Required] The Git provider name (e.g. bitbucket, github, gitlab).
@@ -75,7 +75,7 @@ repository_branch="${4}"
 destination_directory="${5}"
 
 # Verify provider sub-driver script exists and is executable before delegating
-provider_script="${HOME}/services/git/${repository_provider}/GitClone.sh"
+provider_script="${HOME}/services/git/${repository_provider}/CloneRepository.sh"
 
 if [ ! -f "${provider_script}" ]
 then
