@@ -1,23 +1,25 @@
 #!/bin/sh
 #: Name:        GitProviderURL.sh
-#: Purpose:     Orchestrates branch-specific repository cloning by delegating to the configured Git provider sub-driver.
+#: Purpose:     Resolves and executes the provider-specific GitProviderURL.sh sub-driver to retrieve the repository URL.
 #: Author:      Peter Winter
 #: Date:        17/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GitProviderURL.sh 
+#: Usage:       GitProviderURL.sh
 #:              GitProviderURL.sh [-h|--help]
 #:
 #: Environment:
-#:   HOME       Resolved automatically from /home/homedir.dat
+#:   HOME                 Resolved automatically from /home/homedir.dat
+#:   repository_provider  Target Git provider directory name (e.g., github, gitlab, bitbucket)
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
+#:   - ${HOME}/services/git/${repository_provider}/GitProviderURL.sh
 #:   - External binaries: cat, echo, grep, cut
 #:
 #: Exit Codes:
-#:   0          Repository branch cloned successfully via provider sub-driver
-#:   1          Missing required arguments, missing config/provider script, or sub-driver execution failure
+#:   0          Provider sub-driver executed successfully
+#:   1          Missing /home/homedir.dat, missing or non-executable sub-driver, or sub-driver failure
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -32,6 +34,7 @@
 # You should have received a copy of the GNU General Public License
 # along with The Wintersys Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
+
 
 # Exit immediately if any command exits with a non-zero status
 set -e
