@@ -41,7 +41,6 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
-
 set -e
 
 if [ -r /home/homedir.dat ]
@@ -80,7 +79,7 @@ commits_endpoint="${repo_endpoint}/commits?pagelen=1"
 
 # Step 1: Check whether the repository exists
 set +e
-REPO_RESPONSE=$(/bin/echo "machine api.bitbucket.org login ${ATLASSIAN_EMAIL} password ${REPOSITORY_TOKEN}" | \
+REPO_RESPONSE=$(printf 'machine api.bitbucket.org login %s password %s\n' "${ATLASSIAN_EMAIL}" "${REPOSITORY_TOKEN}" | \
         /usr/bin/curl -s --netrc-file /dev/stdin \
         "${repo_endpoint}" \
         -w "\nHTTP_STATUS:%{http_code}" 2>/dev/null)
@@ -88,6 +87,7 @@ set -e
 
 REPO_HTTP_CODE=$(/bin/echo "${REPO_RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
 REPO_BODY=$(/bin/echo "${REPO_RESPONSE}" | /usr/bin/sed '/HTTP_STATUS:/d')
+
 
 case "${REPO_HTTP_CODE}" in
         200)
@@ -122,14 +122,14 @@ esac
 
 # Step 2: Check whether the repository has any commits ("full" vs "empty")
 set +e
-COMMITS_RESPONSE=$(/bin/echo "machine api.bitbucket.org login ${ATLASSIAN_EMAIL} password ${REPOSITORY_TOKEN}" | \
+COMMITS_RESPONSE=$(printf 'machine api.bitbucket.org login %s password %s\n' "${ATLASSIAN_EMAIL}" "${REPOSITORY_TOKEN}" | \
         /usr/bin/curl -s --netrc-file /dev/stdin \
         "${commits_endpoint}" \
         -w "\nHTTP_STATUS:%{http_code}" 2>/dev/null)
 set -e
 
-COMMITS_HTTP_CODE=$(/bin/echo "${COMMITS_RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
-COMMITS_BODY=$(/bin/echo "${COMMITS_RESPONSE}" | /usr/bin/sed '/HTTP_STATUS:/d')
+COMMITS_HTTP_CODE=$(printf '%s\n' "${COMMITS_RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
+COMMITS_BODY=$(printf '%s\n' "${COMMITS_RESPONSE}" | /usr/bin/sed '/HTTP_STATUS:/d')
 
 case "${COMMITS_HTTP_CODE}" in
         200)
