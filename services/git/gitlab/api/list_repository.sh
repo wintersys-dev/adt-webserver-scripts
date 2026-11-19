@@ -42,7 +42,6 @@
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
-#set -x
 set -e
 
 if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
@@ -83,19 +82,23 @@ encoded_project="$(/bin/echo "${repository_ownername}/${repository_name}" | /usr
 api_base="https://gitlab.com/api/v4"
 project_endpoint="${api_base}/projects/${encoded_project}"
 
+
+CLEAN_TOKEN="$(printf '%s' "${REPOSITORY_TOKEN}" | /usr/bin/tr -d '\r\n')"
+
 set +e
-PROJECT_RESPONSE=$(/bin/echo "PRIVATE-TOKEN: ${REPOSITORY_TOKEN}" | \
-        /usr/bin/curl -s -H @- \
+PROJECT_RESPONSE=$(/usr/bin/curl -s \
+        -H "PRIVATE-TOKEN: ${CLEAN_TOKEN}" \
         "${project_endpoint}" \
         -w "\nHTTP_STATUS:%{http_code}")
 set -e
+
 
 PROJECT_HTTP_CODE=$(/bin/echo "${PROJECT_RESPONSE}" | /usr/bin/grep "HTTP_STATUS:" | /usr/bin/cut -d':' -f2)
 PROJECT_BODY=$(/bin/echo "${PROJECT_RESPONSE}" | /usr/bin/sed '/HTTP_STATUS:/d')
 
 case "${PROJECT_HTTP_CODE}" in
         200)
-                is_empty="$(/bin/echo "${PROJECT_BODY}" | /usr/bin/jq -r '.empty_repo // empty' 2>/dev/null)"
+                is_empty="$(/bin/echo "${PROJECT_BODY}" | /usr/bin/jq -r 'if .empty_repo == null then "" else (.empty_repo | tostring) end' 2>/dev/null)"
                 if [ "${is_empty}" = "false" ]
                 then
                         /bin/echo "full"
