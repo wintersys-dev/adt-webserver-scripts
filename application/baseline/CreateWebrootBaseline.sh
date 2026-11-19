@@ -62,9 +62,6 @@ else
         exit 1
 fi
 
-# Ensure exported credentials are always cleared on script exit
-trap 'unset REPOSITORY_TOKEN' EXIT
-
 
 # Determine interactive vs. non-interactive baseline identifier
 if [ -z "${1}" ]
@@ -101,7 +98,6 @@ fi
 
 # Extract repository and website branding variables
 APPLICATION_REPOSITORY_USERNAME="$(${HOME}/utilities/config/ExtractConfigValue.sh  'APPLICATIONREPOSITORYUSERNAME')"
-APPLICATION_REPOSITORY_TOKEN="$(${HOME}/utilities/config/ExtractConfigValue.sh  'APPLICATIONREPOSITORYTOKEN')"
 APPLICATION_REPOSITORY_PROVIDER="$(${HOME}/utilities/config/ExtractConfigValue.sh  'APPLICATIONREPOSITORYPROVIDER')"
 APPLICATION_REPOSITORY_OWNER="$(${HOME}/utilities/config/ExtractConfigValue.sh  'APPLICATIONREPOSITORYOWNER')"
 
@@ -115,7 +111,6 @@ WEBSITE_DISPLAY_NAME_LOWER="$(/bin/echo "${WEBSITE_DISPLAY_NAME}" | /bin/sed 's/
 WEBSITE_DISPLAY_NAME_FIRST="$(/bin/echo "${WEBSITE_DISPLAY_NAME_LOWER}" | /bin/sed -e 's/\b\(.\)/\u\1/g')"
 
 # Verify or provision the target remote baseline repository
-export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 repo_status="$("${HOME}/services/git/ListRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}" "${APPLICATION_REPOSITORY_USERNAME}")"
 
 case "${repo_status}" in
@@ -131,7 +126,6 @@ case "${repo_status}" in
                                         ;;
                                 *)
                                         /bin/echo "Aborting baseline creation."
-                                        unset REPOSITORY_TOKEN
                                         exit 0
                                         ;;
                         esac
@@ -142,7 +136,7 @@ case "${repo_status}" in
                 if [ "${create_repo}" = "1" ]
                 then
                         /bin/echo "Creating new repository (${target_repo})..."
-                        "${HOME}/services/git/CreateRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_USERNAME}" "${target_repo}"
+                        "${HOME}/services/git/CreateRepository.sh" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${target_repo}"
                         # Allow remote provider API propagation cooldown
                         /bin/sleep 10
 
@@ -157,7 +151,6 @@ case "${repo_status}" in
                                 fi
                         else
                                 /bin/echo "Error: Repository (${target_repo}) was not created or is unreachable. Exiting." >&2
-                                unset REPOSITORY_TOKEN
                                 exit 1
                         fi
                 fi
@@ -172,17 +165,14 @@ case "${repo_status}" in
                 ;;
         full)
                 /bin/echo "Error: Repository (${target_repo}) already exists and is not empty. Please empty, delete, or rename it before rerunning." >&2
-                unset REPOSITORY_TOKEN
                 exit 1
                 ;;
         *)
                 /bin/echo "Error: Unexpected repository status (${repo_status}) returned for ${target_repo}." >&2
-                unset REPOSITORY_TOKEN
                 exit 1
                 ;;
 esac
 
-unset REPOSITORY_TOKEN
 
 # Prepare clean staging directory and copy webroot contents (including dotfiles)
 backup_dir="${HOME}/backups/${baseline_name}"
@@ -238,12 +228,10 @@ fi
 
 #Push baseline source code to the remote Git repository
 
-export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
 set +e
 "${HOME}/services/git/PushToRepository.sh" "${backup_dir}" "${target_repo}" "main" "${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}" "${APPLICATION_REPOSITORY_USERNAME}"
 error_code="$?"
 set -e
-unset REPOSITORY_TOKEN
 
 #Clean up temporary staging workspace
 
