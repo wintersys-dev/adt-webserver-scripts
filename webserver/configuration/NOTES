@@ -1,0 +1,323 @@
+Here is the complete solution split into compact, copy-pasteable sections so nothing overflows.
+
+Part 1: php/php.ini.DEFAULT
+
+ini
+[PHP]
+engine = On
+short_open_tag = Off
+expose_php = Off
+max_execution_time = 120
+max_input_time = 120
+max_input_vars = 5000
+memory_limit = 256M
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+display_errors = Off
+log_errors = On
+error_log = /var/log/phpXXXXPHPVERSIONXXXX-fpm.log
+post_max_size = 64M
+upload_max_filesize = 64M
+max_file_uploads = 20
+allow_url_fopen = On
+allow_url_include = Off
+default_socket_timeout = 60
+
+[Session]
+session.save_handler = files
+session.save_path = "/var/lib/php/sessions"
+session.use_strict_mode = 1
+session.cookie_httponly = 1
+session.cookie_samesite = "Lax"
+
+[opcache]
+opcache.enable = 1
+opcache.memory_consumption = 128
+opcache.interned_strings_buffer = 16
+opcache.max_accelerated_files = 10000
+opcache.revalidate_freq = 2
+opcache.validate_timestamps = 1
+Use code with caution.
+
+Part 2: php/www.conf.DEFAULT
+
+ini
+[www]
+user = www-data
+group = www-data
+
+#XXXXFASTCGIPORTXXXXlisten = 127.0.0.1:XXXXPORTXXXX
+#XXXXFASTCGIPORTXXXXlisten.allowed_clients = 127.0.0.1
+
+#XXXXFASTCGISOCKETXXXXlisten = /var/run/phpXXXXPHPVERSIONXXXX-fpm.sock
+#XXXXFASTCGISOCKETXXXXlisten.owner = www-data
+#XXXXFASTCGISOCKETXXXXlisten.group = www-data
+#XXXXFASTCGISOCKETXXXXlisten.mode = 0660
+
+pm = dynamic
+pm.max_children = 15
+pm.start_servers = 3
+pm.min_spare_servers = 2
+pm.max_spare_servers = 5
+pm.max_requests = 500
+
+clear_env = no
+catch_workers_output = yes
+Use code with caution.
+
+Part 3: ConfigureWebserver.sh (Section A — Setup & PHP-FPM)
+
+sh
+#!/bin/sh
+set -eu
+
+export HOME="`/bin/cat /home/homedir.dat`"
+WEBSERVER_TYPE="$1" # "nginx", "apache", or "lighttpd"
+
+[ ! -d "${HOME}/logs/configure_${WEBSERVER_TYPE}" ] && \
+    /bin/mkdir -p "${HOME}/logs/configure_${WEBSERVER_TYPE}"
+
+STAMP="`/bin/date +%Y%m%d_%H%M%S`"
+exec 1>>"${HOME}/logs/configure_${WEBSERVER_TYPE}/out_${STAMP}.log"
+exec 2>>"${HOME}/logs/configure_${WEBSERVER_TYPE}/err_${STAMP}.log"
+
+# Extract live build values
+PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
+WEBSITE_NAME="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEDISPLAYNAME'`"
+WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+ROOT_DOMAIN="`/bin/echo "${WEBSITE_URL}" | /usr/bin/awk -F'.' '{$1=""}1' | /bin/sed 's/^.//' | /bin/sed 's/ /\./g'`"
+APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION' | /usr/bin/tr '[:lower:]' '[:upper:]'`"
+NO_REVERSE_PROXIES="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXIES'`"
+MOD_SECURITY="`${HOME}/utilities/config/ExtractConfigValue.sh 'MODSECURITY'`"
+port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d' | /bin/sed 's/ //g'`"
+
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+webroot_subdirectory="`/bin/grep "^WEBROOT_SUBDIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+moodledata_directory="`/bin/grep "^MOODLEDATADIRECTORY:" ${HOME}/runtime/application.dat 2>/dev/null | /usr/bin/awk -F':' '{print $NF}' || true`"
+
+if [ -f /var/www/html/wr.dat ]; then
+    archived_webroot="`/bin/cat /var/www/html/wr.dat`"
+    [ -n "${archived_webroot}" ] && webroot_directory="${archived_webroot}"
+fi
+[ -z "${webroot_directory}" ] && \
+    webroot_directory="/var/www/html/`/bin/echo "${APPLICATION}" | /usr/bin/tr '[:upper:]' '[:lower:]'`"
+
+apply_substitutions() {
+    TARGET="$1"
+    /bin/sed -i "s|XXXXWEBSITEURLXXXX|${WEBSITE_URL}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXROOTDOMAINXXXX|${ROOT_DOMAIN}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXHOMEXXXX|${HOME}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXPORTXXXX|${port}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXPHPVERSIONXXXX|${PHP_VERSION}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXWEBROOT_DIRECTORYXXXX|${webroot_directory}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXWEBROOT_SUBDIRECTORYXXXX|${webroot_subdirectory}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXMOODLEDATADIRECTORYXXXX|${moodledata_directory:-/var/moodledata}|g" "${TARGET}"
+
+    if [ "${NO_REVERSE_PROXIES}" = "0" ]; then
+        /bin/sed -i "s/#XXXXPROXYXXXX//g" "${TARGET}"
+    else
+        /bin/sed -i "s/#XXXXHTTPSXXXX//g" "${TARGET}"
+    fi
+
+    if [ "${MOD_SECURITY}" = "1" ] && [ "${NO_REVERSE_PROXIES}" = "0" ]; then
+        /bin/sed -i "s/#XXXXMODSECURITYXXXX//g" "${TARGET}"
+    fi
+
+    if printf '%s' "${port}" | /bin/grep -Eq '^[0-9]+$'; then
+        /bin/sed -i "s/#XXXXFASTCGIPORTXXXX//g" "${TARGET}"
+    else
+        /bin/sed -i "s/#XXXXFASTCGISOCKETXXXX//g" "${TARGET}"
+    fi
+
+    /bin/sed -i '/#XXXX.*/d' "${TARGET}"
+}
+
+WORK_PHP_INI="/tmp/adt-php-ini.$$"
+WORK_WWW_CONF="/tmp/adt-www-conf.$$"
+WORK_GLOBAL="/tmp/adt-global.$$"
+WORK_SITE="/tmp/adt-site.$$"
+WORK_SNIPPET="/tmp/adt-snippet.$$"
+trap 'rm -f "${WORK_PHP_INI}" "${WORK_WWW_CONF}" "${WORK_GLOBAL}" "${WORK_SITE}" "${WORK_SNIPPET}"' EXIT
+
+# Configure PHP-FPM with User-Repo Override & Validation
+if [ ! -d /var/lib/php/sessions ]; then
+    /bin/mkdir -p /var/lib/php/sessions
+    /bin/chown -R www-data:www-data /var/lib/php
+fi
+
+USER_PHP_DIR="${USER_CONFIG_REPO:-/nonexistent}/webserver/php"
+ADT_PHP_DIR="${HOME}/webserver/configuration/php"
+PHP_INI_TARGET="/etc/php/${PHP_VERSION}/fpm/php.ini"
+WWW_CONF_TARGET="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
+PHP_FPM_BIN="/usr/sbin/php-fpm${PHP_VERSION}"
+PHP_CUSTOM_USED=0
+
+if [ -f "${USER_PHP_DIR}/php.ini" ]; then
+    /bin/cp "${USER_PHP_DIR}/php.ini" "${WORK_PHP_INI}"
+    PHP_CUSTOM_USED=1
+else
+    /bin/cp "${ADT_PHP_DIR}/php.ini.DEFAULT" "${WORK_PHP_INI}"
+fi
+
+if [ -f "${USER_PHP_DIR}/www.conf" ]; then
+    /bin/cp "${USER_PHP_DIR}/www.conf" "${WORK_WWW_CONF}"
+    PHP_CUSTOM_USED=1
+else
+    /bin/cp "${ADT_PHP_DIR}/www.conf.DEFAULT" "${WORK_WWW_CONF}"
+fi
+
+apply_substitutions "${WORK_PHP_INI}"
+apply_substitutions "${WORK_WWW_CONF}"
+
+/bin/mkdir -p "`dirname "${PHP_INI_TARGET}"`" "`dirname "${WWW_CONF_TARGET}"`"
+/bin/cp "${WORK_PHP_INI}" "${PHP_INI_TARGET}"
+/bin/cp "${WORK_WWW_CONF}" "${WWW_CONF_TARGET}"
+/bin/chmod 644 "${PHP_INI_TARGET}" "${WWW_CONF_TARGET}"
+
+if [ -x "${PHP_FPM_BIN}" ] && ! "${PHP_FPM_BIN}" -t >/dev/null 2>&1; then
+    if [ "${PHP_CUSTOM_USED}" -eq 1 ]; then
+        ${HOME}/services/email/SendEmail.sh \
+            "CUSTOM PHP-FPM CONFIG FAILED" \
+            "Custom php.ini or www.conf failed php-fpm -t; reverting to ADT defaults." \
+            "ERROR"
+        /bin/cp "${ADT_PHP_DIR}/php.ini.DEFAULT" "${PHP_INI_TARGET}"
+        /bin/cp "${ADT_PHP_DIR}/www.conf.DEFAULT" "${WWW_CONF_TARGET}"
+        apply_substitutions "${PHP_INI_TARGET}"
+        apply_substitutions "${WWW_CONF_TARGET}"
+    else
+        /bin/echo "CRITICAL: Default PHP-FPM configuration failed syntax check." >&2
+        exit 1
+    fi
+fi
+Use code with caution.
+
+Part 4: ConfigureWebserver.sh (Section B — Modules, Templates & Restart)
+
+Append this directly below Section A in ConfigureWebserver.sh:
+sh
+# Map Webserver Paths & Enable Required Modules
+case "${WEBSERVER_TYPE}" in
+    nginx)
+        GLOBAL_DEFAULT="nginx.conf.DEFAULT"
+        GLOBAL_TARGET="/etc/nginx/nginx.conf"
+        AVAIL_DIR="/etc/nginx/sites-available"
+        ENAB_DIR="/etc/nginx/sites-enabled"
+        SNIPPET_TARGET="/etc/nginx/snippets/adt-app-rules.conf"
+        SITE_FILE="${AVAIL_DIR}/${WEBSITE_NAME}"
+        LINK_FILE="${ENAB_DIR}/${WEBSITE_NAME}"
+        TEST_CMD="/usr/sbin/nginx -t"
+        SVC_NAME="nginx"
+
+        if [ "${NO_REVERSE_PROXIES}" != "0" ] && [ ! -f /etc/ssl/certs/dhparam.pem ]; then
+            /usr/bin/openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+        fi
+        ;;
+    apache)
+        GLOBAL_DEFAULT="apache2.conf.DEFAULT"
+        GLOBAL_TARGET="/etc/apache2/apache2.conf"
+        AVAIL_DIR="/etc/apache2/sites-available"
+        ENAB_DIR="/etc/apache2/sites-enabled"
+        SNIPPET_TARGET="/etc/apache2/conf-available/adt-app-rules.conf"
+        SITE_FILE="${AVAIL_DIR}/${WEBSITE_NAME}.conf"
+        LINK_FILE="${ENAB_DIR}/${WEBSITE_NAME}.conf"
+        TEST_CMD="/usr/sbin/apache2ctl -t"
+        SVC_NAME="apache2"
+
+        /usr/sbin/a2dismod -q mpm_prefork 2>/dev/null || true
+        /usr/sbin/a2enmod -q mpm_event proxy proxy_fcgi setenvif headers rewrite deflate expires ssl
+        [ "${NO_REVERSE_PROXIES}" = "0" ] && /usr/sbin/a2enmod -q remoteip
+        [ "${MOD_SECURITY}" = "1" ] && /usr/sbin/a2enmod -q security2 || true
+        /usr/sbin/a2disconf -q "php${PHP_VERSION}-fpm" 2>/dev/null || true
+        [ -f /etc/apache2/conf-enabled/security.conf ] && /usr/sbin/a2disconf -q security 2>/dev/null || true
+        ;;
+    lighttpd)
+        GLOBAL_DEFAULT="lighttpd.conf.DEFAULT"
+        GLOBAL_TARGET="/etc/lighttpd/lighttpd.conf"
+        AVAIL_DIR="/etc/lighttpd/conf-available"
+        ENAB_DIR="/etc/lighttpd/conf-enabled"
+        SNIPPET_TARGET="/etc/lighttpd/conf-available/90-adt-app-rules.conf"
+        SITE_FILE="${AVAIL_DIR}/99-${WEBSITE_NAME}.conf"
+        LINK_FILE="${ENAB_DIR}/99-${WEBSITE_NAME}.conf"
+        TEST_CMD="/usr/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf"
+        SVC_NAME="lighttpd"
+
+        /bin/mkdir -p /var/cache/lighttpd/uploads /var/cache/lighttpd/compress
+        /bin/chown -R www-data:www-data /var/cache/lighttpd
+        /usr/sbin/lighttpd-enable-mod fastcgi fastcgi-php rewrite setenv accesslog deflate 2>/dev/null || true
+        [ "${NO_REVERSE_PROXIES}" = "0" ] && /usr/sbin/lighttpd-enable-mod extforward 2>/dev/null || true
+        ;;
+    *)
+        /bin/echo "ERROR: Unsupported webserver type '${WEBSERVER_TYPE}'" >&2
+        exit 1
+        ;;
+esac
+
+USER_REPO_DIR="${USER_CONFIG_REPO:-/nonexistent}/webserver/${WEBSERVER_TYPE}"
+ADT_BASE_DIR="${HOME}/webserver/configuration/${WEBSERVER_TYPE}"
+
+/bin/mkdir -p "${AVAIL_DIR}" "${ENAB_DIR}" "`dirname "${SNIPPET_TARGET}"`"
+/bin/rm -f "${AVAIL_DIR}"/* "${ENAB_DIR}"/*
+
+CUSTOM_USED=0
+
+if [ -f "${USER_REPO_DIR}/global.conf" ]; then
+    /bin/cp "${USER_REPO_DIR}/global.conf" "${WORK_GLOBAL}"
+    CUSTOM_USED=1
+else
+    /bin/cp "${ADT_BASE_DIR}/${GLOBAL_DEFAULT}" "${WORK_GLOBAL}"
+fi
+
+if [ -f "${USER_REPO_DIR}/app-rules.conf" ]; then
+    /bin/cp "${USER_REPO_DIR}/app-rules.conf" "${WORK_SNIPPET}"
+    CUSTOM_USED=1
+elif [ -f "${ADT_BASE_DIR}/snippets/${APPLICATION}.conf" ]; then
+    /bin/cp "${ADT_BASE_DIR}/snippets/${APPLICATION}.conf" "${WORK_SNIPPET}"
+else
+    : > "${WORK_SNIPPET}"
+fi
+
+if [ -f "${USER_REPO_DIR}/site-available.conf" ]; then
+    /bin/cp "${USER_REPO_DIR}/site-available.conf" "${WORK_SITE}"
+    CUSTOM_USED=1
+else
+    /bin/cp "${ADT_BASE_DIR}/site-available.conf.DEFAULT" "${WORK_SITE}"
+fi
+
+apply_substitutions "${WORK_GLOBAL}"
+apply_substitutions "${WORK_SNIPPET}"
+apply_substitutions "${WORK_SITE}"
+
+/bin/cp "${WORK_GLOBAL}" "${GLOBAL_TARGET}"
+/bin/cp "${WORK_SNIPPET}" "${SNIPPET_TARGET}"
+/bin/cp "${WORK_SITE}" "${SITE_FILE}"
+/bin/chmod 644 "${GLOBAL_TARGET}"
+/bin/chmod 600 "${SITE_FILE}" "${SNIPPET_TARGET}"
+/bin/ln -sf "${SITE_FILE}" "${LINK_FILE}"
+
+# Syntax Test & Full Fallback to ADT Defaults on Custom Repo Error
+if ! ${TEST_CMD} >/dev/null 2>&1; then
+    if [ "${CUSTOM_USED}" -eq 1 ]; then
+        ${HOME}/services/email/SendEmail.sh \
+            "CUSTOM ${SVC_NAME} CONFIG FAILED" \
+            "Custom ${SVC_NAME} config failed syntax check; reverting all layers to ADT defaults." \
+            "ERROR"
+        /bin/cp "${ADT_BASE_DIR}/${GLOBAL_DEFAULT}" "${GLOBAL_TARGET}"
+        : > "${SNIPPET_TARGET}"
+        /bin/cp "${ADT_BASE_DIR}/site-available.conf.DEFAULT" "${SITE_FILE}"
+        apply_substitutions "${GLOBAL_TARGET}"
+        apply_substitutions "${SITE_FILE}"
+    else
+        /bin/echo "CRITICAL: Default ${SVC_NAME} configuration failed syntax check." >&2
+        exit 1
+    fi
+fi
+
+/bin/echo "${SITE_FILE}" > "${HOME}/runtime/WEBSERVER_CONFIG_LOCATION.dat"
+${HOME}/utilities/processing/RunServiceCommand.sh "php${PHP_VERSION}-fpm" restart
+${HOME}/utilities/processing/RunServiceCommand.sh "${SVC_NAME}" restart
+
+${HOME}/services/email/SendEmail.sh \
+    "THE ${SVC_NAME} WEBSERVER HAS BEEN INSTALLED" \
+    "PHP ${PHP_VERSION}-FPM and ${SVC_NAME} configured and primed for ${APPLICATION}." \
+    "INFO"
+Use code with caution.
+Would you like to move on to unifying the ip, basic_auth, and wireguard sync flow over your one-way SSH channel, or review how USER_CONFIG_REPO is cloned/pulled during webserver builds?
