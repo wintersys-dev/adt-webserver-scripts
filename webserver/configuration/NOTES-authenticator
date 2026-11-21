@@ -1,0 +1,341 @@
+Here is the complete ConfigureAuthenticator.sh solution using your existing PHP-FPM stack—keeping the exact same unified User-Repo Override -> ADT Default -> Syntax Fallback architecture, RAM-backed (/dev/shm) 10-minute self-destructing links, and one-way SSH Reverse Proxy sync.
+Keeping PHP on the Authenticator for now means you don't have to rewrite your existing PHP login/mailer logic during your refactor, while still getting all the security and directory-structure upgrades.
+
+Part 1: Directory Layout (authenticator/configuration/)
+
+text
+# Built-in ADT Defaults (${HOME}/authenticator/configuration/)
+├── php/
+│   ├── php.ini.DEFAULT
+│   └── www.conf.DEFAULT
+├── webserver/
+│   ├── nginx.conf.DEFAULT
+│   ├── apache.conf.DEFAULT
+│   └── lighttpd.conf.DEFAULT
+└── scripts/
+    └── wg-ingest.sh              # One-way SSH receiver for Reverse Proxies
+
+# Optional User Git Repo Overrides (${USER_CONFIG_REPO}/authenticator/)
+├── php/ { php.ini, www.conf }
+├── webserver/ { nginx.conf, apache.conf, lighttpd.conf }
+└── allowed_emails.txt
+Use code with caution.
+
+Part 2: Webserver Templates (Nginx / Apache / Lighttpd + PHP-FPM)
+
+Each template routes your PHP authenticator app cleanly while serving the 10-minute staged .html / .conf files directly from RAM (/dev/shm/wg-staged/) with no-store headers and zero directory indexing.
+
+A. webserver/nginx.conf.DEFAULT
+
+nginx
+server {
+    listen 80;
+    listen [::]:80;
+    #XXXXHTTPSXXXXlisten 443 ssl http2;
+    #XXXXHTTPSXXXXlisten [::]:443 ssl http2;
+
+    server_name XXXXAUTHURLXXXX;
+    root /var/www/authenticator;
+    index index.php;
+    server_tokens off;
+
+    #XXXXHTTPSXXXXssl_certificate /etc/letsencrypt/live/XXXXAUTHURLXXXX/fullchain.pem;
+    #XXXXHTTPSXXXXssl_certificate_key /etc/letsencrypt/live/XXXXAUTHURLXXXX/privkey.pem;
+
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Cache-Control "no-store, no-cache, must-revalidate, max-age=0" always;
+
+    # Serve 10-minute staged access files directly from RAM (/dev/shm)
+    location /wg/ {
+        alias /dev/shm/wg-staged/;
+        autoindex off;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTP_PROXY "";
+        #XXXXFASTCGIPORTXXXXfastcgi_pass 127.0.0.1:XXXXPORTXXXX;
+        #XXXXFASTCGISOCKETXXXXfastcgi_pass unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock;
+    }
+
+    location ~ /\.(?!well-known) { deny all; }
+}
+Use code with caution.
+
+B. webserver/apache.conf.DEFAULT
+
+apache
+<VirtualHost *:80>
+    ServerName XXXXAUTHURLXXXX
+    DocumentRoot /var/www/authenticator
+
+    Header always set X-Frame-Options "DENY"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+
+    # Serve 10-minute staged access files directly from RAM (/dev/shm)
+    Alias /wg /dev/shm/wg-staged
+    <Directory /dev/shm/wg-staged>
+        Options -Indexes
+        Require all granted
+    </Directory>
+
+    <Directory /var/www/authenticator>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+        FallbackResource /index.php
+    </Directory>
+
+    <FilesMatch "\.php$">
+        #XXXXFASTCGIPORTXXXXSetHandler "proxy:fcgi://127.0.0.1:XXXXPORTXXXX"
+        #XXXXFASTCGISOCKETXXXXSetHandler "proxy:unix:/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock|fcgi://localhost"
+    </FilesMatch>
+</VirtualHost>
+Use code with caution.
+
+C. webserver/lighttpd.conf.DEFAULT
+
+lighttpd
+$HTTP["host"] == "XXXXAUTHURLXXXX" {
+    server.document-root = "/var/www/authenticator"
+    index-file.names = ( "index.php" )
+    dir-listing.activate = "disable"
+
+    setenv.add-response-header = (
+        "X-Frame-Options" => "DENY",
+        "X-Content-Type-Options" => "nosniff",
+        "Cache-Control" => "no-store, no-cache, must-revalidate, max-age=0"
+    )
+
+    alias.url += ( "/wg/" => "/dev/shm/wg-staged/" )
+
+    fastcgi.server = ( ".php" => ((
+        #XXXXFASTCGIPORTXXXX"host" => "127.0.0.1", "port" => XXXXPORTXXXX,
+        #XXXXFASTCGISOCKETXXXX"socket" => "/var/run/phpXXXXPHPVERSIONXXXX-fpm.sock",
+        "broken-scriptfilename" => "enable"
+    )))
+}
+Use code with caution.
+
+Part 3: ConfigureAuthenticator.sh (Section A — PHP-FPM, One-Way SSH & RAM Staging)
+
+sh
+#!/bin/sh
+#################################################################################
+# Author : Peter Winter (Unified PHP Authenticator Configurator)
+# Description : Configures PHP-FPM, Webserver (Nginx/Apache/Lighttpd), RAM
+#               staging (/dev/shm), and one-way SSH ingest for Reverse Proxies.
+#################################################################################
+set -eu
+
+export HOME="`/bin/cat /home/homedir.dat`"
+WEBSERVER_TYPE="$1" # "nginx", "apache", or "lighttpd"
+
+[ ! -d "${HOME}/logs/configure_authenticator" ] && \
+    /bin/mkdir -p "${HOME}/logs/configure_authenticator"
+
+STAMP="`/bin/date +%Y%m%d_%H%M%S`"
+exec 1>>"${HOME}/logs/configure_authenticator/out_${STAMP}.log"
+exec 2>>"${HOME}/logs/configure_authenticator/err_${STAMP}.log"
+
+# 1. Extract Live Build Configuration
+PHP_VERSION="`${HOME}/utilities/config/ExtractConfigValue.sh 'PHPVERSION'`"
+AUTH_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHURL' 2>/dev/null || ${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+AUTH_MODE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHMODE' 2>/dev/null || printf 'wireguard'`"
+FROM_EMAIL="`${HOME}/utilities/config/ExtractConfigValue.sh 'SYSTEMFROMEMAILADDRESS' 2>/dev/null || printf 'auth@wintersys.uk'`"
+port="`${HOME}/utilities/config/ExtractBuildStyleValues.sh "PHP" "stripped" | /usr/bin/awk -F'|' '{print $2}' | /bin/sed '/^$/d' | /bin/sed 's/ //g'`"
+
+apply_substitutions() {
+    TARGET="$1"
+    /bin/sed -i "s|XXXXAUTHURLXXXX|${AUTH_URL}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXPORTXXXX|${port}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXPHPVERSIONXXXX|${PHP_VERSION}|g" "${TARGET}"
+
+    [ -f "/etc/letsencrypt/live/${AUTH_URL}/fullchain.pem" ] && \
+        /bin/sed -i "s/#XXXXHTTPSXXXX//g" "${TARGET}"
+
+    if printf '%s' "${port}" | /bin/grep -Eq '^[0-9]+$'; then
+        /bin/sed -i "s/#XXXXFASTCGIPORTXXXX//g" "${TARGET}"
+    else
+        /bin/sed -i "s/#XXXXFASTCGISOCKETXXXX//g" "${TARGET}"
+    fi
+
+    /bin/sed -i '/#XXXX.*/d' "${TARGET}"
+}
+
+# 2. Provision RAM Staging (/dev/shm) & Runtime Config for PHP App
+/bin/mkdir -p /dev/shm/wg-pool /dev/shm/wg-staged /etc/authenticator /var/www/authenticator /var/lib/php/sessions
+/bin/chown wg-ingest:www-data /dev/shm/wg-pool 2>/dev/null || /bin/chown root:www-data /dev/shm/wg-pool
+/bin/chown -R www-data:www-data /dev/shm/wg-staged /var/www/authenticator /var/lib/php
+/bin/chmod 0770 /dev/shm/wg-pool /dev/shm/wg-staged
+
+# Export clean config file your PHP scripts can parse with parse_ini_file('/etc/authenticator/adt.ini')
+cat <<EOF > /etc/authenticator/adt.ini
+auth_mode = "${AUTH_MODE}"
+base_url = "https://${AUTH_URL}/wg"
+from_email = "${FROM_EMAIL}"
+pool_dir = "/dev/shm/wg-pool"
+staged_dir = "/dev/shm/wg-staged"
+grant_file = "/dev/shm/adt-grants.list"
+allowlist_file = "/etc/authenticator/allowed_emails.txt"
+EOF
+/bin/chmod 640 /etc/authenticator/adt.ini
+/bin/chown root:www-data /etc/authenticator/adt.ini
+
+# 3. Set Up Locked-Down One-Way SSH User (wg-ingest)
+if ! id wg-ingest >/dev/null 2>&1; then
+    /usr/sbin/useradd -r -m -d /home/wg-ingest -s /bin/sh wg-ingest
+fi
+/bin/mkdir -p /home/wg-ingest/.ssh
+/bin/chmod 700 /home/wg-ingest/.ssh
+/bin/touch /home/wg-ingest/.ssh/authorized_keys
+/bin/chmod 600 /home/wg-ingest/.ssh/authorized_keys
+/bin/chown -R wg-ingest:wg-ingest /home/wg-ingest/.ssh
+/bin/chown wg-ingest:www-data /dev/shm/wg-pool
+
+/bin/cp "${HOME}/authenticator/configuration/scripts/wg-ingest.sh" /usr/local/bin/wg-ingest.sh
+/bin/chmod 0755 /usr/local/bin/wg-ingest.sh
+
+# 4. Configure PHP-FPM (User Repo Override -> ADT Default -> Syntax Fallback)
+USER_AUTH_DIR="${USER_CONFIG_REPO:-/nonexistent}/authenticator"
+ADT_AUTH_DIR="${HOME}/authenticator/configuration"
+ADT_PHP_DEFAULT="${HOME}/webserver/configuration/php"
+
+PHP_INI_TARGET="/etc/php/${PHP_VERSION}/fpm/php.ini"
+WWW_CONF_TARGET="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
+PHP_FPM_BIN="/usr/sbin/php-fpm${PHP_VERSION}"
+
+WORK_INI="/tmp/adt-auth-ini.$$"
+WORK_WWW="/tmp/adt-auth-www.$$"
+WORK_SITE="/tmp/adt-auth-site.$$"
+trap 'rm -f "${WORK_INI}" "${WORK_WWW}" "${WORK_SITE}"' EXIT
+
+if [ -f "${USER_AUTH_DIR}/php/php.ini" ]; then
+    /bin/cp "${USER_AUTH_DIR}/php/php.ini" "${WORK_INI}"
+else
+    /bin/cp "${ADT_PHP_DEFAULT}/php.ini.DEFAULT" "${WORK_INI}"
+fi
+
+if [ -f "${USER_AUTH_DIR}/php/www.conf" ]; then
+    /bin/cp "${USER_AUTH_DIR}/php/www.conf" "${WORK_WWW}"
+else
+    /bin/cp "${ADT_PHP_DEFAULT}/www.conf.DEFAULT" "${WORK_WWW}"
+fi
+
+apply_substitutions "${WORK_INI}"
+apply_substitutions "${WORK_WWW}"
+/bin/cp "${WORK_INI}" "${PHP_INI_TARGET}"
+/bin/cp "${WORK_WWW}" "${WWW_CONF_TARGET}"
+
+if [ -x "${PHP_FPM_BIN}" ] && ! "${PHP_FPM_BIN}" -t >/dev/null 2>&1; then
+    /bin/cp "${ADT_PHP_DEFAULT}/php.ini.DEFAULT" "${PHP_INI_TARGET}"
+    /bin/cp "${ADT_PHP_DEFAULT}/www.conf.DEFAULT" "${WWW_CONF_TARGET}"
+    apply_substitutions "${PHP_INI_TARGET}"
+    apply_substitutions "${WWW_CONF_TARGET}"
+fi
+Use code with caution.
+
+Part 4: ConfigureAuthenticator.sh (Section B — Webserver Wiring, Cron & Restart)
+
+Append this directly below Section A in ConfigureAuthenticator.sh:
+sh
+# 5. Copy Allowlist & Configure Selected Webserver
+if [ -f "${USER_AUTH_DIR}/allowed_emails.txt" ]; then
+    /bin/cp "${USER_AUTH_DIR}/allowed_emails.txt" /etc/authenticator/allowed_emails.txt
+else
+    [ ! -f /etc/authenticator/allowed_emails.txt ] && : > /etc/authenticator/allowed_emails.txt
+fi
+/bin/chmod 640 /etc/authenticator/allowed_emails.txt
+/bin/chown root:www-data /etc/authenticator/allowed_emails.txt
+
+case "${WEBSERVER_TYPE}" in
+    nginx)
+        AVAIL_DIR="/etc/nginx/sites-available"
+        ENAB_DIR="/etc/nginx/sites-enabled"
+        SITE_FILE="${AVAIL_DIR}/authenticator"
+        LINK_FILE="${ENAB_DIR}/authenticator"
+        DEFAULT_VHOST="${ADT_AUTH_DIR}/webserver/nginx.conf.DEFAULT"
+        USER_VHOST="${USER_AUTH_DIR}/webserver/nginx.conf"
+        TEST_CMD="/usr/sbin/nginx -t"
+        SVC_NAME="nginx"
+        ;;
+    apache)
+        AVAIL_DIR="/etc/apache2/sites-available"
+        ENAB_DIR="/etc/apache2/sites-enabled"
+        SITE_FILE="${AVAIL_DIR}/authenticator.conf"
+        LINK_FILE="${ENAB_DIR}/authenticator.conf"
+        DEFAULT_VHOST="${ADT_AUTH_DIR}/webserver/apache.conf.DEFAULT"
+        USER_VHOST="${USER_AUTH_DIR}/webserver/apache.conf"
+        TEST_CMD="/usr/sbin/apache2ctl -t"
+        SVC_NAME="apache2"
+        /usr/sbin/a2dismod -q mpm_prefork 2>/dev/null || true
+        /usr/sbin/a2enmod -q mpm_event proxy proxy_fcgi headers rewrite alias ssl
+        /usr/sbin/a2disconf -q "php${PHP_VERSION}-fpm" 2>/dev/null || true
+        ;;
+    lighttpd)
+        AVAIL_DIR="/etc/lighttpd/conf-available"
+        ENAB_DIR="/etc/lighttpd/conf-enabled"
+        SITE_FILE="${AVAIL_DIR}/99-authenticator.conf"
+        LINK_FILE="${ENAB_DIR}/99-authenticator.conf"
+        DEFAULT_VHOST="${ADT_AUTH_DIR}/webserver/lighttpd.conf.DEFAULT"
+        USER_VHOST="${USER_AUTH_DIR}/webserver/lighttpd.conf"
+        TEST_CMD="/usr/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf"
+        SVC_NAME="lighttpd"
+        /usr/sbin/lighttpd-enable-mod fastcgi fastcgi-php alias setenv accesslog 2>/dev/null || true
+        ;;
+    *)
+        /bin/echo "ERROR: Unsupported webserver type '${WEBSERVER_TYPE}'" >&2
+        exit 1
+        ;;
+esac
+
+/bin/mkdir -p "${AVAIL_DIR}" "${ENAB_DIR}"
+/bin/rm -f "${AVAIL_DIR}"/* "${ENAB_DIR}"/*
+
+if [ -f "${USER_VHOST}" ]; then
+    /bin/cp "${USER_VHOST}" "${WORK_SITE}"
+    CUSTOM_USED=1
+else
+    /bin/cp "${DEFAULT_VHOST}" "${WORK_SITE}"
+    CUSTOM_USED=0
+fi
+
+apply_substitutions "${WORK_SITE}"
+/bin/cp "${WORK_SITE}" "${SITE_FILE}"
+/bin/chmod 600 "${SITE_FILE}"
+/bin/ln -sf "${SITE_FILE}" "${LINK_FILE}"
+
+if ! ${TEST_CMD} >/dev/null 2>&1; then
+    if [ "${CUSTOM_USED}" -eq 1 ]; then
+        /bin/cp "${DEFAULT_VHOST}" "${SITE_FILE}"
+        apply_substitutions "${SITE_FILE}"
+    else
+        /bin/echo "CRITICAL: Default Authenticator ${SVC_NAME} config failed syntax check." >&2
+        exit 1
+    fi
+fi
+
+# 6. Install 1-Minute Cron Cleanup for 10-Minute Links in /dev/shm
+cat <<'EOF' > /etc/cron.d/adt-authenticator-cleanup
+* * * * * root find /dev/shm/wg-staged -type f -mmin +10 -delete
+EOF
+/bin/chmod 644 /etc/cron.d/adt-authenticator-cleanup
+
+# 7. Restart PHP-FPM & Webserver
+${HOME}/utilities/processing/RunServiceCommand.sh "php${PHP_VERSION}-fpm" restart
+${HOME}/utilities/processing/RunServiceCommand.sh "${SVC_NAME}" restart
+${HOME}/services/email/SendEmail.sh "AUTHENTICATOR INSTALLED" "PHP Authenticator (${SVC_NAME}) configured in ${AUTH_MODE} mode." "INFO"
+Use code with caution.
+
+How Your PHP Code Hooks In Cleanly
+
+In your existing PHP scripts inside /var/www/authenticator/, you can read all ADT settings in one single line using parse_ini_file('/etc/authenticator/adt.ini')—giving your PHP app direct access to auth_mode, pool_dir, staged_dir, and grant_file without hardcoding any paths.
+Would you like to look at the Reverse Proxy grant-sync cron script (which pulls ip and basic_auth grants from /dev/shm/adt-grants.list and pushes WireGuard .conf pools via wg-ingest.sh over one-way SSH) next?
