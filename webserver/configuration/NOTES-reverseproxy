@@ -1,0 +1,403 @@
+Here is the complete ConfigureReverseProxy.sh solution built with the exact same architecture as ConfigureWebserver.sh—supporting Nginx, Apache, and Lighttpd with regional Valkey object caching, edge microcaching, ip / basic_auth / wireguard access gates, and User-Repo Override -> ADT Default -> Syntax Fallback.
+Split into clean, copy-pasteable parts below so nothing overflows.
+
+Part 1: Directory Layout (reverseproxy/configuration/)
+
+text
+# Built-in ADT Defaults (${HOME}/reverseproxy/configuration/)
+├── nginx/
+│   └── proxy.conf.DEFAULT
+├── apache/
+│   └── proxy.conf.DEFAULT
+└── lighttpd/
+    └── proxy.conf.DEFAULT
+
+# Optional User Git Repo Overrides (${USER_CONFIG_REPO}/reverseproxy/)
+└── {nginx|apache|lighttpd}/
+    └── proxy.conf
+Use code with caution.
+
+Part 2: Default Reverse Proxy Templates (proxy.conf.DEFAULT)
+
+Each template includes edge microcaching (bypasses logged-in CMS cookies automatically), upstream webserver load-balancing (XXXXUPSTREAMSERVERSXXXX), and toggleable #XXXXAUTHIPXXXX / #XXXXAUTHBASICXXXX / #XXXXWIREGUARDXXXX gates.
+
+A. nginx/proxy.conf.DEFAULT
+
+nginx
+proxy_cache_path /dev/shm/nginx-proxy-cache levels=1:2 keys_zone=ADT_EDGE:32m max_size=256m inactive=10m use_temp_path=off;
+
+upstream adt_webservers {
+    least_conn;
+    XXXXUPSTREAMSERVERSXXXX
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    #XXXXHTTPSXXXXlisten 443 ssl http2;
+    #XXXXHTTPSXXXXlisten [::]:443 ssl http2;
+
+    server_name XXXXWEBSITEURLXXXX XXXXROOTDOMAINXXXX;
+    server_tokens off;
+
+    #XXXXHTTPSXXXXssl_certificate /etc/letsencrypt/live/XXXXWEBSITEURLXXXX/fullchain.pem;
+    #XXXXHTTPSXXXXssl_certificate_key /etc/letsencrypt/live/XXXXWEBSITEURLXXXX/privkey.pem;
+    #XXXXHTTPSXXXXssl_dhparam /etc/ssl/certs/dhparam.pem;
+    #XXXXHTTPSXXXXssl_protocols TLSv1.2 TLSv1.3;
+
+    # Access Control Gates (toggled by ADT AUTH_MODE)
+    #XXXXAUTHIPXXXXinclude /etc/nginx/snippets/adt-allowed-ips.conf;
+    #XXXXAUTHBASICXXXXauth_basic "Wintersys Protected Gateway";
+    #XXXXAUTHBASICXXXXauth_basic_user_file /etc/nginx/.htpasswd;
+
+    # Bypass edge cache for logged-in CMS sessions & POST requests
+    set $skip_cache 0;
+    if ($request_method = POST) { set $skip_cache 1; }
+    if ($query_string != "") { set $skip_cache 1; }
+    if ($http_cookie ~* "wordpress_logged_in_|wp-postpass_|joomla_|SESS[a-z0-9]+|MoodleSession") {
+        set $skip_cache 1;
+    }
+
+    location / {
+        proxy_pass http://adt_webservers;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Edge Microcaching (30s anonymous cache + stale fallback if WAN DB hiccups)
+        proxy_cache ADT_EDGE;
+        proxy_cache_bypass $skip_cache;
+        proxy_no_cache $skip_cache;
+        proxy_cache_valid 200 301 302 30s;
+        proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+        add_header X-ADT-Cache $upstream_cache_status;
+    }
+}
+Use code with caution.
+
+B. apache/proxy.conf.DEFAULT
+
+apache
+<VirtualHost *:80>
+    ServerName XXXXWEBSITEURLXXXX
+    ServerAlias XXXXROOTDOMAINXXXX
+
+    ProxyPreserveHost On
+    ProxyRequests Off
+
+    # Access Control Gates
+    <Location />
+        #XXXXAUTHIPXXXXIncludeOptional /etc/apache2/conf-available/adt-allowed-ips.conf
+        #XXXXAUTHBASICXXXXAuthType Basic
+        #XXXXAUTHBASICXXXXAuthName "Wintersys Protected Gateway"
+        #XXXXAUTHBASICXXXXAuthUserFile /etc/apache2/.htpasswd
+        #XXXXAUTHBASICXXXXRequire valid-user
+    </Location>
+
+    # Edge Disk/RAM Microcaching
+    CacheQuickHandler off
+    CacheLock on
+    CacheRoot /dev/shm/apache-proxy-cache
+    CacheEnable disk /
+    CacheDefaultExpire 30
+    CacheIgnoreNoLastMod On
+    CacheHeader on
+
+    <Proxy "balancer://adt_webservers">
+        XXXXUPSTREAMSERVERSXXXX
+        ProxySet lbmethod=byrequests
+    </Proxy>
+
+    ProxyPass / balancer://adt_webservers/
+    ProxyPassReverse / balancer://adt_webservers/
+</VirtualHost>
+Use code with caution.
+
+C. lighttpd/proxy.conf.DEFAULT
+
+lighttpd
+$HTTP["host"] =~ "^(XXXXWEBSITEURLXXXX|XXXXROOTDOMAINXXXX)$" {
+    # Access Control Gates
+    #XXXXAUTHIPXXXXinclude "/etc/lighttpd/conf-available/85-adt-allowed-ips.conf"
+    #XXXXAUTHBASICXXXXauth.backend = "htpasswd"
+    #XXXXAUTHBASICXXXXauth.backend.htpasswd.userfile = "/etc/lighttpd/.htpasswd"
+    #XXXXAUTHBASICXXXXauth.require = ( "/" => ( "method" => "basic", "realm" => "Wintersys Protected Gateway", "require" => "valid-user" ) )
+
+    proxy.balance = "round-robin"
+    proxy.header = ( "map-host-request" => ( "-" => "-" ), "https-remap" => "enable" )
+    proxy.server = ( "" => (
+        XXXXUPSTREAMSERVERSXXXX
+    ))
+}
+Use code with caution.
+
+Part 3: ConfigureReverseProxy.sh (Section A — Valkey & Upstream Builder)
+
+sh
+#!/bin/sh
+#################################################################################
+# Author : Peter Winter (Unified Reverse Proxy & Regional Valkey Configurator)
+# Description : Configures Nginx, Apache, or Lighttpd reverse proxy, regional
+#               Valkey object cache, and access gates (ip, basic_auth, wireguard).
+#################################################################################
+set -eu
+
+export HOME="`/bin/cat /home/homedir.dat`"
+PROXY_TYPE="$1" # "nginx", "apache", or "lighttpd"
+
+[ ! -d "${HOME}/logs/configure_proxy_${PROXY_TYPE}" ] && \
+    /bin/mkdir -p "${HOME}/logs/configure_proxy_${PROXY_TYPE}"
+
+STAMP="`/bin/date +%Y%m%d_%H%M%S`"
+exec 1>>"${HOME}/logs/configure_proxy_${PROXY_TYPE}/out_${STAMP}.log"
+exec 2>>"${HOME}/logs/configure_proxy_${PROXY_TYPE}/err_${STAMP}.log"
+
+WEBSITE_NAME="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEDISPLAYNAME'`"
+WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
+ROOT_DOMAIN="`/bin/echo "${WEBSITE_URL}" | /usr/bin/awk -F'.' '{$1=""}1' | /bin/sed 's/^.//' | /bin/sed 's/ /\./g'`"
+AUTH_MODE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHMODE' 2>/dev/null || printf 'none'`"
+ENABLE_CACHE="`${HOME}/utilities/config/ExtractConfigValue.sh 'ENABLEREGIONALCACHE' 2>/dev/null || printf '1'`"
+WG_IP="`/sbin/ip -4 addr show wg0 2>/dev/null | /usr/bin/awk '/inet / {print $2}' | /usr/bin/cut -d/ -f1 || printf '127.0.0.1'`"
+
+# 1. Configure Regional Valkey (or Redis fallback) bound strictly to localhost + wg0
+if [ "${ENABLE_CACHE}" = "1" ]; then
+    CACHE_PASS_FILE="${HOME}/runtime/valkey_password.dat"
+    if [ ! -f "${CACHE_PASS_FILE}" ]; then
+        /usr/bin/head -c 24 /dev/urandom | /usr/bin/base64 | /usr/bin/tr -dc 'a-zA-Z0-9' > "${CACHE_PASS_FILE}"
+        /bin/chmod 600 "${CACHE_PASS_FILE}"
+    fi
+    CACHE_PASS="`/bin/cat "${CACHE_PASS_FILE}"`"
+
+    if [ -f /etc/valkey/valkey.conf ]; then
+        CACHE_CONF="/etc/valkey/valkey.conf"
+        CACHE_SVC="valkey-server"
+    else
+        CACHE_CONF="/etc/redis/redis.conf"
+        CACHE_SVC="redis-server"
+    fi
+
+    if [ -f "${CACHE_CONF}" ]; then
+        /bin/sed -i '/# --- ADT Regional Cache ---/,$d' "${CACHE_CONF}"
+        cat <<EOF >> "${CACHE_CONF}"
+# --- ADT Regional Cache ---
+bind 127.0.0.1 ${WG_IP}
+port 6379
+protected-mode yes
+requirepass ${CACHE_PASS}
+maxmemory 256mb
+maxmemory-policy allkeys-lru
+save ""
+appendonly no
+EOF
+        ${HOME}/utilities/processing/RunServiceCommand.sh "${CACHE_SVC}" restart
+    fi
+fi
+
+# 2. Format Upstream Webserver List from ADT runtime IP registry
+UPSTREAM_LINES=""
+if [ -f "${HOME}/runtime/webserver_ips.dat" ]; then
+    while IFS= read -r WS_IP; do
+        [ -z "${WS_IP}" ] && continue
+        case "${PROXY_TYPE}" in
+            nginx)    UPSTREAM_LINES="${UPSTREAM_LINES}    server ${WS_IP}:80 max_fails=3 fail_timeout=10s;\n" ;;
+            apache)   UPSTREAM_LINES="${UPSTREAM_LINES}        BalancerMember http://${WS_IP}:80\n" ;;
+            lighttpd) UPSTREAM_LINES="${UPSTREAM_LINES}        ( \"host\" => \"${WS_IP}\", \"port\" => 80 ),\n" ;;
+        esac
+    done < "${HOME}/runtime/webserver_ips.dat"
+fi
+[ -z "${UPSTREAM_LINES}" ] && UPSTREAM_LINES="    # No upstreams registered yet"
+Use code with caution.
+
+Part 4: ConfigureReverseProxy.sh (Section B — Gates, Templates & Fallback)
+
+Append this directly below Section A in ConfigureReverseProxy.sh:
+sh
+# 3. Map Proxy Paths, Enable Modules & Initialize Access Gate Files
+case "${PROXY_TYPE}" in
+    nginx)
+        AVAIL_DIR="/etc/nginx/sites-available"
+        ENAB_DIR="/etc/nginx/sites-enabled"
+        SITE_FILE="${AVAIL_DIR}/${WEBSITE_NAME}"
+        LINK_FILE="${ENAB_DIR}/${WEBSITE_NAME}"
+        IP_GATE_FILE="/etc/nginx/snippets/adt-allowed-ips.conf"
+        HTPASSWD_FILE="/etc/nginx/.htpasswd"
+        TEST_CMD="/usr/sbin/nginx -t"
+        SVC_NAME="nginx"
+        /bin/mkdir -p /dev/shm/nginx-proxy-cache /etc/nginx/snippets
+        /bin/chown -R www-data:www-data /dev/shm/nginx-proxy-cache
+        ;;
+    apache)
+        AVAIL_DIR="/etc/apache2/sites-available"
+        ENAB_DIR="/etc/apache2/sites-enabled"
+        SITE_FILE="${AVAIL_DIR}/${WEBSITE_NAME}.conf"
+        LINK_FILE="${ENAB_DIR}/${WEBSITE_NAME}.conf"
+        IP_GATE_FILE="/etc/apache2/conf-available/adt-allowed-ips.conf"
+        HTPASSWD_FILE="/etc/apache2/.htpasswd"
+        TEST_CMD="/usr/sbin/apache2ctl -t"
+        SVC_NAME="apache2"
+        /bin/mkdir -p /dev/shm/apache-proxy-cache
+        /bin/chown -R www-data:www-data /dev/shm/apache-proxy-cache
+        /usr/sbin/a2enmod -q proxy proxy_http proxy_balancer lbmethod_byrequests cache cache_disk headers rewrite ssl authn_file authz_user
+        ;;
+    lighttpd)
+        AVAIL_DIR="/etc/lighttpd/conf-available"
+        ENAB_DIR="/etc/lighttpd/conf-enabled"
+        SITE_FILE="${AVAIL_DIR}/99-${WEBSITE_NAME}.conf"
+        LINK_FILE="${ENAB_DIR}/99-${WEBSITE_NAME}.conf"
+        IP_GATE_FILE="/etc/lighttpd/conf-available/85-adt-allowed-ips.conf"
+        HTPASSWD_FILE="/etc/lighttpd/.htpasswd"
+        TEST_CMD="/usr/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf"
+        SVC_NAME="lighttpd"
+        /usr/sbin/lighttpd-enable-mod proxy auth 2>/dev/null || true
+        ;;
+    *)
+        /bin/echo "ERROR: Unsupported proxy type '${PROXY_TYPE}'" >&2
+        exit 1
+        ;;
+esac
+
+[ ! -f "${IP_GATE_FILE}" ] && : > "${IP_GATE_FILE}"
+[ ! -f "${HTPASSWD_FILE}" ] && : > "${HTPASSWD_FILE}"
+/bin/chmod 640 "${IP_GATE_FILE}" "${HTPASSWD_FILE}"
+/bin/chown root:www-data "${IP_GATE_FILE}" "${HTPASSWD_FILE}"
+
+USER_REPO_DIR="${USER_CONFIG_REPO:-/nonexistent}/reverseproxy/${PROXY_TYPE}"
+ADT_BASE_DIR="${HOME}/reverseproxy/configuration/${PROXY_TYPE}"
+WORK_SITE="/tmp/adt-proxy.$$"
+trap 'rm -f "${WORK_SITE}"' EXIT
+
+/bin/mkdir -p "${AVAIL_DIR}" "${ENAB_DIR}"
+/bin/rm -f "${AVAIL_DIR}"/* "${ENAB_DIR}"/*
+
+if [ -f "${USER_REPO_DIR}/proxy.conf" ]; then
+    /bin/cp "${USER_REPO_DIR}/proxy.conf" "${WORK_SITE}"
+    CUSTOM_USED=1
+else
+    /bin/cp "${ADT_BASE_DIR}/proxy.conf.DEFAULT" "${WORK_SITE}"
+    CUSTOM_USED=0
+fi
+
+apply_proxy_substitutions() {
+    TARGET="$1"
+    /bin/sed -i "s|XXXXWEBSITEURLXXXX|${WEBSITE_URL}|g" "${TARGET}"
+    /bin/sed -i "s|XXXXROOTDOMAINXXXX|${ROOT_DOMAIN}|g" "${TARGET}"
+
+    # Inject multi-line upstream server list safely via awk
+    /usr/bin/awk -v upstreams="${UPSTREAM_LINES}" '{
+        gsub(/XXXXUPSTREAMSERVERSXXXX/, upstreams);
+        print;
+    }' "${TARGET}" > "${TARGET}.tmp" && /bin/mv "${TARGET}.tmp" "${TARGET}"
+
+    [ -f "/etc/letsencrypt/live/${WEBSITE_URL}/fullchain.pem" ] && \
+        /bin/sed -i "s/#XXXXHTTPSXXXX//g" "${TARGET}"
+
+    case "${AUTH_MODE}" in
+        ip)         /bin/sed -i "s/#XXXXAUTHIPXXXX//g" "${TARGET}" ;;
+        basic_auth) /bin/sed -i "s/#XXXXAUTHBASICXXXX//g" "${TARGET}" ;;
+        wireguard)  /bin/sed -i "s/#XXXXWIREGUARDXXXX//g" "${TARGET}" ;;
+    esac
+
+    /bin/sed -i '/#XXXX.*/d' "${TARGET}"
+}
+
+apply_proxy_substitutions "${WORK_SITE}"
+/bin/cp "${WORK_SITE}" "${SITE_FILE}"
+/bin/chmod 600 "${SITE_FILE}"
+/bin/ln -sf "${SITE_FILE}" "${LINK_FILE}"
+
+if ! ${TEST_CMD} >/dev/null 2>&1; then
+    if [ "${CUSTOM_USED}" -eq 1 ]; then
+        ${HOME}/services/email/SendEmail.sh \
+            "CUSTOM ${SVC_NAME} PROXY CONFIG FAILED" \
+            "Custom ${SVC_NAME} proxy.conf in user repo failed syntax test; reverting to ADT default." \
+            "ERROR"
+        /bin/cp "${ADT_BASE_DIR}/proxy.conf.DEFAULT" "${SITE_FILE}"
+        apply_proxy_substitutions "${SITE_FILE}"
+    else
+        /bin/echo "CRITICAL: Default ${SVC_NAME} proxy configuration failed syntax check." >&2
+        exit 1
+    fi
+fi
+
+/bin/echo "${SITE_FILE}" > "${HOME}/runtime/PROXY_CONFIG_LOCATION.dat"
+${HOME}/utilities/processing/RunServiceCommand.sh "${SVC_NAME}" restart
+Use code with caution.
+Now that both ConfigureWebserver.sh and ConfigureReverseProxy.sh share this unified structure, would you like to build the matching ConfigureAuthenticator.sh (PHP-free Lighttpd/Nginx + CGI + msmtp + one-way SSH wg-ingest setup) in the exact same style?
+
+
+To get Valkey actually running and serving your applications, you need four concrete pieces wired into your build scripts: package installation on the Reverse Proxy, firewall isolation on wg0, php-redis + CMS connection wiring on the Webservers, and password sharing between them.
+Right now, ConfigureReverseProxy.sh configures valkey.conf if it is already installed, so here is the exact checklist to complete the loop end-to-end:
+
+1. Install valkey-server on the Reverse Proxy
+
+In your Reverse Proxy package-installation script, install valkey-server (with a fallback to redis-server for older Debian/Ubuntu LTS images):
+sh
+export DEBIAN_FRONTEND=noninteractive
+if /usr/bin/apt-cache show valkey-server >/dev/null 2>&1; then
+    /usr/bin/apt-get install -y -qq valkey-server
+else
+    /usr/bin/apt-get install -y -qq redis-server
+fi
+Use code with caution.
+
+2. Firewall Port 6379 Strictly to Backend Webservers on wg0
+
+Because your Reverse Proxy runs WireGuard (wg0) for both backend Webservers and potentially end-user VPN clients, lock TCP 6379 strictly to your backend webserver subnet (e.g., 10.100.0.0/24) so end-user WireGuard clients (10.100.1.0/16) cannot query or flush Valkey:
+sh
+# UFW example (adjust subnet to match your ADT server-mesh WireGuard range)
+/usr/sbin/ufw allow in on wg0 from 10.100.0.0/24 to any port 6379 proto tcp
+Use code with caution.
+
+3. Share the Valkey Password & Proxy wg0 IP with Webservers
+
+Your ConfigureReverseProxy.sh generates ${HOME}/runtime/valkey_password.dat. Push both that password and the Reverse Proxy's regional wg0 IP to your shared datastore/S3 bucket (alongside wherever you already store regional Reverse Proxy metadata) so Webservers in that region can read:
+• REGIONAL_VALKEY_HOST (e.g., 10.100.0.1)
+• REGIONAL_VALKEY_PASS (the generated token from valkey_password.dat)
+
+4. Install php-redis & Wire Up the CMS on Webservers
+
+On your Webserver nodes, install the PHP Redis extension (which speaks the exact same wire protocol as Valkey) and inject the connection settings into your CMS config during deployment:
+• Package install (on Webserver):sh
+/usr/bin/apt-get install -y -qq "php${PHP_VERSION}-redis"
+Use code with caution.
+• Joomla (configuration.php):php
+public $cache_handler = 'redis';
+public $session_handler = 'redis';
+public $redis_server_host = '10.100.0.1';
+public $redis_server_port = 6379;
+public $redis_server_auth = 'YOUR_VALKEY_PASSWORD';
+public $redis_server_db = 0;
+Use code with caution.
+• WordPress (wp-config.php + object-cache.php drop-in):php
+define('WP_REDIS_HOST', '10.100.0.1');
+define('WP_REDIS_PORT', 6379);
+define('WP_REDIS_PASSWORD', 'YOUR_VALKEY_PASSWORD');
+define('WP_REDIS_TIMEOUT', 1);
+define('WP_REDIS_READ_TIMEOUT', 1);
+Use code with caution.
+• Drupal (settings.php with redis module):php
+$settings['redis.connection']['interface'] = 'PhpRedis';
+$settings['redis.connection']['host'] = '10.100.0.1';
+$settings['redis.connection']['port'] = 6379;
+$settings['redis.connection']['password'] = 'YOUR_VALKEY_PASSWORD';
+$settings['cache']['default'] = 'cache.backend.redis';
+Use code with caution.
+• Moodle (config.php):php
+$CFG->session_handler_class = '\core\session\redis';
+$CFG->session_redis_host = '10.100.0.1';
+$CFG->session_redis_port = 6379;
+$CFG->session_redis_auth = 'YOUR_VALKEY_PASSWORD';
+Use code with caution.
+
+5. Quick Verification Test
+
+Once built, run this one-liner from a Webserver node to verify the WireGuard tunnel, firewall rule, password, and Valkey daemon are all working together:
+sh
+valkey-cli -h 10.100.0.1 -p 6379 -a "YOUR_VALKEY_PASSWORD" PING
+# Expected output: PONG
+Use code with caution.
+Would you like to look at how to automate injecting those CMS Redis lines into configuration.php / wp-config.php / settings.php / config.php inside your Webserver application-installation scripts, or move on to building ConfigureAuthenticator.sh?
