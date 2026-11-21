@@ -321,3 +321,32 @@ ${HOME}/services/email/SendEmail.sh \
     "INFO"
 Use code with caution.
 Would you like to move on to unifying the ip, basic_auth, and wireguard sync flow over your one-way SSH channel, or review how USER_CONFIG_REPO is cloned/pulled during webserver builds?
+
+
+Almost—you can drop the files straight in, and you only need to add three tiny plumbing lines so ConfigureWebserver.sh knows where your user repository lives and handles source-built binaries if you ever use them.
+Before running ConfigureWebserver.sh nginx (or apache / lighttpd), check these three details against your existing ADT setup:
+
+1. Pass or Set USER_CONFIG_REPO
+
+Right now, ConfigureWebserver.sh checks ${USER_CONFIG_REPO:-/nonexistent}. Make sure your calling build script exports that path (or extracts it via ExtractConfigValue.sh) before invoking ConfigureWebserver.sh:
+sh
+export USER_CONFIG_REPO="${HOME}/runtime/config_repo" # Point to wherever ADT clones the user's config repo
+${HOME}/webserver/ConfigureWebserver.sh "nginx"
+Use code with caution.
+If USER_CONFIG_REPO isn't set or the repo doesn't exist yet, the script won't break—it will simply fall back to all your .DEFAULT templates automatically.
+
+2. Double-Check Binary Paths (sbin vs Source Builds)
+
+In your original configure_apache script, you had a check for CheckBuildStyle.sh 'APACHE:source' and envvars.
+• If you install from Debian/Ubuntu packages (apt): /usr/sbin/nginx, /usr/sbin/apache2ctl, and /usr/sbin/lighttpd match the exact paths in the script and will work out of the box.
+• If you compile Apache/Nginx from source: Adjust TEST_CMD (or look up the binary dynamically with command -v nginx / command -v apache2ctl) so it doesn't fail on a hardcoded /usr/sbin/ path.
+
+3. Update Existing Callers
+
+Wherever your parent build scripts currently call:
+• configure_apache.sh -> replace with ConfigureWebserver.sh apache
+• configure_nginx.sh -> replace with ConfigureWebserver.sh nginx
+• configure_lighttpd.sh -> replace with ConfigureWebserver.sh lighttpd
+Once those three pieces are wired up, every build will automatically configure PHP-FPM, enable the right webserver modules, inject the CMS rules, validate syntax, and restart cleanly.
+Would you like to check how USER_CONFIG_REPO is pulled/updated during the build process, or are you ready to move on to unifying the ip, basic_auth, and wireguard sync flow?
+
