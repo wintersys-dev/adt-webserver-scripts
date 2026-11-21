@@ -105,3 +105,49 @@ Why This Is Better for ADT
 • Smaller attack surface: No PHP interpreter, Composer dependencies, or php.ini hardening needed on your public-facing gateway.
 What does your Authenticator currently do in PHP besides sending the email and serving the link (e.g., verifying user credentials against a database/file, rate-limiting sign-ups, or generating TOTP/2FA codes)? Let me know and I can show you the exact POSIX shell equivalent for those checks.
 
+You can support all three authentication styles (WireGuard, IP allowlisting, and HTTP Basic Auth) cleanly in POSIX shell by treating them as modular actions triggered after the same magic-link verification.
+When a user verifies their identity on the Authenticator, instead of assuming WireGuard is the only goal, your CGI script simply branches based on the configured authentication mode (AUTH_MODE="wireguard", "ip", or "basic_auth") and pushes the corresponding grant to the Reverse Proxies over that same one-way SSH channel.
+
+How Each Style Works Without PHP
+
+
+1. Dynamic IP Allowlisting (AUTH_MODE="ip")
+
+When a user clicks their 10-minute magic link, the Authenticator captures their verified public IP ($REMOTE_ADDR) and pushes an allowlist entry to the Reverse Proxies.
+• How the Reverse Proxy enforces it: Nginx (allow <IP>; deny all;), Apache (Require ip <IP>), or UFW/nftables (nft add element inet filter allowed_ips { <IP> timeout 8h }).
+• Why nftables timeouts are awesome here: Native nftables sets support built-in per-IP expiration (timeout 8h), meaning the Reverse Proxy kernel automatically revokes the user's IP access when their session expires—zero cleanup cron jobs needed.
+• Best for: Office workers or home broadband users on static/semi-static IPs who don't want to install a VPN client.
+
+2. HTTP Basic Auth (AUTH_MODE="basic_auth")
+
+When the user verifies their email, the Authenticator generates a random temporary username/password pair (or lets them set one), hashes it using openssl passwd -6 (SHA-512 crypt—built into standard Linux openssl, no apache2-utils needed), and pushes the .htpasswd line to the Reverse Proxies.
+• How the Reverse Proxy enforces it: Native auth_basic in Nginx or AuthType Basic in Apache/Lighttpd—evaluated in C at wire speed with zero backend load.
+• Best for: Quick browser-only access from locked-down corporate laptops or mobile devices where installing WireGuard isn't possible and the user is roaming across cellular/Wi-Fi IPs.
+
+3. WireGuard Tunnel (AUTH_MODE="wireguard")
+
+Your existing flow: delivers the .conf / QR code for full encrypted network-level access.
+• Best for: High-security environments where the Reverse Proxy's admin ports shouldn't even respond to public TCP/UDP scans.
+
+Unifying All Three Under Your One-Way SSH Push
+
+Because your Reverse Proxies already push to (or receive from) the Authenticator, you can standardize on a single, tiny grant file format (e.g., GRANT_TYPE|VALUE|EXPIRY_EPOCH) synced over SSH:
+text
+wireguard|10.100.15.42|1795224000
+ip|203.0.113.45|1795252800
+basic_auth|user_8f9a:$6$salt$hashedpassword...|1795252800
+Use code with caution.
+A single 20-line reconciliation script on each Reverse Proxy reads those lines and applies whichever mechanism is active:
+• If ip: Updates the Nginx allow include file (and runs nginx -s reload) or adds the IP to an nftables set.
+• If basic_auth: Writes the user:hash line into /etc/nginx/.htpasswd (no Nginx reload even required—Nginx reads .htpasswd dynamically per request!).
+• If wireguard: Ensures the peer public key is active in wg0.
+
+Summary Trade-Offs at a Glance
+
+
+Style	Client Setup	Roaming IP Support	Public Port Exposure
+WireGuard	Needs WireGuard app	Seamless (survives Wi-Fi to 5G switches)	Zero (stealth UDP port)
+Basic Auth	None (any browser)	Seamless (works anywhere)	HTTPS port 443 exposed to internet
+IP Allowlist	None (any browser)	Breaks on IP change (mobile data/cafes)	HTTPS port 443 open, filtered by IP
+
+Which direction is your one-way SSH currently flowing for ip and basic_auth grants—does the Reverse Proxy pull/poll new grants from the Authenticator over SSH, or do you want to support all three modes simultaneously per deployment?
