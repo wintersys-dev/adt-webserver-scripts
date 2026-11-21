@@ -56,4 +56,52 @@ With this exact flow, locking down Valkey takes one clear rule on the Reverse Pr
 • Bind Valkey strictly to 10.100.0.1 and fd42:42:42:0::1, and allow port 6379 exclusively from the /24 webserver subnet.
 How does the Authenticator currently request/receive the config from the Reverse Proxies (e.g., over an internal API/SSH call, or via a shared S3/object-store queue)? Knowing that will help spot if there are any multi-proxy sync nuances when you run multiple Reverse Proxies in a region.
 
+Yes—you can eliminate PHP completely from the Authenticator by combining a lightweight static web server (Nginx, Lighttpd, or Caddy) with a tiny POSIX shell CGI script (or BusyBox httpd) and msmtp / curl for sending emails.
+Removing PHP from a public-facing DMZ node is a huge security and resource win: you cut RAM usage down to ~15–20MB, eliminate php-fpm attack surface, and align the Authenticator with the rest of your pure POSIX shell toolkit.
+
+How Each Piece of the Authenticator Works Without PHP
+
+
+1. Web Server + Shell CGI (Replaces Apache/Nginx + PHP-FPM)
+
+You have two ultra-lightweight options that run /bin/sh CGI scripts natively with zero extra daemons:
+• Lighttpd + mod_cgi: Uses ~5MB of RAM, runs /bin/sh scripts directly in /usr/lib/cgi-bin/, and handles HTTPS cleanly.
+• BusyBox httpd (behind Caddy or Nginx for TLS): BusyBox includes a built-in HTTP server (busybox httpd -p 127.0.0.1:8080 -h /var/www) that natively executes any executable POSIX shell script inside /var/www/cgi-bin/ with zero configuration files.
+
+2. Handling Form Submissions & Login Logic (Replaces $_POST / $_GET)
+
+In POSIX shell CGI, reading user input is built right into standard shell utilities:
+• GET requests: Read $QUERY_STRING.
+• POST requests (e.g., user enters their email address): Read $CONTENT_LENGTH bytes from standard input (head -c "${CONTENT_LENGTH}"), URL-decode the email string, and validate it against a strict regex (grep -E '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').
+
+3. Sending the 10-Minute Magic Link Email (Replaces PHP mail() / PHPMailer)
+
+You don't need PHP or a heavy local Postfix daemon to send transactional emails:
+• SMTP relay via msmtp: Install msmtp (a tiny, single-binary SMTP client) and pipe your email straight to your SMTP provider (Postmark, Mailgun, Amazon SES, Brevo, etc.):sh
+printf 'To: %s\nFrom: auth@wintersys.uk\nSubject: Your WireGuard Access Link\n\nClick here within 10 minutes:\nhttps://wintersys.uk\n' "${USER_EMAIL}" "${TOKEN}" | msmtp "${USER_EMAIL}"
+Use code with caution.
+• Or HTTP API via curl: If your email provider has an HTTP API (like Resend, Mailgun, or Postmark), a single curl -s -X POST call sends the email without even needing SMTP credentials.
+
+4. Generating the Landing Page & QR Code (Replaces PHP Templates)
+
+When the Reverse Proxy pushes the .conf over SSH (or when the user requests access), a 10-line shell script generates a static .html file in /dev/shm/wg-staged/${TOKEN}.html with both the download link and an inline SVG QR code using qrencode:
+sh
+QR_SVG=$(qrencode -t SVG -o - < "${CONF_FILE}")
+cat <<EOF > "/dev/shm/wg-staged/${TOKEN}.html"
+<!DOCTYPE html>
+<html><body>
+  <h2>Your WireGuard Configuration (Valid for 10 Minutes)</h2>
+  <div>${QR_SVG}</div>
+  <p><a href="/wg/${TOKEN}.conf" download="wintersys.conf">Download .conf file</a></p>
+</body></html>
+EOF
+Use code with caution.
+Then Nginx/Lighttpd serves /dev/shm/wg-staged/ purely as static files with autoindex off; and Cache-Control: no-store, and your 1-minute cron job wipes both .html and .conf files after 10 minutes.
+
+Why This Is Better for ADT
+
+• 100% consistent codebase: Every single machine class in ADT—Build Client, Reverse Proxy, Webserver, Autoscaler, and now Authenticator—is pure POSIX shell.
+• Tiny VPS footprint: The Authenticator can run reliably on the cheapest £3–£4/month 512MB RAM cloud instance without tuning php-fpm worker pools.
+• Smaller attack surface: No PHP interpreter, Composer dependencies, or php.ini hardening needed on your public-facing gateway.
+What does your Authenticator currently do in PHP besides sending the email and serving the link (e.g., verifying user credentials against a database/file, rate-limiting sign-ups, or generating TOTP/2FA codes)? Let me know and I can show you the exact POSIX shell equivalent for those checks.
 
