@@ -1,0 +1,59 @@
+IPv6 completely eliminates IP exhaustion in WireGuard—giving you trillions of addresses per user—while on IPv4 you can easily support over 65,000 concurrent peers just by widening your subnet mask.
+If you expect a high volume of users connecting through your Authenticator machine, upgrading your WireGuard addressing scheme now prevents painful migrations later.
+
+1. Solving IPv4 Exhaustion (Without Touching IPv6 Yet)
+
+If you currently use a standard /24 subnet (like 10.100.0.0/24), you are capped at 253 usable client IPs. In WireGuard, expanding that capacity takes changing two characters:
+• Use a /16 subnet (10.100.0.0/16): Gives you 65,534 usable client IPs.
+• Use a /12 subnet (172.16.0.0/12): Gives you 1,048,574 usable client IPs.
+• Use a /8 subnet (10.0.0.0/8): Gives you 16,777,214 usable client IPs.
+Because WireGuard operates at Layer 3 (routing IP packets directly to public keys via AllowedIPs) rather than simulating an Ethernet broadcast domain, large subnets have zero ARP broadcast storm overhead. A /16 or /8 performs identically to a /24.
+
+2. Adding IPv6 (Dual-Stack WireGuard)
+
+WireGuard has first-class, native IPv6 support both inside the tunnel (client virtual IPs) and outside the tunnel (connecting over IPv6 cellular/ISP networks).
+• Unlimited address space: Assign your WireGuard mesh a Unique Local Address (ULA) /64 prefix—such as fd42:42:42::/64 (randomly generated per RFC 4193). A single /64 provides 18 quintillion (2^64) addresses, meaning you never have to recycle IPs or track IP exhaustion ever again.
+• Dual-stack client config example:ini
+[Interface]
+PrivateKey = <USER_PRIVATE_KEY>
+Address = 10.100.15.42/32, fd42:42:42::15:42/128
+
+[Peer]
+PublicKey = <REVERSE_PROXY_PUBLIC_KEY>
+Endpoint = ://example.com
+AllowedIPs = 10.100.0.1/32, fd42:42:42::1/128
+Use code with caution.
+• Mobile network advantage: Many UK and European mobile carriers (like EE, Three, and O2) now run IPv6-only cellular networks using NAT64. If your Reverse Proxy's Endpoint domain has both an A (IPv4) and AAAA (IPv6) DNS record, WireGuard clients on mobile data can establish tunnels natively over IPv6 without hitting carrier NAT translation bottlenecks.
+
+3. Two Practical Caveats for High User Counts
+
+Even when IP addresses are infinite, two operational bottlenecks matter when scaling to thousands of users:
+• Peer lookup & config bloat: WireGuard handles tens of thousands of peers in kernel space effortlessly (it uses a hash table lookup, so 10,000 peers is just as fast as 10), but rewriting a 10,000-peer wg0.conf file via shell script every time someone logs in will get slow. Instead, apply changes live in memory using wg set wg0 peer <PUBKEY> allowed-ips <IP>/32,<IPV6>/128 and periodically dump state with wg-quick save wg0.
+• Valkey isolation on IPv6: If you enable dual-stack on wg0, make sure Valkey does not bind to :: (all IPv6 interfaces). Bind Valkey strictly to 127.0.0.1 and the Reverse Proxy's specific server-mesh IPv4/IPv6 address, and mirror your ufw block rules in IPv6 so end users cannot reach port 6379 over fd42:42:42::/64.
+How does your Authenticator machine currently push new user public keys to the Reverse Proxies—does it SSH in and run wg set, or do the Reverse Proxies poll a shared datastore/S3 bucket? Knowing that will help optimize how it scales to thousands of peers.
+
+Generating the client configs directly on the Reverse Proxies and handing them to the Authenticator is a very clean architecture—it avoids the latency and security headache of the Authenticator SSHing into proxies to inject peer keys.
+Because the Reverse Proxy already owns its local wg0 state, it can instantly allocate the next free IP, run wg set locally in milliseconds, and hand back a ready-to-import config file.
+
+How to Make This Scale Smoothly to Thousands of Users
+
+Since the Reverse Proxy is doing the generation and IP allocation, three small POSIX shell patterns will keep it fast and rock-solid even under heavy sign-up bursts:
+• Atomic IP allocation (flock). If two users hit the Authenticator at the exact same second, two processes on the Reverse Proxy might try to grab the next free IP simultaneously. Wrapping your IP-allocator and wg set block in flock -x /var/lock/wg-alloc.lock guarantees zero IP collisions in a single line of shell.
+• Stateless IP derivation from a counter (or IPv6). Instead of scanning a massive wg0.conf file to find unused IPs, keep a tiny integer counter file (e.g., /var/lib/wireguard/next_id) under flock. Convert that integer directly into an IPv4 address in a /16 subnet (10.100.$((id / 256)).$((id % 256))) and/or a matching IPv6 address (fd42:42:42::$(printf '%x' "$id")). That takes O(1) constant time whether you have 5 users or 50,000.
+• Purge inactive peers automatically. Because users often download a config, test it, and never come back, run a lightweight hourly cron job on the Reverse Proxy that checks wg show wg0 latest-handshakes. Any peer whose handshake is 0 (never connected after 1 hour) or older than your session window (e.g., 7 days) gets removed via wg set wg0 peer <PUBKEY> remove, keeping the live peer table lean.
+
+One Security Best Practice for Private Keys
+
+Since the Reverse Proxy currently generates the user's private key inside the .conf file before passing it to the Authenticator:
+• Wipe the private key immediately on the Proxy. Once the .conf string is passed back to the Authenticator, make sure the Reverse Proxy never writes the user's PrivateKey to disk or logs—only the user's PublicKey (and optional PresharedKey) remains in wg0.
+• Optional upgrade: If you ever want zero-knowledge key generation, the Authenticator (or the user's browser via WebCrypto) can generate the keypair locally and only pass the Public Key down to the Reverse Proxy, so the user's private key never crosses the network between machines at all.
+
+Keeping Valkey Isolated on That Same Reverse Proxy
+
+With this exact flow, locking down Valkey takes one clear rule on the Reverse Proxy:
+• Assign backend webservers to 10.100.0.0/24 (and fd42:42:42:0::/64)
+• Assign generated end-user configs to 10.100.1.0/16 (and fd42:42:42:1::/64)
+• Bind Valkey strictly to 10.100.0.1 and fd42:42:42:0::1, and allow port 6379 exclusively from the /24 webserver subnet.
+How does the Authenticator currently request/receive the config from the Reverse Proxies (e.g., over an internal API/SSH call, or via a shared S3/object-store queue)? Knowing that will help spot if there are any multi-proxy sync nuances when you run multiple Reverse Proxies in a region.
+
+
