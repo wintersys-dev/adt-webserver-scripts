@@ -51,8 +51,17 @@ then
         exit 0
 fi
 
+# Resolve the toolkit root directory from the server tracking file
+if [ -r /home/homedir.dat ]
+then
+        HOME="$(/bin/cat /home/homedir.dat)"
+else
+        /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
+        exit 1
+fi
+
 # Verify HOME is set and points to the ADT webserver directory
-if [ -z "${HOME}" ] || [ ! -d "${HOME}/utilities" ]
+if [ -z "${HOME}" ] 
 then
         /bin/echo "Webserver toolkit root directory not found at ${HOME}" >&2
         exit 1
