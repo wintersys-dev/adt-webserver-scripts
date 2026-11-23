@@ -15,7 +15,9 @@ fi
 /bin/sed -i 's/^SecResponseBodyAccess.*/SecResponseBodyAccess Off/' /etc/modsecurity/modsecurity.conf
 /bin/sed -i 's/^SecRequestBodyLimit.*/SecRequestBodyLimit 74448896/' /etc/modsecurity/modsecurity.conf
 
-${HOME}/services/git/CloneRepository.sh "github" "" "coreruleset" "coreruleset"            
+cd /opt
+
+${HOME}/services/git/CloneRepository.sh "coreruleset" "main" "/opt" "github" "coreruleset"
 
 cd coreruleset/
 
