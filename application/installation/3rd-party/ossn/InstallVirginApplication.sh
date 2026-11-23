@@ -45,7 +45,8 @@ ossn_git_branch="`/bin/grep "^OSSN:git-branch:" ${HOME}/runtime/application.dat 
 if ( [ "${ossn_git_branch}" != "" ] )
 then
         /bin/rm -r /var/www/html/
-        ${HOME}/services/git/CloneRepository.sh "github" "" "opensource-socialnetwork" "opensource-socialnetwork" "${ossn_git_branch}" "/var/www/html/ossn"
+        ${HOME}/services/git/CloneRepository.sh "opensource-socialnetwork" "${ossn_git_branch}" "/var/www/html/ossn" "github" "opensource-socialnetwork"
+
         /bin/chown -R www-data:www-data /var/www/html
 else
         checksum="0"
