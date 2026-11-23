@@ -1,6 +1,6 @@
 #!/bin/sh
 #: Name:        list_repository.sh
-#: Purpose:     Checks a GitHub repository state ("full", "empty", or "none") via Git CLI (public first, authenticated fallback).
+#: Purpose:     Checks a GitLab project state ("full", "empty", or "none") via Git CLI (public first, authenticated fallback).
 #: Author:      Peter Winter
 #: Date:        22/11/2026
 #: Version:     1.0
@@ -9,8 +9,8 @@
 #:              list_repository.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Required] The name/slug of the repository to inspect.
-#:   $2         [Required] The GitHub organisation or account owner name.
+#:   $1         [Required] The name/slug of the GitLab project to inspect.
+#:   $2         [Required] The GitLab username or group path (repository owner).
 #:
 #: Environment:
 #:   HOME       Resolved automatically from /home/homedir.dat
@@ -21,8 +21,8 @@
 #:   - External binaries: base64, cat, cut, echo, git, grep, printf
 #:
 #: Exit Codes:
-#:   0          Repository state ("full", "empty", or "none") printed to stdout
-#:   1          Missing arguments, framework layout faults, or authentication encoding failure
+#:   0          Project state ("full", "empty", or "none") printed to stdout
+#:   1          Missing arguments, layout faults, or authentication encoding failure
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
@@ -41,6 +41,7 @@
 #set -x
 set -e
 
+# Render self-extracting help documentation when -h or --help is supplied
 if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
 then
         /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
@@ -65,12 +66,11 @@ fi
 repository_name="${1}"
 repository_ownername="${2}"
 
-git_base="https://github.com"
-repo_url="${git_base}/${repository_ownername}/${repository_name}.git"
+repo_url="https://gitlab.com/${repository_ownername}/${repository_name}.git"
 
 export GIT_TERMINAL_PROMPT=0
 
-# 1. Attempt unauthenticated ls-remote first (works for public repositories)
+# 1. Attempt unauthenticated ls-remote first (works for public projects without touching credentials)
 set +e
 ls_output="$(/usr/bin/git ls-remote -- "${repo_url}" 2>/dev/null)"
 git_status="$?"
@@ -85,13 +85,13 @@ then
 
         if [ -n "${REPOSITORY_TOKEN}" ] && [ "${REPOSITORY_TOKEN}" != "none" ]
         then
-                encoded_auth="$(/usr/bin/printf '%s' "x-access-token:${REPOSITORY_TOKEN}" | /usr/bin/base64 -w0)"
+                encoded_auth="$(/usr/bin/printf '%s' "oauth2:${REPOSITORY_TOKEN}" | /usr/bin/base64 -w0)"
                 unset REPOSITORY_TOKEN
 
                 if [ -z "${encoded_auth}" ]
                 then
                         unset GIT_TERMINAL_PROMPT
-                        /bin/echo "Error: Failed to encode GitHub authentication header." >&2
+                        /bin/echo "Error: Failed to encode GitLab authentication header." >&2
                         exit 1
                 fi
 
@@ -126,4 +126,5 @@ else
 fi
 
 exit 0
+
 
