@@ -40,13 +40,19 @@ fi
 
 cd ${HOME}/runtime/downloads_work_area
 
+webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
+
+if ( [ "${webroot_directory}" = "" ] )
+then
+        webroot_directory="/var/www/html/moodle"
+fi
+
 ossn_git_branch="`/bin/grep "^OSSN:git-branch:" ${HOME}/runtime/application.dat | /bin/sed 's/OSSN:git-branch://g'`"
 
 if ( [ "${ossn_git_branch}" != "" ] )
 then
         /bin/rm -r /var/www/html/
-        ${HOME}/services/git/CloneRepository.sh "opensource-socialnetwork" "${ossn_git_branch}" "/var/www/html/ossn" "github" "opensource-socialnetwork"
-
+        ${HOME}/services/git/CloneRepository.sh "opensource-socialnetwork" "${ossn_git_branch}" "${webroot_directory}" "github" "opensource-socialnetwork"
         /bin/chown -R www-data:www-data /var/www/html
 else
         checksum="0"
