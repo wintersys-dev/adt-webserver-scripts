@@ -83,7 +83,6 @@ elif ( [ "`${HOME}/utilities/config/CheckConfigValue.sh BUILDARCHIVECHOICE:basel
 then
         export REPOSITORY_TOKEN="${APPLICATION_REPOSITORY_TOKEN}"
         ${HOME}/services/git/CloneRepository.sh "${APPLICATION_BASELINE_SOURCECODE_REPOSITORY}" "main" "/var/www/html" 
-        #"${APPLICATION_REPOSITORY_PROVIDER}" "${APPLICATION_REPOSITORY_OWNER}"        
         unset REPOSITORY_TOKEN
         ${HOME}/application/branding/ApplyApplicationBranding.sh
 elif ( [ "`/bin/echo 'hourly daily weekly monthly bimonthly' | /bin/grep ${BUILD_ARCHIVE_CHOICE}`" != "" ] )
