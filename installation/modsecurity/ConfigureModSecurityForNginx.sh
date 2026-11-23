@@ -1,5 +1,7 @@
 cd /opt
-${HOME}/services/git/CloneRepository.sh "github" "" "owasp-modsecurity" "ModSecurity"
+
+${HOME}/services/git/CloneRepository.sh "owasp-modsecurity" "v3/master" "/opt" "github" "ModSecurity""
+
 cd ModSecurity/
 /usr/bin/git submodule init
 /usr/bin/git submodule update
@@ -10,6 +12,7 @@ make install
 
 cd /opt
 ${HOME}/services/git/CloneRepository.sh "github" "" "owasp-modsecurity" "ModSecurity-nginx" 
+${HOME}/services/git/CloneRepository.sh "owasp-modsecurity" "master" "/opt" "github" "ModSecurity-nginx"
 /bin/rm -rf /usr/share/modsecurity-crs
 ${HOME}/services/git/CloneRepository.sh "github" "" "coreruleset" "coreruleset" 
 /bin/mv /opt/coreruleset /usr/local/modsecurity-crs
