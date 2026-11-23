@@ -49,7 +49,7 @@ do
 		then
 		#	${HOME}/installation/InstallGo.sh ${BUILDOS}
 			cd /opt
-			${HOME}/services/git/CloneRepository.sh "github" "" "kahing" "goofys"
+			${HOME}/services/git/CloneRepository.sh "kahing" "master" "/opt" "github" "goofys"
 			cd goofys
 			/usr/bin/git submodule init
 			/usr/bin/git submodule update
@@ -73,7 +73,7 @@ do
 		then
 		#	${HOME}/installation/InstallGo.sh ${BUILDOS}
 			cd /opt
-			${HOME}/services/git/CloneRepository.sh "github" "" "kahing" "goofys"
+			${HOME}/services/git/CloneRepository.sh "kahing" "master" "/opt" "github" "goofys"
 			cd goofys
 			/usr/bin/git submodule init
 			/usr/bin/git submodule update
