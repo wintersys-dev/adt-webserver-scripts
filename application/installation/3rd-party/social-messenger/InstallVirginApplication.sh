@@ -10,5 +10,6 @@ cd ${HOME}/runtime/downloads_work_area
 
 social_messenger_git_branch="`/bin/grep "^SOCIAL-MESSENGER:git-branch:" ${HOME}/runtime/application.dat | /bin/sed 's/SOCIAL-MESSENGER:git-branch://g'`"
 /bin/rm -r /var/www/html/
-${HOME}/services/git/CloneRepository.sh "github" "" "adt-demos" "php-social-messenger" "${social_messenger_git_branch}" "/var/www/html/social-messenger"
+
+${HOME}/services/git/CloneRepository.sh "php-social-messenger" "${social_messenger_git_branch}" "${webroot_directory}" "github" "php-social-messenger"
 /bin/chown -R www-data:www-data /var/www/html
