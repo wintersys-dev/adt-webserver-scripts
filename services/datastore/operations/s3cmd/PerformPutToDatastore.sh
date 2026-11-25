@@ -3,7 +3,7 @@
 #: Purpose:     Automated local payload ingestion and S3 datastore storage driver using s3cmd.
 #: Author:      Peter Winter
 #: Date:        25/11/2026
-#: Version:     2.0
+#: Version:     1.0
 #:
 #: Usage:       PerformPutToDatastore.sh <file_to_put> <place_to_put> <delete> <count>
 #:              PerformPutToDatastore.sh [-h|--help]
@@ -93,11 +93,11 @@ retry_command()
 
                 if [ "${attempt}" -ge "${max_attempts}" ]
                 then
-                        status "Error: Datastore command failed after ${max_attempts} attempts (exit code ${exit_code})."
+                        log_error "Error: Datastore command failed after ${max_attempts} attempts (exit code ${exit_code})."
                         return "${exit_code}"
                 fi
 
-                status "Warning: Datastore command failed (attempt ${attempt}/${max_attempts}). Retrying in ${sleep_interval}s..."
+                log_error "Warning: Datastore command failed (attempt ${attempt}/${max_attempts}). Retrying in ${sleep_interval}s..."
                 attempt="$(/usr/bin/expr "${attempt}" + 1)"
                 /bin/sleep "${sleep_interval}"
         done
