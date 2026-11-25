@@ -1,12 +1,29 @@
 #!/bin/sh
-###########################################################################################################
-# Description: Sometimes applications can require you to execute application specific cronjobs.
-# When that is the case you can put those cronjobs here. I have provided a couple of example ones for you
-# Date: 09/07/2022
-# Author: Peter Winter
-###########################################################################################################
+#: Name:        ExecuteApplicationSpecificCronjob.sh
+#: Purpose:     Configures and installs application-specific crontab entries for the www-data user.
+#: Author:      Peter Winter
+#: Date:        25/11/2026
+#: Version:     1.0
+#:
+#: Usage:       ExecuteApplicationSpecificCronjob.sh
+#:              ExecuteApplicationSpecificCronjob.sh [-h|--help]
+#:
+#: Parameters:
+#:   None       Reads active APPLICATION flags via CheckConfigValue.sh.
+#:
+#: Environment:
+#:   HOME       Root directory of the server deployment toolkit
+#:
+#: Dependencies:
+#:   - ${HOME}/utilities/config/CheckConfigValue.sh
+#:   - External binaries: echo, grep, cut, rm, mktemp, crontab
+#:
+#: Exit Codes:
+#:   0          Application crontab entries installed cleanly, or no entries required
+#:   1          Missing HOME environment, missing CheckConfigValue.sh, or crontab installation failure
+###################################################################################
 # License Agreement:
-# This file is part of The Agile Deployment Toolkit.
+# This file is part of The Wintersys Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,20 +33,68 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
-#######################################################################################################
-#######################################################################################################
+# along with The Wintersys Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
 #set -x
+set -e
 
-
-####If a specific application needs additions to crontab, you can place them here:
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:wordpress`" = "1" ] )
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
 then
-	/bin/echo "*/30 * * * * /usr/local/bin/wp cron event run --due-now --path='/var/www/html' >/dev/null 2>&1" >> /var/spool/cron/crontabs/www-data
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
 fi
 
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh APPLICATION:moodle`" = "1" ] )
+# Verify that HOME is set in the execution environment
+if [ -z "${HOME}" ] || [ ! -d "${HOME}" ]
 then
-	/bin/echo "*/1 * * * * /usr/bin/php /var/www/html/admin/cli/cron.php >/dev/null" > /var/spool/cron/crontabs/www-data
+        /bin/echo "Error: HOME environment variable is unset or invalid." >&2
+        exit 1
 fi
+
+# Verify required configuration checker helper exists
+config_checker="${HOME}/utilities/config/CheckConfigValue.sh"
+if [ ! -x "${config_checker}" ]
+then
+        /bin/echo "Error: Configuration checker script missing or not executable at ${config_checker}" >&2
+        exit 1
+fi
+
+# Stage www-data crontab entries in a temporary file before installing via crontab(1)
+tmp_cron="$(/bin/mktemp)"
+cleanup()
+{
+        /bin/rm -f "${tmp_cron}"
+}
+trap cleanup EXIT INT TERM HUP QUIT
+
+# Preserve any pre-existing www-data crontab entries outside managed toolkit lines
+/usr/bin/crontab -u www-data -l 2>/dev/null | /usr/bin/grep -v -F "wp cron event run" | /usr/bin/grep -v -F "/var/www/html/admin/cli/cron.php" > "${tmp_cron}" || true
+
+# WordPress scheduled event runner
+if [ "$("${config_checker}" "APPLICATION:wordpress")" = "1" ]
+then
+        /bin/echo "*/30 * * * * /usr/local/bin/wp cron event run --due-now --path='/var/www/html' >/dev/null 2>&1" >> "${tmp_cron}"
+fi
+
+# Moodle background maintenance cron
+if [ "$("${config_checker}" "APPLICATION:moodle")" = "1" ]
+then
+        /bin/echo "*/1 * * * * /usr/bin/php /var/www/html/admin/cli/cron.php >/dev/null 2>&1" >> "${tmp_cron}"
+fi
+
+# Install the staged crontab for www-data so cron(8) reloads it immediately
+if [ -s "${tmp_cron}" ]
+then
+        if ! /usr/bin/crontab -u www-data "${tmp_cron}"
+        then
+                /bin/echo "Error: Failed to install www-data crontab from staging file." >&2
+                exit 1
+        fi
+fi
+
+exit 0
+
 
