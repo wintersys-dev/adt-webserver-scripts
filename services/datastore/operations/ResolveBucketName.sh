@@ -140,7 +140,7 @@ case "${bucket_type}" in
         "asset")
                 active_bucket="$(/bin/echo "${WEBSITE_URL}-assets-${additional_specifier}" | /bin/sed -e 's/\./-/g' -e 's;/;-;g' -e 's/--/-/g')"
                 ;;
-        "scaling"|"backup-web"|"backup-webroot")
+        "scaling"|"backup-webroot")
                 active_bucket="$(/bin/echo "${WEBSITE_URL}" | /bin/sed 's/\./-/g')-${additional_specifier}"
                 ;;
         "firewall-auth-laptop-ips"|"whitelist-auth-laptop-ips"|"firewall-emailed-links"|"whitelist-emailed-links"|"basic-auth-credentials")
