@@ -1,36 +1,31 @@
-#!/bin/sh 
-###################################################################################
-# @file        PerformListFromDatastore.sh
-# @brief       Automated S3 Datastore Object Content Listing and Parsing Driver.
-# @author      Peter Winter
-# @date        09/04/2021
-# @version     1.0
-#
-# @details     This script automates low-level item inspection within targeted cloud
-#              datastores. It extracts the storage endpoint configuration from standard
-#              rclone profile records, queries the target S3 path, and reads back object 
-#              metadata. It passes the raw endpoint output through filtering text parsing 
-#              streams to isolate and print individual target file basenames cleanly.
-#
-# @param       $1  [Required] Target S3 bucket pathway or file pattern to inspect.
-#
-# @env         None explicitly sourced from top-level environment registers.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active application root path.
-#              - /usr/bin/rclone storage integration engine software utility.
-#              - /root/.config/rclone/rclone.conf-1 base primary cluster registration file.
-#
-# @security    
-#              - Strips global wildcard assets (`*`) from target inputs to limit unexpected pattern extraction.
-#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
-#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent malicious search path injection.
-#
-# @exit        0  Success: Target path successfully interrogated and structural objects listed.
-# @exit        1  Failure: Missing mandatory parameters or rclone execution driver failure.
+#!/bin/sh
+#: Name:        PerformListFromDatastore.sh
+#: Purpose:     Automated S3 datastore object content listing and basename parsing driver using rclone.
+#: Author:      Peter Winter
+#: Date:        25/11/2026
+#: Version:     1.0
+#:
+#: Usage:       PerformListFromDatastore.sh <file_to_list>
+#:              PerformListFromDatastore.sh [-h|--help]
+#:
+#: Parameters:
+#:   $1         [Required] Target S3 bucket and object/prefix path to inspect
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - /usr/bin/rclone
+#:   - /root/.config/rclone/rclone.conf-1
+#:   - External binaries: cat, echo, grep, cut, date, dirname, mkdir, awk, tr, sed, sleep
+#:
+#: Exit Codes:
+#:   0          Target datastore path interrogated and matching object basenames printed cleanly
+#:   1          Missing /home/homedir.dat, missing arguments, missing rclone config, or listing failure
 ###################################################################################
 # License Agreement:
-# This file is part of The Agile Deployment Toolkit.
+# This file is part of The Wintersys Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -41,15 +36,25 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-######################################################################################
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
 #set -x
 set -e
 
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
+then
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
+fi
+
+# Resolve the server toolkit root directory from /home/homedir.dat
 if [ -r /home/homedir.dat ]
 then
         HOME="$(/bin/cat /home/homedir.dat)"
 else
-        /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
+        /bin/echo "Error: Application root configuration file missing at /home/homedir.dat" >&2
         exit 1
 fi
 
