@@ -94,7 +94,7 @@ retry_command()
                         return "${exit_code}"
                 fi
 
-                status "Warning: Datastore command failed (attempt ${attempt}/${max_attempts}). Retrying in ${sleep_interval}s..."
+                log_error  "Warning: Datastore command failed (attempt ${attempt}/${max_attempts}). Retrying in ${sleep_interval}s..."
                 attempt="$(/usr/bin/expr "${attempt}" + 1)"
                 /bin/sleep "${sleep_interval}"
         done
