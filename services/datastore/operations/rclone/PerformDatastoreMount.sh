@@ -91,7 +91,7 @@ retry_command()
 
                 if [ "${attempt}" -ge "${max_attempts}" ]
                 then
-                        status "Error: Datastore command failed after ${max_attempts} attempts (exit code ${exit_code})."
+                        log_error  "Error: Datastore command failed after ${max_attempts} attempts (exit code ${exit_code})."
                         return "${exit_code}"
                 fi
 
