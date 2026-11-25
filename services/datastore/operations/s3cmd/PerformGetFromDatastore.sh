@@ -1,37 +1,32 @@
-#!/bin/sh 
-###################################################################################
-# @file        PerformGetFromDatastore.sh
-# @brief       Automated S3 Datastore Object Retrieval and Local Ingestion Driver.
-# @author      Peter Winter
-# @date        09/04/2021
-# @version     1.0
-#
-# @details     This script automates low-level file download and transfer tasks from
-#              managed cloud datastores to local file system targets using s3cmd.
-#              It extracts target cloud endpoint parameters from the primary s3cmd
-#              profile record, configures single-node data pipes, and drops the 
-#              requested remote object cleanly into the destination directory path.
-#
-# @param       $1  [Required] S3 bucket target pathway and the specific object key to pull.
-# @param       $2  [Required] Local directory path or target file name destination for the download.
-#
-# @env         None explicitly sourced from top-level environment registers.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active application root path.
-#              - /usr/bin/s3cmd storage integration command-line software utility.
-#              - /root/.s3cfg-1 base primary cluster registration configuration file.
-#
-# @security    
-#              - Restricts validation actions strictly to isolated tenant access keys inside config spaces.
-#              - Suppresses downstream standard error channels (`2>/dev/null`) to block credential exposure.
-#              - Relies on system-owned executable paths (/bin, /usr/bin) to circumvent malicious search path injection.
-#
-# @exit        0  Success: Cloud object securely retrieved and copied to local workspace destinations.
-# @exit        1  Failure: Missing mandatory parameters or s3cmd execution driver failure.
+#!/bin/sh
+#: Name:        PerformGetFromDatastore.sh
+#: Purpose:     Automated S3 datastore object retrieval and local ingestion driver using s3cmd.
+#: Author:      Peter Winter
+#: Date:        25/11/2026
+#: Version:     2.0
+#:
+#: Usage:       PerformGetFromDatastore.sh <file_to_get> <destination>
+#:              PerformGetFromDatastore.sh [-h|--help]
+#:
+#: Parameters:
+#:   $1         [Required] Target S3 bucket and object key path to download
+#:   $2         [Required] Local destination directory path or target file name
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - /usr/bin/s3cmd
+#:   - /root/.s3cfg-1
+#:   - External binaries: cat, echo, grep, cut, date, dirname, mkdir, awk, tr, sleep
+#:
+#: Exit Codes:
+#:   0          Cloud object retrieved and copied cleanly to local destination
+#:   1          Missing /home/homedir.dat, missing arguments, missing s3cmd config, or download failure
 ###################################################################################
 # License Agreement:
-# This file is part of The Agile Deployment Toolkit.
+# This file is part of The Wintersys Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -42,15 +37,25 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-######################################################################################
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
 #set -x
 set -e
 
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
+then
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
+fi
+
+# Resolve the server toolkit root directory from /home/homedir.dat
 if [ -r /home/homedir.dat ]
 then
         HOME="$(/bin/cat /home/homedir.dat)"
 else
-        /bin/echo "Application root configuration file missing at /home/homedir.dat" >&2
+        /bin/echo "Error: Application root configuration file missing at /home/homedir.dat" >&2
         exit 1
 fi
 
