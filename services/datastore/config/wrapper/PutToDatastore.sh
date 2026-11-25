@@ -27,10 +27,6 @@ place_to_put="${3}"
 delete="${4}"
 additional_specifier="${5}"
 
-if ( [ "${place_to_put}" = "root" ] )
-then
-        place_to_put=""
-fi
 
 if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORECONFIGSTYLE" | /usr/bin/awk -F':' '{print $NF}'`" = "tool" ] )
 then
