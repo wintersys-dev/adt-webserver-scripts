@@ -1,17 +1,17 @@
 #!/bin/sh
-#: Name:        GetFromDatastore.sh
-#: Purpose:     Context-aware S3 datastore object retrieval and single-node fetching utility.
+#: Name:        DeleteFromDatastore.sh
+#: Purpose:     Context-aware S3 datastore object purging and distributed multi-node deletion utility.
 #: Author:      Peter Winter
 #: Date:        25/11/2026
 #: Version:     1.0
 #:
-#: Usage:       GetFromDatastore.sh <bucket_type> <file_to_get> <destination> [additional_specifier]
-#:              GetFromDatastore.sh [-h|--help]
+#: Usage:       DeleteFromDatastore.sh <bucket_type> <file_to_delete> <mode> [additional_specifier]
+#:              DeleteFromDatastore.sh [-h|--help]
 #:
 #: Parameters:
-#:   $1         [Required] Target bucket classification type (e.g., config, backup-db, snap, ad-hoc)
-#:   $2         [Required] Name or relative object path to retrieve from the target bucket
-#:   $3         [Required] Local destination directory path or target file name
+#:   $1         [Required] Target bucket classification type (e.g., ssl, config, asset, backup-web, backup-db, ad-hoc)
+#:   $2         [Required] File name or relative object path to delete within the target bucket
+#:   $3         [Required] Execution topology mode ("local" or "distributed")
 #:   $4         [Optional] Contextual tracking suffix or explicit bucket name for "ad-hoc" mode
 #:
 #: Environment:
@@ -19,14 +19,15 @@
 #:
 #: Dependencies:
 #:   - /home/homedir.dat
-#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - ${HOME}/services/datastore/operations/ResolveBucketName.sh
 #:   - ${HOME}/utilities/config/ExtractBuildStyleValues.sh
-#:   - ${HOME}/services/datastore/operations/<DATASTORETOOL>/PerformGetFromDatastore.sh
-#:   - External binaries: cat, echo, grep, cut, date, dirname, mkdir, fold, head, tr, sed, awk
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - ${HOME}/services/datastore/operations/<DATASTORETOOL>/PerformDeleteFromDatastore.sh
+#:   - External binaries: cat, echo, grep, cut, date, dirname, mkdir, awk, tr, wc
 #:
 #: Exit Codes:
-#:   0          Target datastore object resolved and downloaded cleanly
-#:   1          Missing /home/homedir.dat, missing arguments, invalid bucket type, or driver failure
+#:   0          Target datastore object deleted cleanly across local or distributed endpoints
+#:   1          Missing /home/homedir.dat, missing arguments, invalid mode, or missing/failed driver scripts
 ###################################################################################
 # License Agreement:
 # This file is part of The Wintersys Agile Deployment Toolkit.
