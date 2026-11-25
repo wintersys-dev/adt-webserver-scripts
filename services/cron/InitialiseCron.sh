@@ -1,11 +1,34 @@
 #!/bin/sh
-######################################################################################
-# Description: This script will initialise your crontab for you
-# Author: Peter Winter
-# Date: 28/01/2017
-######################################################################################
+#: Name:        InitialiseCron.sh
+#: Purpose:     Generates and installs the root crontab schedule for authenticator, reverse proxy, and webserver nodes.
+#: Author:      Peter Winter
+#: Date:        25/11/2026
+#: Version:     1.0
+#:
+#: Usage:       InitialiseCron.sh
+#:              InitialiseCron.sh [-h|--help]
+#:
+#: Parameters:
+#:   None       Detects node role from hostname (-auth-, -rp-, ws-) and deployment config via ExtractConfigValue.sh.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - ${HOME}/utilities/config/CheckConfigValue.sh
+#:   - ${HOME}/utilities/config/ExtractBuildStyleValues.sh
+#:   - ${HOME}/utilities/config/CheckBuildStyle.sh
+#:   - ${HOME}/utilities/processing/RunServiceCommand.sh
+#:   - External binaries: cat, echo, grep, cut, awk, hostname, mktemp, rm, crontab, shuf, nice, sleep
+#:
+#: Exit Codes:
+#:   0          Root (and optional www-data) crontabs generated, installed, and cron service restarted cleanly
+#:   1          Missing /home/homedir.dat, missing config helpers, or crontab installation failure
+###################################################################################
 # License Agreement:
-# This file is part of The Agile Deployment Toolkit.
+# This file is part of The Wintersys Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,267 +38,267 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
-######################################################################################
-######################################################################################
+# along with The Wintersys Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
 #set -x
+set -e
 
-if ( [ -f /var/spool/cron/crontabs/root ] )
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
 then
-	/bin/rm /var/spool/cron/crontabs/root
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
 fi
 
-/bin/echo "MAILTO=''" > /var/spool/cron/crontabs/root
-HOME="`/bin/cat /home/homedir.dat`"
-
-
-if ( [ "`/usr/bin/hostname | /bin/grep "\-auth-"`" != "" ] )
+# Resolve the toolkit root directory from /home/homedir.dat
+if [ -r /home/homedir.dat ]
 then
-	WEBSERVER_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSERVERCHOICE'`"
-	AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
-
-	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/CheckWebserverIsUp.sh ${WEBSERVER_CHOICE}" >> /var/spool/cron/crontabs/root
-
-	if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] || [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] )
-	then
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * /usr/bin/find /var/www/html/ip-address* -mmin +30 -type f -exec rm -fv {} \;" >> /var/spool/cron/crontabs/root
-	elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
-	then
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh" >> /var/spool/cron/crontabs/root	
-    elif ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
-    then
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 5 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 15 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 25 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 35 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 55 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh" >> /var/spool/cron/crontabs/root
-		
-        /bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-      #	/bin/echo "*/1 * * * * /usr/bin/find /var/www/html/qrcode* -mmin +30 -type f -exec rm -fv {} \;" >> /var/spool/cron/crontabs/root
-	#	/bin/echo "*/1 * * * * /usr/bin/find /var/www/html/client* -mmin +30 -type f -exec rm -fv {} \;" >> /var/spool/cron/crontabs/root
-
-	   # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 5 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 15 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 25 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 35 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-       # /bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> /var/spool/cron/crontabs/root
-		
-	#	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/authenticator/wire-guard/AddReverseProxyIPs.sh" >> /var/spool/cron/crontabs/root
-    fi
-	
-	/bin/echo "22 4 * * * export HOME="${HOME}" && ${HOME}/utilities/software/UpdateSoftware.sh" >> /var/spool/cron/crontabs/root
-	/bin/echo "45 4 * * * export HOME="${HOME}" && /bin/rm ${HOME}/runtime/FIREWALL-ACTIVE" >> /var/spool/cron/crontabs/root
-
-elif ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] || [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
-then
-	WEBSERVER_CHOICE="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSERVERCHOICE'`"
-	#NO_REVERSE_PROXY="`${HOME}/utilities/config/ExtractConfigValue.sh 'NOREVERSEPROXY'`"
-	APPLICATION="`${HOME}/utilities/config/ExtractConfigValue.sh 'APPLICATION'`"
-
-	if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] && [ "${APPLICATION}" = "moodle" ] )
-	then
-		webroot_directory="`/bin/grep "^WEBROOT_DIRECTORY:" ${HOME}/runtime/application.dat | /usr/bin/awk -F':' '{print $NF}'`"
-		/bin/echo "*/1 * * * * /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/cron.php >/dev/null" >> /var/spool/cron/crontabs/root
-	fi
-
-	if ( [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ] )
-	then
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/RemoveOldIPFromReverseProxyIPList.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/RemoveOldIPFromReverseProxyIPList.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/EnsureReverseProxyWebserverIPs.sh" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/reverseproxy/EnsureReverseProxyWebserverIPs.sh" >> /var/spool/cron/crontabs/root
-	fi
-
-	#These scripts run every minute
-	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/CheckWebserverIsUp.sh ${WEBSERVER_CHOICE}" >> /var/spool/cron/crontabs/root
-	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/MonitorForOverload.sh" >> /var/spool/cron/crontabs/root
-
-	#We have a flag to tell us if one of the webservers has updated the SSL certificate. If so, other webservers don't try.
-	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh" >> /var/spool/cron/crontabs/root
-	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/cron/ExecuteApplicationSpecificCronjob.sh" >> /var/spool/cron/crontabs/root
-
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:1`" = "1" ] || [ "`${HOME}/utilities/config/CheckConfigValue.sh PERSISTASSETSTODATASTORE:2`" = "1" ] )
-	then
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/datastore/assets/SetupAssetsStore.sh" >> /var/spool/cron/crontabs/root
-	fi
-
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh SYNCWEBROOTS:1`" = "1" ] )
-	then
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 2 && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '2' '/var/www/html' 'webroot-sync'" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 15 && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '15' '/var/www/html' 'webroot-sync'" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '30' '/var/www/html' 'webroot-sync'" >> /var/spool/cron/crontabs/root
-		/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '45' '/var/www/html' 'webroot-sync'" >> /var/spool/cron/crontabs/root
-	fi
-
-	if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh NOAUTHENTICATORS:0`" != "1" ] && ( [ "`${HOME}/utilities/config/CheckConfigValue.sh NOREVERSEPROXIES:0`" != "1" ] && [ "`/usr/bin/hostname | /bin/grep "\-rp-"`" != "" ]  ) )
-	then
-		AUTHENTICATOR_TYPE="`${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE'`"
-
-		if ( [ "${AUTHENTICATOR_TYPE}" = "firewall" ] || [ "${AUTHENTICATOR_TYPE}" = "whitelist" ] )
-		then
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 &&${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 &&${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh" >> /var/spool/cron/crontabs/root
-		elif ( [ "${AUTHENTICATOR_TYPE}" = "basic-auth" ] )
-		then
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 &&  ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 &&  ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 &&  ${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh" >> /var/spool/cron/crontabs/root
-		elif  ( [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ] )
-		then
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 5 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 15 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 25 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 35 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 55 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh" >> /var/spool/cron/crontabs/root
-		
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 5 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 15 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 25 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 35 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 55 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh" >> /var/spool/cron/crontabs/root
-
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 5 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 10 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 15 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 25 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 35 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 45 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 50 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 55 && ${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh" >> /var/spool/cron/crontabs/root
-			
-		fi
-	fi
-
-	#These scripts run at set times these will make a backup of our webroot to git and also to our datastore if super safe
-	#Time based backups are not taken for virgin CMS installs. Instead, make a baseline if you want to save a copy of your work and work it out from there once your application is ready
-
-	/bin/echo "30 1 * * * export HOME="${HOME}" && ${HOME}/utilities/security/EnforcePermissions.sh" >> /var/spool/cron/crontabs/root        
-	/bin/echo "2 * * * * export HOME="${HOME}" && ${HOME}/services/cron/BackupFromCron.sh 'HOURLY'" >> /var/spool/cron/crontabs/root
-	/bin/echo "30 2 * * * export HOME="${HOME}" && ${HOME}/services/cron/BackupFromCron.sh 'DAILY'" >> /var/spool/cron/crontabs/root
-	/bin/echo "30 3 * * 7 export HOME="${HOME}" && ${HOME}/services/cron/BackupFromCron.sh 'WEEKLY'" >> /var/spool/cron/crontabs/root
-	/bin/echo "30 4 1 * * export HOME="${HOME}" && ${HOME}/services/cron/BackupFromCron.sh 'MONTHLY'" >> /var/spool/cron/crontabs/root
-	/bin/echo "30 5 1 Jan,Mar,May,Jul,Sep,Nov * export HOME="${HOME}" && ${HOME}/services/cron/BackupFromCron.sh 'BIMONTHLY'" >> /var/spool/cron/crontabs/root
+        HOME="$(/bin/cat /home/homedir.dat)"
+else
+        /bin/echo "Error: Home configuration file missing at /home/homedir.dat" >&2
+        exit 1
 fi
 
-if ( [ "`/usr/bin/hostname | /bin/grep "^ws-"`" != "" ] )
+if [ -z "${HOME}" ] || [ ! -d "${HOME}" ]
 then
-	/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/security/CheckWebrootImmutabilityStatus.sh" >> /var/spool/cron/crontabs/root
+        /bin/echo "Error: Resolved HOME directory '${HOME}' is invalid." >&2
+        exit 1
 fi
 
-/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/security/AuditSSHConnections.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/processing/UpdateIPs.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "*/1 * * * * export HOME="${HOME}" && /bin/sleep 30 && ${HOME}/utilities/processing/UpdateIPs.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/cron/SetupFirewallFromCron.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/MarkedForShutdown.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/CheckNetworkManagerStatus.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "*/1 * * * * export HOME="${HOME}" && ${HOME}/services/cron/PerformEmergencyRestorationFromCron.sh" >> /var/spool/cron/crontabs/root
+# Verify required configuration helpers exist
+config_extractor="${HOME}/utilities/config/ExtractConfigValue.sh"
+config_checker="${HOME}/utilities/config/CheckConfigValue.sh"
+style_extractor="${HOME}/utilities/config/ExtractBuildStyleValues.sh"
+style_checker="${HOME}/utilities/config/CheckBuildStyle.sh"
 
-
-/bin/echo "*/5 * * * * export HOME="${HOME}" &&  /bin/sleep 23 && ${HOME}/services/security/firewall/MonitorFirewall.sh" >> /var/spool/cron/crontabs/root
-
-/bin/echo "*/10 * * * * export HOME="${HOME}" && ${HOME}/utilities/status/MonitorCron.sh" >> /var/spool/cron/crontabs/root
-#On a daily basis, check if the ssl certificate has expired. Once it has expired, we will try and install the new one
-#/bin/echo "10 4 * * * export HOME="${HOME}" && ${HOME}/cron/ReviewSSLCertificateValidityFromCron.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "35 3 * * * export HOME="${HOME}" && ${HOME}/services/security/ssl/RenewSSLCertificate.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "30 3 * * *  export HOME="${HOME}" && ${HOME}/utilities/housekeeping/RemoveExpiredLogs.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "22 4 * * *  export HOME="${HOME}" && ${HOME}/utilities/software/UpdateSoftware.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "44 4 * * *  export HOME="${HOME}" && ${HOME}/installation/UpdateAndUpgrade.sh" >> /var/spool/cron/crontabs/root
-
-#These scripts run at every predefined interval
-/bin/echo "@hourly export HOME="${HOME}" && ${HOME}/utilities/status/LoadMonitoring.sh" >> /var/spool/cron/crontabs/root
-
-/bin/echo "@daily  export HOME="${HOME}" && ${HOME}/utilities/housekeeping/ArchiveErrorLogs.sh" >> /var/spool/cron/crontabs/root
-
-
-/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/status/CheckNetworkManagerStatus.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/webserver/RestartWebserver.sh" >> /var/spool/cron/crontabs/root
-#/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/application/configuration/InstallConfigurationByApplication.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/housekeeping/CleanupAtReboot.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/processing/GetIP.sh" >> /var/spool/cron/crontabs/root
-/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh reboot" >> /var/spool/cron/crontabs/root
-/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/utilities/status/LoadMonitoring.sh 'reboot'" >> /var/spool/cron/crontabs/root
-
-if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORECONFIGSTYLE" | /usr/bin/awk -F':' '{print $NF}'`" = "lightweight" ] )
+if [ ! -x "${config_extractor}" ] || [ ! -x "${config_checker}" ] || [ ! -x "${style_extractor}" ] || [ ! -x "${style_checker}" ]
 then
-	/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/services/datastore/config/ActivateConfigDatastoreLightweight.sh" >> /var/spool/cron/crontabs/root
-elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "DATASTORECONFIGSTYLE" | /usr/bin/awk -F':' '{print $NF}'`" = "heavyweight" ] )
-then
-	/bin/echo "@reboot export HOME="${HOME}" && ${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh" >> /var/spool/cron/crontabs/root
-fi
-SERVER_TIMEZONE_CONTINENT="`export HOME="${HOME}" && ${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERTIMEZONECONTINENT'`"
-SERVER_TIMEZONE_CITY="`export HOME="${HOME}" && ${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERTIMEZONECITY'`"
-/bin/echo '@reboot export TZ="':${SERVER_TIMEZONE_CONTINENT}/${SERVER_TIMEZONE_CITY}'"' >> /var/spool/cron/crontabs/root
-
-if ( [ "`${HOME}/utilities/config/CheckBuildStyle.sh 'VIRUSSCANNER:'`" = "1" ]  )
-then
-	periodicity="`${HOME}/utilities/config/ExtractBuildStyleValues.sh 'VIRUSSCANNER' | /usr/bin/awk -F':' '{print $NF}'`"
-
-	if ( [ "`/bin/echo daily weekly monthly | /bin/grep ${periodicity}`" != "" ] )
-	then
-		/bin/echo "@${periodicity} export HOME="${HOME}" && /bin/sleep `/usr/bin/shuf -i1-1000 -n1` && /usr/bin/nice -n 15 ${HOME}/utilities/security/VirusScan.sh" >> /var/spool/cron/crontabs/root
-	fi  
+        /bin/echo "Error: One or more configuration helper scripts are missing or not executable under ${HOME}/utilities/config/" >&2
+        exit 1
 fi
 
+# Build the new root crontab in a temporary staging file before installing via crontab(1)
+tmp_cron="$(/bin/mktemp)"
+cleanup()
+{
+        /bin/rm -f "${tmp_cron}"
+}
+trap cleanup EXIT INT TERM HUP QUIT
 
-#restart cron
-/usr/bin/crontab -u root /var/spool/cron/crontabs/root
-if ( [ -f /var/spool/cron/crontabs/www-data ] )
+# Resolve timezone and node hostname role once
+node_hostname="$(/usr/bin/hostname)"
+SERVER_TIMEZONE_CONTINENT="$("${config_extractor}" 'SERVERTIMEZONECONTINENT')"
+SERVER_TIMEZONE_CITY="$("${config_extractor}" 'SERVERTIMEZONECITY')"
+
+# Write global cron environment headers
+{
+        /bin/echo "MAILTO=''"
+        /bin/echo "HOME=${HOME}"
+        if [ -n "${SERVER_TIMEZONE_CONTINENT}" ] && [ -n "${SERVER_TIMEZONE_CITY}" ]
+        then
+                /bin/echo "TZ=:${SERVER_TIMEZONE_CONTINENT}/${SERVER_TIMEZONE_CITY}"
+        fi
+} > "${tmp_cron}"
+
+# Helper to schedule sub-minute staggered jobs cleanly (step in seconds: 5 or 10)
+schedule_subminute_job()
+{
+        step="${1}"
+        cmd="${2}"
+        offset=0
+        while [ "${offset}" -lt 60 ]
+        do
+                if [ "${offset}" -eq 0 ]
+                then
+                        /bin/echo "*/1 * * * * ${cmd}" >> "${tmp_cron}"
+                else
+                        /bin/echo "*/1 * * * * /bin/sleep ${offset} && ${cmd}" >> "${tmp_cron}"
+                fi
+                offset=$((offset + step))
+        done
+}
+
+# Role-specific schedules
+case "${node_hostname}" in
+        *-auth-*)
+                WEBSERVER_CHOICE="$("${config_extractor}" 'WEBSERVERCHOICE')"
+                AUTHENTICATOR_TYPE="$("${config_extractor}" 'AUTHENTICATORTYPE')"
+
+                /bin/echo "*/1 * * * * ${HOME}/webserver/CheckWebserverIsUp.sh ${WEBSERVER_CHOICE}" >> "${tmp_cron}"
+
+                case "${AUTHENTICATOR_TYPE}" in
+                        firewall|whitelist)
+                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh"
+                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh"
+                                /bin/echo "*/1 * * * * /usr/bin/find /var/www/html/ip-address* -mmin +30 -type f -exec rm -fv {} \\;" >> "${tmp_cron}"
+                                ;;
+                        basic-auth)
+                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh"
+                                ;;
+                        wire-guard)
+                                schedule_subminute_job 5 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh"
+                                /bin/echo "*/1 * * * * ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> "${tmp_cron}"
+                                ;;
+                esac
+
+                /bin/echo "45 4 * * * /bin/rm -f ${HOME}/runtime/FIREWALL-ACTIVE" >> "${tmp_cron}"
+                ;;
+
+        ws-*|*-rp-*)
+                WEBSERVER_CHOICE="$("${config_extractor}" 'WEBSERVERCHOICE')"
+                APPLICATION="$("${config_extractor}" 'APPLICATION')"
+
+                # Webserver-only tasks
+                case "${node_hostname}" in
+                        ws-*)
+                                if [ "${APPLICATION}" = "moodle" ] && [ -r "${HOME}/runtime/application.dat" ]
+                                then
+                                        webroot_directory="$(/bin/grep "^WEBROOT_DIRECTORY:" "${HOME}/runtime/application.dat" | /usr/bin/awk -F':' '{print $NF}')"
+                                        if [ -n "${webroot_directory}" ]
+                                        then
+                                                /bin/echo "*/1 * * * * /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/cron.php >/dev/null 2>&1" >> "${tmp_cron}"
+                                        fi
+                                fi
+                                /bin/echo "*/1 * * * * ${HOME}/utilities/security/CheckWebrootImmutabilityStatus.sh" >> "${tmp_cron}"
+                                ;;
+                esac
+
+                # Reverse-proxy-only tasks
+                case "${node_hostname}" in
+                        *-rp-*)
+                                /bin/echo "*/1 * * * * /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/RemoveOldIPFromReverseProxyIPList.sh" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/RemoveOldIPFromReverseProxyIPList.sh" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/EnsureReverseProxyWebserverIPs.sh" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * ${HOME}/webserver/configuration/reverseproxy/EnsureReverseProxyWebserverIPs.sh" >> "${tmp_cron}"
+
+                                if [ "$("${config_checker}" "NOAUTHENTICATORS:0")" != "1" ] && [ "$("${config_checker}" "NOREVERSEPROXIES:0")" != "1" ]
+                                then
+                                        AUTHENTICATOR_TYPE="$("${config_extractor}" 'AUTHENTICATORTYPE')"
+                                        case "${AUTHENTICATOR_TYPE}" in
+                                                firewall|whitelist)
+                                                        schedule_subminute_job 10 "${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh"
+                                                        ;;
+                                                basic-auth)
+                                                        schedule_subminute_job 10 "${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh"
+                                                        ;;
+                                                wire-guard)
+                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh"
+                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh"
+                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh"
+                                                        ;;
+                                        esac
+                                fi
+                                ;;
+                esac
+
+                # Shared webserver & reverse proxy tasks (every minute)
+                {
+                        /bin/echo "*/1 * * * * ${HOME}/webserver/CheckWebserverIsUp.sh ${WEBSERVER_CHOICE}"
+                        /bin/echo "*/1 * * * * ${HOME}/utilities/status/MonitorForOverload.sh"
+                        /bin/echo "*/1 * * * * ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh"
+                        /bin/echo "*/1 * * * * ${HOME}/services/cron/ExecuteApplicationSpecificCronjob.sh"
+                } >> "${tmp_cron}"
+
+                if [ "$("${config_checker}" "PERSISTASSETSTODATASTORE:1")" = "1" ] || [ "$("${config_checker}" "PERSISTASSETSTODATASTORE:2")" = "1" ]
+                then
+                        /bin/echo "*/1 * * * * ${HOME}/services/datastore/assets/SetupAssetsStore.sh" >> "${tmp_cron}"
+                fi
+
+                if [ "$("${config_checker}" "SYNCWEBROOTS:1")" = "1" ]
+                then
+                        for sync_offset in 2 15 30 45
+                        do
+                                /bin/echo "*/1 * * * * /bin/sleep ${sync_offset} && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '${sync_offset}' '/var/www/html' 'webroot-sync'" >> "${tmp_cron}"
+                        done
+                fi
+
+                # Scheduled webroot backup jobs
+                {
+                        /bin/echo "30 1 * * * ${HOME}/utilities/security/EnforcePermissions.sh"
+                        /bin/echo "2 * * * * ${HOME}/services/cron/BackupFromCron.sh 'HOURLY'"
+                        /bin/echo "30 2 * * * ${HOME}/services/cron/BackupFromCron.sh 'DAILY'"
+                        /bin/echo "30 3 * * 7 ${HOME}/services/cron/BackupFromCron.sh 'WEEKLY'"
+                        /bin/echo "30 4 1 * * ${HOME}/services/cron/BackupFromCron.sh 'MONTHLY'"
+                        /bin/echo "30 5 1 Jan,Mar,May,Jul,Sep,Nov * ${HOME}/services/cron/BackupFromCron.sh 'BIMONTHLY'"
+                } >> "${tmp_cron}"
+                ;;
+esac
+
+# Common system maintenance, security, and monitoring jobs across all node roles
+{
+        /bin/echo "*/1 * * * * ${HOME}/utilities/security/AuditSSHConnections.sh"
+        /bin/echo "*/1 * * * * ${HOME}/utilities/processing/UpdateIPs.sh"
+        /bin/echo "*/1 * * * * /bin/sleep 30 && ${HOME}/utilities/processing/UpdateIPs.sh"
+        /bin/echo "*/1 * * * * ${HOME}/services/cron/SetupFirewallFromCron.sh"
+        /bin/echo "*/1 * * * * ${HOME}/utilities/status/MarkedForShutdown.sh"
+        /bin/echo "*/1 * * * * ${HOME}/utilities/status/CheckNetworkManagerStatus.sh"
+        /bin/echo "*/1 * * * * ${HOME}/services/cron/PerformEmergencyRestorationFromCron.sh"
+        /bin/echo "*/5 * * * * /bin/sleep 23 && ${HOME}/services/security/firewall/MonitorFirewall.sh"
+        /bin/echo "*/10 * * * * ${HOME}/utilities/status/MonitorCron.sh"
+        /bin/echo "35 3 * * * ${HOME}/services/security/ssl/RenewSSLCertificate.sh"
+        /bin/echo "30 3 * * * ${HOME}/utilities/housekeeping/RemoveExpiredLogs.sh"
+        /bin/echo "22 4 * * * ${HOME}/utilities/software/UpdateSoftware.sh"
+        /bin/echo "44 4 * * * ${HOME}/installation/UpdateAndUpgrade.sh"
+        /bin/echo "@hourly ${HOME}/utilities/status/LoadMonitoring.sh"
+        /bin/echo "@daily ${HOME}/utilities/housekeeping/ArchiveErrorLogs.sh"
+} >> "${tmp_cron}"
+
+# Reboot initialization tasks
+{
+        /bin/echo "@reboot ${HOME}/utilities/status/CheckNetworkManagerStatus.sh"
+        /bin/echo "@reboot ${HOME}/webserver/RestartWebserver.sh"
+        /bin/echo "@reboot ${HOME}/utilities/housekeeping/CleanupAtReboot.sh"
+        /bin/echo "@reboot ${HOME}/utilities/processing/GetIP.sh"
+        /bin/echo "@reboot ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh reboot"
+        /bin/echo "@reboot ${HOME}/utilities/status/LoadMonitoring.sh 'reboot'"
+} >> "${tmp_cron}"
+
+datastore_style="$("${style_extractor}" "DATASTORECONFIGSTYLE" | /usr/bin/awk -F':' '{print $NF}')"
+case "${datastore_style}" in
+        lightweight)
+                /bin/echo "@reboot ${HOME}/services/datastore/config/ActivateConfigDatastoreLightweight.sh" >> "${tmp_cron}"
+                ;;
+        heavyweight)
+                /bin/echo "@reboot ${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh" >> "${tmp_cron}"
+                ;;
+esac
+
+# Optional scheduled virus scan based on build style
+if [ "$("${style_checker}" 'VIRUSSCANNER:')" = "1" ]
 then
-	/usr/bin/crontab -u www-data /var/spool/cron/crontabs/www-data
+        periodicity="$("${style_extractor}" 'VIRUSSCANNER' | /usr/bin/awk -F':' '{print $NF}')"
+        case "${periodicity}" in
+                daily|weekly|monthly)
+                        /bin/echo "@${periodicity} /bin/sleep \\$(/usr/bin/shuf -i1-1000 -n1) && /usr/bin/nice -n 15 ${HOME}/utilities/security/VirusScan.sh" >> "${tmp_cron}"
+                        ;;
+        esac
 fi
 
-${HOME}/utilities/processing/RunServiceCommand.sh "cron" restart
+# Install the staged root crontab safely via crontab(1)
+if ! /usr/bin/crontab -u root "${tmp_cron}"
+then
+        /bin/echo "Error: Failed to install root crontab from staging file." >&2
+        exit 1
+fi
+
+# Reload existing www-data crontab if present
+if [ -f /var/spool/cron/crontabs/www-data ]
+then
+        /usr/bin/crontab -u www-data /var/spool/cron/crontabs/www-data
+fi
+
+# Restart the cron daemon to apply schedule changes cleanly
+service_runner="${HOME}/utilities/processing/RunServiceCommand.sh"
+if [ -x "${service_runner}" ]
+then
+        "${service_runner}" "cron" restart
+else
+        /bin/echo "Error: Service runner missing or not executable at ${service_runner}" >&2
+        exit 1
+fi
+
+exit 0
+
+
