@@ -94,22 +94,6 @@ file_to_delete="${2}"
 mode="${3}"
 additional_specifier="${4}"
 
-HOSTNAME_VAL="$(/usr/bin/hostname)"
-if /bin/echo "${HOSTNAME_VAL}" | /bin/grep -q '\-auth-'
-then
-        WEBSITE_URL="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'AUTHSERVERURL')"
-        DNS_CHOICE="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'AUTHDNSCHOICE')"
-else
-        WEBSITE_URL="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'WEBSITEURL')"
-        DNS_CHOICE="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'DNSCHOICE')"
-fi
-
-SSL_GENERATION_SERVICE="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'SSLGENERATIONSERVICE')"
-SERVER_USER="$("${HOME}/utilities/config/ExtractConfigValue.sh" 'SERVERUSER')"
-
-# Safely extract a 4-character lowercase token from SERVER_USER without breaking execution pipelines
-TOKEN="$(/bin/echo "${SERVER_USER}" | /usr/bin/fold -w 4 | /usr/bin/head -n 1 | /usr/bin/tr '[:upper:]' '[:lower:]')"
-
 
 resolver_script="${HOME}/services/datastore/operations/ResolveBucketName.sh"
 if [ ! -f "${resolver_script}" ] || [ ! -x "${resolver_script}" ]
