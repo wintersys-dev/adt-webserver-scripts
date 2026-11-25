@@ -20,10 +20,10 @@
 #:   - ${HOME}/services/datastore/config/wrapper/PutToDatastore.sh
 #:   - ${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh
 #:   - ${HOME}/application/backup/Backup.sh
-#:   - External binaries: cat, echo, grep, cut, mkdir, rm, date, shuf, sleep
+#:   - External binaries: hostname, cat, echo, grep, cut, mkdir, rm, date, shuf, sleep
 #:
 #: Exit Codes:
-#:   0          Backup completed cleanly, or skipped (recent backup exists / peer node authoritative)
+#:   0          Backup completed cleanly, or skipped (non-webserver / recent backup exists / peer authoritative)
 #:   1          Missing HOME environment, missing periodicity argument, or backup execution failure
 ###################################################################################
 # License Agreement:
@@ -37,7 +37,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Wintersys Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
 ####################################################################################
 
 # Exit immediately if any command exits with a non-zero status
@@ -50,6 +50,15 @@ then
         /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
         exit 0
 fi
+
+# Restrict execution strictly to webserver nodes (ws-*)
+case "$(/usr/bin/hostname)" in
+        ws-*)
+                ;;
+        *)
+                exit 0
+                ;;
+esac
 
 # Verify that HOME is set in the cron execution environment
 if [ -z "${HOME}" ] || [ ! -d "${HOME}" ]
@@ -163,6 +172,9 @@ fi
 
 # Hold distributed lock for 300 seconds after completion so straggling peer nodes still see it
 /bin/sleep 300
+
+exit 0
+
 
 exit 0
 
