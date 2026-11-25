@@ -1,18 +1,33 @@
 #!/bin/sh
-############################################################################################################
-# Description: This script will backup your webroot to your datastore and these backups are then used
-# to make installations during future deployments. We only want one webserver to be authoritative when it comes
-# to making the backup, so, we sleep for an arbitrary time and then attempt to get a shared lock file. If the
-# lock file exists it means another webserver is authoritative for this backup cycle and we exit. If there is
-# no shared lock file, we create one and proceed with making the backup ourselves because this webserver has  
-# become authoritative. We sleep before we remove the lockfile because otherwise a backup might complete
-# and remove the lockfile before another webserver tests to see if there is a lockfile and then we would get 
-# a second backup process running
-# Date: 16/11/2016
-# Author: Peter Winter
-###########################################################################################################
+#: Name:        BackupFromCron.sh
+#: Purpose:     Cron-triggered distributed leader election and webroot backup orchestrator across webservers.
+#: Author:      Peter Winter
+#: Date:        25/11/2026
+#: Version:     1.0
+#:
+#: Usage:       BackupFromCron.sh <periodicity>
+#:              BackupFromCron.sh [-h|--help]
+#:
+#: Parameters:
+#:   $1         [Required] Backup periodicity tier (e.g. "hourly", "daily", "weekly", "monthly")
+#:
+#: Environment:
+#:   HOME       Root directory of the server deployment toolkit
+#:
+#: Dependencies:
+#:   - ${HOME}/services/datastore/operations/GetFromDatastore.sh
+#:   - ${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh
+#:   - ${HOME}/services/datastore/config/wrapper/PutToDatastore.sh
+#:   - ${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh
+#:   - ${HOME}/application/backup/Backup.sh
+#:   - External binaries: cat, echo, grep, cut, mkdir, rm, date, shuf, sleep
+#:
+#: Exit Codes:
+#:   0          Backup completed cleanly, or skipped (recent backup exists / peer node authoritative)
+#:   1          Missing HOME environment, missing periodicity argument, or backup execution failure
+###################################################################################
 # License Agreement:
-# This file is part of The Agile Deployment Toolkit.
+# This file is part of The Wintersys Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -22,48 +37,133 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
-#######################################################################################################
-#######################################################################################################
+# along with The Wintersys Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
 #set -x
+set -e
+
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
+then
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
+fi
+
+# Verify that HOME is set in the cron execution environment
+if [ -z "${HOME}" ] || [ ! -d "${HOME}" ]
+then
+        /bin/echo "Error: HOME environment variable is unset or invalid." >&2
+        exit 1
+fi
+
+# Validate that the required backup periodicity argument was provided
+if [ -z "${1}" ]
+then
+        /bin/echo "Error: Backup periodicity argument is required." >&2
+        /bin/echo "Usage: $0 <periodicity>" >&2
+        exit 1
+fi
 
 periodicity="${1}"
 
+# Ensure local datastore staging workarea exists and remove any stale timestamp artifact
+workarea="${HOME}/runtime/datastore_workarea"
+timestamp_file="${workarea}/time_backup_written"
 
-if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
+if [ ! -d "${workarea}" ]
 then
-        /bin/rm ${HOME}/runtime/datastore_workarea/time_backup_written
+        /bin/mkdir -p "${workarea}"
 fi
 
-if ( [ ! -d ${HOME}/runtime/datastore_workarea ] )
+/bin/rm -f "${timestamp_file}"
+
+# Fetch the last backup timestamp from the shared datastore (tolerate non-zero if no prior backup exists)
+get_script="${HOME}/services/datastore/operations/GetFromDatastore.sh"
+if [ ! -x "${get_script}" ]
 then
-	/bin/mkdir -p ${HOME}/runtime/datastore_workarea
+        /bin/echo "Error: Datastore get script missing or not executable at ${get_script}" >&2
+        exit 1
 fi
 
-${HOME}/services/datastore/operations/GetFromDatastore.sh "backup-webroot" "time_backup_written" "${HOME}/runtime/datastore_workarea" "${periodicity}"
+set +e
+"${get_script}" "backup-webroot" "time_backup_written" "${workarea}" "${periodicity}"
+set -e
 
-if ( [ -f ${HOME}/runtime/datastore_workarea/time_backup_written ] )
+# Skip backup cycle if another node wrote a valid timestamp within the last 300 seconds
+if [ -r "${timestamp_file}" ]
 then
-        current_time="`/usr/bin/date +%s`"
-        backup_time="`/bin/cat ${HOME}/runtime/datastore_workarea/time_backup_written`"
-        if ( [ "`/usr/bin/expr ${current_time} - ${backup_time}`" -lt "300" ] )
-        then
-                exit
-        fi
+        current_time="$(/usr/bin/date +%s)"
+        backup_time="$(/bin/cat "${timestamp_file}")"
+
+        case "${backup_time}" in
+                ''|*[!0-9]*)
+                        /bin/echo "Warning: Invalid backup timestamp content in ${timestamp_file}; ignoring." >&2
+                        ;;
+                *)
+                        elapsed=$((current_time - backup_time))
+                        if [ "${elapsed}" -lt 300 ]
+                        then
+                                exit 0
+                        fi
+                        ;;
+        esac
 fi
 
-/bin/sleep "`/usr/bin/shuf -i1-300 -n1`"
+# Jitter startup across fleet nodes to stagger leader election
+jitter="$(/usr/bin/shuf -i1-300 -n1)"
+/bin/sleep "${jitter}"
 
-if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "BACKUP_RUNNING"`" != "" ] )
+# Check shared datastore lock to determine if a peer node has already claimed leadership
+list_script="${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh"
+put_script="${HOME}/services/datastore/config/wrapper/PutToDatastore.sh"
+delete_script="${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh"
+
+if [ ! -x "${list_script}" ] || [ ! -x "${put_script}" ] || [ ! -x "${delete_script}" ]
 then
-	exit
-else
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "BACKUP_RUNNING" "root" "no"
+        /bin/echo "Error: One or more datastore config wrapper scripts are missing or not executable." >&2
+        exit 1
 fi
 
-${HOME}/application/backup/Backup.sh "${periodicity}"
+running_flag="$("${list_script}" "config" "BACKUP_RUNNING")"
+if [ -n "${running_flag}" ]
+then
+        exit 0
+fi
 
+# Claim distributed backup leadership and guarantee lock cleanup on exit or failure
+"${put_script}" "config" "BACKUP_RUNNING" "root" "no"
+
+cleanup()
+{
+        "${delete_script}" "config" "BACKUP_RUNNING" >/dev/null 2>&1 || true
+        /bin/rm -f "${timestamp_file}"
+}
+trap cleanup EXIT INT TERM HUP QUIT
+
+# Verify and execute the webroot backup workflow
+backup_script="${HOME}/application/backup/Backup.sh"
+if [ ! -x "${backup_script}" ]
+then
+        /bin/echo "Error: Backup script missing or not executable at ${backup_script}" >&2
+        exit 1
+fi
+
+set +e
+"${backup_script}" "${periodicity}"
+backup_exit_code="$?"
+set -e
+
+if [ "${backup_exit_code}" -ne 0 ]
+then
+        /bin/echo "Error: Backup.sh failed with exit code ${backup_exit_code}." >&2
+        exit 1
+fi
+
+# Hold distributed lock for 300 seconds after completion so straggling peer nodes still see it
 /bin/sleep 300
 
-${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config" "BACKUP_RUNNING"
+exit 0
+
 
