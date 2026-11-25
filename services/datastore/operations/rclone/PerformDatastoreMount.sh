@@ -3,7 +3,7 @@
 #: Purpose:     Automated S3 datastore bucket verification and creation driver using rclone.
 #: Author:      Peter Winter
 #: Date:        25/11/2026
-#: Version:     2.0
+#: Version:     1.0
 #:
 #: Usage:       PerformDatastoreMount.sh <datastore_to_mount> <count>
 #:              PerformDatastoreMount.sh [-h|--help]
