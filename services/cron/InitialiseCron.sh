@@ -92,6 +92,13 @@ node_hostname="$(/usr/bin/hostname)"
 SERVER_TIMEZONE_CONTINENT="$("${config_extractor}" 'SERVERTIMEZONECONTINENT')"
 SERVER_TIMEZONE_CITY="$("${config_extractor}" 'SERVERTIMEZONECITY')"
 
+if ( [ ! -d ${HOME}/runtime/logs/crontab ] )
+then
+        /bin/mkdir -p ${HOME}/runtime/logs/crontab 
+fi
+
+logging=" >${HOME}/runtime/logs/crontab/log.out 2>${HOME}/runtime/logs/crontab/err.out "
+
 # Write global cron environment headers
 {
         /bin/echo "MAILTO=''"
@@ -130,16 +137,16 @@ case "${node_hostname}" in
 
                 case "${AUTHENTICATOR_TYPE}" in
                         firewall|whitelist)
-                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh"
-                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh"
+                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptIPAddresses.sh ${logging}"
+                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticationEmails.sh ${logging}"
                                 /bin/echo "*/1 * * * * /usr/bin/find /var/www/html/ip-address* -mmin +30 -type f -exec rm -fv {} \\;" >> "${tmp_cron}"
                                 ;;
                         basic-auth)
-                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh"
+                                schedule_subminute_job 10 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateBasicAuthConfig.sh ${logging}"
                                 ;;
                         wire-guard)
-                                schedule_subminute_job 5 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh"
-                                /bin/echo "*/1 * * * * ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh" >> "${tmp_cron}"
+                                schedule_subminute_job 5 "${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/AcceptEmailAddresses.sh ${logging}"
+                                /bin/echo "*/1 * * * * ${HOME}/webserver/configuration/authenticator/${AUTHENTICATOR_TYPE}/GenerateAuthenticatorEmails.sh ${logging}" >> "${tmp_cron}"
                                 ;;
                 esac
 
@@ -158,35 +165,35 @@ case "${node_hostname}" in
                                         webroot_directory="$(/bin/grep "^WEBROOT_DIRECTORY:" "${HOME}/runtime/application.dat" | /usr/bin/awk -F':' '{print $NF}')"
                                         if [ -n "${webroot_directory}" ]
                                         then
-                                                /bin/echo "*/1 * * * * /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/cron.php >/dev/null 2>&1" >> "${tmp_cron}"
+                                                /bin/echo "*/1 * * * * /usr/bin/sudo -u www-data /usr/bin/php ${webroot_directory}/admin/cli/cron.php ${logging}" >> "${tmp_cron}"
                                         fi
                                 fi
-                                /bin/echo "*/1 * * * * ${HOME}/utilities/security/CheckWebrootImmutabilityStatus.sh" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * ${HOME}/utilities/security/CheckWebrootImmutabilityStatus.sh ${logging}" >> "${tmp_cron}"
                                 ;;
                 esac
 
                 # Reverse-proxy-only tasks
                 case "${node_hostname}" in
                         *-rp-*)
-                                /bin/echo "*/1 * * * * /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/RemoveOldIPFromReverseProxyIPList.sh" >> "${tmp_cron}"
-                                /bin/echo "*/1 * * * * /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/RemoveOldIPFromReverseProxyIPList.sh" >> "${tmp_cron}"
-                                /bin/echo "*/1 * * * * /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/EnsureReverseProxyWebserverIPs.sh" >> "${tmp_cron}"
-                                /bin/echo "*/1 * * * * ${HOME}/webserver/configuration/reverseproxy/EnsureReverseProxyWebserverIPs.sh" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * /bin/sleep 40 && ${HOME}/webserver/configuration/reverseproxy/RemoveOldIPFromReverseProxyIPList.sh ${logging}" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * /bin/sleep 20 && ${HOME}/webserver/configuration/reverseproxy/RemoveOldIPFromReverseProxyIPList.sh ${logging}" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * /bin/sleep 30 && ${HOME}/webserver/configuration/reverseproxy/EnsureReverseProxyWebserverIPs.sh ${logging}" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * ${HOME}/webserver/configuration/reverseproxy/EnsureReverseProxyWebserverIPs.sh ${logging}" >> "${tmp_cron}"
 
                                 if [ "$("${config_checker}" "NOAUTHENTICATORS:0")" != "1" ] && [ "$("${config_checker}" "NOREVERSEPROXIES:0")" != "1" ]
                                 then
                                         AUTHENTICATOR_TYPE="$("${config_extractor}" 'AUTHENTICATORTYPE')"
                                         case "${AUTHENTICATOR_TYPE}" in
                                                 firewall|whitelist)
-                                                        schedule_subminute_job 10 "${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh"
+                                                        schedule_subminute_job 10 "${HOME}/services/security/${AUTHENTICATOR_TYPE}/AllowAuthenticatorIPAddress.sh ${logging}"
                                                         ;;
                                                 basic-auth)
-                                                        schedule_subminute_job 10 "${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh"
+                                                        schedule_subminute_job 10 "${HOME}/services/security/basic-auth/ObtainBasicAuthCredentials.sh ${logging}"
                                                         ;;
                                                 wire-guard)
-                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh"
-                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh"
-                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh"
+                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/ObtainEmails.sh ${logging}"
+                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateServerPeer.sh ${logging}"
+                                                        schedule_subminute_job 5 "${HOME}/webserver/configuration/reverseproxy/wire-guard/GenerateClientInterfaceAndPeer.sh ${logging}"
                                                         ;;
                                         esac
                                 fi
@@ -195,73 +202,73 @@ case "${node_hostname}" in
 
                 # Shared webserver & reverse proxy tasks (every minute)
                 {
-                        /bin/echo "*/1 * * * * ${HOME}/webserver/CheckWebserverIsUp.sh ${WEBSERVER_CHOICE}"
-                        /bin/echo "*/1 * * * * ${HOME}/utilities/status/MonitorForOverload.sh"
-                        /bin/echo "*/1 * * * * ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh"
-                        /bin/echo "*/1 * * * * ${HOME}/services/cron/ExecuteApplicationSpecificCronjob.sh"
+                        /bin/echo "*/1 * * * * ${HOME}/webserver/CheckWebserverIsUp.sh ${WEBSERVER_CHOICE} ${logging}"
+                        /bin/echo "*/1 * * * * ${HOME}/utilities/status/MonitorForOverload.sh ${logging}"
+                        /bin/echo "*/1 * * * * ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh ${logging}"
+                        /bin/echo "*/1 * * * * ${HOME}/services/cron/ExecuteApplicationSpecificCronjob.sh ${logging}"
                 } >> "${tmp_cron}"
 
                 if [ "$("${config_checker}" "PERSISTASSETSTODATASTORE:1")" = "1" ] || [ "$("${config_checker}" "PERSISTASSETSTODATASTORE:2")" = "1" ]
                 then
-                        /bin/echo "*/1 * * * * ${HOME}/services/datastore/assets/SetupAssetsStore.sh" >> "${tmp_cron}"
+                        /bin/echo "*/1 * * * * ${HOME}/services/datastore/assets/SetupAssetsStore.sh ${logging}" >> "${tmp_cron}"
                 fi
 
                 if [ "$("${config_checker}" "SYNCWEBROOTS:1")" = "1" ]
                 then
                         for sync_offset in 2 15 30 45
                         do
-                                /bin/echo "*/1 * * * * /bin/sleep ${sync_offset} && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '${sync_offset}' '/var/www/html' 'webroot-sync'" >> "${tmp_cron}"
+                                /bin/echo "*/1 * * * * /bin/sleep ${sync_offset} && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '${sync_offset}' '/var/www/html' 'webroot-sync' ${logging}" >> "${tmp_cron}"
                         done
                 fi
 
                 # Scheduled webroot backup jobs
                 {
-                        /bin/echo "30 1 * * * ${HOME}/utilities/security/EnforcePermissions.sh"
-                        /bin/echo "2 * * * * ${HOME}/services/cron/BackupFromCron.sh 'HOURLY'"
-                        /bin/echo "30 2 * * * ${HOME}/services/cron/BackupFromCron.sh 'DAILY'"
-                        /bin/echo "30 3 * * 7 ${HOME}/services/cron/BackupFromCron.sh 'WEEKLY'"
-                        /bin/echo "30 4 1 * * ${HOME}/services/cron/BackupFromCron.sh 'MONTHLY'"
-                        /bin/echo "30 5 1 Jan,Mar,May,Jul,Sep,Nov * ${HOME}/services/cron/BackupFromCron.sh 'BIMONTHLY'"
+                        /bin/echo "30 1 * * * ${HOME}/utilities/security/EnforcePermissions.sh ${logging}"
+                        /bin/echo "2 * * * * ${HOME}/services/cron/BackupFromCron.sh 'HOURLY' ${logging}"
+                        /bin/echo "30 2 * * * ${HOME}/services/cron/BackupFromCron.sh 'DAILY' ${logging}"
+                        /bin/echo "30 3 * * 7 ${HOME}/services/cron/BackupFromCron.sh 'WEEKLY' ${logging}"
+                        /bin/echo "30 4 1 * * ${HOME}/services/cron/BackupFromCron.sh 'MONTHLY' ${logging}"
+                        /bin/echo "30 5 1 Jan,Mar,May,Jul,Sep,Nov * ${HOME}/services/cron/BackupFromCron.sh 'BIMONTHLY' ${logging}"
                 } >> "${tmp_cron}"
                 ;;
 esac
 
 # Common system maintenance, security, and monitoring jobs across all node roles
 {
-        /bin/echo "*/1 * * * * ${HOME}/utilities/security/AuditSSHConnections.sh"
-        /bin/echo "*/1 * * * * ${HOME}/utilities/processing/UpdateIPs.sh"
-        /bin/echo "*/1 * * * * /bin/sleep 30 && ${HOME}/utilities/processing/UpdateIPs.sh"
-        /bin/echo "*/1 * * * * ${HOME}/services/cron/SetupFirewallFromCron.sh"
-        /bin/echo "*/1 * * * * ${HOME}/utilities/status/MarkedForShutdown.sh"
-        /bin/echo "*/1 * * * * ${HOME}/utilities/status/CheckNetworkManagerStatus.sh"
-        /bin/echo "*/1 * * * * ${HOME}/services/cron/PerformEmergencyRestorationFromCron.sh"
-        /bin/echo "*/5 * * * * /bin/sleep 23 && ${HOME}/services/security/firewall/MonitorFirewall.sh"
-        /bin/echo "*/10 * * * * ${HOME}/utilities/status/MonitorCron.sh"
-        /bin/echo "35 3 * * * ${HOME}/services/security/ssl/RenewSSLCertificate.sh"
-        /bin/echo "30 3 * * * ${HOME}/utilities/housekeeping/RemoveExpiredLogs.sh"
-        /bin/echo "22 4 * * * ${HOME}/utilities/software/UpdateSoftware.sh"
-        /bin/echo "44 4 * * * ${HOME}/installation/UpdateAndUpgrade.sh"
-        /bin/echo "@hourly ${HOME}/utilities/status/LoadMonitoring.sh"
-        /bin/echo "@daily ${HOME}/utilities/housekeeping/ArchiveErrorLogs.sh"
+        /bin/echo "*/1 * * * * ${HOME}/utilities/security/AuditSSHConnections.sh ${logging}"
+        /bin/echo "*/1 * * * * ${HOME}/utilities/processing/UpdateIPs.sh ${logging}"
+        /bin/echo "*/1 * * * * /bin/sleep 30 && ${HOME}/utilities/processing/UpdateIPs.sh ${logging}"
+        /bin/echo "*/1 * * * * ${HOME}/services/cron/SetupFirewallFromCron.sh ${logging}"
+        /bin/echo "*/1 * * * * ${HOME}/utilities/status/MarkedForShutdown.sh ${logging}"
+        /bin/echo "*/1 * * * * ${HOME}/utilities/status/CheckNetworkManagerStatus.sh ${logging}"
+        /bin/echo "*/1 * * * * ${HOME}/services/cron/PerformEmergencyRestorationFromCron.sh ${logging}"
+        /bin/echo "*/5 * * * * /bin/sleep 23 && ${HOME}/services/security/firewall/MonitorFirewall.sh ${logging}"
+        /bin/echo "*/10 * * * * ${HOME}/utilities/status/MonitorCron.sh ${logging}"
+        /bin/echo "35 3 * * * ${HOME}/services/security/ssl/RenewSSLCertificate.sh ${logging}"
+        /bin/echo "30 3 * * * ${HOME}/utilities/housekeeping/RemoveExpiredLogs.sh ${logging}"
+        /bin/echo "22 4 * * * ${HOME}/utilities/software/UpdateSoftware.sh ${logging}"
+        /bin/echo "44 4 * * * ${HOME}/installation/UpdateAndUpgrade.sh ${logging}"
+        /bin/echo "@hourly ${HOME}/utilities/status/LoadMonitoring.sh ${logging}"
+        /bin/echo "@daily ${HOME}/utilities/housekeeping/ArchiveErrorLogs.sh ${logging}"
 } >> "${tmp_cron}"
 
 # Reboot initialization tasks
 {
-        /bin/echo "@reboot ${HOME}/utilities/status/CheckNetworkManagerStatus.sh"
-        /bin/echo "@reboot ${HOME}/webserver/RestartWebserver.sh"
-        /bin/echo "@reboot ${HOME}/utilities/housekeeping/CleanupAtReboot.sh"
-        /bin/echo "@reboot ${HOME}/utilities/processing/GetIP.sh"
-        /bin/echo "@reboot ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh reboot"
-        /bin/echo "@reboot ${HOME}/utilities/status/LoadMonitoring.sh 'reboot'"
+        /bin/echo "@reboot ${HOME}/utilities/status/CheckNetworkManagerStatus.sh ${logging}"
+        /bin/echo "@reboot ${HOME}/webserver/RestartWebserver.sh ${logging}"
+        /bin/echo "@reboot ${HOME}/utilities/housekeeping/CleanupAtReboot.sh ${logging}"
+        /bin/echo "@reboot ${HOME}/utilities/processing/GetIP.sh ${logging}"
+        /bin/echo "@reboot ${HOME}/utilities/housekeeping/RemoveExpiredLocks.sh reboot ${logging}"
+        /bin/echo "@reboot ${HOME}/utilities/status/LoadMonitoring.sh 'reboot' ${logging}"
 } >> "${tmp_cron}"
 
 datastore_style="$("${style_extractor}" "DATASTORECONFIGSTYLE" | /usr/bin/awk -F':' '{print $NF}')"
 case "${datastore_style}" in
         lightweight)
-                /bin/echo "@reboot ${HOME}/services/datastore/config/ActivateConfigDatastoreLightweight.sh" >> "${tmp_cron}"
+                /bin/echo "@reboot ${HOME}/services/datastore/config/ActivateConfigDatastoreLightweight.sh ${logging}" >> "${tmp_cron}"
                 ;;
         heavyweight)
-                /bin/echo "@reboot ${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh" >> "${tmp_cron}"
+                /bin/echo "@reboot ${HOME}/services/datastore/config/ActivateConfigDatastoreHeavyweight.sh ${logging}" >> "${tmp_cron}"
                 ;;
 esac
 
@@ -271,7 +278,7 @@ then
         periodicity="$("${style_extractor}" 'VIRUSSCANNER' | /usr/bin/awk -F':' '{print $NF}')"
         case "${periodicity}" in
                 daily|weekly|monthly)
-                        /bin/echo "@${periodicity} /bin/sleep \\$(/usr/bin/shuf -i1-1000 -n1) && /usr/bin/nice -n 15 ${HOME}/utilities/security/VirusScan.sh" >> "${tmp_cron}"
+                        /bin/echo "@${periodicity} /bin/sleep \\$(/usr/bin/shuf -i1-1000 -n1) && /usr/bin/nice -n 15 ${HOME}/utilities/security/VirusScan.sh ${logging}" >> "${tmp_cron}"
                         ;;
         esac
 fi
