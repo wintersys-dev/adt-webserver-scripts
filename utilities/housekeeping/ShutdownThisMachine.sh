@@ -33,14 +33,6 @@ HOME="`/bin/cat /home/homedir.dat`"
 /bin/echo "###########################################################################################"
 /bin/echo ""
 
-if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "BACKUP_RUNNING"`" != "" ] )
-then
-	if ( [ "`${HOME}/services/datastore/config/wrapper/AgeOfDatastoreFile.sh "config" "BACKUP_RUNNING"`" -gt "300" ] )
-	then
-		${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "BACKUP_RUNNING"
-	fi
-fi
-
 
 if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
@@ -48,7 +40,7 @@ then
 
 	if ( [ "`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "BACKUP_RUNNING"`" = "" ] )
 	then
-		${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "BACKUP_RUNNING" "root" "yes"
+		${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "BACKUP_RUNNING" "root" "local" "yes"
 	fi
 fi
 
@@ -66,7 +58,7 @@ if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
 	/bin/echo "Please wait whilst I perform a backup of your application"
 	${HOME}/application/backup/Backup.sh "shutdown"
-	${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "BACKUP_RUNNING"
+	${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "BACKUP_RUNNING" "local"
 fi
 
 
