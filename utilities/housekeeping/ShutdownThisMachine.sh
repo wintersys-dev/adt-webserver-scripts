@@ -57,7 +57,6 @@ fi
 cleanup()
 {
         ${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config" "BACKUP_RUNNING" "local" >/dev/null 2>&1 || true
-        /bin/rm -f "${timestamp_file}"
 }
 trap cleanup EXIT INT TERM HUP QUIT
 
