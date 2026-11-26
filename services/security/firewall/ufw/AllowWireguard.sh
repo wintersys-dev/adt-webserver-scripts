@@ -1,34 +1,32 @@
 #!/bin/sh
-###################################################################################
-# @file        AllowWireguard.sh
-# @brief       Context-Aware UFW Firewall Provisioning for WireGuard Tunnel Access.
-# @author      Peter Winter
-# @date        09/04/2021
-# @version     1.0
-#
-# @details     This script manages secure overlay network tunneling layers inside the host
-#              firewall using the Uncomplicated Firewall (UFW) subsystem. It dynamically
-#              calculates and whitelists the designated WireGuard listener port (derived as
-#              SSH_PORT + 1) on hosts not designated as public-facing reverse proxies.
-#
-# @param       None
-#
-# @env         HOME              Sourced application root tracking pathway string.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active application root path.
-#              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
-#              - /usr/sbin/ufw system Uncomplicated Firewall management application binary.
-#
-# @security    
-#              - Limits tunnel visibility by enforcing micro-segmentation based on hostname roles.
-#              - Relies on system-owned executable paths (/bin, /usr/bin, /usr/sbin) to circumvent hijack exploits.
-#
-# @exit        0  Success: Firewall state verified; no new access modifications applied.
-# @exit        10 Success: Active network routing tables updated with WireGuard port allocations.
+#: Name:        AllowWireguard.sh
+#: Purpose:     Provisions idempotent UFW rules permitting WireGuard tunnel traffic on non-reverse-proxy hosts.
+#: Author:      Peter Winter
+#: Date:        26/11/2026
+#: Version:     1.0
+#:
+#: Usage:       AllowWireguard.sh
+#:              AllowWireguard.sh [-h|--help]
+#:
+#: Parameters:
+#:   None       Reads SSHPORT and AUTHENTICATORTYPE from configuration and enforces UFW port rules.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat and exported
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - /usr/sbin/ufw
+#:   - External binaries: cat, echo, printf, grep, cut, hostname, sleep
+#:
+#: Exit Codes:
+#:   0          UFW WireGuard rule verified or not applicable; no changes made
+#:   1          Missing /home/homedir.dat, missing config values, or UFW execution failure
+#:   10         Active UFW ruleset updated with WireGuard port allocation (signals ReloadFirewall.sh)
 ###################################################################################
 # License Agreement:
-# This file is part of The Agile Deployment Toolkit.
+# This file is part of The Wintersys Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -39,29 +37,90 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-######################################################################################
-######################################################################################
-#set -x
+####################################################################################
 
+# Exit immediately if any command exits with a non-zero status
+#set -x
 set -e
 
-HOME="$(/bin/cat /home/homedir.dat)"
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
+then
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
+fi
 
-SSH_PORT="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT')"
-AUTHENTICATOR_TYPE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE')"
+# Resolve the server toolkit root directory from /home/homedir.dat
+if [ -r /home/homedir.dat ]
+then
+        HOME="$(/bin/cat /home/homedir.dat)"
+        export HOME
+else
+        /bin/echo "Application framework configuration file missing at /home/homedir.dat" >&2
+        exit 1
+fi
+
+if [ -z "${HOME}" ] || [ ! -d "${HOME}" ]
+then
+        /bin/echo "Error: Resolved HOME directory '${HOME}' is invalid." >&2
+        exit 1
+fi
+
+config_extractor="${HOME}/utilities/config/ExtractConfigValue.sh"
+if [ ! -x "${config_extractor}" ]
+then
+        /bin/echo "Error: ExtractConfigValue.sh missing or not executable at ${config_extractor}" >&2
+        exit 1
+fi
+
+set +e
+SSH_PORT="$("${config_extractor}" 'SSHPORT')"
+AUTHENTICATOR_TYPE="$("${config_extractor}" 'AUTHENTICATORTYPE')"
+set -e
+
+if [ "${AUTHENTICATOR_TYPE}" != "wire-guard" ]
+then
+        exit 0
+fi
+
+host_name="$(/usr/bin/hostname)"
+case "${host_name}" in
+        rp-*)
+                exit 0
+                ;;
+esac
+
+if [ -z "${SSH_PORT}" ]
+then
+        /bin/echo "Error: Required configuration value (SSHPORT) is missing for WireGuard." >&2
+        exit 1
+fi
+
+if ! [ "${SSH_PORT}" -eq "${SSH_PORT}" ] 2>/dev/null
+then
+        /bin/echo "Error: SSHPORT '${SSH_PORT}' is not a valid integer." >&2
+        exit 1
+fi
+
+if [ ! -x /usr/sbin/ufw ]
+then
+        /bin/echo "Error: /usr/sbin/ufw not found or not executable." >&2
+        exit 1
+fi
+
+wireguard_port=$((SSH_PORT + 1))
+
+set +e
+ufw_status="$(/usr/sbin/ufw status 2>/dev/null)"
+set -e
 
 updated="0"
 
-if [ "$(/usr/bin/hostname | /bin/grep '^rp\-')" = "" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ]
+if ! printf '%s\n' "${ufw_status}" | /bin/grep -Eq "^${wireguard_port}(/(tcp|udp))?[[:space:]]+ALLOW([[:space:]]|$)"
 then
-        wireguard_port="$(/usr/bin/expr "${SSH_PORT}" + 1)"
-
-        if [ "$(/usr/sbin/ufw status | /bin/grep "${wireguard_port}.*ALLOW.*")" = "" ]
-        then
-                /usr/sbin/ufw allow "${wireguard_port}"
-                /bin/sleep 2
-                updated="1"
-        fi
+        /usr/sbin/ufw allow "${wireguard_port}" >/dev/null
+        /bin/sleep 2
+        updated="1"
 fi
 
 if [ "${updated}" = "1" ]
@@ -70,5 +129,6 @@ then
 else
         exit 0
 fi
+
 
 
