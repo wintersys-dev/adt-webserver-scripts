@@ -142,11 +142,11 @@ then
 fi
 
 # Claim distributed backup leadership and guarantee lock cleanup on exit or failure
-"${put_script}" "config" "BACKUP_RUNNING" "root" "local" "no"
+"${put_script}" "config" "BACKUP_RUNNING" "root" "distributed" "no"
 
 cleanup()
 {
-        "${delete_script}" "config" "BACKUP_RUNNING" "local" >/dev/null 2>&1 || true
+        "${delete_script}" "config" "BACKUP_RUNNING" "distributed" >/dev/null 2>&1 || true
         /bin/rm -f "${timestamp_file}"
 }
 trap cleanup EXIT INT TERM HUP QUIT
