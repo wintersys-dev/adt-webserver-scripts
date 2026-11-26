@@ -1,12 +1,36 @@
 #!/bin/sh
-#################################################################################
-# Author: Peter Winter
-# Date :  9/4/2016
-# Description: If a machine has been allowed access by an authenticator machine
-# then allow its ip address through the firewall now
-#################################################################################
+#: Name:        AllowAuthenticatorIP.sh
+#: Purpose:     Syncs authenticator-approved client IPs from S3 and adds them to the allowed-laptop-ips ipset.
+#: Author:      Peter Winter
+#: Date:        26/11/2026
+#: Version:     1.0
+#:
+#: Usage:       AllowAuthenticatorIP.sh
+#:              AllowAuthenticatorIP.sh [-h|--help]
+#:
+#: Parameters:
+#:   None       Reads ACTIVEFIREWALLS, FIREWALL, and BUILDOS from configuration and syncs firewall-auth-laptop-ips.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat and exported
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - ${HOME}/utilities/config/CheckConfigValue.sh
+#:   - ${HOME}/utilities/config/ExtractBuildStyleValues.sh
+#:   - ${HOME}/installation/InstallIPSet.sh
+#:   - ${HOME}/services/datastore/operations/SyncFromDatastore.sh
+#:   - /usr/sbin/ipset
+#:   - /usr/sbin/iptables
+#:   - External binaries: cat, echo, printf, grep, cut, awk, mkdir, rm, touch
+#:
+#: Exit Codes:
+#:   0          Authenticator IP allowlist synced and applied cleanly
+#:   1          Missing /home/homedir.dat, missing required tools/configs, or sync/ipset failure
+###################################################################################
 # License Agreement:
-# This file is part of The Agile Deployment Toolkit.
+# This file is part of The Wintersys Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,75 +40,118 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with The Agile Deployment Toolkit.  If not, see <http://www.gnu.org/licenses/>.
-#####################################################################################
-#####################################################################################
+# along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
+####################################################################################
+
+# Exit immediately if any command exits with a non-zero status
 #set -x
+set -e
 
-SERVER_USER="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSER'`"
-SERVER_USER_PASSWORD="`${HOME}/utilities/config/ExtractConfigValue.sh 'SERVERUSERPASSWORD'`"
-SSH_PORT="`${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT'`"
-ALGORITHM="`${HOME}/utilities/config/ExtractConfigValue.sh 'ALGORITHM'`"
-HOST="`${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh "config" "authenticatorip/*" | /usr/bin/tr '\n' ' '`"
-BUILD_IDENTIFIER="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDIDENTIFIER'`"
-WEBSITE_URL="`${HOME}/utilities/config/ExtractConfigValue.sh 'WEBSITEURL'`"
-BUILDOS="`${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDOS'`"
-
-HOME="`/bin/cat /home/homedir.dat`"
-
-if ( [ "`${HOME}/utilities/config/CheckConfigValue.sh ACTIVEFIREWALLS:1`" = "0" ] && [ "`${HOME}/utilities/config/CheckConfigValue.sh ACTIVEFIREWALLS:3`" = "0" ] )
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
 then
-        exit
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
 fi
 
-firewall=""
-if ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}'`" = "ufw" ] )
+# Resolve the server toolkit root directory from /home/homedir.dat
+if [ -r /home/homedir.dat ]
 then
-        firewall="ufw"
-elif ( [ "`${HOME}/utilities/config/ExtractBuildStyleValues.sh "FIREWALL" | /usr/bin/awk -F':' '{print $2}'`" = "iptables" ] )
-then
-        firewall="iptables"
+        HOME="$(/bin/cat /home/homedir.dat)"
+        export HOME
+else
+        /bin/echo "Application framework configuration file missing at /home/homedir.dat" >&2
+        exit 1
 fi
 
-if ( [ "`/usr/sbin/iptables --list-rules | /bin/grep allowed-laptop-ips`" = "" ] )
+if [ -z "${HOME}" ] || [ ! -d "${HOME}" ]
 then
-        ${HOME}/installation/InstallIPSet.sh ${BUILDOS}
-        /usr/sbin/ipset create allowed-laptop-ips hash:ip maxelem 16777216
+        /bin/echo "Error: Resolved HOME directory '${HOME}' is invalid." >&2
+        exit 1
+fi
+
+config_extractor="${HOME}/utilities/config/ExtractConfigValue.sh"
+config_checker="${HOME}/utilities/config/CheckConfigValue.sh"
+style_extractor="${HOME}/utilities/config/ExtractBuildStyleValues.sh"
+
+if [ "$("${config_checker}" 'ACTIVEFIREWALLS:1')" = "0" ] && [ "$("${config_checker}" 'ACTIVEFIREWALLS:3')" = "0" ]
+then
+        exit 0
+fi
+
+set +e
+BUILDOS="$("${config_extractor}" 'BUILDOS')"
+firewall="$("${style_extractor}" "FIREWALL" | /usr/bin/awk -F':' '{print $2}')"
+set -e
+
+if [ "${firewall}" != "ufw" ] && [ "${firewall}" != "iptables" ]
+then
+        exit 0
+fi
+
+# Ensure ipset and the allowed-laptop-ips set & INPUT rule exist
+if ! /usr/sbin/ipset list -n allowed-laptop-ips >/dev/null 2>&1
+then
+        if [ ! -x /usr/sbin/ipset ]
+        then
+                "${HOME}/installation/InstallIPSet.sh" "${BUILDOS}"
+        fi
+        /usr/sbin/ipset create allowed-laptop-ips hash:ip maxelem 16777216 -exist
+fi
+
+if ! /usr/sbin/iptables -C INPUT -m set --match-set allowed-laptop-ips src -p tcp --dport 443 -j ACCEPT >/dev/null 2>&1
+then
         /usr/sbin/iptables -I INPUT -m set --match-set allowed-laptop-ips src -p tcp --dport 443 -j ACCEPT
 fi
 
-if ( [ ! -d ${HOME}/runtime/authenticator ] )
+auth_dir="${HOME}/runtime/authenticator"
+if [ ! -d "${auth_dir}" ]
 then
-        /bin/mkdir ${HOME}/runtime/authenticator
+        /bin/mkdir -p "${auth_dir}"
 fi
 
-${HOME}/services/datastore/operations/SyncFromDatastore.sh "firewall-auth-laptop-ips"  "${HOME}/runtime/authenticator"
+prev_file="${auth_dir}/previous_ipaddresses.dat"
+incoming_file="${auth_dir}/incoming_ipaddresses.dat"
 
-/bin/cat ${HOME}/runtime/authenticator/firewall-laptop-ips/ipaddresses.dat* > ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
+if [ ! -f "${prev_file}" ]
+then
+        /usr/bin/touch "${prev_file}"
+fi
 
-for ip_address in `/bin/cat ${HOME}/runtime/authenticator/incoming_ipaddresses.dat`
+"${HOME}/services/datastore/operations/SyncFromDatastore.sh" "firewall-auth-laptop-ips" "${auth_dir}"
+
+: > "${incoming_file}"
+for f in "${auth_dir}/firewall-laptop-ips"/ipaddresses.dat*
 do
-        if ( [ "`/bin/grep ${ip_address} ${HOME}/runtime/authenticator/previous_ipaddresses.dat`" = "" ] )
-        then
-                if ( [ "${firewall}" = "ufw" ] )
-                then
-                        /usr/sbin/ipset add allowed-laptop-ips "${ip_address}/32"
-                        /usr/sbin/ufw reload
-                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/previous_ipaddresses.dat
-                elif ( [ "${firewall}" = "iptables" ] )
-                then
-                        /usr/sbin/ipset add allowed-laptop-ips ${ip_address}
-                        /bin/echo "${ip_address}" >> ${HOME}/runtime/authenticator/previous_ipaddresses.dat
-                fi
-        fi
+        [ -f "${f}" ] && /bin/cat "${f}" >> "${incoming_file}"
 done
 
-if ( [ -f ${HOME}/runtime/authenticator/ipaddresses.dat ] )
+updated="0"
+while IFS= read -r ip_address
+do
+        [ -z "${ip_address}" ] && continue
+
+        # Strip optional /32 suffix for validation and deduplication
+        clean_ip="${ip_address%/32}"
+        if ! printf '%s\n' "${clean_ip}" | /usr/bin/grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$'
+        then
+                /bin/echo "Warning: Skipping invalid IPv4 entry '${ip_address}' in authenticator allowlist." >&2
+                continue
+        fi
+
+        if ! /bin/grep -Fqx "${clean_ip}" "${prev_file}"
+        then
+                /usr/sbin/ipset add allowed-laptop-ips "${clean_ip}" -exist
+                /bin/echo "${clean_ip}" >> "${prev_file}"
+                updated="1"
+        fi
+done < "${incoming_file}"
+
+if [ "${firewall}" = "ufw" ] && [ "${updated}" = "1" ] && [ -x /usr/sbin/ufw ]
 then
-        /bin/rm ${HOME}/runtime/authenticator/ipaddresses.dat 
+        /usr/sbin/ufw reload >/dev/null 2>&1 || true
 fi
 
-if ( [ -f ${HOME}/runtime/authenticator/incoming_ipaddresses.dat ] )
-then
-        /bin/rm ${HOME}/runtime/authenticator/incoming_ipaddresses.dat
-fi
+/bin/rm -f "${auth_dir}/ipaddresses.dat" "${incoming_file}"
+
+exit 0
