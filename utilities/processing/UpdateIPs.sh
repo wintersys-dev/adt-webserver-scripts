@@ -28,8 +28,8 @@ public_ip="`${HOME}/utilities/processing/GetPublicIP.sh`"
 
 if ( [ -f ${HOME}/runtime/SHUTDOWN-INITIATED ] )
 then
-	${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "webserverpublicips/${public_ip}"
-	${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "webserverips/${ip}"
+	${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "webserverpublicips/${public_ip}" "local"
+	${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "webserverips/${ip}" "local"
 	exit
 fi
 
@@ -40,16 +40,16 @@ fi
 
 if ( [ "`/usr/bin/hostname | /bin/grep '\-rp-'`" != "" ] )
 then
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "reverseproxyips/" "no"
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "reverseproxypublicips/" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "reverseproxyips/" "local" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "reverseproxypublicips/" "local" "no"
 elif ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "webserverips/" "no"
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "webserverpublicips/" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "webserverips/" "local" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "webserverpublicips/" "local" "no"
 elif ([ "`/usr/bin/hostname | /bin/grep '\-auth-'`" != "" ] )
 then
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "authenticatorip/" "no"
-	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "authenticatorpublicip/" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${ip}" "authenticatorip/" "local" "no"
+	${HOME}/services/datastore/config/wrapper/PutToDatastore.sh "config" "${public_ip}" "authenticatorpublicip/" "local" "no"
 fi
 
 if ( [ "${MULTI_REGION}" = "1" ] && [ ! -f ${HOME}/runtime/SHUTDOWN-INITIATED ] )
