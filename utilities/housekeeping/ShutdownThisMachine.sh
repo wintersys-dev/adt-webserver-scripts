@@ -54,11 +54,21 @@ then
 	${HOME}/services/datastore/operations/DeleteFromDatastore.sh "multi-region" "dbaas_ips/${public_ip}" "distributed"
 fi
 
+cleanup()
+{
+        ${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config" "BACKUP_RUNNING" "local" >/dev/null 2>&1 || true
+        /bin/rm -f "${timestamp_file}"
+}
+trap cleanup EXIT INT TERM HUP QUIT
+
+# Claim distributed backup leadership and guarantee lock cleanup on exit or failure
+"${put_script}" "config" "BACKUP_RUNNING" "root" "local" "no"
+
+
 if ( [ "`/usr/bin/hostname | /bin/grep '^ws-'`" != "" ] )
 then
 	/bin/echo "Please wait whilst I perform a backup of your application"
 	${HOME}/application/backup/Backup.sh "shutdown"
-	${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh "config"  "BACKUP_RUNNING" "local"
 fi
 
 
