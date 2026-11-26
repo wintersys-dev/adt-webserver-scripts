@@ -1,36 +1,32 @@
 #!/bin/sh
-###################################################################################
-# @file        AllowWireguard.sh
-# @brief       Context-Aware iptables Firewall Provisioning for WireGuard Tunnel Access.
-# @author      Peter Winter
-# @date        09/04/2021
-# @version     1.0
-#
-# @details     This script manages secure overlay network tunneling layers inside the host
-#              firewall using the netfilter iptables kernel framework. It dynamically
-#              calculates the WireGuard listener port (derived as SSH_PORT + 1) on hosts 
-#              not designated as public-facing reverse proxies and whitelists bidirectional 
-#              TCP and UDP traffic tracking profiles originating from the build machine.
-#
-# @param       None
-#
-# @env         HOME              Sourced application root tracking pathway string.
-#
-# @dependencies
-#              - /home/homedir.dat configuration file tracking the active application root path.
-#              - ExtractConfigValue.sh configurations extractor infrastructure for lookup evaluations.
-#              - /usr/sbin/iptables system netfilter kernel rule table configuration application binary.
-#
-# @security    
-#              - Limits tunnel visibility by enforcing micro-segmentation based on hostname roles.
-#              - Enforces explicit connection tracking parameters (--ctstate) to prevent injection risks.
-#              - Relies on system-owned executable paths (/bin, /usr/bin, /usr/sbin) to circumvent hijack exploits.
-#
-# @exit        0  Success: Netfilter state verified; no new rule modifications applied.
-# @exit        10 Success: Active iptables kernel chains updated with WireGuard port allocations.
+#: Name:        AllowWireguard.sh
+#: Purpose:     Provisions idempotent iptables rules permitting WireGuard tunnel traffic from the build machine.
+#: Author:      Peter Winter
+#: Date:        26/11/2026
+#: Version:     2.0
+#:
+#: Usage:       AllowWireguard.sh
+#:              AllowWireguard.sh [-h|--help]
+#:
+#: Parameters:
+#:   None       Reads SSHPORT, AUTHENTICATORTYPE, and BUILDMACHINEIP from configuration.
+#:
+#: Environment:
+#:   HOME       Resolved automatically from /home/homedir.dat and exported
+#:
+#: Dependencies:
+#:   - /home/homedir.dat
+#:   - ${HOME}/utilities/config/ExtractConfigValue.sh
+#:   - /usr/sbin/iptables
+#:   - External binaries: cat, echo, grep, cut, hostname
+#:
+#: Exit Codes:
+#:   0          Netfilter WireGuard rules verified or not applicable; no changes made
+#:   1          Missing /home/homedir.dat, missing config values, or iptables execution failure
+#:   10         Active iptables chains updated with WireGuard port rules (signals ReloadFirewall.sh)
 ###################################################################################
 # License Agreement:
-# This file is part of The Agile Deployment Toolkit.
+# This file is part of The Wintersys Agile Deployment Toolkit.
 # The Agile Deployment Toolkit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -41,33 +37,94 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with The Agile Deployment Toolkit.  If not, see <http://gnu.org>.
-######################################################################################
-######################################################################################
-#set -x
+####################################################################################
 
+# Exit immediately if any command exits with a non-zero status
+#set -x
 set -e
 
-HOME="$(/bin/cat /home/homedir.dat)"
+# Render self-extracting help documentation when -h or --help is supplied
+if [ "${1}" = "-h" ] || [ "${1}" = "--help" ]
+then
+        /usr/bin/grep '^#:' "$0" | /usr/bin/cut -c 4-
+        exit 0
+fi
 
-SSH_PORT="$(${HOME}/utilities/config/ExtractConfigValue.sh 'SSHPORT')"
-AUTHENTICATOR_TYPE="$(${HOME}/utilities/config/ExtractConfigValue.sh 'AUTHENTICATORTYPE')"
-BUILD_MACHINE_IP="$(${HOME}/utilities/config/ExtractConfigValue.sh 'BUILDMACHINEIP')"
+# Resolve the server toolkit root directory from /home/homedir.dat
+if [ -r /home/homedir.dat ]
+then
+        HOME="$(/bin/cat /home/homedir.dat)"
+        export HOME
+else
+        /bin/echo "Application framework configuration file missing at /home/homedir.dat" >&2
+        exit 1
+fi
 
+if [ -z "${HOME}" ] || [ ! -d "${HOME}" ]
+then
+        /bin/echo "Error: Resolved HOME directory '${HOME}' is invalid." >&2
+        exit 1
+fi
+
+config_extractor="${HOME}/utilities/config/ExtractConfigValue.sh"
+if [ ! -x "${config_extractor}" ]
+then
+        /bin/echo "Error: ExtractConfigValue.sh missing or not executable at ${config_extractor}" >&2
+        exit 1
+fi
+
+set +e
+SSH_PORT="$("${config_extractor}" 'SSHPORT')"
+AUTHENTICATOR_TYPE="$("${config_extractor}" 'AUTHENTICATORTYPE')"
+BUILD_MACHINE_IP="$("${config_extractor}" 'BUILDMACHINEIP')"
+set -e
+
+if [ "${AUTHENTICATOR_TYPE}" != "wire-guard" ]
+then
+        exit 0
+fi
+
+host_name="$(/usr/bin/hostname)"
+case "${host_name}" in
+        rp-*)
+                exit 0
+                ;;
+esac
+
+if [ -z "${SSH_PORT}" ] || [ -z "${BUILD_MACHINE_IP}" ]
+then
+        /bin/echo "Error: Required configuration values (SSHPORT or BUILDMACHINEIP) are missing for WireGuard." >&2
+        exit 1
+fi
+
+if ! [ "${SSH_PORT}" -eq "${SSH_PORT}" ] 2>/dev/null
+then
+        /bin/echo "Error: SSHPORT '${SSH_PORT}' is not a valid integer." >&2
+        exit 1
+fi
+
+if [ ! -x /usr/sbin/iptables ]
+then
+        /bin/echo "Error: /usr/sbin/iptables not found or not executable." >&2
+        exit 1
+fi
+
+wireguard_port=$((SSH_PORT + 1))
 updated="0"
 
-if [ "$(/usr/bin/hostname | /bin/grep '^rp\-')" = "" ] && [ "${AUTHENTICATOR_TYPE}" = "wire-guard" ]
-then
-        wireguard_port="$(/usr/bin/expr "${SSH_PORT}" + 1)"
-        
-        if [ "$(/usr/sbin/iptables --list-rules | /bin/grep ".*${wireguard_port}.*ACCEPT")" = "" ]
+ensure_rule()
+{
+        if ! /usr/sbin/iptables -C "$@" >/dev/null 2>&1
         then
-                /usr/sbin/iptables -A INPUT -s ${BUILD_MACHINE_IP}/32 -p tcp --dport ${wireguard_port} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-                /usr/sbin/iptables -A OUTPUT -s ${BUILD_MACHINE_IP}/32 -p tcp --sport ${wireguard_port} -m conntrack --ctstate ESTABLISHED -j ACCEPT
-                /usr/sbin/iptables -A INPUT -s ${BUILD_MACHINE_IP}/32 -p udp --dport ${wireguard_port} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
-                /usr/sbin/iptables -A OUTPUT -s ${BUILD_MACHINE_IP}/32 -p udp --sport ${wireguard_port} -m conntrack --ctstate ESTABLISHED -j ACCEPT
+                /usr/sbin/iptables -A "$@"
                 updated="1"
         fi
-fi
+}
+
+ensure_rule INPUT -s "${BUILD_MACHINE_IP}/32" -p tcp --dport "${wireguard_port}" -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+ensure_rule OUTPUT -d "${BUILD_MACHINE_IP}/32" -p tcp --sport "${wireguard_port}" -m conntrack --ctstate ESTABLISHED -j ACCEPT
+ensure_rule INPUT -s "${BUILD_MACHINE_IP}/32" -p udp --dport "${wireguard_port}" -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+ensure_rule OUTPUT -d "${BUILD_MACHINE_IP}/32" -p udp --sport "${wireguard_port}" -m conntrack --ctstate ESTABLISHED -j ACCEPT
 
 if [ "${updated}" = "1" ]
 then
@@ -75,4 +132,5 @@ then
 else
         exit 0
 fi
+
 
