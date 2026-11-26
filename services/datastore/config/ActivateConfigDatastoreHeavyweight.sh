@@ -33,15 +33,6 @@ then
         ${HOME}/services/datastore/operations/SyncFromDatastore.sh "config" "/var/lib/adt-config"
 fi
 
-#while ( [ 1 ] )
-#do
-#  /bin/sleep 2 && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '2' '/var/lib/adt-config' 'config-sync'  
- # /bin/sleep 15 
- # ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '15' '/var/lib/adt-config' 'config-sync'  
- # /bin/sleep 15 && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '30' '/var/lib/adt-config' 'config-sync' 
- # /bin/sleep 15 && ${HOME}/services/datastore/filesystems-sync/heavyweight/FileSystemsSyncingController.sh '45' '/var/lib/adt-config' 'config-sync' 
-#done
-
 schedules="2 15 30 45"
 while ( [ 1 ] )
 do
