@@ -136,7 +136,7 @@ then
                 /bin/echo "AuthPass=${password}"
                 /bin/echo "FromLineOverride=YES"
                 /bin/echo "UseSTARTTLS=YES"
-        } >> /etc/ssmtp/ssmtp.conf
+        } > /etc/ssmtp/ssmtp.conf
 
         /bin/touch "${HOME}/runtime/SSMTP_INITIALISED"
 fi
