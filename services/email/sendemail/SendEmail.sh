@@ -104,10 +104,10 @@ case "${email_provider}" in
                 smtp_server="smtp-pulse.com:2525"
                 ;;
         2)
-                smtp_server="://mailjet.com"
+                smtp_server="in-v3.mailjet.com:587"
                 ;;
         3)
-                smtp_server="://amazonaws.com"
+                smtp_server="email-smtp.eu-west-1.amazonaws.com:587"
                 ;;
         *)
                 /bin/echo "Error: Unsupported or unconfigured EMAILPROVIDER value '${email_provider}'." >&2
