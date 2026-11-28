@@ -88,17 +88,31 @@ fi
 
 /bin/rm -f "${timestamp_file}"
 
-# Fetch the last backup timestamp from the shared datastore (tolerate non-zero if no prior backup exists)
+list_script="${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh"
 get_script="${HOME}/services/datastore/operations/GetFromDatastore.sh"
+
+if [ ! -x "${list_script}" ]
+then
+        /bin/echo "Error: Datastore list script missing or not executable at ${list_script}" >&2
+        exit 1
+fi
+
 if [ ! -x "${get_script}" ]
 then
         /bin/echo "Error: Datastore get script missing or not executable at ${get_script}" >&2
         exit 1
 fi
 
-set +e
-"${get_script}" "backup-webroot" "time_backup_written" "${workarea}" "${periodicity}"
-set -e
+running_flag="$("${list_script}" "backup-webroot" "time_backup_written")"
+
+if [ -n "${running_flag}" ]
+then
+        # Fetch the last backup timestamp from the shared datastore (tolerate non-zero if no prior backup exists)
+        set +e
+        "${get_script}" "backup-webroot" "time_backup_written" "${workarea}" "${periodicity}"
+        set -e
+fi
+
 
 # Skip backup cycle if another node wrote a valid timestamp within the last 300 seconds
 if [ -r "${timestamp_file}" ]
@@ -125,11 +139,10 @@ jitter="$(/usr/bin/shuf -i1-300 -n1)"
 /bin/sleep "${jitter}"
 
 # Check shared datastore lock to determine if a peer node has already claimed leadership
-list_script="${HOME}/services/datastore/config/wrapper/ListFromDatastore.sh"
 put_script="${HOME}/services/datastore/config/wrapper/PutToDatastore.sh"
 delete_script="${HOME}/services/datastore/config/wrapper/DeleteFromDatastore.sh"
 
-if [ ! -x "${list_script}" ] || [ ! -x "${put_script}" ] || [ ! -x "${delete_script}" ]
+if [ ! -x "${put_script}" ] || [ ! -x "${delete_script}" ]
 then
         /bin/echo "Error: One or more datastore config wrapper scripts are missing or not executable." >&2
         exit 1
