@@ -113,10 +113,10 @@ then
                         mailhub="smtp-pulse.com:2525"
                         ;;
                 2)
-                        mailhub="://mailjet.com"
+                        mailhub="in-v3.mailjet.com:587"
                         ;;
                 3)
-                        mailhub="://amazonaws.com"
+                        mailhub="email-smtp.eu-west-1.amazonaws.com:587"
                         ;;
                 *)
                         /bin/echo "Error: Unsupported or unconfigured EMAILPROVIDER value '${email_provider}'." >&2
